@@ -1,0 +1,360 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+		<title>Spreadsheet prototype</title>
+		<link rel="stylesheet" href="simpledropdown.css" type="text/css" media="screen" charset="utf-8" />
+		<link rel="stylesheet" href="slick.grid.css" type="text/css" media="screen" charset="utf-8" />
+		<link rel="stylesheet" href="themes/smoothness/ui.all.css" type="text/css" media="screen" charset="utf-8" />
+		<style>
+		*
+		{
+			font-family: arial;
+			font-size: 8pt;
+		}
+		
+		hr {
+			height: 1px;
+			border: 0;
+			background: silver;
+		}
+		
+		#grid {
+			background: white;
+			outline: 0px;
+		}
+		
+		ul {
+			padding: 0px;
+			cursor: default;
+		}
+			
+		li {
+			background: url("images/arrow_right_spearmint.png") no-repeat 0px center;
+			padding-left: 12px;
+			list-style: none;
+			margin: 0px;
+		}
+			
+		li:hover {
+			background: url("images/arrow_right_peppermint.png") no-repeat 0px center;
+		}
+				
+		.listview-header {
+			height: 24px;
+			line-height: 24px;
+			width: 100%;
+			background: url("images/listview.gif") no-repeat top left;
+		}
+			
+		.listview-header .r {
+			float:right;
+			text-align: right;
+			width: 50%;
+			height: 24px;
+			background: white url("images/listview.gif") no-repeat top right;
+			line-height: 24px;
+		}
+		
+		.listview-header input {
+			border: 1px solid silver;
+		}
+		.listview-footer {
+			height: 24px;
+			line-height: 24px;
+			width: 100%;
+			background: url("images/listview.gif") no-repeat left -24px;
+		}
+			
+		.listview-footer .r {
+			float:right;
+			text-align: right;
+			width: 50%;
+			height: 24px;
+			background: white url("images/listview.gif") no-repeat right -24px;
+			line-height: 24px;
+		}
+		</style>
+	</head>
+	<body>
+		<script language="JavaScript" src="lib/firebugx.js"></script>
+		<script language="JavaScript" src="lib/jquery-1.3.2.js"></script>
+		<script language="JavaScript" src="lib/jquery-ui-1.7.custom.js"></script>
+		<script language="JavaScript" src="lib/jquery.getScrollbarWidth.js"></script>
+		<script language="JavaScript" src="lib/jquery.rule-1.0.1.js"></script>
+			
+		<script language="JavaScript" src="slick.editors.js"></script>
+		<script language="JavaScript" src="slick.grid.js"></script>
+		<script language="JavaScript" src="slick.globaleditorstate.js"></script>
+		
+		
+		<div class="listview-header">
+			<div style="float:left;padding-left:14px;">
+			
+			<span class="simple-dropdown">
+				<em>Reload grid</em>
+				<div>
+				<a href="javascript:reinitGrid(10)">Load 10 rows</a>
+				<a href="javascript:reinitGrid(100)">Load 100 rows</a>
+				<a href="javascript:reinitGrid(500)">Load 500 rows</a>
+				<a href="javascript:reinitGrid(1000)">Load 1'000 rows</a>
+				<a href="javascript:reinitGrid(5000)">Load 5'000 rows</a>
+				<a href="javascript:reinitGrid(50000)">Load 50'000 rows</a>				
+				</div>
+			</span>					
+			
+			<span class="simple-dropdown">
+				<em>Change column styles</em>
+				<div>
+				<a href="javascript:updateModel('%', {formatter:PercentCompleteCellFormatter, cssClass:'task-percent'})">Render <b>% Complete</b> as text</a>
+				<a href="javascript:updateModel('%', {formatter:GraphicalPercentCompleteCellFormatter, cssClass:null})">Render <b>% Complete</b> as graph</a>
+				</div>
+			</span>				
+
+			<span class="simple-dropdown">
+				<em>Select rows</em>
+				<div>
+				<a href="javascript:grid.setSelectedRows([0,1,2,3,4])">0 - 5</a>
+				</div>
+			</span>	
+
+			<span class="simple-dropdown">
+				<em>Options</em>
+				<div>
+				<a href="javascript:grid.setOptions({enableAddRow:true})">enableAddRow = true</a>
+				<a href="javascript:grid.setOptions({enableAddRow:false})">enableAddRow = false</a>
+				<hr/>
+				<a href="javascript:grid.setOptions({editable:true})">editable = true</a>
+				<a href="javascript:grid.setOptions({editable:false})">editable = false</a>
+				<hr/>
+				<a href="javascript:grid.setOptions({editOnDoubleClick:true})">editOnDoubleClick = true</a>
+				<a href="javascript:grid.setOptions({editOnDoubleClick:false})">editOnDoubleClick = false</a>
+				<hr/>
+				<a href="javascript:grid.setOptions({enableCellNavigation:true})">enableCellNavigation = true</a>
+				<a href="javascript:grid.setOptions({enableCellNavigation:false})">enableCellNavigation = false</a>
+				<hr/>
+				<a href="javascript:grid.setOptions({asyncEditorLoading:true})">asyncEditorLoading = true</a>
+				<a href="javascript:grid.setOptions({asyncEditorLoading:false})">asyncEditorLoading = false</a>
+				</div>
+			</span>	
+			
+			<span class="simple-dropdown">
+				<em>Debug</em>
+				<div>
+				<a href="javascript:grid.benchmarkFn('removeAllRows')">benchmark removeAllRows</a>
+				<a href="javascript:grid.benchmarkFn('render')">benchmark render</a>
+				<a href="javascript:grid.benchmarkFn('benchmark_render_200')">benchmark render 200</a>
+				<hr/>
+				<a href="javascript:grid.stressTest()">stress test (infinite render/clear cycle)</a>
+				<hr/>
+				<a href="javascript:grid.debug()">internal state</a>
+				</div>
+			</span>				
+					
+			<span class="simple-dropdown">
+				<em style="padding-left:16px;background:url('images/info.gif') no-repeat center left;">Quick info</em>
+				<div style="max-width:600px">
+				
+				This page demonstrate the use of a SlickGrid control.
+				<br><br>
+				<b>Key features:</b>
+				<ul>
+				<li>Virtual rendering/scrolling (hundreds of thousands of rows)</li>
+				<li>Extremely fast rendering speed</li>
+				<li>Support for a Model data source</li>
+				<li>Support for Ajax-loaded data</li>
+				<li>Multiple row selection</li>
+				<li>Edit and add new rows</li>
+				<li>Keyboard navigation for cell selection</li>
+				<li>Custom renderers for cells with conditional formatting</li>
+				<li>Formatters adaptive to column width</li>
+				<li>Custom editors for cells</li>
+				<li>Resizable and reorderable columns</li>
+				<li>Highly customizable & configurable</li>
+				<li>Built-in validators</li>
+				<li>Callbacks for events</li>
+				<li>Much much more...</li>
+				</ul>
+
+				</div>
+			</span>	
+								
+			</div>
+			
+			<div class="r">					
+				<div style="padding-right:14px;">
+					<label>Filter:</label> <input type=text>
+					&nbsp;
+				</div>
+			</div>
+		</div>
+		<div id="myGrid" style="width:100%;height:500px;"></div>
+		<div class="listview-footer">
+			<div style="float:left;padding-left:14px;">
+			</div>
+			
+			<div class="r">
+				<div style="padding-right:14px;">
+				</div>
+			</div>
+		</div>		
+
+		<br/>
+		
+		<script>
+		
+		$(".simple-dropdown a").click(function(e) {
+			var dd = $(this).closest(".simple-dropdown > div");
+			
+			dd.css("display", "none");
+			window.setTimeout(function () { dd.css("display", ""); }, 10);
+		});
+		
+			
+		function nonEmptyValidator(value) {
+			if (value == null || value == undefined || !value.length)
+				return {valid:false, msg:"This is a required field"};
+			else	
+				return {valid:true, msg:null};
+		}
+		
+		function setTaskResources(resourcesNamesArray, cellInfo, dataContext)
+		{
+			dataContext["resources"] = resourcesNamesArray.length > 0 ? resourcesNamesArray.concat() : null;
+		}
+		
+		var data = [];
+		var grid;
+		var model = [
+			{id:"#", name:"#", cssClass:"cell-move-handle", width:60, resizable:false, unselectable:true, formatter:SelectorCellFormatter},
+			{id:"title", name:"Title", field:"title", formatter:TaskNameFormatter, width:300, editor:TextCellEditor, validator:nonEmptyValidator},
+			{id:"star", name:"<img src='images/bullet_star.png' align='absmiddle'>", field:"starred", formatter:StarFormatter, editor:StarCellEditor, width:16, resizable:false, cannotTriggerInsert:true},
+			{id:"duration", name:"Duration", field:"duration", width:80, editor:TextCellEditor},
+			{id:"%", name:"% Complete", field:"percentComplete", formatter:GraphicalPercentCompleteCellFormatter, width:60, editor:PercentCompleteCellEditor},
+			{id:"start", name:"Start", field:"start", width:100, editor:DateCellEditor},
+			{id:"finish", name:"Finish", field:"finish", width:100, editor:DateCellEditor},
+			{id:"resources", name:"Resources", formatter:ResourcesFormatter, rerenderOnResize:true, width:200, editor:ResourcesCellEditor, setValueHandler:setTaskResources, cannotTriggerInsert:true, minWidth:16, maxWidth:200},
+			{id:"preds", name:"Predecessors", width:100, editor:TextCellEditor, cannotTriggerInsert:true}
+			,
+			{id:"e", name:"Deliverable", field:4, formatter:YesNoCellFormatter, width:60, editor:YesNoSelectCellEditor, cannotTriggerInsert:true},
+			{id:"f", name:"Effort-driven", field:5, formatter:YesNoCellFormatter, width:50, editor:YesNoCheckboxCellEditor, cannotTriggerInsert:true}			
+		];
+		
+
+
+		function updateModel(id, args) {
+			if (GlobalEditorState.isEditing() && !GlobalEditorState.commitCurrentEdit()) return;
+			
+			for (var i=0; i<model.length; i++)
+			{
+				if (model[i].id == id) {
+					model[i] = $.extend(model[i], args);
+					grid.removeAllRows();
+					grid.render();
+					return;
+				}
+			}
+		}
+
+		
+		$(function()
+		{
+			$("#myGrid")[0].unselectable = true;
+					
+			reinitGrid(10);
+		})
+		
+		
+		function enterEdit() {
+			
+			GlobalEditorState.enterEditMode({
+				commitCurrentEdit: function() { alert('validation error'); return false },
+				cancelCurrentEdit: function() {}
+			});
+			
+		}
+		
+	
+		function doSomething() {
+			
+			if (GlobalEditorState.isEditing() && !GlobalEditorState.commitCurrentEdit()) return;
+			
+/*
+			if (GlobalEditorState.isEditing())
+			{
+				if (confirm("Cancel current edit?"))
+					GlobalEditorState.cancelCurrentEdit();
+				else	
+					return;
+			}
+*/
+			
+			alert("Editor lock acquired")
+			
+		}
+		
+		
+		function reinitGrid(loadedRows,totalRows) {
+			
+			data = [];
+		
+			for (var i = 0; i < loadedRows; i++) 
+			{
+				var d = (data[i] = {});
+				
+				d["title"] = "Task " + i;
+				d["duration"] = "5 days";
+				d["percentComplete"] = Math.round(Math.random() * 100);
+				d["start"] = "01/01/2009";
+				d["finish"] = "01/05/2009";
+				d["indent"] = i % 5;
+				d["resources"] = (i % 7 == 0) ? ["Boris The Blade", "Bullet Tooth"] : (i % 11 == 0 ? ["Bricktop"] : null);				
+			}
+			
+			
+			if (grid) grid.destroy();
+			
+			
+			grid = new SlickGrid($("#myGrid"), data, model, {});
+			
+			grid.onValidationError = function(elem, validationResults, row, cell, cellInfo) {
+				console.warn(validationResults.msg);
+			}
+			
+			grid.onAddNewRow = function(cellInfo, value) {
+				var item = {title:"New task", indent:0, duration:"1 day", percentComplete:0, start:"01/01/2009", finish:"01/01/2009"};
+
+				item[cellInfo.field] = value;
+				
+				data[data.length] = item;
+				
+				grid.resizeCanvas();
+				grid.render();
+				grid.updateRow(data.length-1);
+			}
+			
+			grid.onClick = function(e, row, cell) {
+				// toggle expand/collapse icon
+				if (model[cell].id == "title" && $(e.target).is("img")) 
+				{
+					$(e.target).attr("src", $(e.target).attr("src") != "images/collapse.gif" ? "images/collapse.gif" : "images/expand.gif");
+					return true;
+				}		
+				
+				if (model[cell].id == "#") 
+				{
+					grid.setSelectedRows([row]);
+				}		
+				
+				// pass the event through
+				return false;
+			}			
+		}
+
+			
+		</script>
+		
+		
+		<button onclick="doSomething()">Test GlobalEditorState lock</button>
+	</body>
+</html>

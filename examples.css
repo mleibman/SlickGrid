@@ -1,0 +1,33 @@
+ * {
+    font-family: arial;
+    font-size: 8pt;
+}
+
+body {
+    background: beige;
+}
+
+h2 {
+    font-size: 10pt;
+    border-bottom: 1px dotted gray;
+}
+
+ul {
+    margin-left: 0px;
+    padding: 0px;
+    cursor: default;
+}
+
+li {
+    background: url("images/arrow_right_spearmint.png") no-repeat center left;
+    padding: 0px;
+    padding-left: 14px;
+    list-style: none;
+    margin: 0px;
+} 
+
+#myGrid {
+    background: white;
+    outline: 0px;
+    border: 1px solid gray;
+}

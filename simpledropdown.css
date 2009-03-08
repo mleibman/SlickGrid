@@ -1,0 +1,83 @@
+.simple-dropdown {
+	z-index: 100;			
+	overflow: visible;
+	display: inline-block;
+	line-height: normal;
+		
+	border: 1px solid silver;
+	background: #eee url("images/down.gif") no-repeat center right;
+	padding: 2px;
+	padding-left: 8px;
+	padding-right: 20px;
+	margin: 2px;
+	
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;		
+}
+
+.simple-dropdown > em {
+	display: block;
+	
+	text-decoration: none;
+	font-style: normal;
+	cursor: default;
+}
+
+.simple-dropdown:hover {
+	background-color: #777;
+	color: white;
+	border-color: gray;
+}
+	
+.simple-dropdown:hover > div {
+	-display: block;
+	visibility: visible;
+	
+	opacity: 1;
+	-webkit-transition: opacity 0.5s;
+}				
+		
+.simple-dropdown > div {
+	z-index: 100;
+	-display: none;
+	visibility: hidden;
+	position: absolute;
+	margin-left: -9px;
+	min-width: 120px;
+	max-width: 200px;
+	
+	color: black;
+	text-align: left;
+	padding: 4px;
+	background: #fafafa;
+	border: 1px solid gray;
+
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;		
+	-moz-border-radius-topleft: 0px;
+	-webkit-border-top-left-radius: 0px;	
+	-moz-box-shadow: 2px 2px 2px silver;
+	-webkit-box-shadow: 2px 2px 2px silver;
+	
+	opacity: 0;
+}
+
+.simple-dropdown > div a {
+	display: block;
+	padding: 2px;
+	outline: 0px;
+	text-decoration: none;
+	color: black;
+	cursor: default;
+	zbackground: #fafafa url("images/arrow_right_spearmint.png") no-repeat center left;
+	padding-left: 12px;
+	padding-right: 6px;
+}
+
+
+.simple-dropdown > div a:hover {
+	background: skyblue url("images/arrow_right_peppermint.png") no-repeat center left;
+	
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;	
+}

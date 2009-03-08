@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+		<title>SlickGrid example</title>
+		<link rel="stylesheet" href="slick.grid.css" type="text/css" media="screen" charset="utf-8" />
+		<link rel="stylesheet" href="themes/smoothness/ui.all.css" type="text/css" media="screen" charset="utf-8" />
+		<link rel="stylesheet" href="examples.css" type="text/css" media="screen" charset="utf-8" />
+		<style>
+		.cell-title {
+			font-weight: bold;
+		}
+		
+		.cell-effort-driven {
+			text-align: center;
+		}
+	</style>
+	</head>
+	<body>
+		<script language="JavaScript" src="lib/firebugx.js"></script>
+		<script language="JavaScript" src="lib/jquery-1.3.2.js"></script>
+		<script language="JavaScript" src="lib/jquery-ui-1.7.custom.js"></script>
+		<script language="JavaScript" src="lib/jquery.getScrollbarWidth.js"></script>
+		<script language="JavaScript" src="lib/jquery.rule-1.0.1.js"></script>
+			
+		<script language="JavaScript" src="slick.editors.js"></script>
+		<script language="JavaScript" src="slick.grid.js"></script>
+		<script language="JavaScript" src="slick.globaleditorstate.js"></script>
+		
+		
+		<table width="100%">
+		<tr>
+			<td valign="top" width="50%">
+				<div id="myGrid" style="width:600px;height:500px;"></div>
+			</td>
+			<td valign="top">
+				<h2>Demonstrates:</h2>
+				
+				<ul>
+					<li>width, minWidth, maxWidth, resizable, cssClass column attributes</li>
+					<li>custom column formatters</li>
+					
+				</ul>
+				
+			</td>
+		</tr>
+		</table>
+		
+
+		
+		<script>
+		var grid;
+		
+		var data = [];
+
+		var columns = [
+			{id:"title", name:"Title", field:"title", width:120, cssClass:"cell-title"},
+			{id:"duration", name:"Duration", field:"duration"},
+			{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter},
+			{id:"start", name:"Start", field:"start", minWidth:60},
+			{id:"finish", name:"Finish", field:"finish", minWidth:60},
+			{id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter}
+		];
+
+		var options = {
+			editable: false,
+			enableAddRow: false,
+			enableCellNavigation: false
+		};	
+
+
+
+		$(function()
+		{
+			for (var i=0; i<500; i++) {
+				var d = (data[i] = {});
+
+				d["title"] = "Task " + i;
+				d["duration"] = "5 days";
+				d["percentComplete"] = Math.round(Math.random() * 100);
+				d["start"] = "01/01/2009";
+				d["finish"] = "01/05/2009";
+				d["effortDriven"] = (i % 5 == 0);
+			}
+
+					
+			grid = new SlickGrid($("#myGrid"), data, columns, options);
+		})
+		
+		</script>
+
+	</body>
+</html>

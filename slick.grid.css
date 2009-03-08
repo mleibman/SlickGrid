@@ -1,0 +1,251 @@
+.grid-header {
+	width: 100%;
+	height: 24px;
+	background: #f0f0f0;
+	cursor:default;
+}
+
+.grid-header .h {
+	float: left;
+	
+	border: 1px solid transparent;
+	border-right-color: gray;
+	border-bottom-color: silver;
+	background: #e0e0e0;
+	height: 19px;
+	
+	overflow: hidden;
+    text-overflow: ellipsis;	
+	white-space: nowrap;
+	vertical-align: middle;
+	line-height: 19px;
+	z-index: 1;
+	padding: 2px;
+	padding-top: 1px;
+	padding-left: 1px;
+	font-weight: bold;
+}
+
+.grid-header .h:hover {
+	background-color: #cccccc;
+}
+
+.grid-canvas {
+	position: relative;
+	outline: 0px;
+}
+
+.grid-canvas * {
+	outline: 0px;
+}
+
+.grid-canvas .r {
+	position: absolute;
+	background: white;
+}
+
+.grid-canvas .r.loading {
+	background: url("images/stripes.png") repeat-x center center;
+}
+
+.grid-canvas .r:hover {
+	background-color: #f0f0f0;
+}
+
+.grid-canvas .r.selected {
+	z-index: 10;
+	background-color: #F5F7D7;
+}
+
+.grid-canvas .r .c.editable {
+	z-index: 11;
+}
+
+.grid-canvas .r .c {
+	float: left;
+	
+	border: 1px solid transparent;
+	border-right-color: silver;
+	border-right-style: dotted;
+	border-bottom-color: silver;
+	
+	height: 19px;
+	
+	overflow: hidden;
+    text-overflow: ellipsis;	
+	white-space: nowrap;
+	vertical-align: middle;
+	line-height: 19px;
+	z-index: 1;
+	padding: 2px;
+	padding-top: 1px;
+	padding-left: 1px;
+}
+
+.grid-canvas .r .c.editable {
+	overflow: visible;
+}
+
+.grid-canvas .r .c.selected {
+	border-color: gray;
+	border-style: solid;	
+}
+
+.grid-canvas .r .c.editable {
+	background: white;
+	border-color: black;
+	border-style: solid;
+}
+
+.grid-canvas .r .c.invalid {
+	border-color: red;
+}
+
+
+
+/* Individual cell styles */
+.grid-canvas .r .c.task-name {
+	font-weight: bold;
+	text-align: right;
+}
+
+
+.grid-canvas .r .c.task-percent {
+	text-align: right;
+}
+
+
+.grid-canvas .r .c.cell-move-handle {
+	font-weight: bold;
+	text-align: right;
+	border-right-style: solid;
+	border-right-color: gray;
+
+	background: #efefef;
+	cursor: move;
+}
+
+.grid-canvas .r .cell-move-handle:hover {
+	background: #b6b9bd;
+}
+
+.grid-canvas .r.selected .cell-move-handle {
+	background: #D5DC8D;
+}
+
+.grid-canvas .r .cell-actions {
+	text-align: left;
+}
+
+
+/* TextCellEditor, DateCellEditor */
+
+.grid-canvas .r .c input.editor-text {
+	width: 100%;
+	height: 100%;
+	border: 0px;
+	margin: 0px;
+	background: transparent;
+	outline: 0px; 
+	padding: 0px;
+	padding-top: 3px;
+}
+
+.grid-canvas .r .c .ui-datepicker-trigger {
+	margin-top: 2px;
+	padding: 0px;
+	vertical-align: top;
+}
+
+/* PercentCompleteCellEditor */
+
+.grid-canvas .r .c input.editor-percentcomplete {
+	width: 100%;
+	height: 100%;
+	border: 0px;
+	margin: 0px;
+	background: transparent;
+	outline: 0px; 
+	padding: 0px;
+	padding-top: 3px;
+	float: left;
+}
+
+.grid-canvas .r .c .editor-percentcomplete-picker {
+	position: relative;
+    display: inline-block;
+    width: 16px;
+    height: 100%;
+    background: url("images/pencil.gif") no-repeat center center;	
+	overflow: visible;
+	z-index: 1000;
+	float: right;
+}
+	
+.grid-canvas .r .c .editor-percentcomplete-helper {
+    border: 1px solid gray;
+    position: absolute;
+    top: -2px;
+    left: -9px;
+    background: url("images/editor-helper-bg.gif") no-repeat top left;
+    padding-left: 9px;
+    border: 0px;
+    width: 120px;
+    height: 140px;
+    display: none;	
+	overflow: visible;
+}
+
+
+.grid-canvas .r .c .editor-percentcomplete-wrapper {
+	background:beige;
+	padding:8px;
+	padding-top:20px;
+	padding-bottom:20px;
+	width:100%;
+	height:98px;
+	border:1px solid gray;
+	border-left:0px;	
+}
+
+.grid-canvas .r .c .editor-percentcomplete-buttons {
+	float: right;	
+}
+
+.grid-canvas .r .c .editor-percentcomplete-buttons button {
+	width: 80px;	
+}
+
+
+.grid-canvas .r .c .editor-percentcomplete-slider {
+	float: left;	
+}
+
+.grid-canvas .r .c .editor-percentcomplete-picker:hover .editor-percentcomplete-helper {
+	display: block;
+}
+
+.grid-canvas .r .c .editor-percentcomplete-helper:hover {
+	display: block;
+}
+
+
+
+/* YesNoSelectCellEditor */
+
+.grid-canvas .r .c select.editor-yesno {
+	width: 100%;
+	margin: 0px;
+	vertical-align: middle;		
+}
+
+/* YesNoCheckboxCellEditor */
+.grid-canvas .r .c input.editor-checkbox {
+	width: 100%;	
+	margin: 0px;
+	height: 100%;
+	padding: 0px;
+	border: 0px;
+}
+
+
