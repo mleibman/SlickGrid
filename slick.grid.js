@@ -2,8 +2,6 @@
  * 
  * (c) 2009 Michael Leibman (michael.leibman@gmail.com)
  * All rights reserved.
- * You are not allowed to use this code in any way shape or form without the express written authorization by the author.
- * 
  * 
  * 
  * TODO:
