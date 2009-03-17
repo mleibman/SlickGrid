@@ -108,6 +108,8 @@ function SlickGrid($container,data,model,options)
 	var counter_rows_rendered = 0;
 	var counter_rows_removed = 0;
 	
+	var fragment = document.createDocumentFragment();
+	
 	
 	function init() {
 		options = $.extend({},defaults,options);
@@ -423,6 +425,8 @@ function SlickGrid($container,data,model,options)
 		
 		var rowsBefore = renderedRows;
 		
+		var stringArray = [];
+		
 		for (var i = from; i <= to; i++) {
 			if (rowsCache[i]) continue;
 			renderedRows++;
@@ -432,8 +436,11 @@ function SlickGrid($container,data,model,options)
 			var x = document.createElement("div");
 			x.innerHTML = getRowHtml(i);
 			x = x.firstChild;
-			rowsCache[i] = $divMain[0].appendChild(x);
+			//rowsCache[i] = $divMain[0].appendChild(x);
+			rowsCache[i] = fragment.appendChild(x);
 		}
+		
+		$divMain[0].appendChild(fragment);
 		
 		console.log("rendered " + (renderedRows - rowsBefore) + " rows");
 		console.timeEnd("renderRows");		
