@@ -312,6 +312,7 @@ var PercentCompleteCellEditor = function($container, columnDef, value, dataConte
         
         $picker.find(".editor-percentcomplete-slider").slider({
 			orientation: "vertical",
+			range: "min",
             value: defaultValue,
             slide: function(event, ui) {
                 $input.val(ui.value)

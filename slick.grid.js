@@ -8,6 +8,7 @@
  * 	- frozen columns
  * 	- built-in row reorder
  * 	- add custom editor options
+ * 	- consistent events (EventHelper?  jQuery events?)
  * 
  * KNOWN ISSUES:
  * 	- keyboard navigation doesn't "jump" over unselectable cells for now
@@ -19,13 +20,13 @@
  * 	editable				-	If false, no cells will be switched into edit mode.
  * 	editOnDoubleClick		-	Cell will not automatically go into edit mode without being double-clicked.
  * 	enableCellNavigation	-	If false, no cells will be selectable.
- * 	defaultColumnWidth		-	Default column width in pixels (if model[cell].width is not specified).
+ * 	defaultColumnWidth		-	Default column width in pixels (if columns[cell].width is not specified).
  * 	enableColumnReorder		-	Allows the user to reorder columns.
  * 	asyncEditorLoading		-	Makes cell editors load asynchronously after a small delay.
  * 								This greatly increases keyboard navigation speed.
  * 	
  * 
- * COLUMN DEFINITION (MODEL) OPTIONS:
+ * COLUMN DEFINITION (columns) OPTIONS:
  * 	id						-	Column ID.
  * 	name					-	Column name to put in the header.
  * 	field					-	Property of the data context to bind to.
@@ -53,11 +54,11 @@
  * 
  * @param {jQuery} $container	Container object to create the grid in.
  * @param {Array} data			An array of objects for databinding.
- * @param {Array} model			An array of column definitions.
+ * @param {Array} columns		An array of column definitions.
  * @param {Object} options		Grid options.
  * 
  */
-function SlickGrid($container,data,model,options)
+function SlickGrid($container,data,columns,options)
 {
 	// settings
 	var defaults = {
@@ -132,9 +133,9 @@ function SlickGrid($container,data,model,options)
 		viewportW = $divMainScroller.innerWidth();
 		viewportH = $divMainScroller.innerHeight();
 		
-		for (var i = 0; i < model.length; i++) 
+		for (var i = 0; i < columns.length; i++) 
 		{
-			var m = model[i];
+			var m = columns[i];
 			
 			columnsById[m.id] = i;
 			
@@ -156,7 +157,7 @@ function SlickGrid($container,data,model,options)
 		
 		$divHeaders.find(".h").each(function() {
 			var cell = parseInt($(this).attr("cell"));
-			var m = model[cell];
+			var m = columns[cell];
 			
 			if (m.resizable === false) return;
 			
@@ -167,12 +168,12 @@ function SlickGrid($container,data,model,options)
 				stop: function(e, ui) {
 					var cellId = $(this).attr("id");
 					var cell = columnsById[cellId];
-					model[cell].width = $(this).width();
-					$.rule("." + uid + " .grid-canvas .c" + cell, "style").css("width", model[cell].width + "px");
+					columns[cell].width = $(this).width();
+					$.rule("." + uid + " .grid-canvas .c" + cell, "style").css("width", columns[cell].width + "px");
 					resizeCanvas();
 					
 					// todo:  rerender single column instead of everything
-					if (model[cell].rerenderOnResize) {
+					if (columns[cell].rerenderOnResize) {
 						removeAllRows();
 						renderViewport();
 					}
@@ -193,15 +194,15 @@ function SlickGrid($container,data,model,options)
 					var newOrder = $divHeaders.sortable("toArray");
 					
 					var lookup = {};
-					for (var i=0; i<model.length; i++)
+					for (var i=0; i<columns.length; i++)
 					{
-						lookup[model[i].id] = model[i];
+						lookup[columns[i].id] = columns[i];
 					}
 					
 					for (var i=0; i<newOrder.length; i++)
 					{
 						columnsById[newOrder[i]] = i;
-						model[i] = lookup[newOrder[i]];
+						columns[i] = lookup[newOrder[i]];
 					}
 					
 					removeAllRows();
@@ -238,14 +239,14 @@ function SlickGrid($container,data,model,options)
 	}
 	
 	function createCssRules() {
-		for (var i = 0; i < model.length; i++) 
+		for (var i = 0; i < columns.length; i++) 
 		{
-			$.rule("." + uid + " .grid-canvas .c" + i + " { width:" + model[i].width + "px }").appendTo("style");
+			$.rule("." + uid + " .grid-canvas .c" + i + " { width:" + columns[i].width + "px }").appendTo("style");
 		}
 	}	
 		
 	function removeCssRules() {
-		for (var i = 0; i < model.length; i++) 
+		for (var i = 0; i < columns.length; i++) 
 		{
 			$.rule("." + uid + " .grid-canvas .c" + i, "style").remove();
 		}
@@ -276,7 +277,7 @@ function SlickGrid($container,data,model,options)
 	}	
 
 	function setSelectedRows(rows) {
-		if (GlobalEditorState.isEditing() && !GlobalEditorState.hasLock(self))
+		if (GlobalEditorLock.isEditing() && !GlobalEditorLock.hasLock(self))
 			throw "Grid : setSelectedRows : cannot set selected rows when somebody else has an edit lock";
 		
 		var lookup = {};
@@ -318,9 +319,9 @@ function SlickGrid($container,data,model,options)
 		
 		stringArray.push("<div class='" + css + "' row='" + row + "' style='top:" + (ROW_HEIGHT*row) + "px'>");
 		
-		for (var j=0; j<model.length; j++) 
+		for (var j=0; j<columns.length; j++) 
 		{
-			var m = model[j];
+			var m = columns[j];
 
 			stringArray.push("<div " + (m.unselectable ? "" : "hideFocus tabIndex=0 ") + "class='c c" + j + (m.cssClass ? " " + m.cssClass : "") + "' cell=" + j + ">");
 
@@ -364,7 +365,7 @@ function SlickGrid($container,data,model,options)
 		var $cell = $(rowsCache[row]).find(".c[cell=" + cell + "]");
 		if ($cell.length == 0) return;
 		
-		var m = model[cell];		
+		var m = columns[cell];		
 		
 		if (currentEditor && currentRow == row && currentCell == cell)
 			currentEditor.setValue(data[currentRow][m.field]);
@@ -379,7 +380,7 @@ function SlickGrid($container,data,model,options)
 		
 		// todo:  perf:  iterate over direct children?
 		$(rowsCache[row]).find(".c").each(function(i) {
-			var m = model[i];
+			var m = columns[i];
 			
 			if (row == currentRow && i == currentCell && currentEditor)
 				currentEditor.setValue(data[currentRow][m.field]);
@@ -401,9 +402,9 @@ function SlickGrid($container,data,model,options)
 		viewportH = $divMainScroller.innerHeight();
 				
 		var totalWidth = 0;
-		for (var i=0; i<model.length; i++)
+		for (var i=0; i<columns.length; i++)
 		{
-			totalWidth += (model[i].width + 5);
+			totalWidth += (columns[i].width + 5);
 		}
 		$divMain.width(totalWidth);
 	  
@@ -536,7 +537,7 @@ function SlickGrid($container,data,model,options)
 	function onKeyDown(e) {
 		switch (e.which) {
 			case 27:  // esc
-				if (GlobalEditorState.isEditing() && GlobalEditorState.hasLock(self))
+				if (GlobalEditorLock.isEditing() && GlobalEditorLock.hasLock(self))
 					self.cancelCurrentEdit(self);
 				
 				if (currentCellNode)
@@ -627,7 +628,7 @@ function SlickGrid($container,data,model,options)
 		}
 
 
-		if (options.enableCellNavigation && !model[cell].unselectable) 
+		if (options.enableCellNavigation && !columns[cell].unselectable) 
 		{
 			// commit current edit before proceeding
 			if (validated == true || (validated == null && self.commitCurrentEdit())) 
@@ -653,9 +654,9 @@ function SlickGrid($container,data,model,options)
 		var cell = 0;
 		
 		var w = 0;		
-		for (var i=0; i<model.length && w<y; i++)
+		for (var i=0; i<columns.length && w<y; i++)
 		{
-			w += model[i].width;
+			w += columns[i].width;
 			cell++;
 		}
 		
@@ -734,11 +735,11 @@ function SlickGrid($container,data,model,options)
 			return false;
 		
 		// are we in the Add New row?  can we create new from this cell?
-		if (model[cell].cannotTriggerInsert && row >= data.length)
+		if (columns[cell].cannotTriggerInsert && row >= data.length)
 			return false;
 			
 		// does this cell have an editor?
-		if (!model[cell].editor)
+		if (!columns[cell].editor)
 			return false;
 			
 		return true;		
@@ -752,7 +753,7 @@ function SlickGrid($container,data,model,options)
 		
 		
 		if (data[currentRow]) 
-			currentCellNode.innerHTML = model[currentCell].formatter(currentRow, currentCell, data[currentRow][model[currentCell].field], model[currentCell], data[currentRow]);
+			currentCellNode.innerHTML = columns[currentCell].formatter(currentRow, currentCell, data[currentRow][columns[currentCell].field], columns[currentCell], data[currentRow]);
 		
 		currentEditor = null;
 		
@@ -760,7 +761,7 @@ function SlickGrid($container,data,model,options)
 		// IE can't set focus to anything else correctly
 		if ($.browser.msie) clearTextSelection();
 
-		GlobalEditorState.leaveEditMode(self);		
+		GlobalEditorLock.leaveEditMode(self);		
 	}
 
 	function makeSelectedCellEditable()
@@ -776,7 +777,7 @@ function SlickGrid($container,data,model,options)
 		if (!isCellPotentiallyEditable(currentRow,currentCell))
 			return;
 
-		GlobalEditorState.enterEditMode(self);
+		GlobalEditorLock.enterEditMode(self);
 
 		$(currentCellNode).addClass("editable");
 		
@@ -784,11 +785,11 @@ function SlickGrid($container,data,model,options)
 	
 		// if there is a corresponding row
 		if (data[currentRow])
-			value = data[currentRow][model[currentCell].field];
+			value = data[currentRow][columns[currentCell].field];
 
 		currentCellNode.innerHTML = "";
 		
-		currentEditor = new model[currentCell].editor($(currentCellNode), model[currentCell], value, data[currentRow]);
+		currentEditor = new columns[currentCell].editor($(currentCellNode), columns[currentCell], value, data[currentRow]);
 	}
 
 	function scrollSelectedCellIntoView() {
@@ -816,7 +817,7 @@ function SlickGrid($container,data,model,options)
 	{
 		if (!currentCellNode) return;
 		if (!options.enableCellNavigation) return;		
-		if (!GlobalEditorState.commitCurrentEdit()) return;
+		if (!GlobalEditorLock.commitCurrentEdit()) return;
 		
 		var nextRow = rowsCache[currentRow + dy];
 		var nextCell = nextRow ? $(nextRow).find(".c[cell=" + (currentCell + dx) + "][tabIndex=0]") : null;
@@ -854,10 +855,10 @@ function SlickGrid($container,data,model,options)
 
 	function gotoCell(row,cell)
 	{
-		if (row > data.length || row < 0 || cell >= model.length || cell < 0) return;
-		if (!options.enableCellNavigation || model[cell].unselectable) return;
+		if (row > data.length || row < 0 || cell >= columns.length || cell < 0) return;
+		if (!options.enableCellNavigation || columns[cell].unselectable) return;
 		
-		if (!GlobalEditorState.commitCurrentEdit()) return;
+		if (!GlobalEditorLock.commitCurrentEdit()) return;
 		
 		if (!rowsCache[row])
 			renderRows(row,row);
@@ -873,7 +874,7 @@ function SlickGrid($container,data,model,options)
 
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
-	// IEditor implementation for GlobalEditorState	
+	// IEditor implementation for GlobalEditorLock	
 	
 	this.commitCurrentEdit = function() {
 		if (currentEditor)
@@ -884,18 +885,19 @@ function SlickGrid($container,data,model,options)
 				
 				if (validationResults.valid) 
 				{
-					if (currentRow < data.length) 
-					{
-						if (model[currentCell].setValueHandler)
-							model[currentCell].setValueHandler(currentEditor.getValue(), model[currentCell], data[currentRow]);
-						else
-							data[currentRow][model[currentCell].field] = currentEditor.getValue();
-					}
-					else if (self.onAddNewRow)
-						self.onAddNewRow(model[currentCell], currentEditor.getValue());
-					
+					var value = currentEditor.getValue();
 					
 					makeSelectedCellNormal();
+					
+					if (currentRow < data.length) 
+					{
+						if (columns[currentCell].setValueHandler)
+							columns[currentCell].setValueHandler(value, columns[currentCell], data[currentRow]);
+						else
+							data[currentRow][columns[currentCell].field] = value;
+					}
+					else if (self.onAddNewRow)
+						self.onAddNewRow(columns[currentCell], value);
 					
 					return true;
 				}
@@ -905,7 +907,7 @@ function SlickGrid($container,data,model,options)
 					$(currentCellNode).stop(true,true).effect("highlight", {color:"red"}, 300);
 					
 					if (self.onValidationError)
-						self.onValidationError(currentCellNode, validationResults, currentRow, currentCell, model[currentCell]);
+						self.onValidationError(currentCellNode, validationResults, currentRow, currentCell, columns[currentCell]);
 					
 					currentEditor.focus();
 					return false;

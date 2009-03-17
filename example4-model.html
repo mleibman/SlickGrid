@@ -25,7 +25,7 @@
 			
 		<script language="JavaScript" src="slick.editors.js"></script>
 		<script language="JavaScript" src="slick.grid.js"></script>
-		<script language="JavaScript" src="slick.globaleditorstate.js"></script>
+		<script language="JavaScript" src="slick.globaleditorlock.js"></script>
 		<script language="JavaScript" src="slick.model.js"></script>
 		
 		
@@ -61,6 +61,8 @@
 					<li>a filtered Model (DataView) as a data source instead of a simple array</li>
 					<li>grid reacting to model events (onRowCountChanged, onRowsChanged)</li>
 					<li><b>fast real-time</b> grid updating in response to data changes</li>
+					<li>adding new rows</li>
+					<li>column options:  setValueHandler, cannotTriggerInsert</li>
 				</ul>
 				
 			</td>
@@ -84,17 +86,17 @@
 		var data = [];
 
 		var columns = [
-			{id:"title", name:"Title", field:"title", width:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator},
-			{id:"duration", name:"Duration", field:"duration", editor:TextCellEditor},
-			{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter, editor:PercentCompleteCellEditor},
-			{id:"start", name:"Start", field:"start", minWidth:60, editor:DateCellEditor},
-			{id:"finish", name:"Finish", field:"finish", minWidth:60, editor:DateCellEditor},
-			{id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter, editor:YesNoCheckboxCellEditor}
+			{id:"title", name:"Title", field:"title", width:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, setValueHandler:updateItem},
+			{id:"duration", name:"Duration", field:"duration", editor:TextCellEditor, setValueHandler:updateItem},
+			{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter, editor:PercentCompleteCellEditor, setValueHandler:updateItem},
+			{id:"start", name:"Start", field:"start", minWidth:60, editor:DateCellEditor, setValueHandler:updateItem},
+			{id:"finish", name:"Finish", field:"finish", minWidth:60, editor:DateCellEditor, setValueHandler:updateItem},
+			{id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter, editor:YesNoCheckboxCellEditor, setValueHandler:updateItem, cannotTriggerInsert:true}
 		];
 
 		var options = {
 			editable: true,
-			enableAddRow: false,
+			enableAddRow: true,
 			enableCellNavigation: true,
 			asyncEditorLoading: false
 		};	
@@ -115,6 +117,19 @@
 		
 		function percentCompleteSort(a,b) {
 			return a["percentComplete"] - b["percentComplete"];
+		}
+
+
+		
+		function updateItem(value,columnDef,item) {
+			item[columnDef.field] = value;
+			dataView.updateItem(item.id,item);
+		}
+		
+		function addItem(columnDef,value) {
+			var item = {"id": "new_" + (Math.round(Math.random()*10000)), "title":"New task", "duration":"1 day", "percentComplete":0, "start":"01/01/2009", "finish":"01/01/2009", "effortDriven":false};
+			item[columnDef.field] = value;
+			dataView.addItem(item);
 		}
 
 
@@ -143,9 +158,13 @@
 			// initialize the grid
 			grid = new SlickGrid($("#myGrid"), dataView.rows, columns, options);
 			
+			grid.onAddNewRow = addItem;
+			
 			
 			// wire up model events to drive the grid
-			dataView.onRowCountChanged.subscribe(function() {
+			dataView.onRowCountChanged.subscribe(function(args) {
+				// remove the last "Add New" row
+				grid.removeRow(args.previous);
 				grid.resizeCanvas();
 			});
 			
@@ -162,8 +181,8 @@
 			$("#pcSlider").slider({
 				"range":	"min",
 				"slide":	function(event,ui) {
-					if (GlobalEditorState.isEditing()) 
-						GlobalEditorState.cancelCurrentEdit();
+					if (GlobalEditorLock.isEditing()) 
+						GlobalEditorLock.cancelCurrentEdit();
 					
 					percentCompleteThreshold = ui.value;
 					dataView.refresh();
@@ -173,8 +192,8 @@
 			
 			// wire up the search textbox to apply the filter to the model
 			$("#txtSearch").keyup(function(e) {
-				if (GlobalEditorState.isEditing()) 
-					GlobalEditorState.cancelCurrentEdit();
+				if (GlobalEditorLock.isEditing()) 
+					GlobalEditorLock.cancelCurrentEdit();
 							
 				// clear on Esc			
 				if (e.which == 27) 
@@ -185,8 +204,8 @@
 			})
 			
 			$("#btnResort").click(function() {
-				if (GlobalEditorState.isEditing()) 
-					GlobalEditorState.cancelCurrentEdit();
+				if (GlobalEditorLock.isEditing()) 
+					GlobalEditorLock.cancelCurrentEdit();
 									
 				dataView.sort(percentCompleteSort);
 			});

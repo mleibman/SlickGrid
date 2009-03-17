@@ -1,15 +1,14 @@
-
-
-var GlobalEditorState = new function()
+/***
+ * A singleton for controlling access to the editing functionality for multiple components capable of editing the same data.
+ */
+var GlobalEditorLock = new function()
 {
-
     var currentEditor = null;
     
     this.isEditing = function()
     {
         return (currentEditor != null);
     }
-    
     
     this.hasLock = function(editor)
     {
@@ -19,26 +18,24 @@ var GlobalEditorState = new function()
     this.enterEditMode = function(editor)
     {
         if (currentEditor != null) 
-            throw "GlobalEditorState : enterEditMode : currentEditor == null";
+            throw "GlobalEditorLock : enterEditMode : currentEditor == null";
         
         if (!editor.commitCurrentEdit) 
-            throw "GlobalEditorState : enterEditMode : editor must implement .commitCurrentEdit()";
+            throw "GlobalEditorLock : enterEditMode : editor must implement .commitCurrentEdit()";
         
         if (!editor.cancelCurrentEdit) 
-            throw "GlobalEditorState : enterEditMode : editor must implement .cancelCurrentEdit()";
+            throw "GlobalEditorLock : enterEditMode : editor must implement .cancelCurrentEdit()";
         
         currentEditor = editor;
     }
     
-    
     this.leaveEditMode = function(editor)
     {
         if (currentEditor != editor) 
-            throw "GlobalEditorState : leaveEditMode() : currentEditor != editor";
+            throw "GlobalEditorLock : leaveEditMode() : currentEditor != editor";
         
         currentEditor = null;
     }
-    
     
     this.commitCurrentEdit = function()
     {
@@ -47,7 +44,6 @@ var GlobalEditorState = new function()
         
         return true;
     }
-    
     
     this.cancelCurrentEdit = function()
     {

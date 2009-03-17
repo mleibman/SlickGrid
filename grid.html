@@ -243,7 +243,7 @@
 
 
 		function updateModel(id, args) {
-			if (GlobalEditorState.isEditing() && !GlobalEditorState.commitCurrentEdit()) return;
+			if (GlobalEditorLock.isEditing() && !GlobalEditorLock.commitCurrentEdit()) return;
 			
 			for (var i=0; i<model.length; i++)
 			{
@@ -267,7 +267,7 @@
 		
 		function enterEdit() {
 			
-			GlobalEditorState.enterEditMode({
+			GlobalEditorLock.enterEditMode({
 				commitCurrentEdit: function() { alert('validation error'); return false },
 				cancelCurrentEdit: function() {}
 			});
@@ -277,13 +277,13 @@
 	
 		function doSomething() {
 			
-			if (GlobalEditorState.isEditing() && !GlobalEditorState.commitCurrentEdit()) return;
+			if (GlobalEditorLock.isEditing() && !GlobalEditorLock.commitCurrentEdit()) return;
 			
 /*
-			if (GlobalEditorState.isEditing())
+			if (GlobalEditorLock.isEditing())
 			{
 				if (confirm("Cancel current edit?"))
-					GlobalEditorState.cancelCurrentEdit();
+					GlobalEditorLock.cancelCurrentEdit();
 				else	
 					return;
 			}
@@ -355,6 +355,6 @@
 		</script>
 		
 		
-		<button onclick="doSomething()">Test GlobalEditorState lock</button>
+		<button onclick="doSomething()">Test GlobalEditorLock lock</button>
 	</body>
 </html>

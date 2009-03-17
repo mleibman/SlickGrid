@@ -61,6 +61,26 @@ function DataView() {
 		return items[idxById[id]];
 	}
 	
+	function updateItem(id,item) {
+		items[idxById[id]] = item;
+		refresh();
+	}
+	
+	function insertItem(insertBefore,item) {
+		items.splice(insertBefore,0,item);
+		refresh();
+	}
+	
+	function addItem(item) {
+		items.push(item);
+		refresh();
+	}
+	
+	function deleteItem(id) {
+		items.splice(idxById[id],1);
+		refresh();
+	}
+	
 	function getDiff(arrayA, arrayB) {
 		var diff = [];
 		
@@ -126,7 +146,7 @@ function DataView() {
 		
 		diff = $.unique(diff);
 		
-		if (countBefore != rows.length) onRowCountChanged.notify(null);
+		if (countBefore != rows.length) onRowCountChanged.notify({previous:countBefore, current:rows.length});
 		if (diff.length > 0) onRowsChanged.notify(diff);
 		
 		updated = [];
@@ -135,12 +155,16 @@ function DataView() {
 
 	
 	return {
-		"rows":			rows,
+		"rows":			rows,			// note: neither the array or the data in it should really be modified directly
 		"setItems":		setItems,
 		"setFilter":	setFilter,
 		"sort":			sort,
 		"getItemById":	getItemById,
 		"refresh":		refresh,
+		"updateItem":	updateItem,
+		"insertItem":	insertItem,
+		"addItem":		addItem,
+		"deleteItem":	deleteItem,
 		"onRowCountChanged":	onRowCountChanged,
 		"onRowsChanged":		onRowsChanged
 	};
