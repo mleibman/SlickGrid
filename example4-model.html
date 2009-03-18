@@ -14,6 +14,14 @@
 		.cell-effort-driven {
 			text-align: center;
 		}
+		
+		.sort-asc {
+			background: silver url('images/sort-asc.png') no-repeat right center !important;
+		}
+		
+		.sort-desc {
+			background: silver url('images/sort-desc.png') no-repeat right center !important;
+		}		
 	</style>
 	</head>
 	<body>
@@ -120,7 +128,11 @@
 			return a["percentComplete"] - b["percentComplete"];
 		}
 
-
+		var sortcol = "title";
+		var sortdir = 1;
+		function comparer(a,b) {
+			return sortdir * ((a[sortcol] > b[sortcol]) ? 1 : -1);
+		}
 		
 		function updateItem(value,columnDef,item) {
 			item[columnDef.field] = value;
@@ -160,6 +172,24 @@
 			grid = new SlickGrid($("#myGrid"), dataView.rows, columns, options);
 			
 			grid.onAddNewRow = addItem;
+			
+			grid.onColumnHeaderClick = function(columnDef) {
+				if (GlobalEditorLock.isEditing() && !GlobalEditorLock.commitCurrentEdit())
+					return;
+				
+				for (var i=0; i<columns.length; i++)
+					grid.setColumnHeaderCssClass(columns[i].id, "", "sort-asc sort-desc");
+				
+				if (sortcol == columnDef.field)
+					sortdir *= -1;
+				else
+					sortdir = 1;
+				
+				grid.setColumnHeaderCssClass(columnDef.id, sortdir == 1 ? "sort-asc" : "sort-desc", "");
+				
+				sortcol = columnDef.field;
+				dataView.sort(comparer);
+			}
 			
 			
 			// wire up model events to drive the grid

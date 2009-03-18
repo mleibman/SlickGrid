@@ -12,6 +12,7 @@
  * 
  * KNOWN ISSUES:
  * 	- keyboard navigation doesn't "jump" over unselectable cells for now
+ *  - main page must have at least one STYLE element 
  * 
  * 
  * OPTIONS:
@@ -43,6 +44,11 @@
  * 	cssClass				-	A CSS class to add to the cell.
  * 	rerenderOnResize		-	Rerender the column when it is resized (useful for columns relying on cell width or adaptive formatters).
  * 	
+ * 
+ * EVENTS:
+ * 
+ * ...
+ * 
  * 
  * NOTES:
  * 
@@ -78,7 +84,7 @@ function SlickGrid($container,data,columns,options)
 	var BUFFER = 5;  // will be set to equal one page
 	
 	// private
-	var uid = "fastgrid_" + Math.round(1000000 * Math.random());
+	var uid = "slickgrid_" + Math.round(1000000 * Math.random());
 	var self = this;
 	var $divHeadersScroller;
 	var $divHeaders;
@@ -95,7 +101,7 @@ function SlickGrid($container,data,columns,options)
 	var numVisibleRows;
 	var lastRenderedScrollTop = 0;
 	var currentScrollTop = 0;
-	var scrollingDown = true;
+	var scrollDir = 1;
 	
 	var selectedRows = [];
 	var selectedRowsLookup = {};
@@ -188,7 +194,6 @@ function SlickGrid($container,data,columns,options)
 				axis:"x", 
 				cancel:".ui-resizable-handle",
 				update: function(e,ui) {
-					
 					console.time("column reorder");
 					
 					var newOrder = $divHeaders.sortable("toArray");
@@ -210,11 +215,25 @@ function SlickGrid($container,data,columns,options)
 					createCssRules();
 					renderViewport();
 					
+					if (self.onColumnsReordered)
+						self.onColumnsReordered();
+						
+					e.stopPropagation();
+						
 					console.timeEnd("column reorder");				
 				}
 				});
 			
 	
+		$divHeaders.bind("click", function(e) {
+			if (!$(e.target).hasClass(".h")) return;
+			
+			var id = $(e.target).attr("id");
+			
+			if (self.onColumnHeaderClick)
+				self.onColumnHeaderClick(columns[columnsById[id]]);
+		});	
+		
 		
 		createCssRules();
 		resizeCanvas();
@@ -223,13 +242,13 @@ function SlickGrid($container,data,columns,options)
 		
 
 		if (!options.manualScrolling)
-			$divMainScroller.bind("scroll", onScroll);
+			$divMainScroller.bind("scroll", handleScroll);
 		
-		$divMainScroller.scroll(function() { $divHeadersScroller.scrollLeft(this.scrollLeft); })
+		$divMainScroller.bind("scroll", function() { $divHeadersScroller.scrollLeft(this.scrollLeft); })
 		
-		$divMain.bind("keydown", onKeyDown);
-		$divMain.bind("click", onClick);
-		$divMain.bind("dblclick", onDblClick);
+		$divMain.bind("keydown", handleKeyDown);
+		$divMain.bind("click", handleClick);
+		$divMain.bind("dblclick", handleDblClick);
 
 		if ($.browser.msie) 
 			$divMainScroller[0].onselectstart = function() {
@@ -239,24 +258,21 @@ function SlickGrid($container,data,columns,options)
 	}
 	
 	function createCssRules() {
-		for (var i = 0; i < columns.length; i++) 
-		{
+		for (var i = 0; i < columns.length; i++) {
 			$.rule("." + uid + " .grid-canvas .c" + i + " { width:" + columns[i].width + "px }").appendTo("style");
 		}
-	}	
-		
+	}
+	
 	function removeCssRules() {
-		for (var i = 0; i < columns.length; i++) 
-		{
+		for (var i = 0; i < columns.length; i++) {
 			$.rule("." + uid + " .grid-canvas .c" + i, "style").remove();
 		}
 	}
 		
 	function destroy() {
 		if (currentEditor)
-			self.cancelCurrentEdit();
+			cancelCurrentEdit();
 		
-		$divMainScroller.unbind("scroll", onScroll);
 		$divHeaders.sortable("destroy");
 		$divHeaders.find(".h").resizable("destroy");
 		
@@ -267,6 +283,10 @@ function SlickGrid($container,data,columns,options)
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	// General
+	
+	function setColumnHeaderCssClass(id,classesToAdd,classesToRemove) {
+		$divHeaders.find(".h[id=" + id + "]").removeClass(classesToRemove).addClass(classesToAdd);
+	}
 	
 	function getColumnIndex(id) {
 		return columnsById[id];	
@@ -304,7 +324,20 @@ function SlickGrid($container,data,columns,options)
 		selectedRowsLookup = lookup;				
 	}
 
-
+	function setOptions(args) {
+		if (currentEditor && !commitCurrentEdit())
+			return;
+		
+		setSelectedCell(null);
+		
+		if (options.enableAddRow != args.enableAddRow)
+			removeRow(data.length);
+			
+		options = $.extend(options,args);		
+		
+		renderViewport();
+	}
+	
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	// Rendering / Scrolling
@@ -350,6 +383,8 @@ function SlickGrid($container,data,columns,options)
 		if (currentEditor && currentRow == row)
 			throw "Grid : removeRow : Cannot remove a row that is currently in edit mode";	
 		
+		// if we're removing rows, we're probably not scrolling
+		scrollDir = 0;
 		
 		node.parentNode.removeChild(node);
 		node = null;
@@ -449,9 +484,9 @@ function SlickGrid($container,data,columns,options)
 	
 	function renderViewport() {
 		var vp = getViewport();
-		var from = Math.max(0, vp.top - (scrollingDown ? 0 : BUFFER));
-		var to = Math.min(options.enableAddRow ? data.length : data.length - 1, vp.bottom + (scrollingDown ? BUFFER : 0));
-	
+		var from = Math.max(0, vp.top - (scrollDir >= 0 ? 5 : BUFFER));
+		var to = Math.min(options.enableAddRow ? data.length : data.length - 1, vp.bottom + (scrollDir > 0 ? BUFFER : 5));
+
 		renderRows(from,to);
 	}	
 	
@@ -473,7 +508,7 @@ function SlickGrid($container,data,columns,options)
 		var from = vp.top - BUFFER, to = vp.bottom + BUFFER;
 		
 		// todo:  bias based on the direction of scroll
-		// todo:  remove rows in correct order (farthers first)
+		// todo:  remove rows in correct order (farthest first)
 		
 		var parentNode = $divMain[0];
 		
@@ -509,13 +544,19 @@ function SlickGrid($container,data,columns,options)
 		h_render = null;
 	}
 
-	function onScroll() {
+	function handleScroll() {
 		currentScrollTop = parseInt($divMainScroller[0].scrollTop);
 		var scrollDistance = Math.abs(lastRenderedScrollTop - currentScrollTop);
 
 		if (scrollDistance < 5*ROW_HEIGHT) return;
 		
-		scrollingDown = lastRenderedScrollTop < currentScrollTop;
+		if (lastRenderedScrollTop == currentScrollTop)
+			scrollDir = 0;
+		else if (lastRenderedScrollTop < currentScrollTop)
+			scrollDir = 1;
+		else	
+			scrollDir = -1;
+		
 
 		window.clearTimeout(h_render);
 		
@@ -534,11 +575,11 @@ function SlickGrid($container,data,columns,options)
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	// Interactivity
 
-	function onKeyDown(e) {
+	function handleKeyDown(e) {
 		switch (e.which) {
 			case 27:  // esc
 				if (GlobalEditorLock.isEditing() && GlobalEditorLock.hasLock(self))
-					self.cancelCurrentEdit(self);
+					cancelCurrentEdit(self);
 				
 				if (currentCellNode)
 					currentCellNode.focus();
@@ -597,7 +638,7 @@ function SlickGrid($container,data,columns,options)
 		return false;		
 	}	
 	
-	function onClick(e)
+	function handleClick(e)
 	{
 		var $cell = $(e.target).closest(".c");
 		
@@ -615,7 +656,7 @@ function SlickGrid($container,data,columns,options)
 		if (data[row] && self.onClick)
 		{
 			// grid must not be in edit mode
-			if (!currentEditor || (validated = self.commitCurrentEdit())) 
+			if (!currentEditor || (validated = commitCurrentEdit())) 
 			{
 				// handler will return true if the event was handled
 				if (self.onClick(e, row, cell)) 
@@ -631,12 +672,12 @@ function SlickGrid($container,data,columns,options)
 		if (options.enableCellNavigation && !columns[cell].unselectable) 
 		{
 			// commit current edit before proceeding
-			if (validated == true || (validated == null && self.commitCurrentEdit())) 
+			if (validated == true || (validated == null && commitCurrentEdit())) 
 				setSelectedCellAndRow($cell[0]);
 		}
 	}
 	
-	function onDblClick(e)
+	function handleDblClick(e)
 	{
 		var $cell = $(e.target).closest(".c");
 		
@@ -802,14 +843,14 @@ function SlickGrid($container,data,columns,options)
 		{
 			$divMainScroller[0].scrollTop = (currentRow ) * ROW_HEIGHT;
 			
-			onScroll();
+			handleScroll();
 		}
 		// or page up?
 		else if (currentRow * ROW_HEIGHT < scrollTop)
 		{
 			$divMainScroller[0].scrollTop = (currentRow + 2) * ROW_HEIGHT - viewportH;
 			
-			onScroll();			
+			handleScroll();			
 		}	
 	}
 
@@ -876,7 +917,7 @@ function SlickGrid($container,data,columns,options)
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	// IEditor implementation for GlobalEditorLock	
 	
-	this.commitCurrentEdit = function() {
+	function commitCurrentEdit() {
 		if (currentEditor)
 		{
 			if (currentEditor.isValueChanged())
@@ -921,73 +962,10 @@ function SlickGrid($container,data,columns,options)
 		return true;
 	};
 	
-	this.cancelCurrentEdit = function() {
+	function cancelCurrentEdit() {
 		makeSelectedCellNormal();
 	};
 	
-	
-
-	//////////////////////////////////////////////////////////////////////////////////////////////
-	// Public methods
-	
-	this.getColumnIndex = getColumnIndex;
-	
-	this.setOptions = function(args) {
-		if (currentEditor && !self.commitCurrentEdit())
-			return;
-		
-		setSelectedCell(null);
-		
-		if (options.enableAddRow != args.enableAddRow)
-			removeRow(data.length);
-			
-		options = $.extend(options,args);		
-		
-		renderViewport();
-	};
-	
-	this.destroy = destroy;
-	
-	this.updateCell = updateCell;
-	
-	this.updateRow = updateRow;
-	
-	this.removeRow = removeRow;
-	
-	this.removeAllRows = removeAllRows;
-	
-	this.render = render;
-	
-	this.getViewport = getViewport;
-	
-	this.resizeCanvas = resizeCanvas;
-	
-	this.scroll = onScroll;
-	
-	this.scrollTo = function(top) {
-		$divMainScroller.scrollTop(top);
-		onScroll();
-	};
-	
-	this.getCellFromPoint = getCellFromPoint;
-	
-	this.gotoCell = gotoCell;
-	
-	this.editCurrentCell = makeSelectedCellEditable;
-
-	this.getSelectedRows = getSelectedRows;
-	
-	this.setSelectedRows = setSelectedRows;
-
-	//////////////////////////////////////////////////////////////////////////////////////////////
-	// Events
-
-	this.onClick = null;
-	this.onKeyDown = null;
-	this.onAddNewRow = null;
-	this.onValidationError = null;
-	this.onViewportChanged = null;
-	this.onSelectedRowsChanged = null;
 	
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////
@@ -1042,4 +1020,42 @@ function SlickGrid($container,data,columns,options)
 
 
 	init();	
+	
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	// Public API
+	
+	$.extend(this, {
+		// Events
+		"onColumnHeaderClick":	null,
+		"onClick":			null,
+		"onKeyDown":		null,
+		"onAddNewRow":		null,
+		"onValidationError":	null,
+		"onViewportChanged":	null,
+		"onSelectedRowsChanged":	null,
+		"onColumnsReordered":	null,
+		
+		// Methods
+		"destroy":			destroy,
+		"getColumnIndex":	getColumnIndex,
+		"updateCell":		updateCell,
+		"updateRow":		updateRow,
+		"removeRow":		removeRow,
+		"removeAllRows":	removeAllRows,
+		"render":			render,
+		"getViewport":		getViewport,
+		"resizeCanvas":		resizeCanvas,
+		"scroll":			scroll,
+		"getCellFromPoint":	getCellFromPoint,
+		"gotoCell":			gotoCell,
+		"editCurrentCell":	makeSelectedCellEditable,
+		"getSelectedRows":	getSelectedRows,
+		"setSelectedRows":	setSelectedRows,
+		"setColumnHeaderCssClass":	setColumnHeaderCssClass,
+		
+		// IEditor implementation
+		"commitCurrentEdit":	commitCurrentEdit,
+		"cancelCurrentEdit":	cancelCurrentEdit
+	});	
 }
