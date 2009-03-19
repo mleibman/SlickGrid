@@ -34,7 +34,7 @@ function DataView() {
 	var idxById = {};		// indexes by id
 	var rowsByIdx = {};		// rows by index
 	var filter = null;		// filter function
-	var updated = []; 		// updated item ids
+	var updated = null; 	// updated item ids
 	
 	// events
 	var onRowCountChanged = new EventHelper();
@@ -63,6 +63,8 @@ function DataView() {
 	
 	function updateItem(id,item) {
 		items[idxById[id]] = item;
+		if (!updated) updated = {};
+		updated[id] = true;
 		refresh();
 	}
 	
@@ -80,76 +82,51 @@ function DataView() {
 		items.splice(idxById[id],1);
 		refresh();
 	}
-	
-	function getDiff(arrayA, arrayB) {
+
+	function recalc() {
 		var diff = [];
+		idxById = {};
+		rowsByIdx = {};
 		
-		for (var i = 0; i < Math.min(arrayA.length, arrayB.length); i++) {
-			if (arrayA[i].id != arrayB[i].id) {
-				diff.push(i);
+		// go over all items remapping them to rows on the fly while keeping track of the differences
+		var il = items.length;
+		var rl = rows.length;
+		var l = 0;
+		var i = 0;
+		while (i < il) {
+			var item = items[i];
+
+			idxById[item.id] = i;
+
+			if (!filter || filter(item)) {				
+				if (l >= rl || item.id != rows[l].id || (updated && updated[item.id])) {
+					diff.push(l);
+					rows[l] = item;
+				}
+
+				rowsByIdx[i] = l;
+				
+				l++;
 			}
+			
+			i++;
 		}
+
+		// remove unmapped portion
+		rows.splice(l,rows.length-l);
 		
-		if (arrayA.length > arrayB.length) {
-			for (var i = arrayB.length; i < arrayA.length; i++) {
-				diff.push(i);
-			}
-		}
-		
-		if (arrayB.length > arrayA.length) {
-			for (var i = arrayA.length; i < arrayB.length; i++) {
-				diff.push(i);
-			}
-		}
+		updated = null;
 		
 		return diff;
 	}
 	
-	function recalc() {
-		var tmp = [];
-		
-		for (var idx = 0; idx < items.length; idx++) {
-			var item = items[idx];
-			if (!filter || filter(item)) tmp.push(item);
-		}
-		
-		// replace contents without changing the reference
-		rows.splice(0, rows.length);
-		for (var i=0; i<tmp.length; i++)
-			rows.push(tmp[i]);
-		
-		idxById = {};
-		rowsByIdx = {};
-		
-		for (var i=0; i<items.length; i++)
-		{
-			idxById[items[i].id] = i;
-		}
-		
-		for (var i = 0; i < rows.length; i++) {
-			rowsByIdx[idxById[rows[i].id]] = i;
-		}
-	}
-	
 	function refresh() {
 		var countBefore = rows.length;
-		var rowsBefore = rows.concat();
 		
-		recalc();
-		
-		var diff = getDiff(rowsBefore, rows);
-		
-		for (var i = 0; i < updated.length; i++) {
-			var row = rowsByIdx[idxById[updated[i]]];
-			if (row != undefined) diff.push(row);
-		}
-		
-		diff = $.unique(diff);
+		var diff = recalc();
 		
 		if (countBefore != rows.length) onRowCountChanged.notify({previous:countBefore, current:rows.length});
-		if (diff.length > 0) onRowsChanged.notify(diff);
-		
-		updated = [];
+		if (diff.length > 0 || countBefore != rows.length) onRowsChanged.notify(diff);
 	}
 	
 

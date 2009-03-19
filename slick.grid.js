@@ -9,6 +9,7 @@
  * 	- built-in row reorder
  * 	- add custom editor options
  * 	- consistent events (EventHelper?  jQuery events?)
+ * 	- resizeCanvas() could take care of removing rows outside of data range
  * 
  * KNOWN ISSUES:
  * 	- keyboard navigation doesn't "jump" over unselectable cells for now

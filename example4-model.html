@@ -194,8 +194,9 @@
 			
 			// wire up model events to drive the grid
 			dataView.onRowCountChanged.subscribe(function(args) {
-				// remove the last "Add New" row
-				grid.removeRow(args.previous);
+				for (var i=args.current; i<=args.previous; i++)
+					grid.removeRow(i);
+				
 				grid.resizeCanvas();
 			});
 			

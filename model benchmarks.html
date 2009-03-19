@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+		<title></title>
+	</head>
+	<body>
+		<script language="JavaScript" src="lib/firebugx.js"></script>
+		<script language="JavaScript" src="slick.model.js"></script>
+
+		
+		<script>
+			
+		var filterparam = 0;
+		function filter(item) {
+			return item.percentComplete >= filterparam;
+		}		
+		
+		var data = [];
+	
+		for (var i=0; i<5000; i++) {
+			var d = (data[i] = {});
+
+			d["title"] = "Task " + i;
+			d["percentComplete"] = i % 100;
+		}
+
+		
+		var dv = new DataView();
+		dv.setItems(data);
+		dv.setFilter(filter);
+		
+		
+		var b = new Date();
+
+		console.time("refresh");
+		
+		for (var i = 0; i < 100; i++) {
+			filterparam = i;
+			dv.refresh();
+		}
+
+		console.timeEnd("refresh");
+		
+		var a = new Date();
+		alert(a-b);
+		
+
+		</script>
+
+	</body>
+</html>
