@@ -9,11 +9,12 @@
  * 	- built-in row reorder
  * 	- add custom editor options
  * 	- consistent events (EventHelper?  jQuery events?)
- * 	- resizeCanvas() could take care of removing rows outside of data range
+ * 	- break resizeCanvas() into two functions to handle container resize and data size changes
+ * 	- improve rendering speed by merging column extra cssClass into dynamically-generated .c{x} rules
  * 
  * KNOWN ISSUES:
  * 	- keyboard navigation doesn't "jump" over unselectable cells for now
- *  - main page must have at least one STYLE element 
+ *  - main page must have at least one STYLE element for jQuery Rule to work
  * 
  * 
  * OPTIONS:
@@ -348,7 +349,8 @@ function SlickGrid($container,data,columns,options)
 	}
 
 	function appendRowHtml(stringArray,row) {
-		var dataLoading = row < data.length && !data[row];
+		var d = data[row];
+		var dataLoading = row < data.length && !d;
 		var css = "r" + (dataLoading ? " loading" : "") + (selectedRowsLookup[row] ? " selected" : "");
 		
 		stringArray.push("<div class='" + css + "' row='" + row + "' style='top:" + (ROW_HEIGHT*row) + "px'>");
@@ -360,8 +362,8 @@ function SlickGrid($container,data,columns,options)
 			stringArray.push("<div " + (m.unselectable ? "" : "hideFocus tabIndex=0 ") + "class='c c" + j + (m.cssClass ? " " + m.cssClass : "") + "' cell=" + j + ">");
 
 			// if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)				
-			if (row < data.length && data[row])
-				stringArray.push(m.formatter(row, j, data[row][m.field], m, data[row]));
+			if (row < data.length && d)
+				stringArray.push(m.formatter(row, j, d[m.field], m, d));
 			
 			stringArray.push("</div>");
 		}
@@ -401,14 +403,13 @@ function SlickGrid($container,data,columns,options)
 		var $cell = $(rowsCache[row]).find(".c[cell=" + cell + "]");
 		if ($cell.length == 0) return;
 		
-		var m = columns[cell];		
+		var m = columns[cell];	
+		var d = data[row];	
 		
 		if (currentEditor && currentRow == row && currentCell == cell)
-			currentEditor.setValue(data[currentRow][m.field]);
-		else if (data[row])
-			$cell[0].innerHTML = m.formatter(row, cell, data[row][m.field], m, data[row]);
-		else
-			$cell[0].innerHTML = "";
+			currentEditor.setValue(d[m.field]);
+		else 
+			$cell[0].innerHTML = d ? m.formatter(row, cell, d[m.field], m, d) : ""
 	}
 
 	function updateRow(row) {
@@ -428,14 +429,14 @@ function SlickGrid($container,data,columns,options)
 	}
 
 	function resizeCanvas() {
-	    BUFFER = numVisibleRows = Math.ceil(parseInt($divMainScroller.innerHeight()) / ROW_HEIGHT);
-		
-		CAPACITY = Math.max(CAPACITY, numVisibleRows + 2*BUFFER > CAPACITY);
-
-		$divMain.height(Math.max(ROW_HEIGHT * (data.length + numVisibleRows - 2), $divMainScroller.innerHeight() - $.getScrollbarWidth()));
-		
 		viewportW = $divMainScroller.innerWidth();
 		viewportH = $divMainScroller.innerHeight();
+
+	    BUFFER = numVisibleRows = Math.ceil(viewportH / ROW_HEIGHT);
+		CAPACITY = Math.max(CAPACITY, numVisibleRows + 2*BUFFER > CAPACITY);
+
+		$divMain.height(Math.max(ROW_HEIGHT * (data.length + numVisibleRows - 2), viewportH - $.getScrollbarWidth()));
+		
 				
 		var totalWidth = 0;
 		for (var i=0; i<columns.length; i++)
@@ -443,6 +444,23 @@ function SlickGrid($container,data,columns,options)
 			totalWidth += (columns[i].width + 5);
 		}
 		$divMain.width(totalWidth);
+	  
+	  	// remove the rows that are now outside of the data range
+		// this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
+		var parentNode = $divMain[0];
+		var l = options.enableAddRow ? data.length : data.length - 1;
+		for (var i in rowsCache)
+		{
+			if (i >= l)
+			{
+				parentNode.removeChild(rowsCache[i]);
+				delete rowsCache[i];
+				renderedRows--;
+				
+				counter_rows_removed++;
+			}
+		}
+		
 	  
         // browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
 	    if ($divMainScroller.scrollTop() > $divMain.height() - $divMainScroller.height())

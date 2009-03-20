@@ -18,7 +18,7 @@
 		
 		var data = [];
 	
-		for (var i=0; i<5000; i++) {
+		for (var i=0; i<50000; i++) {
 			var d = (data[i] = {});
 
 			d["title"] = "Task " + i;
@@ -27,15 +27,17 @@
 
 		
 		var dv = new DataView();
+		dv.beginUpdate();
 		dv.setItems(data);
 		dv.setFilter(filter);
+		dv.endUpdate();
 		
 		
 		var b = new Date();
 
 		console.time("refresh");
 		
-		for (var i = 0; i < 100; i++) {
+		for (var i = 0; i <= 100; i+=10) {
 			filterparam = i;
 			dv.refresh();
 		}

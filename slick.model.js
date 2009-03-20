@@ -32,15 +32,24 @@ function DataView() {
 	var items = [];			// data by index
 	var rows = [];			// data by row
 	var idxById = {};		// indexes by id
-	var rowsByIdx = {};		// rows by index
+	var rowsByIdx = [];		// rows by index
 	var filter = null;		// filter function
 	var updated = null; 	// updated item ids
+	var suspend = false;	// suspends the recalculation
 	
 	// events
 	var onRowCountChanged = new EventHelper();
 	var onRowsChanged = new EventHelper();
 	
 	
+	function beginUpdate() {
+		suspend = true;
+	}
+	
+	function endUpdate() {
+		suspend = false;
+		refresh();
+	}
 	
 	function setItems(data) {
 		items = data.concat();
@@ -82,38 +91,39 @@ function DataView() {
 		items.splice(idxById[id],1);
 		refresh();
 	}
-
+	
 	function recalc() {
 		var diff = [];
 		idxById = {};
-		rowsByIdx = {};
 		
-		// go over all items remapping them to rows on the fly while keeping track of the differences
-		var il = items.length;
+		// go over all items remapping them to rows on the fly 
+		// while keeping track of the differences and updating indexes
 		var rl = rows.length;
 		var l = 0;
-		var i = 0;
-		while (i < il) {
-			var item = items[i];
+		var item,id;
 
-			idxById[item.id] = i;
+		for (var i=0, il=items.length; i<il; i++) {
+			item = items[i];
+			id = item.id;
+
+			idxById[id] = i;
 
 			if (!filter || filter(item)) {				
-				if (l >= rl || item.id != rows[l].id || (updated && updated[item.id])) {
+				if (l >= rl || id != rows[l].id || (updated && updated[id])) {
 					diff.push(l);
 					rows[l] = item;
+					rowsByIdx[i] = l;
 				}
 
-				rowsByIdx[i] = l;
-				
 				l++;
 			}
-			
-			i++;
 		}
 
 		// remove unmapped portion
-		rows.splice(l,rows.length-l);
+		if (rl > l) {
+			rows.splice(l, rl - l);
+			rowsByIdx.splice(l, rl - l);
+		}
 		
 		updated = null;
 		
@@ -121,8 +131,9 @@ function DataView() {
 	}
 	
 	function refresh() {
-		var countBefore = rows.length;
+		if (suspend) return;
 		
+		var countBefore = rows.length;
 		var diff = recalc();
 		
 		if (countBefore != rows.length) onRowCountChanged.notify({previous:countBefore, current:rows.length});
@@ -133,6 +144,8 @@ function DataView() {
 	
 	return {
 		"rows":			rows,			// note: neither the array or the data in it should really be modified directly
+		"beginUpdate":	beginUpdate,	
+		"endUpdate":	endUpdate,
 		"setItems":		setItems,
 		"setFilter":	setFilter,
 		"sort":			sort,
