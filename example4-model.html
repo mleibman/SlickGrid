@@ -68,8 +68,11 @@
 				<ul>
 					<li>a filtered Model (DataView) as a data source instead of a simple array</li>
 					<li>grid reacting to model events (onRowCountChanged, onRowsChanged)</li>
-					<li><b>fast real-time</b> grid updating in response to data changes</li>
-					<li>adding new rows</li>
+					<li>
+						<b>FAST</b> DataView recalculation and <b>real-time</b> grid updating in response to data changes.<br/>
+						The grid holds 1'000 rows, yet you are able to sort, filter, scroll, navigate and edit as if it had 50 rows.
+					</li>
+					<li>adding new rows, bidirectional sorting</li>
 					<li>column options:  setValueHandler, cannotTriggerInsert</li>
 					<li><font color=red>NOTE:</font>  all filters are immediately applied to new/edited rows</li>
 				</ul>
@@ -131,7 +134,9 @@
 		var sortcol = "title";
 		var sortdir = 1;
 		function comparer(a,b) {
-			return sortdir * ((a[sortcol] > b[sortcol]) ? 1 : -1);
+			var x = a[sortcol], y = b[sortcol];
+			
+			return sortdir * (x == y ? 0 : (x > y ? 1 : -1));
 		}
 		
 		function updateItem(value,columnDef,item) {
@@ -149,7 +154,7 @@
 		$(function()
 		{
 			// prepare the data
-			for (var i=0; i<500; i++) {
+			for (var i=0; i<10000; i++) {
 				var d = (data[i] = {});
 				
 				d["id"] = "id_" + i;
@@ -164,8 +169,10 @@
 
 			// initialize the model
 			dataView = new DataView();
+			dataView.beginUpdate();
 			dataView.setItems(data);
 			dataView.setFilter(myFilter);
+			dataView.endUpdate();
 			
 			
 			// initialize the grid
@@ -194,14 +201,11 @@
 			
 			// wire up model events to drive the grid
 			dataView.onRowCountChanged.subscribe(function(args) {
-				for (var i=args.current; i<=args.previous; i++)
-					grid.removeRow(i);
-				
 				grid.resizeCanvas();
 			});
 			
 			dataView.onRowsChanged.subscribe(function(rows) {
-				for (var i=0; i<rows.length; i++) {
+				for (var i=0, rl=rows.length; i<rl; i++) {
 					grid.removeRow(rows[i]);
 				}
 				

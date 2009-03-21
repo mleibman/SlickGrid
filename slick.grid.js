@@ -138,9 +138,6 @@ function SlickGrid($container,data,columns,options)
 		
 		$divMainScroller.height( $container.innerHeight() - $divHeadersScroller.outerHeight() );
 		
-		viewportW = $divMainScroller.innerWidth();
-		viewportH = $divMainScroller.innerHeight();
-		
 		for (var i = 0; i < columns.length; i++) 
 		{
 			var m = columns[i];
@@ -246,7 +243,11 @@ function SlickGrid($container,data,columns,options)
 		if (!options.manualScrolling)
 			$divMainScroller.bind("scroll", handleScroll);
 		
-		$divMainScroller.bind("scroll", function() { $divHeadersScroller.scrollLeft(this.scrollLeft); })
+		$divMainScroller.bind("scroll", function() { 
+			var sl = this.scrollLeft;
+			if ($divHeadersScroller[0].scrollLeft != sl)
+				$divHeadersScroller[0].scrollLeft = sl;
+		})
 		
 		$divMain.bind("keydown", handleKeyDown);
 		$divMain.bind("click", handleClick);

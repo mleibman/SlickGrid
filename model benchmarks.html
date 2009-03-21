@@ -7,7 +7,7 @@
 	<body>
 		<script language="JavaScript" src="lib/firebugx.js"></script>
 		<script language="JavaScript" src="slick.model.js"></script>
-
+		<script language="JavaScript" src="lib/jquery-1.3.2.min.js"></script>
 		
 		<script>
 			
@@ -27,10 +27,10 @@
 
 		
 		var dv = new DataView();
-		dv.beginUpdate();
+		//dv.beginUpdate();
 		dv.setItems(data);
 		dv.setFilter(filter);
-		dv.endUpdate();
+		//dv.endUpdate();
 		
 		
 		var b = new Date();
