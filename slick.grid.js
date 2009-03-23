@@ -11,6 +11,7 @@
  * 	- consistent events (EventHelper?  jQuery events?)
  * 	- break resizeCanvas() into two functions to handle container resize and data size changes
  * 	- improve rendering speed by merging column extra cssClass into dynamically-generated .c{x} rules
+ * 	- expose row height in the API
  * 
  * KNOWN ISSUES:
  * 	- keyboard navigation doesn't "jump" over unselectable cells for now
@@ -103,6 +104,7 @@ function SlickGrid($container,data,columns,options)
 	var numVisibleRows;
 	var lastRenderedScrollTop = 0;
 	var currentScrollTop = 0;
+	var currentScrollLeft = 0;
 	var scrollDir = 1;
 	
 	var selectedRows = [];
@@ -242,12 +244,6 @@ function SlickGrid($container,data,columns,options)
 
 		if (!options.manualScrolling)
 			$divMainScroller.bind("scroll", handleScroll);
-		
-		$divMainScroller.bind("scroll", function() { 
-			var sl = this.scrollLeft;
-			if ($divHeadersScroller[0].scrollLeft != sl)
-				$divHeadersScroller[0].scrollLeft = sl;
-		})
 		
 		$divMain.bind("keydown", handleKeyDown);
 		$divMain.bind("click", handleClick);
@@ -565,6 +561,11 @@ function SlickGrid($container,data,columns,options)
 	}
 
 	function handleScroll() {
+		var scrollLeft = parseInt($divMainScroller[0].scrollLeft);
+		
+		if (scrollLeft != currentScrollLeft)
+			$divMainScroller[0].scrollLeft = currentScrollLeft = scrollLeft;
+		
 		currentScrollTop = parseInt($divMainScroller[0].scrollTop);
 		var scrollDistance = Math.abs(lastRenderedScrollTop - currentScrollTop);
 
