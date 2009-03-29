@@ -168,7 +168,7 @@
             
             if ($grid.scrollTop() == lastScrollTop + scrollAmount) {
                 lastScrollTop = $grid.scrollTop();
-                window.setTimeout(bench, 0);
+                window.setTimeout(bench, 10);
             }
             else {
 				alert((new Date() - startTime));

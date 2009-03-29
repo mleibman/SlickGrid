@@ -106,6 +106,7 @@ function SlickGrid($container,data,columns,options)
 	var currentScrollTop = 0;
 	var currentScrollLeft = 0;
 	var scrollDir = 1;
+	var avgRowRenderTime = 10;
 	
 	var selectedRows = [];
 	var selectedRowsLookup = {};
@@ -120,6 +121,9 @@ function SlickGrid($container,data,columns,options)
 	var counter_rows_removed = 0;
 	
 	var fragment = document.createDocumentFragment();
+	
+	// internal
+	var _forceSyncScrolling = false;
 	
 	
 	function init() {
@@ -182,7 +186,7 @@ function SlickGrid($container,data,columns,options)
 					// todo:  rerender single column instead of everything
 					if (columns[cell].rerenderOnResize) {
 						removeAllRows();
-						renderViewport();
+						render();
 					}
 				}
 			});
@@ -214,7 +218,7 @@ function SlickGrid($container,data,columns,options)
 					removeAllRows();
 					removeCssRules();
 					createCssRules();
-					renderViewport();
+					render();
 					
 					if (self.onColumnsReordered)
 						self.onColumnsReordered();
@@ -334,7 +338,7 @@ function SlickGrid($container,data,columns,options)
 			
 		options = $.extend(options,args);		
 		
-		renderViewport();
+		render();
 	}
 	
 	
@@ -352,15 +356,15 @@ function SlickGrid($container,data,columns,options)
 		
 		stringArray.push("<div class='" + css + "' row='" + row + "' style='top:" + (ROW_HEIGHT*row) + "px'>");
 		
-		for (var j=0; j<columns.length; j++) 
+		for (var i=0, cols=columns.length; i<cols; i++) 
 		{
-			var m = columns[j];
+			var m = columns[i];
 
-			stringArray.push("<div " + (m.unselectable ? "" : "hideFocus tabIndex=0 ") + "class='c c" + j + (m.cssClass ? " " + m.cssClass : "") + "' cell=" + j + ">");
+			stringArray.push("<div " + (m.unselectable ? "" : "hideFocus tabIndex=0 ") + "class='c c" + i + (m.cssClass ? " " + m.cssClass : "") + "' cell=" + i + ">");
 
 			// if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)				
 			if (row < data.length && d)
-				stringArray.push(m.formatter(row, j, d[m.field], m, d));
+				stringArray.push(m.formatter(row, i, d[m.field], m, d));
 			
 			stringArray.push("</div>");
 		}
@@ -430,7 +434,7 @@ function SlickGrid($container,data,columns,options)
 		viewportH = $divMainScroller.innerHeight();
 
 	    BUFFER = numVisibleRows = Math.ceil(viewportH / ROW_HEIGHT);
-		CAPACITY = Math.max(CAPACITY, numVisibleRows + 2*BUFFER > CAPACITY);
+		CAPACITY = Math.max(CAPACITY, numVisibleRows + 2*BUFFER);
 
 		$divMain.height(Math.max(ROW_HEIGHT * (data.length + numVisibleRows - 2), viewportH - $.getScrollbarWidth()));
 		
@@ -471,41 +475,7 @@ function SlickGrid($container,data,columns,options)
 			bottom:	Math.floor((currentScrollTop + viewportH) / ROW_HEIGHT)
 		};	
 	}
-	
-	function renderRows(from,to) {
-		console.time("renderRows");
-		
-		var rowsBefore = renderedRows;
-		
-		var stringArray = [];
-		
-		for (var i = from; i <= to; i++) {
-			if (rowsCache[i]) continue;
-			renderedRows++;
-			
-			counter_rows_rendered++;
-			
-			var x = document.createElement("div");
-			x.innerHTML = getRowHtml(i);
-			x = x.firstChild;
-			//rowsCache[i] = $divMain[0].appendChild(x);
-			rowsCache[i] = fragment.appendChild(x);
-		}
-		
-		$divMain[0].appendChild(fragment);
-		
-		console.log("rendered " + (renderedRows - rowsBefore) + " rows");
-		console.timeEnd("renderRows");		
-	}
-	
-	function renderViewport() {
-		var vp = getViewport();
-		var from = Math.max(0, vp.top - (scrollDir >= 0 ? 5 : BUFFER));
-		var to = Math.min(options.enableAddRow ? data.length : data.length - 1, vp.bottom + (scrollDir > 0 ? BUFFER : 5));
 
-		renderRows(from,to);
-	}	
-	
 	function removeAllRows() {
 		console.time("removeAllRows");
 		
@@ -516,23 +486,15 @@ function SlickGrid($container,data,columns,options)
 		console.timeEnd("removeAllRows");
 	}	
 	
-	function cleanupRows() {
+	function cleanupRows(visibleFrom,visibleTo) {
 		console.time("cleanupRows");
 
 		var rowsBefore = renderedRows;
-		var vp = getViewport();
-		var from = vp.top - BUFFER, to = vp.bottom + BUFFER;
-		
-		// todo:  bias based on the direction of scroll
-		// todo:  remove rows in correct order (farthest first)
-		
 		var parentNode = $divMain[0];
 		
 		for (var i in rowsCache)
 		{
-			if (renderedRows <= CAPACITY) break;
-			
-			if (i != currentRow &&  (i < from || i > to))
+			if (i != currentRow && (i < visibleFrom || i > visibleTo))
 			{
 				parentNode.removeChild(rowsCache[i]);
 				
@@ -547,16 +509,47 @@ function SlickGrid($container,data,columns,options)
 		console.timeEnd("cleanupRows");
 	}
 	
-	function render() {
-		if (renderedRows >= CAPACITY)
-			cleanupRows();
-	
-		renderViewport();
+	function renderRows(from,to) {
+		console.time("renderRows");
 		
-		if (renderedRows >= CAPACITY)
-			cleanupRows();
-					
-		lastRenderedScrollTop = parseInt(currentScrollTop);
+		var rowsBefore = renderedRows;
+		var stringArray = [];
+		var _start = new Date();
+
+		for (var i = from; i <= to; i++) {
+			if (rowsCache[i]) continue;
+			renderedRows++;
+			
+			counter_rows_rendered++;
+			
+			var x = document.createElement("div");
+			x.innerHTML = getRowHtml(i);
+			x = x.firstChild;
+			rowsCache[i] = fragment.appendChild(x);
+		}
+		
+		$divMain[0].appendChild(fragment);
+		
+		if (renderedRows - rowsBefore > 5)
+			avgRowRenderTime = (new Date() - _start) / (renderedRows - rowsBefore);
+		
+		console.log("rendered " + (renderedRows - rowsBefore) + " rows");
+		console.timeEnd("renderRows");		
+	}	
+	
+	function render() {
+		var vp = getViewport();
+		var from = Math.max(0, vp.top - (scrollDir >= 0 ? 5 : BUFFER));
+		var to = Math.min(options.enableAddRow ? data.length : data.length - 1, vp.bottom + (scrollDir > 0 ? BUFFER : 5));
+
+		if (Math.abs(lastRenderedScrollTop - currentScrollTop) > ROW_HEIGHT*CAPACITY)
+			removeAllRows();
+		else if (renderedRows >= CAPACITY)
+			cleanupRows(from,to);
+
+		renderRows(from,to);		
+		
+		lastRenderedScrollTop = currentScrollTop;
 		h_render = null;
 	}
 
@@ -578,15 +571,13 @@ function SlickGrid($container,data,columns,options)
 		else	
 			scrollDir = -1;
 		
-
-		window.clearTimeout(h_render);
+		if (h_render)
+			window.clearTimeout(h_render);
 		
-		window.status = "async scroll = " + (scrollDistance > 2*numVisibleRows*ROW_HEIGHT);
-		
-		if (scrollDistance > 2*numVisibleRows*ROW_HEIGHT) 
-			h_render = window.setTimeout(render, 50);
-		else
+		if (scrollDistance < 2*numVisibleRows*ROW_HEIGHT || avgRowRenderTime*CAPACITY < 30 ||  _forceSyncScrolling) 
 			render();
+		else
+			h_render = window.setTimeout(render, 50);
 			
 		if (self.onViewportChanged)
 			self.onViewportChanged();
@@ -997,7 +988,8 @@ function SlickGrid($container,data,columns,options)
 		s += ("\n" + "renderedRows:  " + renderedRows);	
 		s += ("\n" + "numVisibleRows:  " + numVisibleRows);			
 		s += ("\n" + "CAPACITY:  " + CAPACITY);			
-		s += ("\n" + "BUFFER:  " + BUFFER);			
+		s += ("\n" + "BUFFER:  " + BUFFER);		
+		s += ("\n" + "avgRowRenderTime:  " + avgRowRenderTime);
 		
 		alert(s);
 	};
@@ -1064,7 +1056,7 @@ function SlickGrid($container,data,columns,options)
 		"render":			render,
 		"getViewport":		getViewport,
 		"resizeCanvas":		resizeCanvas,
-		"scroll":			scroll,
+		"scroll":			scroll,  // TODO
 		"getCellFromPoint":	getCellFromPoint,
 		"gotoCell":			gotoCell,
 		"editCurrentCell":	makeSelectedCellEditable,
