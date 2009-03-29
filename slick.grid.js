@@ -731,7 +731,6 @@ function SlickGrid($container,data,columns,options)
 	
 	function setSelectedCell(newCell,async)
 	{
-		
 		if (currentCellNode != null) 
 		{
 			makeSelectedCellNormal();			
@@ -812,7 +811,6 @@ function SlickGrid($container,data,columns,options)
 					
 		currentEditor.destroy();
 		$(currentCellNode).removeClass("editable invalid");
-		
 		
 		if (data[currentRow]) 
 			currentCellNode.innerHTML = columns[currentCell].formatter(currentRow, currentCell, data[currentRow][columns[currentCell].field], columns[currentCell], data[currentRow]);
@@ -909,7 +907,6 @@ function SlickGrid($container,data,columns,options)
 			// if no editor was created, set the focus back on the cell
 			if (!currentEditor) 
 				currentCellNode.focus();
-				
 		}
 		else 
 			currentCellNode.focus();
@@ -949,17 +946,17 @@ function SlickGrid($container,data,columns,options)
 				{
 					var value = currentEditor.getValue();
 					
-					makeSelectedCellNormal();
-					
 					if (currentRow < data.length) 
 					{
-						if (columns[currentCell].setValueHandler)
+						if (columns[currentCell].setValueHandler) 
 							columns[currentCell].setValueHandler(value, columns[currentCell], data[currentRow]);
-						else
+						else 
 							data[currentRow][columns[currentCell].field] = value;
 					}
 					else if (self.onAddNewRow)
 						self.onAddNewRow(columns[currentCell], value);
+					
+					makeSelectedCellNormal();
 					
 					return true;
 				}
