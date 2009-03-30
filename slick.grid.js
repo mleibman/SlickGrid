@@ -937,17 +937,20 @@ function SlickGrid($container,data,columns,options)
 				{
 					var value = currentEditor.getValue();
 					
-					if (currentRow < data.length) 
-					{
-						if (columns[currentCell].setValueHandler) 
+					if (currentRow < data.length) {
+						if (columns[currentCell].setValueHandler) {
+							makeSelectedCellNormal();
 							columns[currentCell].setValueHandler(value, columns[currentCell], data[currentRow]);
-						else 
+						}
+						else {
 							data[currentRow][columns[currentCell].field] = value;
+							makeSelectedCellNormal();
+						}
 					}
-					else if (self.onAddNewRow)
-						self.onAddNewRow(columns[currentCell], value);
-					
-					makeSelectedCellNormal();
+					else if (self.onAddNewRow) {
+							makeSelectedCellNormal();
+							self.onAddNewRow(columns[currentCell], value);
+						}
 					
 					return true;
 				}
