@@ -379,6 +379,39 @@ function SlickGrid($container,data,columns,options)
 		
 		return html.join("");
 	}
+	
+	function cleanupRows(visibleFrom,visibleTo) {
+		console.time("cleanupRows");
+
+		var rowsBefore = renderedRows;
+		var parentNode = $divMain[0];
+		
+		for (var i in rowsCache)
+		{
+			if (i != currentRow && (i < visibleFrom || i > visibleTo))
+			{
+				parentNode.removeChild(rowsCache[i]);
+				
+				delete rowsCache[i];
+				renderedRows--;		
+				
+				counter_rows_removed++;	
+			}
+		}
+		
+		console.log("removed " + (rowsBefore - renderedRows) + " rows");
+		console.timeEnd("cleanupRows");
+	}
+	
+	function removeAllRows() {
+		console.time("removeAllRows");
+		
+		$divMain[0].innerHTML = "";
+		rowsCache= {};
+		counter_rows_removed += renderedRows;
+		renderedRows = 0;
+		console.timeEnd("removeAllRows");
+	}	
 
 	function removeRow(row) {
 		var node = rowsCache[row];
@@ -397,6 +430,42 @@ function SlickGrid($container,data,columns,options)
 		renderedRows--;
 		
 		counter_rows_removed++;
+	}
+	
+	function removeRows(rows) {
+		console.time("removeRows");
+		
+		if (!rows || !rows.length) return;
+		
+		scrollDir = 0;
+		var nodes = [];
+		
+		for (var i=0, rl=rows.length; i<rl; i++) {
+			if (currentEditor && currentRow == i)
+				throw "Grid : removeRow : Cannot remove a row that is currently in edit mode";	
+			
+			var node = rowsCache[i];
+			if (!node) continue;
+			
+			nodes.push(i);
+		}
+		
+		if (nodes.length == renderedRows) {
+			$divMain[0].innerHTML = "";
+			rowsCache= {};
+			counter_rows_removed += renderedRows;
+			renderedRows = 0;			
+		} else {
+			for (var i=0, nl=nodes.length; i<n; i++) {
+				var node = rowsCache[nodes[i]];
+				node.parentNode.removeChild(node);
+				delete rowsCache[nodes[i]];
+				renderedRows--;
+				counter_rows_removed++;
+			}
+		}
+		
+		console.timeEnd("removeRows");
 	}
 	
 	function updateCell(row,cell) {
@@ -474,39 +543,6 @@ function SlickGrid($container,data,columns,options)
 			top:	Math.floor(currentScrollTop / ROW_HEIGHT),
 			bottom:	Math.floor((currentScrollTop + viewportH) / ROW_HEIGHT)
 		};	
-	}
-
-	function removeAllRows() {
-		console.time("removeAllRows");
-		
-		$divMain[0].innerHTML = "";
-		rowsCache= {};
-		renderedRows = 0;
-		
-		console.timeEnd("removeAllRows");
-	}	
-	
-	function cleanupRows(visibleFrom,visibleTo) {
-		console.time("cleanupRows");
-
-		var rowsBefore = renderedRows;
-		var parentNode = $divMain[0];
-		
-		for (var i in rowsCache)
-		{
-			if (i != currentRow && (i < visibleFrom || i > visibleTo))
-			{
-				parentNode.removeChild(rowsCache[i]);
-				
-				delete rowsCache[i];
-				renderedRows--;		
-				
-				counter_rows_removed++;	
-			}
-		}
-		
-		console.log("removed " + (rowsBefore - renderedRows) + " rows");
-		console.timeEnd("cleanupRows");
 	}
 	
 	function renderRows(from,to) {
@@ -1055,6 +1091,7 @@ function SlickGrid($container,data,columns,options)
 		"updateCell":		updateCell,
 		"updateRow":		updateRow,
 		"removeRow":		removeRow,
+		"removeRows":		removeRows,
 		"removeAllRows":	removeAllRows,
 		"render":			render,
 		"getViewport":		getViewport,

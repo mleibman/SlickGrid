@@ -205,10 +205,7 @@
 			});
 			
 			dataView.onRowsChanged.subscribe(function(rows) {
-				for (var i=0, rl=rows.length; i<rl; i++) {
-					grid.removeRow(rows[i]);
-				}
-				
+				grid.removeRows(rows);
 				grid.render();
 			});
 			
