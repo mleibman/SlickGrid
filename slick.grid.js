@@ -12,6 +12,7 @@
  * 	- break resizeCanvas() into two functions to handle container resize and data size changes
  * 	- improve rendering speed by merging column extra cssClass into dynamically-generated .c{x} rules
  * 	- expose row height in the API
+ * 	- improve rendering speed by reusing removed row nodes and doing one .replaceChild() instead of two .removeChild() and .appendChild()
  * 
  * KNOWN ISSUES:
  * 	- keyboard navigation doesn't "jump" over unselectable cells for now
@@ -434,7 +435,7 @@ function SlickGrid($container,data,columns,options)
 	
 	function removeRows(rows) {
 		console.time("removeRows");
-		
+
 		if (!rows || !rows.length) return;
 		
 		scrollDir = 0;
@@ -444,10 +445,10 @@ function SlickGrid($container,data,columns,options)
 			if (currentEditor && currentRow == i)
 				throw "Grid : removeRow : Cannot remove a row that is currently in edit mode";	
 			
-			var node = rowsCache[i];
+			var node = rowsCache[rows[i]];
 			if (!node) continue;
 			
-			nodes.push(i);
+			nodes.push(rows[i]);
 		}
 		
 		if (nodes.length == renderedRows) {
@@ -456,7 +457,7 @@ function SlickGrid($container,data,columns,options)
 			counter_rows_removed += renderedRows;
 			renderedRows = 0;			
 		} else {
-			for (var i=0, nl=nodes.length; i<n; i++) {
+			for (var i=0, nl=nodes.length; i<nl; i++) {
 				var node = rowsCache[nodes[i]];
 				node.parentNode.removeChild(node);
 				delete rowsCache[nodes[i]];
@@ -551,20 +552,25 @@ function SlickGrid($container,data,columns,options)
 		var rowsBefore = renderedRows;
 		var stringArray = [];
 		var _start = new Date();
-
+		var x = document.createElement("div");
+		
+		var rows =[];
+		
 		for (var i = from; i <= to; i++) {
 			if (rowsCache[i]) continue;
 			renderedRows++;
 			
+			rows.push(i);
+			appendRowHtml(stringArray,i);
+
 			counter_rows_rendered++;
-			
-			var x = document.createElement("div");
-			x.innerHTML = getRowHtml(i);
-			x = x.firstChild;
-			rowsCache[i] = fragment.appendChild(x);
 		}
 		
-		$divMain[0].appendChild(fragment);
+		x.innerHTML = stringArray.join("");
+		
+		for (var i = 0, nodes = x.childNodes, l = nodes.length; i < l; i++) {
+			rowsCache[rows[i]] = $divMain[0].appendChild(x.firstChild);
+		}
 		
 		if (renderedRows - rowsBefore > 5)
 			avgRowRenderTime = (new Date() - _start) / (renderedRows - rowsBefore);
@@ -590,14 +596,15 @@ function SlickGrid($container,data,columns,options)
 	}
 
 	function handleScroll() {
-		var scrollLeft = parseInt($divMainScroller[0].scrollLeft);
+		currentScrollTop = $divMainScroller[0].scrollTop;
+		var scrollDistance = Math.abs(lastRenderedScrollTop - currentScrollTop);
+		var scrollLeft = $divMainScroller[0].scrollLeft;
 		
 		if (scrollLeft != currentScrollLeft)
-			$divMainScroller[0].scrollLeft = currentScrollLeft = scrollLeft;
+			$divHeadersScroller[0].scrollLeft = currentScrollLeft = scrollLeft;
 		
-		currentScrollTop = parseInt($divMainScroller[0].scrollTop);
-		var scrollDistance = Math.abs(lastRenderedScrollTop - currentScrollTop);
-
+		window.status = currentScrollLeft;
+		
 		if (scrollDistance < 5*ROW_HEIGHT) return;
 		
 		if (lastRenderedScrollTop == currentScrollTop)
