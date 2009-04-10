@@ -136,6 +136,7 @@ function SlickGrid($container,data,columns,options)
 			.attr("hideFocus",true)
 			.css("overflow","hidden")
 			.css("outline",0)
+			.css("position","relative")
 			.addClass(uid);
 		
 		$divHeadersScroller = $("<div class='grid-header' style='overflow:hidden;position:relative;' />").appendTo($container);
@@ -185,10 +186,10 @@ function SlickGrid($container,data,columns,options)
 					resizeCanvas();
 					
 					// todo:  rerender single column instead of everything
-					if (columns[cell].rerenderOnResize) {
+					if (columns[cell].rerenderOnResize)
 						removeAllRows();
-						render();
-					}
+					
+					render();
 				}
 			});
 		});
@@ -364,7 +365,7 @@ function SlickGrid($container,data,columns,options)
 			stringArray.push("<div " + (m.unselectable ? "" : "hideFocus tabIndex=0 ") + "class='c c" + i + (m.cssClass ? " " + m.cssClass : "") + "' cell=" + i + ">");
 
 			// if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)				
-			if (row < data.length && d)
+			if (d && row < data.length)
 				stringArray.push(m.formatter(row, i, d[m.field], m, d));
 			
 			stringArray.push("</div>");
@@ -389,7 +390,7 @@ function SlickGrid($container,data,columns,options)
 		
 		for (var i in rowsCache)
 		{
-			if (i != currentRow && (i < visibleFrom || i > visibleTo))
+			if ((i < visibleFrom || i > visibleTo) && i != currentRow)
 			{
 				parentNode.removeChild(rowsCache[i]);
 				
@@ -405,13 +406,10 @@ function SlickGrid($container,data,columns,options)
 	}
 	
 	function removeAllRows() {
-		console.time("removeAllRows");
-		
 		$divMain[0].innerHTML = "";
 		rowsCache= {};
 		counter_rows_removed += renderedRows;
 		renderedRows = 0;
-		console.timeEnd("removeAllRows");
 	}	
 
 	function removeRow(row) {
@@ -532,6 +530,7 @@ function SlickGrid($container,data,columns,options)
 			}
 		}
 		
+		// TODO: this sometimes results in scroll position jumping
 	  
         // browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
 	    if ($divMainScroller.scrollTop() > $divMain.height() - $divMainScroller.height())
@@ -549,12 +548,11 @@ function SlickGrid($container,data,columns,options)
 	function renderRows(from,to) {
 		console.time("renderRows");
 		
+		var parentNode = $divMain[0];
 		var rowsBefore = renderedRows;
 		var stringArray = [];
-		var _start = new Date();
-		var x = document.createElement("div");
-		
 		var rows =[];
+		var _start = new Date();
 		
 		for (var i = from; i <= to; i++) {
 			if (rowsCache[i]) continue;
@@ -566,11 +564,11 @@ function SlickGrid($container,data,columns,options)
 			counter_rows_rendered++;
 		}
 		
+		var x = document.createElement("div");
 		x.innerHTML = stringArray.join("");
-		
-		for (var i = 0, nodes = x.childNodes, l = nodes.length; i < l; i++) {
-			rowsCache[rows[i]] = $divMain[0].appendChild(x.firstChild);
-		}
+
+		for (var i = 0, l = x.childNodes.length; i < l; i++) 
+			rowsCache[rows[i]] = parentNode.appendChild(x.firstChild);
 		
 		if (renderedRows - rowsBefore > 5)
 			avgRowRenderTime = (new Date() - _start) / (renderedRows - rowsBefore);
@@ -583,10 +581,10 @@ function SlickGrid($container,data,columns,options)
 		var vp = getViewport();
 		var from = Math.max(0, vp.top - (scrollDir >= 0 ? 5 : BUFFER));
 		var to = Math.min(options.enableAddRow ? data.length : data.length - 1, vp.bottom + (scrollDir > 0 ? BUFFER : 5));
-
+		
 		if (Math.abs(lastRenderedScrollTop - currentScrollTop) > ROW_HEIGHT*CAPACITY)
 			removeAllRows();
-		else if (renderedRows >= CAPACITY)
+		else
 			cleanupRows(from,to);
 
 		renderRows(from,to);		
@@ -602,8 +600,6 @@ function SlickGrid($container,data,columns,options)
 		
 		if (scrollLeft != currentScrollLeft)
 			$divHeadersScroller[0].scrollLeft = currentScrollLeft = scrollLeft;
-		
-		window.status = currentScrollLeft;
 		
 		if (scrollDistance < 5*ROW_HEIGHT) return;
 		

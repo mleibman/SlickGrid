@@ -3,8 +3,8 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 		<title>SlickGrid example</title>
-		<link rel="stylesheet" href="slick.grid.css" type="text/css" media="screen" charset="utf-8" />
-		<link rel="stylesheet" href="themes/smoothness/ui.all.css" type="text/css" media="screen" charset="utf-8" />
+		<link rel="stylesheet" href="../slick.grid.css" type="text/css" media="screen" charset="utf-8" />
+		<link rel="stylesheet" href="../themes/smoothness/ui.all.css" type="text/css" media="screen" charset="utf-8" />
 		<link rel="stylesheet" href="examples.css" type="text/css" media="screen" charset="utf-8" />
 		<style>
 		.cell-title {
@@ -16,25 +16,40 @@
 		}
 		
 		.sort-asc {
-			background: silver url('images/sort-asc.png') no-repeat right center !important;
+			background: silver url('../images/sort-asc.png') no-repeat right center !important;
 		}
 		
 		.sort-desc {
-			background: silver url('images/sort-desc.png') no-repeat right center !important;
+			background: silver url('../images/sort-desc.png') no-repeat right center !important;
+		}
+		
+		.toggle {
+			height: 9px;
+			width: 9px;
+			display: inline-block;
 		}		
+		
+		.toggle.expand {
+			background: url(../images/expand.gif) no-repeat center center;
+		}
+	
+		.toggle.collapse {
+			background: url(../images/collapse.gif) no-repeat center center;
+		}
+		
 	</style>
 	</head>
 	<body>
-		<script language="JavaScript" src="lib/firebugx.js"></script>
-		<script language="JavaScript" src="lib/jquery-1.3.2.min.js"></script>
-		<script language="JavaScript" src="lib/jquery-ui-1.7.custom.min.js"></script>
-		<script language="JavaScript" src="lib/jquery.getScrollbarWidth.js"></script>
-		<script language="JavaScript" src="lib/jquery.rule-1.0.1-min.js"></script>
+		<script language="JavaScript" src="../lib/firebugx.js"></script>
+		<script language="JavaScript" src="../lib/jquery-1.3.2.min.js"></script>
+		<script language="JavaScript" src="../lib/jquery-ui-1.7.custom.min.js"></script>
+		<script language="JavaScript" src="../lib/jquery.getScrollbarWidth.js"></script>
+		<script language="JavaScript" src="../lib/jquery.rule-1.0.1-min.js"></script>
 			
-		<script language="JavaScript" src="slick.editors.js"></script>
-		<script language="JavaScript" src="slick.grid.js"></script>
-		<script language="JavaScript" src="slick.globaleditorlock.js"></script>
-		<script language="JavaScript" src="slick.model.js"></script>
+		<script language="JavaScript" src="../slick.editors.js"></script>
+		<script language="JavaScript" src="../slick.grid.js"></script>
+		<script language="JavaScript" src="../slick.globaleditorlock.js"></script>
+		<script language="JavaScript" src="../slick.model.js"></script>
 		
 		
 		<table width="100%">
@@ -52,10 +67,6 @@
 					
 					<label>And title including:</label>
 					<input type=text id="txtSearch">
-					
-					<br/>
-					
-					<button id="btnResort">Sort by %</button>
 				</div>
 				
 				<br/>
@@ -66,15 +77,7 @@
 				<h2>Demonstrates:</h2>
 				
 				<ul>
-					<li>a filtered Model (DataView) as a data source instead of a simple array</li>
-					<li>grid reacting to model events (onRowCountChanged, onRowsChanged)</li>
-					<li>
-						<b>FAST</b> DataView recalculation and <b>real-time</b> grid updating in response to data changes.<br/>
-						The grid holds 10'000 rows, yet you are able to sort, filter, scroll, navigate and edit as if it had 50 rows.
-					</li>
-					<li>adding new rows, bidirectional sorting</li>
-					<li>column options:  setValueHandler, cannotTriggerInsert</li>
-					<li><font color=red>NOTE:</font>  all filters are immediately applied to new/edited rows</li>
+					<li>implementing expand/collapse as a filter for DataView</li>
 				</ul>
 				
 			</td>
@@ -90,7 +93,20 @@
 			else	
 				return {valid:true, msg:null};
 		}
-					
+				
+				
+		var TaskNameFormatter = function(row, cell, value, columnDef, dataContext) {
+		    var spacer = "<span style='display:inline-block;height:1px;width:" + (15 * dataContext["indent"]) + "px'></span>";
+		    var idx = dataView.getIdxById(dataContext.id);
+			if (data[idx+1] && data[idx+1].indent > data[idx].indent) {
+				if (dataContext._collapsed)
+					return spacer + " <span class='toggle expand'></span>&nbsp;" + value;
+				else
+					return spacer + " <span class='toggle collapse'></span>&nbsp;" + value;
+			}				
+			else
+				return spacer + " <span class='toggle'></span>&nbsp;" + value;
+		};					
 			
 		var dataView;
 		var grid;
@@ -98,7 +114,7 @@
 		var data = [];
 
 		var columns = [
-			{id:"title", name:"Title", field:"title", width:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, setValueHandler:updateItem},
+			{id:"title", name:"Title", field:"title", width:220, cssClass:"cell-title", formatter:TaskNameFormatter, editor:TextCellEditor, validator:requiredFieldValidator, setValueHandler:updateItem},
 			{id:"duration", name:"Duration", field:"duration", editor:TextCellEditor, setValueHandler:updateItem},
 			{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter, editor:PercentCompleteCellEditor, setValueHandler:updateItem},
 			{id:"start", name:"Start", field:"start", minWidth:60, editor:DateCellEditor, setValueHandler:updateItem},
@@ -124,6 +140,19 @@
 			if (searchString != "" && item["title"].indexOf(searchString) == -1)
 				return false;
 				
+			var idx = dataView.getIdxById(item.id);
+		
+			if (item.parent != null) {
+				var parent = data[item.parent];
+				
+				while (parent) {
+					if (parent._collapsed || (parent["percentComplete"] < percentCompleteThreshold) || (searchString != "" && parent["title"].indexOf(searchString) == -1) ) 
+						return false;
+					
+					parent = data[parent.parent];
+				}
+			}
+				
 			return true;
 		}
 		
@@ -131,21 +160,14 @@
 			return a["percentComplete"] - b["percentComplete"];
 		}
 
-		var sortcol = "title";
-		var sortdir = 1;
-		function comparer(a,b) {
-			var x = a[sortcol], y = b[sortcol];
-			
-			return sortdir * (x == y ? 0 : (x > y ? 1 : -1));
-		}
-		
+	
 		function updateItem(value,columnDef,item) {
 			item[columnDef.field] = value;
 			dataView.updateItem(item.id,item);
 		}
 		
 		function addItem(columnDef,value) {
-			var item = {"id": "new_" + (Math.round(Math.random()*10000)), "title":"New task", "duration":"1 day", "percentComplete":0, "start":"01/01/2009", "finish":"01/01/2009", "effortDriven":false};
+			var item = {"id": "new_" + (Math.round(Math.random()*10000)), "indent":0, "title":"New task", "duration":"1 day", "percentComplete":0, "start":"01/01/2009", "finish":"01/01/2009", "effortDriven":false};
 			item[columnDef.field] = value;
 			dataView.addItem(item);
 		}
@@ -153,11 +175,32 @@
 
 		$(function()
 		{
+			var indent = 0;
+			var parents = [];
+			
 			// prepare the data
-			for (var i=0; i<10000; i++) {
+			for (var i=0; i<1000; i++) {
 				var d = (data[i] = {});
+				var parent = null;
+				
+				if (Math.random() > 0.8) {
+					indent++;
+					parent = i - 1;
+					parents.push(parent);
+				}
+				else if (Math.random() < 0.3 && indent > 0) {
+					indent--;
+					parent = parents.pop();
+				}
+				else if (parents.length > 0)
+					parent = parents[parents.length-1];
+				
+				if (indent == 0)
+					parent = null;	
 				
 				d["id"] = "id_" + i;
+				d["indent"] = indent;
+				d["parent"] = parent;
 				d["title"] = "Task " + i;
 				d["duration"] = "5 days";
 				d["percentComplete"] = Math.round(Math.random() * 100);
@@ -179,23 +222,24 @@
 			grid = new SlickGrid($("#myGrid"), dataView.rows, columns, options);
 			
 			grid.onAddNewRow = addItem;
-			
-			grid.onColumnHeaderClick = function(columnDef) {
-				if (GlobalEditorLock.isEditing() && !GlobalEditorLock.commitCurrentEdit())
-					return;
+					
+			grid.onClick = function(e,row,cell) {
+				if ($(e.target).hasClass("toggle")) {
+					
+					var item = dataView.rows[row];
+					if (item) {
+						if (!item._collapsed)
+							item._collapsed = true;
+						else 
+							item._collapsed = false;
+						
+						dataView.updateItem(item.id,item);						
+					}
+					
+					return true;
+				}
 				
-				for (var i=0; i<columns.length; i++)
-					grid.setColumnHeaderCssClass(columns[i].id, "", "sort-asc sort-desc");
-				
-				if (sortcol == columnDef.field)
-					sortdir *= -1;
-				else
-					sortdir = 1;
-				
-				grid.setColumnHeaderCssClass(columnDef.id, sortdir == 1 ? "sort-asc" : "sort-desc", "");
-				
-				sortcol = columnDef.field;
-				dataView.sort(comparer);
+				return false;
 			}
 			
 			
@@ -235,13 +279,6 @@
 				searchString = this.value;
 				dataView.refresh();
 			})
-			
-			$("#btnResort").click(function() {
-				if (GlobalEditorLock.isEditing()) 
-					GlobalEditorLock.cancelCurrentEdit();
-									
-				dataView.sort(percentCompleteSort);
-			});
 		})
 		
 		</script>

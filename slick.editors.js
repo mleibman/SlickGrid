@@ -32,13 +32,13 @@ var YesNoCellFormatter = function(row, cell, value, columnDef, dataContext) {
 };
 
 var BoolCellFormatter = function(row, cell, value, columnDef, dataContext) {
-    return value ? "<img src='images/tick.png'>" : "";
+    return value ? "<img src='../images/tick.png'>" : "";
 };			
 	
 var TaskNameFormatter = function(row, cell, value, columnDef, dataContext) {
     // todo:  html encode
     var spacer = "<span style='display:inline-block;height:1px;width:" + (2 + 15 * dataContext["indent"]) + "px'></span>";
-    return spacer + " <img src='images/expand.gif'>&nbsp;" + value;
+    return spacer + " <img src='../images/expand.gif'>&nbsp;" + value;
 };
 
 var ResourcesFormatter = function(row, cell, value, columnDef, dataContext) {
@@ -48,18 +48,14 @@ var ResourcesFormatter = function(row, cell, value, columnDef, dataContext) {
         return "";
 
 	if (columnDef.width < 50)
-		return (resources.length > 1 ? "<center><img src='images/user_identity_plus.gif' " : "<center><img src='images/user_identity.gif' ") + 
+		return (resources.length > 1 ? "<center><img src='../images/user_identity_plus.gif' " : "<center><img src='../images/user_identity.gif' ") + 
 				" title='" + resources.join(", ") + "'></center>";
 	else
 		return resources.join(", ");
-	
-    // todo:  html encode
-	
-    //return "<img src='images/user_unassign.gif' align=absmiddle title='Remove all resources' />&nbsp; " + resources.join(", ");
 };
 
 var StarFormatter = function(row, cell, value, columnDef, dataContext) {
-    return (value) ? "<img src='images/bullet_star.png' align='absmiddle'>" : "";
+    return (value) ? "<img src='../images/bullet_star.png' align='absmiddle'>" : "";
 };
 
 
@@ -142,7 +138,7 @@ var DateCellEditor = function($container, columnDef, value, dataContext) {
         $input.datepicker({
             showOn: "button",
             buttonImageOnly: true,
-            buttonImage: "images/calendar.gif"
+            buttonImage: "../images/calendar.gif"
         });
         $input.width($input.width() - $container.find("img").width());
     }
@@ -518,7 +514,7 @@ var StarCellEditor = function($container, columnDef, value, dataContext) {
 	}
 	
     this.init = function() {
-        $input = $("<IMG src='images/bullet_star.png' align=absmiddle tabIndex=0 title='Click or press Space to toggle' />");
+        $input = $("<IMG src='../images/bullet_star.png' align=absmiddle tabIndex=0 title='Click or press Space to toggle' />");
         
         if (defaultValue) 
             $input.css("opacity", 1);
