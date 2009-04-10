@@ -4,8 +4,8 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 		<title>Spreadsheet prototype</title>
 		<link rel="stylesheet" href="simpledropdown.css" type="text/css" media="screen" charset="utf-8" />
-		<link rel="stylesheet" href="slick.grid.css" type="text/css" media="screen" charset="utf-8" />
-		<link rel="stylesheet" href="themes/smoothness/ui.all.css" type="text/css" media="screen" charset="utf-8" />
+		<link rel="stylesheet" href="../slick.grid.css" type="text/css" media="screen" charset="utf-8" />
+		<link rel="stylesheet" href="../themes/smoothness/ui.all.css" type="text/css" media="screen" charset="utf-8" />
 		<style>
 		*
 		{
@@ -30,21 +30,21 @@
 		}
 			
 		li {
-			background: url("images/arrow_right_spearmint.png") no-repeat 0px center;
+			background: url("../images/arrow_right_spearmint.png") no-repeat 0px center;
 			padding-left: 12px;
 			list-style: none;
 			margin: 0px;
 		}
 			
 		li:hover {
-			background: url("images/arrow_right_peppermint.png") no-repeat 0px center;
+			background: url("../images/arrow_right_peppermint.png") no-repeat 0px center;
 		}
 				
 		.listview-header {
 			height: 24px;
 			line-height: 24px;
 			width: 100%;
-			background: url("images/listview.gif") no-repeat top left;
+			background: url("../images/listview.gif") no-repeat top left;
 		}
 			
 		.listview-header .r {
@@ -52,7 +52,7 @@
 			text-align: right;
 			width: 50%;
 			height: 24px;
-			background: white url("images/listview.gif") no-repeat top right;
+			background: white url("../images/listview.gif") no-repeat top right;
 			line-height: 24px;
 		}
 		
@@ -63,7 +63,7 @@
 			height: 24px;
 			line-height: 24px;
 			width: 100%;
-			background: url("images/listview.gif") no-repeat left -24px;
+			background: url("../images/listview.gif") no-repeat left -24px;
 		}
 			
 		.listview-footer .r {
@@ -71,21 +71,21 @@
 			text-align: right;
 			width: 50%;
 			height: 24px;
-			background: white url("images/listview.gif") no-repeat right -24px;
+			background: white url("../images/listview.gif") no-repeat right -24px;
 			line-height: 24px;
 		}
 		</style>
 	</head>
 	<body>
-		<script language="JavaScript" src="lib/firebugx.js"></script>
-		<script language="JavaScript" src="lib/jquery-1.3.2.min.js"></script>
-		<script language="JavaScript" src="lib/jquery-ui-1.7.custom.min.js"></script>
-		<script language="JavaScript" src="lib/jquery.getScrollbarWidth.js"></script>
-		<script language="JavaScript" src="lib/jquery.rule-1.0.1-min.js"></script>
+		<script language="JavaScript" src="../lib/firebugx.js"></script>
+		<script language="JavaScript" src="../lib/jquery-1.3.2.min.js"></script>
+		<script language="JavaScript" src="../lib/jquery-ui-1.7.custom.min.js"></script>
+		<script language="JavaScript" src="../lib/jquery.getScrollbarWidth.js"></script>
+		<script language="JavaScript" src="../lib/jquery.rule-1.0.1-min.js"></script>
 			
-		<script language="JavaScript" src="slick.editors.js"></script>
-		<script language="JavaScript" src="slick.grid.js"></script>
-		<script language="JavaScript" src="slick.globaleditorlock.js"></script>
+		<script language="JavaScript" src="../slick.editors.js"></script>
+		<script language="JavaScript" src="../slick.grid.js"></script>
+		<script language="JavaScript" src="../slick.globaleditorlock.js"></script>
 		
 		
 		<div class="listview-header">
@@ -152,7 +152,7 @@
 			</span>				
 					
 			<span class="simple-dropdown">
-				<em style="padding-left:16px;background:url('images/info.gif') no-repeat center left;">Quick info</em>
+				<em style="padding-left:16px;background:url('../images/info.gif') no-repeat center left;">Quick info</em>
 				<div style="max-width:600px">
 				
 				This page demonstrate the use of a SlickGrid control.
@@ -337,7 +337,7 @@
 				// toggle expand/collapse icon
 				if (model[cell].id == "title" && $(e.target).is("img")) 
 				{
-					$(e.target).attr("src", $(e.target).attr("src") != "images/collapse.gif" ? "images/collapse.gif" : "images/expand.gif");
+					$(e.target).attr("src", $(e.target).attr("src") != "../images/collapse.gif" ? "../images/collapse.gif" : "../images/expand.gif");
 					return true;
 				}		
 				

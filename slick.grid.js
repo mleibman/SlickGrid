@@ -504,9 +504,6 @@ function SlickGrid($container,data,columns,options)
 	    BUFFER = numVisibleRows = Math.ceil(viewportH / ROW_HEIGHT);
 		CAPACITY = Math.max(CAPACITY, numVisibleRows + 2*BUFFER);
 
-		$divMain.height(Math.max(ROW_HEIGHT * (data.length + numVisibleRows - 2), viewportH - $.getScrollbarWidth()));
-		
-				
 		var totalWidth = 0;
 		for (var i=0; i<columns.length; i++)
 		{
@@ -530,11 +527,13 @@ function SlickGrid($container,data,columns,options)
 			}
 		}
 		
-		// TODO: this sometimes results in scroll position jumping
-	  
+	    var newHeight = Math.max(ROW_HEIGHT * (data.length + numVisibleRows - 2), viewportH - $.getScrollbarWidth());
+		
         // browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
-	    if ($divMainScroller.scrollTop() > $divMain.height() - $divMainScroller.height())
-	        $divMainScroller.scrollTop($divMain.height() - $divMainScroller.height());
+		if ($divMainScroller.scrollTop() > newHeight - $divMainScroller.height() + $.getScrollbarWidth()) 
+			$divMainScroller.scrollTop(newHeight - $divMainScroller.height() + $.getScrollbarWidth());
+		
+		$divMain.height(newHeight);
 	}
 	
 	function getViewport()
