@@ -406,6 +406,7 @@ function SlickGrid($container,data,columns,options)
 	}
 	
 	function removeAllRows() {
+		console.log("removeAllRows")
 		$divMain[0].innerHTML = "";
 		rowsCache= {};
 		counter_rows_removed += renderedRows;
@@ -449,7 +450,7 @@ function SlickGrid($container,data,columns,options)
 			nodes.push(rows[i]);
 		}
 		
-		if (nodes.length == renderedRows) {
+		if (renderedRows > 10 && nodes.length == renderedRows) {
 			$divMain[0].innerHTML = "";
 			rowsCache= {};
 			counter_rows_removed += renderedRows;
@@ -500,8 +501,8 @@ function SlickGrid($container,data,columns,options)
 	function resizeCanvas() {
 		viewportW = $divMainScroller.innerWidth();
 		viewportH = $divMainScroller.innerHeight();
-
-	    BUFFER = numVisibleRows = Math.ceil(viewportH / ROW_HEIGHT);
+	    
+		BUFFER = numVisibleRows = Math.ceil(viewportH / ROW_HEIGHT);
 		CAPACITY = Math.max(CAPACITY, numVisibleRows + 2*BUFFER);
 
 		var totalWidth = 0;
@@ -530,10 +531,11 @@ function SlickGrid($container,data,columns,options)
 	    var newHeight = Math.max(ROW_HEIGHT * (data.length + numVisibleRows - 2), viewportH - $.getScrollbarWidth());
 		
         // browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
-		if ($divMainScroller.scrollTop() > newHeight - $divMainScroller.height() + $.getScrollbarWidth()) 
+		if ($divMainScroller.scrollTop() > newHeight - $divMainScroller.height() + $.getScrollbarWidth()) {
 			$divMainScroller.scrollTop(newHeight - $divMainScroller.height() + $.getScrollbarWidth());
+		}
+		$divMain.height(newHeight);		
 		
-		$divMain.height(newHeight);
 	}
 	
 	function getViewport()
@@ -581,9 +583,9 @@ function SlickGrid($container,data,columns,options)
 		var from = Math.max(0, vp.top - (scrollDir >= 0 ? 5 : BUFFER));
 		var to = Math.min(options.enableAddRow ? data.length : data.length - 1, vp.bottom + (scrollDir > 0 ? BUFFER : 5));
 		
-		if (Math.abs(lastRenderedScrollTop - currentScrollTop) > ROW_HEIGHT*CAPACITY)
+		if (renderedRows > 10 && Math.abs(lastRenderedScrollTop - currentScrollTop) > ROW_HEIGHT*CAPACITY)
 			removeAllRows();
-		else
+		else //if (renderedRows >= CAPACITY)
 			cleanupRows(from,to);
 
 		renderRows(from,to);		
@@ -611,8 +613,8 @@ function SlickGrid($container,data,columns,options)
 		
 		if (h_render)
 			window.clearTimeout(h_render);
-		
-		if (scrollDistance < 2*numVisibleRows*ROW_HEIGHT || avgRowRenderTime*CAPACITY < 30 ||  _forceSyncScrolling) 
+
+		if (scrollDistance < numVisibleRows*ROW_HEIGHT) // || avgRowRenderTime*CAPACITY < 30 ||  _forceSyncScrolling) 
 			render();
 		else
 			h_render = window.setTimeout(render, 50);

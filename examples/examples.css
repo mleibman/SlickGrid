@@ -19,7 +19,7 @@ ul {
 }
 
 li {
-    background: url("images/arrow_right_spearmint.png") no-repeat center left;
+    background: url("../images/arrow_right_spearmint.png") no-repeat center left;
     padding: 0px;
     padding-left: 14px;
     list-style: none;
