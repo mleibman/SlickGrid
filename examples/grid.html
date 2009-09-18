@@ -228,12 +228,12 @@
 		var model = [
 			{id:"#", name:"#", cssClass:"cell-move-handle", width:60, resizable:false, unselectable:true, formatter:SelectorCellFormatter},
 			{id:"title", name:"Title", field:"title", formatter:TaskNameFormatter, width:300, editor:TextCellEditor, validator:nonEmptyValidator},
-			{id:"star", name:"<img src='images/bullet_star.png' align='absmiddle'>", field:"starred", formatter:StarFormatter, editor:StarCellEditor, width:16, resizable:false, cannotTriggerInsert:true},
+			{id:"star", name:"<img src='../images/bullet_star.png' align='absmiddle'>", field:"starred", formatter:StarFormatter, editor:StarCellEditor, width:16, resizable:false, cannotTriggerInsert:true},
 			{id:"duration", name:"Duration", field:"duration", width:80, editor:TextCellEditor},
 			{id:"%", name:"% Complete", field:"percentComplete", formatter:GraphicalPercentCompleteCellFormatter, width:60, editor:PercentCompleteCellEditor},
 			{id:"start", name:"Start", field:"start", width:100, editor:DateCellEditor},
 			{id:"finish", name:"Finish", field:"finish", width:100, editor:DateCellEditor},
-			{id:"resources", name:"Resources", formatter:ResourcesFormatter, rerenderOnResize:true, width:200, editor:ResourcesCellEditor, setValueHandler:setTaskResources, cannotTriggerInsert:true, minWidth:16, maxWidth:200},
+			{id:"resources", name:"Resources <img src='../images/help.png' align='absmiddle' title='This column has an adaptive formatter.  Resize to a smaller size to see alternative data representation.'>", formatter:ResourcesFormatter, rerenderOnResize:true, width:200, editor:ResourcesCellEditor, setValueHandler:setTaskResources, cannotTriggerInsert:true, minWidth:16, maxWidth:200},
 			{id:"preds", name:"Predecessors", width:100, editor:TextCellEditor, cannotTriggerInsert:true}
 			,
 			{id:"e", name:"Deliverable", field:4, formatter:YesNoCellFormatter, width:60, editor:YesNoSelectCellEditor, cannotTriggerInsert:true},

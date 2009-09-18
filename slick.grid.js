@@ -162,10 +162,6 @@ function SlickGrid($container,data,columns,options)
 				.html(m.name)
 				.width(m.width)
 				.appendTo($divHeaders);
-				
-			// todo:  this is for demo purposes only
-			if (m.rerenderOnResize)
-				header.append(" <img src='images/help.png' align='absmiddle' title='This column has an adaptive formatter.  Resize to a smaller size to see alternative data representation.'>");
 		}
 		
 		$divHeaders.find(".h").each(function() {
@@ -343,6 +339,12 @@ function SlickGrid($container,data,columns,options)
 		render();
 	}
 	
+    function setData(newData)
+	{
+	    removeAllRows();    
+	    data = newData;
+	    $divMainScroller.scrollTop(0);
+	}	
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	// Rendering / Scrolling
@@ -1090,6 +1092,8 @@ function SlickGrid($container,data,columns,options)
 		"onColumnsReordered":	null,
 		
 		// Methods
+		"setOptions":		setOptions,
+		"setData":			setData,
 		"destroy":			destroy,
 		"getColumnIndex":	getColumnIndex,
 		"updateCell":		updateCell,
