@@ -44,6 +44,10 @@
 	background: white;
 }
 
+.grid-canvas .r[row$="1"], .grid-canvas .r[row$="3"], .grid-canvas .r[row$="5"], .grid-canvas .r[row$="7"],	.grid-canvas .r[row$="9"]{
+	background: #f5f5f5;
+}
+
 .grid-canvas .r.loading {
 	background: url("images/stripes.png") repeat-x center center;
 }
