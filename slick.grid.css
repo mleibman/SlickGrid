@@ -49,7 +49,9 @@
 }
 
 .grid-canvas .r.loading {
-	background: url("images/stripes.png") repeat-x center center;
+	-background: url("images/stripes.png") repeat-x center center;
+	opacity: 0.5;
+	filter: alpha(opacity=50);
 }
 
 .grid-canvas .r:hover {
