@@ -267,6 +267,8 @@ function SlickGrid($container,data,columns,options)
 	}
 	
 	function removeCssRules() {
+		$.rule(".grid-canvas .r .c").remove();
+		
 		for (var i = 0; i < columns.length; i++) {
 			$.rule("." + uid + " .grid-canvas .c" + i, "style").remove();
 		}
