@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+		<title>SlickGrid example</title>
+		<link rel="stylesheet" href="../slick.grid.css" type="text/css" media="screen" charset="utf-8" />
+		<link rel="stylesheet" href="../themes/smoothness/ui.all.css" type="text/css" media="screen" charset="utf-8" />
+		<link rel="stylesheet" href="examples.css" type="text/css" media="screen" charset="utf-8" />
+		<style>
+		.cell-story {
+			white-space: normal!important;
+		}
+		
+		.sort-asc {
+			background: silver url('../images/sort-asc.png') no-repeat right center !important;
+		}
+		
+		.sort-desc {
+			background: silver url('../images/sort-desc.png') no-repeat right center !important;
+		}				
+		</style>
+	</head>
+	<body>
+		<script language="JavaScript" src="../lib/firebugx.js"></script>
+		<script language="JavaScript" src="../lib/jquery-1.3.2.min.js"></script>
+		<script language="JavaScript" src="../lib/jquery-ui-1.7.custom.min.js"></script>
+		<script language="JavaScript" src="../lib/jquery.getScrollbarWidth.js"></script>
+		<script language="JavaScript" src="../lib/jquery.rule-1.0.1-min.js"></script>
+			
+		<script language="JavaScript" src="../slick.remotemodel.js"></script>
+		<script language="JavaScript" src="../slick.grid.js"></script>
+		<script language="JavaScript" src="../slick.globaleditorlock.js"></script>
+		
+		
+		<table width="100%">
+		<tr>
+			<td valign="top" width="50%">
+				<div id="myGrid" style="width:800px;height:700px;"></div>
+			</td>
+			<td valign="top">
+				<h2>Demonstrates:</h2>
+				
+				<ul>
+					<li>loading data through AJAX</li>
+					<li>custom row height</li>
+				</ul>
+				
+			</td>
+		</tr>
+		</table>
+
+		
+		<script>
+		
+		var grid;
+		var data = [];
+		var loader = new RemoteModel();
+
+		var storyTitleFormatter = function(row, cell, value, columnDef, dataContext) {
+		    return "<b><a href='" + dataContext["link"] + "' target=_blank>" + dataContext["title"] + "</a></b><br/>" + dataContext["description"];
+		};
+
+		var userIconFormatter = function(row, cell, value, columnDef, dataContext) {
+		    return "<img src='" + dataContext["user"].icon + "'>";
+		};
+		
+		var columns = [
+			{id:"num", name:"#", field:"index", width:40},
+			{id:"author", name:"Author", width:40, formatter:userIconFormatter, width:50},			
+			{id:"story", name:"Story", width:670, formatter:storyTitleFormatter, cssClass:"cell-story"}
+		];
+
+		var options = {
+			rowHeight: 64,
+			editable: false,
+			enableAddRow: false,
+			enableCellNavigation: false
+		};	
+
+	
+
+	
+	
+		$(function()
+		{
+			grid = new SlickGrid($("#myGrid"), loader.data, columns, options);
+			
+			grid.onViewportChanged = function() {
+				var vp = grid.getViewport();
+				var pagesize = vp.bottom - vp.top;
+				
+				loader.ensureData(vp.top - 2*pagesize, vp.bottom + 2*pagesize);
+			}
+			
+			
+			loader.onDataLoaded.subscribe(function(args) {
+				for (var i = args.from; i <= args.to; i++) {
+					grid.removeRow(i);
+				}
+
+				grid.resizeCanvas();				
+				grid.render();
+			});
+			
+			
+			
+			// load the first page
+			grid.onViewportChanged();
+			
+		})
+		
+		</script>
+
+	</body>
+</html>
