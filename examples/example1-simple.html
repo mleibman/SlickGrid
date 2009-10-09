@@ -31,6 +31,7 @@
 				
 				<ul>
 					<li>basic grid with minimal configuration</li>
+					<li>grid handles container resizing</li>
 				</ul>
 				
 			</td>
@@ -74,8 +75,11 @@
 				d["effortDriven"] = (i % 5 == 0);
 			}
 
+
 					
 			grid = new SlickGrid($("#myGrid"), data, columns, options);
+			
+			$("#myGrid").resizable();
 		})
 		
 		</script>

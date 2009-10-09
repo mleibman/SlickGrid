@@ -140,7 +140,7 @@ var DateCellEditor = function($container, columnDef, value, dataContext) {
             buttonImageOnly: true,
             buttonImage: "../images/calendar.gif"
         });
-        $input.width($input.width() - $container.find("img").width());
+        $input.width($input.width() - 18);
     }
     
     

@@ -36,6 +36,10 @@
 		<tr>
 			<td valign="top" width="50%">
 				<div id="myGrid" style="width:800px;height:700px;"></div>
+				
+				<hr/>
+				<br/>
+				<b><u>Status:</u></b>&nbsp;<span id="status"></span>
 			</td>
 			<td valign="top">
 				<h2>Demonstrates:</h2>
@@ -93,13 +97,19 @@
 			}
 			
 			
+			loader.onDataLoading.subscribe(function() {
+				$("#status").text("Loading...");
+			});
+			
 			loader.onDataLoaded.subscribe(function(args) {
 				for (var i = args.from; i <= args.to; i++) {
 					grid.removeRow(i);
 				}
 
-				grid.resizeCanvas();				
+				grid.updateRowCount();				
 				grid.render();
+				
+				$("#status").text("Ready.");
 			});
 			
 			

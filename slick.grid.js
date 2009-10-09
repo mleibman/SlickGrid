@@ -9,7 +9,6 @@
  * 	- built-in row reorder
  * 	- add custom editor options
  * 	- consistent events (EventHelper?  jQuery events?)
- * 	- break resizeCanvas() into two functions to handle container resize and data size changes
  * 	- improve rendering speed by merging column extra cssClass into dynamically-generated .c{x} rules
  * 	- improve rendering speed by reusing removed row nodes and doing one .replaceChild() instead of two .removeChild() and .appendChild()
  * 
@@ -247,6 +246,8 @@ function SlickGrid($container,data,columns,options)
 		if (!options.manualScrolling)
 			$divMainScroller.bind("scroll", handleScroll);
 		
+		$container.bind("resize", resizeCanvas);
+		
 		$divMain.bind("keydown", handleKeyDown);
 		$divMain.bind("click", handleClick);
 		$divMain.bind("dblclick", handleDblClick);
@@ -280,7 +281,7 @@ function SlickGrid($container,data,columns,options)
 		
 		$divHeaders.sortable("destroy");
 		$divHeaders.find(".h").resizable("destroy");
-		
+		$container.unbind("resize", resizeCanvas);
 		removeCssRules();
 		
 		$container.empty().removeClass(uid);
@@ -518,6 +519,21 @@ function SlickGrid($container,data,columns,options)
 		}
 		$divMain.width(totalWidth);
 	  
+	    var newHeight = Math.max(options.rowHeight * (data.length + numVisibleRows - 2), viewportH - $.getScrollbarWidth());
+
+		$divMainScroller.height( $container.innerHeight() - $divHeadersScroller.outerHeight() );
+		
+        // browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
+		if ($divMainScroller.scrollTop() > newHeight - $divMainScroller.height() + $.getScrollbarWidth()) {
+			$divMainScroller.scrollTop(newHeight - $divMainScroller.height() + $.getScrollbarWidth());
+		}
+		$divMain.height(newHeight);
+		
+		render();
+	}
+	
+	
+	function updateRowCount() {
 	  	// remove the rows that are now outside of the data range
 		// this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
 		var parentNode = $divMain[0];
@@ -540,8 +556,7 @@ function SlickGrid($container,data,columns,options)
 		if ($divMainScroller.scrollTop() > newHeight - $divMainScroller.height() + $.getScrollbarWidth()) {
 			$divMainScroller.scrollTop(newHeight - $divMainScroller.height() + $.getScrollbarWidth());
 		}
-		$divMain.height(newHeight);		
-		
+		$divMain.height(newHeight);			
 	}
 	
 	function getViewport()
@@ -1104,6 +1119,7 @@ function SlickGrid($container,data,columns,options)
 		"render":			render,
 		"getViewport":		getViewport,
 		"resizeCanvas":		resizeCanvas,
+		"updateRowCount": 	updateRowCount,
 		"scroll":			scroll,  // TODO
 		"getCellFromPoint":	getCellFromPoint,
 		"gotoCell":			gotoCell,
