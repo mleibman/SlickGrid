@@ -251,6 +251,7 @@ function SlickGrid($container,data,columns,options)
 		$divMain.bind("keydown", handleKeyDown);
 		$divMain.bind("click", handleClick);
 		$divMain.bind("dblclick", handleDblClick);
+		$divMain.bind("contextmenu", handleContextMenu)
 
 		if ($.browser.msie) 
 			$divMainScroller[0].onselectstart = function() {
@@ -746,6 +747,37 @@ function SlickGrid($container,data,columns,options)
 		}
 	}
 	
+	
+	function handleContextMenu(e) 
+	{
+		var $cell = $(e.target).closest(".c");
+		if ($cell.length == 0) return;
+		
+		// are we editing this cell?
+		if (currentCellNode == $cell[0] && currentEditor != null) return;
+		
+		var row = parseInt($cell.parent().attr("row"));
+		var cell = parseInt($cell.attr("cell"));		
+		var validated = null;
+	
+		// do we have any registered handlers?
+		if (data[row] && self.onContextMenu)
+		{
+			// grid must not be in edit mode
+			if (!currentEditor || (validated = commitCurrentEdit())) 
+			{
+				// handler will return true if the event was handled
+				if (self.onContextMenu(e, row, cell)) 
+				{
+					e.stopPropagation();
+					e.preventDefault();
+					return false;
+				}
+			}
+		}
+	}
+	
+	
 	function handleDblClick(e)
 	{
 		var $cell = $(e.target).closest(".c");
@@ -1099,6 +1131,7 @@ function SlickGrid($container,data,columns,options)
 		// Events
 		"onColumnHeaderClick":	null,
 		"onClick":			null,
+		"onContextMenu":	null,
 		"onKeyDown":		null,
 		"onAddNewRow":		null,
 		"onValidationError":	null,
