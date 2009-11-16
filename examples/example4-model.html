@@ -53,9 +53,10 @@
 					<label>And title including:</label>
 					<input type=text id="txtSearch">
 					
-					<br/>
+					<br/><br/>
 					
 					<button id="btnResort">Sort by %</button>
+					<button id="btnSelectRows">Select first 10 rows</button>
 				</div>
 				
 				<br/>
@@ -75,6 +76,7 @@
 					<li>adding new rows, bidirectional sorting</li>
 					<li>column options:  setValueHandler, cannotTriggerInsert</li>
 					<li><font color=red>NOTE:</font>  all filters are immediately applied to new/edited rows</li>
+					<li>Handling row selection against model changes.</li>
 				</ul>
 				
 			</td>
@@ -96,6 +98,7 @@
 		var grid;
 		
 		var data = [];
+		var selectedRowIds = [];
 
 		var columns = [
 			{id:"title", name:"Title", field:"title", width:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, setValueHandler:updateItem},
@@ -207,6 +210,13 @@
 			dataView.onRowsChanged.subscribe(function(rows) {
 				grid.removeRows(rows);
 				grid.render();
+				
+				// since how the original data maps onto rows has changed,
+				// the selected rows in the grid need to be updated
+				var rows = [];
+				for (var i=0; i<selectedRowIds.length; i++)
+					rows.push(dataView.getIdxById(selectedRowIds[i]));
+				grid.setSelectedRows(rows);
 			});
 			
 			
@@ -234,13 +244,25 @@
 				
 				searchString = this.value;
 				dataView.refresh();
-			})
+			});
 			
 			$("#btnResort").click(function() {
 				if (GlobalEditorLock.isEditing()) 
 					GlobalEditorLock.cancelCurrentEdit();
 									
 				dataView.sort(percentCompleteSort);
+			});
+			
+			$("#btnSelectRows").click(function() {
+				var rows = [];
+				selectedRowIds = [];
+				
+				for (var i=0; i<10 && i<dataView.rows.length; i++) {
+					rows.push(i);
+					selectedRowIds.push(dataView.rows[i].id);
+				}
+				
+				grid.setSelectedRows(rows);
 			});
 		})
 		
