@@ -70,6 +70,10 @@ function DataView() {
 		return idxById[id];
 	}
 	
+	function getRowById(id) {
+		return rowsByIdx[idxById[id]];
+	}
+	
 	function getItemById(id) {
 		return items[idxById[id]];
 	}
@@ -99,6 +103,7 @@ function DataView() {
 	function recalc() {
 		var diff = [];
 		idxById = {};
+		rowsByIdx = [];
 		
 		// go over all items remapping them to rows on the fly 
 		// while keeping track of the differences and updating indexes
@@ -112,22 +117,19 @@ function DataView() {
 
 			idxById[id] = i;
 
-			if (!filter || filter(item)) {				
+			if (!filter || filter(item)) {
 				if (l >= rl || id != rows[l].id || (updated && updated[id])) {
 					diff.push(l);
-					rows[l] = item;
-					rowsByIdx[i] = l;
 				}
-
-				l++;
+				
+				rows[l] = item;
+				rowsByIdx[i] = l++;
 			}
 		}
 
 		// remove unmapped portion
-		if (rl > l) {
+		if (rl > l)
 			rows.splice(l, rl - l);
-			rowsByIdx.splice(l, rl - l);
-		}
 		
 		updated = null;
 		
@@ -154,6 +156,7 @@ function DataView() {
 		"setFilter":	setFilter,
 		"sort":			sort,
 		"getIdxById":	getIdxById,
+		"getRowById":	getRowById,
 		"getItemById":	getItemById,
 		"refresh":		refresh,
 		"updateItem":	updateItem,

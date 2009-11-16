@@ -211,11 +211,16 @@
 				grid.removeRows(rows);
 				grid.render();
 				
+				
 				// since how the original data maps onto rows has changed,
 				// the selected rows in the grid need to be updated
 				var rows = [];
-				for (var i=0; i<selectedRowIds.length; i++)
-					rows.push(dataView.getIdxById(selectedRowIds[i]));
+				for (var i=0; i<selectedRowIds.length; i++) {
+					var idx = dataView.getRowById(selectedRowIds[i]);
+					if (idx != undefined)
+						rows.push(idx);
+				}
+
 				grid.setSelectedRows(rows);
 			});
 			

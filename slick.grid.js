@@ -196,8 +196,6 @@ function SlickGrid($container,data,columns,options)
 				axis:"x", 
 				cancel:".ui-resizable-handle",
 				update: function(e,ui) {
-					console.time("column reorder");
-					
 					var newOrder = $divHeaders.sortable("toArray");
 					
 					var lookup = {};
@@ -221,8 +219,6 @@ function SlickGrid($container,data,columns,options)
 						self.onColumnsReordered();
 						
 					e.stopPropagation();
-						
-					console.timeEnd("column reorder");				
 				}
 				});
 			
@@ -391,8 +387,6 @@ function SlickGrid($container,data,columns,options)
 	}
 	
 	function cleanupRows(visibleFrom,visibleTo) {
-		console.time("cleanupRows");
-
 		var rowsBefore = renderedRows;
 		var parentNode = $divMain[0];
 		
@@ -408,13 +402,9 @@ function SlickGrid($container,data,columns,options)
 				counter_rows_removed++;	
 			}
 		}
-		
-		console.log("removed " + (rowsBefore - renderedRows) + " rows");
-		console.timeEnd("cleanupRows");
 	}
 	
 	function removeAllRows() {
-		console.log("removeAllRows")
 		$divMain[0].innerHTML = "";
 		rowsCache= {};
 		counter_rows_removed += renderedRows;
@@ -441,8 +431,6 @@ function SlickGrid($container,data,columns,options)
 	}
 	
 	function removeRows(rows) {
-		console.time("removeRows");
-
 		if (!rows || !rows.length) return;
 		
 		scrollDir = 0;
@@ -472,8 +460,6 @@ function SlickGrid($container,data,columns,options)
 				counter_rows_removed++;
 			}
 		}
-		
-		console.timeEnd("removeRows");
 	}
 	
 	function updateCell(row,cell) {
@@ -569,8 +555,6 @@ function SlickGrid($container,data,columns,options)
 	}
 	
 	function renderRows(from,to) {
-		console.time("renderRows");
-		
 		var parentNode = $divMain[0];
 		var rowsBefore = renderedRows;
 		var stringArray = [];
@@ -595,9 +579,6 @@ function SlickGrid($container,data,columns,options)
 		
 		if (renderedRows - rowsBefore > 5)
 			avgRowRenderTime = (new Date() - _start) / (renderedRows - rowsBefore);
-		
-		console.log("rendered " + (renderedRows - rowsBefore) + " rows");
-		console.timeEnd("renderRows");		
 	}	
 	
 	function render() {
