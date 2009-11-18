@@ -84,7 +84,8 @@ function SlickGrid($container,data,columns,options)
 	
 	// consts
 	var CAPACITY = 50;
-	var BUFFER = 5;  // will be set to equal one page
+	var MIN_BUFFER = 5;
+	var BUFFER = MIN_BUFFER;  // will be set to equal one page
 	
 	// private
 	var uid = "slickgrid_" + Math.round(1000000 * Math.random());
@@ -497,7 +498,7 @@ function SlickGrid($container,data,columns,options)
 		viewportH = $divMainScroller.innerHeight();
 	    
 		BUFFER = numVisibleRows = Math.ceil(viewportH / options.rowHeight);
-		CAPACITY = Math.max(CAPACITY, numVisibleRows + 2*BUFFER);
+		CAPACITY = Math.max(50, numVisibleRows + 2*BUFFER);
 
 		var totalWidth = 0;
 		for (var i=0; i<columns.length; i++)
@@ -507,7 +508,6 @@ function SlickGrid($container,data,columns,options)
 		$divMain.width(totalWidth);
 	  
 	    var newHeight = Math.max(options.rowHeight * (data.length + numVisibleRows - 2), viewportH - $.getScrollbarWidth());
-
 		$divMainScroller.height( $container.innerHeight() - $divHeadersScroller.outerHeight() );
 		
         // browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
@@ -518,7 +518,6 @@ function SlickGrid($container,data,columns,options)
 		
 		render();
 	}
-	
 	
 	function updateRowCount() {
 	  	// remove the rows that are now outside of the data range
@@ -577,18 +576,18 @@ function SlickGrid($container,data,columns,options)
 		for (var i = 0, l = x.childNodes.length; i < l; i++) 
 			rowsCache[rows[i]] = parentNode.appendChild(x.firstChild);
 		
-		if (renderedRows - rowsBefore > 5)
+		if (renderedRows - rowsBefore > MIN_BUFFER)
 			avgRowRenderTime = (new Date() - _start) / (renderedRows - rowsBefore);
 	}	
 	
 	function render() {
 		var vp = getViewport();
-		var from = Math.max(0, vp.top - (scrollDir >= 0 ? 5 : BUFFER));
-		var to = Math.min(options.enableAddRow ? data.length : data.length - 1, vp.bottom + (scrollDir > 0 ? BUFFER : 5));
+		var from = Math.max(0, vp.top - (scrollDir >= 0 ? MIN_BUFFER : BUFFER));
+		var to = Math.min(options.enableAddRow ? data.length : data.length - 1, vp.bottom + (scrollDir > 0 ? BUFFER : MIN_BUFFER));
 		
 		if (renderedRows > 10 && Math.abs(lastRenderedScrollTop - currentScrollTop) > options.rowHeight*CAPACITY)
 			removeAllRows();
-		else //if (renderedRows >= CAPACITY)
+		else
 			cleanupRows(from,to);
 
 		renderRows(from,to);		
@@ -605,7 +604,7 @@ function SlickGrid($container,data,columns,options)
 		if (scrollLeft != currentScrollLeft)
 			$divHeadersScroller[0].scrollLeft = currentScrollLeft = scrollLeft;
 		
-		if (scrollDistance < 5*options.rowHeight) return;
+		if (scrollDistance < MIN_BUFFER*options.rowHeight) return;
 		
 		if (lastRenderedScrollTop == currentScrollTop)
 			scrollDir = 0;
@@ -617,7 +616,7 @@ function SlickGrid($container,data,columns,options)
 		if (h_render)
 			window.clearTimeout(h_render);
 
-		if (scrollDistance < numVisibleRows*options.rowHeight) // || avgRowRenderTime*CAPACITY < 30 ||  _forceSyncScrolling) 
+		if (scrollDistance < numVisibleRows*options.rowHeight) 
 			render();
 		else
 			h_render = window.setTimeout(render, 50);
@@ -728,7 +727,6 @@ function SlickGrid($container,data,columns,options)
 		}
 	}
 	
-	
 	function handleContextMenu(e) 
 	{
 		var $cell = $(e.target).closest(".c");
@@ -758,7 +756,6 @@ function SlickGrid($container,data,columns,options)
 		}
 	}
 	
-	
 	function handleDblClick(e)
 	{
 		var $cell = $(e.target).closest(".c");
@@ -767,6 +764,26 @@ function SlickGrid($container,data,columns,options)
 		
 		// are we editing this cell?
 		if (currentCellNode == $cell[0] && currentEditor != null) return;
+				
+		var row = parseInt($cell.parent().attr("row"));
+		var cell = parseInt($cell.attr("cell"));		
+		var validated = null;
+	
+		// do we have any registered handlers?
+		if (data[row] && self.onDblClick)
+		{
+			// grid must not be in edit mode
+			if (!currentEditor || (validated = commitCurrentEdit())) 
+			{
+				// handler will return true if the event was handled
+				if (self.onDblClick(e, row, cell)) 
+				{
+					e.stopPropagation();
+					e.preventDefault();
+					return false;
+				}
+			}
+		}
 				
 		if (options.editOnDoubleClick)
 			makeSelectedCellEditable();
