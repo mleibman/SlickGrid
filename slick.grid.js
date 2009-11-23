@@ -73,6 +73,7 @@ function SlickGrid($container,data,columns,options)
 	var defaults = {
 		rowHeight: 24,
 		enableAddRow: true,
+		leaveSpaceForNewRows: false,
 		manualScrolling: false,
 		editable: true,
 		editOnDoubleClick: false,
@@ -158,7 +159,7 @@ function SlickGrid($container,data,columns,options)
 			if (!m.formatter)
 				m.formatter = defaultFormatter;
 			
-			var header = $("<div class='h c" + i + "' cell=" + i + " id='" + m.id + "' />")
+			var header = $("<div class='ui-state-default ui-widget-header h c" + i + "' cell=" + i + " id='" + m.id + "' />")
 				.html(m.name)
 				.width(m.width)
 				.appendTo($divHeaders);
@@ -332,7 +333,7 @@ function SlickGrid($container,data,columns,options)
 		if (currentEditor && !commitCurrentEdit())
 			return;
 		
-		setSelectedCell(null);
+		makeSelectedCellNormal();
 		
 		if (options.enableAddRow != args.enableAddRow)
 			removeRow(data.length);
@@ -507,7 +508,7 @@ function SlickGrid($container,data,columns,options)
 		}
 		$divMain.width(totalWidth);
 	  
-	    var newHeight = Math.max(options.rowHeight * (data.length + numVisibleRows - 2), viewportH - $.getScrollbarWidth());
+	    var newHeight = Math.max(options.rowHeight * (data.length - 1 + (options.leaveSpaceForNewRows?numVisibleRows-1:0)), viewportH - $.getScrollbarWidth());
 		$divMainScroller.height( $container.innerHeight() - $divHeadersScroller.outerHeight() );
 		
         // browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
@@ -536,7 +537,7 @@ function SlickGrid($container,data,columns,options)
 			}
 		}
 		
-	    var newHeight = Math.max(options.rowHeight * (data.length + numVisibleRows - 2), viewportH - $.getScrollbarWidth());
+	    var newHeight = Math.max(options.rowHeight * (data.length - 1 + (options.leaveSpaceForNewRows?numVisibleRows-1:0)), viewportH - $.getScrollbarWidth());
 		
         // browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
 		if ($divMainScroller.scrollTop() > newHeight - $divMainScroller.height() + $.getScrollbarWidth()) {

@@ -4,7 +4,8 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 		<title>SlickGrid example</title>
 		<link rel="stylesheet" href="../slick.grid.css" type="text/css" media="screen" charset="utf-8" />
-		<link rel="stylesheet" href="../themes/smoothness/ui.all.css" type="text/css" media="screen" charset="utf-8" />
+		<link rel="stylesheet" href="../slick.pager.css" type="text/css" media="screen" charset="utf-8" />
+		<link rel="stylesheet" href="../css/custom-theme/jquery-ui-1.7.2.custom.css" type="text/css" media="screen" charset="utf-8" />
 		<link rel="stylesheet" href="examples.css" type="text/css" media="screen" charset="utf-8" />
 		<style>
 		.cell-title {
@@ -21,13 +22,33 @@
 		
 		.sort-desc {
 			background: silver url('../images/sort-desc.png') no-repeat right center !important;
-		}		
+		}
+		
+		#gridHeader {
+			-moz-border-radius-topleft: 6px;
+			-moz-border-radius-topright: 6px;
+			border-top-left-radius: 6px;
+			border-top-right-radius: 6px;
+			border: 1px solid black;
+			border-bottom: 0px;
+			background: silver;
+			color: black;
+			font-weight: bold;
+			height: 24px;
+			
+		}	
+		
+		#gridHeader label {
+			display: block;
+			margin: 4px;
+			margin-left: 6px;
+		}	
 	</style>
 	</head>
 	<body>
 		<script language="JavaScript" src="../lib/firebugx.js"></script>
 		<script language="JavaScript" src="../lib/jquery-1.3.2.min.js"></script>
-		<script language="JavaScript" src="../lib/jquery-ui-1.7.custom.min.js"></script>
+		<script language="JavaScript" src="../lib/jquery-ui-1.7.2.custom.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.getScrollbarWidth.js"></script>
 		<script language="JavaScript" src="../lib/jquery.rule-1.0.1-min.js"></script>
 			
@@ -35,33 +56,39 @@
 		<script language="JavaScript" src="../slick.grid.js"></script>
 		<script language="JavaScript" src="../slick.globaleditorlock.js"></script>
 		<script language="JavaScript" src="../slick.model.js"></script>
+		<script language="JavaScript" src="../slick.pager.js"></script>
 		
 		
 		<table width="100%">
 		<tr>
 			<td valign="top" width="50%">
 				
-				<div style="border:1px solid gray;background:wheat;padding:6px;">
-				
-					<label>Show tasks with % at least: </label>
-					<div style="padding:4px;">
-						<div style="width:100px;" id="pcSlider"></div>
+				<div style="width:600px;border:1px solid gray;background:wheat;">
+					<div style="padding:6px">
+						<label>Show tasks with % at least: </label>
+						<div style="padding:4px;">
+							<div style="width:100px;" id="pcSlider"></div>
+						</div>
+						
+						<br/>
+						
+						<label>And title including:</label>
+						<input type=text id="txtSearch">
+						
+						<br/><br/>
+						
+						<button id="btnResort">Sort by %</button>
+						<button id="btnSelectRows">Select first 10 rows</button>
 					</div>
-					
-					<br/>
-					
-					<label>And title including:</label>
-					<input type=text id="txtSearch">
-					
-					<br/><br/>
-					
-					<button id="btnResort">Sort by %</button>
-					<button id="btnSelectRows">Select first 10 rows</button>
 				</div>
 				
 				<br/>
 				
+				<div id="gridHeader" style="width:600px">
+					<label>SlickGrid</label>
+				</div>
 				<div id="myGrid" style="width:600px;height:500px;"></div>
+				<div id="pager" style="width:600px;height:20px;"></div>
 			</td>
 			<td valign="top">
 				<h2>Demonstrates:</h2>
@@ -77,6 +104,7 @@
 					<li>column options:  setValueHandler, cannotTriggerInsert</li>
 					<li><font color=red>NOTE:</font>  all filters are immediately applied to new/edited rows</li>
 					<li>Handling row selection against model changes.</li>
+					<li>Paging.</li>
 				</ul>
 				
 			</td>
@@ -86,17 +114,8 @@
 
 		
 		<script>
-		function requiredFieldValidator(value) {
-			if (value == null || value == undefined || !value.length)
-				return {valid:false, msg:"This is a required field"};
-			else	
-				return {valid:true, msg:null};
-		}
-					
-			
 		var dataView;
 		var grid;
-		
 		var data = [];
 		var selectedRowIds = [];
 
@@ -116,9 +135,19 @@
 			asyncEditorLoading: false
 		};	
 
-
+		var sortcol = "title";
+		var sortdir = 1;
 		var percentCompleteThreshold = 0;
 		var searchString = "";
+
+
+
+		function requiredFieldValidator(value) {
+			if (value == null || value == undefined || !value.length)
+				return {valid:false, msg:"This is a required field"};
+			else	
+				return {valid:true, msg:null};
+		}
 
 		function myFilter(item) {
 			if (item["percentComplete"] < percentCompleteThreshold) 
@@ -134,8 +163,6 @@
 			return a["percentComplete"] - b["percentComplete"];
 		}
 
-		var sortcol = "title";
-		var sortdir = 1;
 		function comparer(a,b) {
 			var x = a[sortcol], y = b[sortcol];
 			
@@ -154,6 +181,8 @@
 		}
 
 
+
+
 		$(function()
 		{
 			// prepare the data
@@ -170,16 +199,9 @@
 			}
 			
 
-			// initialize the model
 			dataView = new DataView();
-			dataView.beginUpdate();
-			dataView.setItems(data);
-			dataView.setFilter(myFilter);
-			dataView.endUpdate();
-			
-			
-			// initialize the grid
 			grid = new SlickGrid($("#myGrid"), dataView.rows, columns, options);
+			var pager = new SlickGridPager(dataView, grid, $("#pager"));
 			
 			grid.onAddNewRow = addItem;
 			
@@ -211,7 +233,6 @@
 				grid.removeRows(rows);
 				grid.render();
 				
-				
 				// since how the original data maps onto rows has changed,
 				// the selected rows in the grid need to be updated
 				var rows = [];
@@ -222,6 +243,11 @@
 				}
 
 				grid.setSelectedRows(rows);
+			});
+			
+			dataView.onPagingInfoChanged.subscribe(function(pagingInfo) {
+				var isLastPage = pagingInfo.pageSize*(pagingInfo.pageNum+1)-1 >= pagingInfo.totalRows;
+				grid.setOptions({enableAddRow:isLastPage||pagingInfo.pageSize==0});
 			});
 			
 			
@@ -269,6 +295,18 @@
 				
 				grid.setSelectedRows(rows);
 			});
+			
+			
+			
+			
+			// initialize the model after all the events have been hooked up
+			dataView.beginUpdate();
+			dataView.setItems(data);
+			dataView.setFilter(myFilter);
+			//dataView.setPagingOptions({pageSize:25});
+			dataView.endUpdate();	
+			
+			$("#gridContainer").resizable();		
 		})
 		
 		</script>

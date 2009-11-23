@@ -37,9 +37,14 @@ function DataView() {
 	var updated = null; 	// updated item ids
 	var suspend = false;	// suspends the recalculation
 	
+	var pagesize = 0;
+	var pagenum = 0;
+	var totalRows = 0;
+	
 	// events
 	var onRowCountChanged = new EventHelper();
 	var onRowsChanged = new EventHelper();
+	var onPagingInfoChanged = new EventHelper();
 	
 	
 	function beginUpdate() {
@@ -54,6 +59,22 @@ function DataView() {
 	function setItems(data) {
 		items = data.concat();
 		refresh();
+	}
+	
+	function setPagingOptions(args) {
+		if (args.pageSize != undefined)
+			pagesize = args.pageSize;
+			
+		if (args.pageNum != undefined)
+			pagenum = Math.min(args.pageNum, Math.ceil(totalRows/pagesize));
+
+		onPagingInfoChanged.notify(getPagingInfo());
+
+		refresh();
+	}
+	
+	function getPagingInfo() {
+		return {pageSize:pagesize, pageNum:pagenum, totalRows:totalRows};
 	}
 	
 	function sort(comparer) {
@@ -108,29 +129,39 @@ function DataView() {
 		// go over all items remapping them to rows on the fly 
 		// while keeping track of the differences and updating indexes
 		var rl = rows.length;
-		var l = 0;
+		var currentRowIndex = 0;
+		var currentPageIndex = 0;
 		var item,id;
 
 		for (var i=0, il=items.length; i<il; i++) {
 			item = items[i];
 			id = item.id;
 
+			if (id == undefined || idxById[id] != undefined)
+				throw "Each data element must implement a unique 'id' property";
+
 			idxById[id] = i;
 
 			if (!filter || filter(item)) {
-				if (l >= rl || id != rows[l].id || (updated && updated[id])) {
-					diff.push(l);
+				if (!pagesize || (currentRowIndex >= pagesize * pagenum && currentRowIndex < pagesize * (pagenum + 1))) {
+				
+					if (currentPageIndex >= rl || id != rows[currentPageIndex].id || (updated && updated[id])) {
+						diff.push(currentPageIndex);
+					}
+					
+					rows[currentPageIndex] = item;
+					rowsByIdx[i] = currentPageIndex++;
 				}
 				
-				rows[l] = item;
-				rowsByIdx[i] = l++;
+				currentRowIndex++;
 			}
 		}
-
-		// remove unmapped portion
-		if (rl > l)
-			rows.splice(l, rl - l);
 		
+		if (rl > currentPageIndex)
+			rows.splice(currentPageIndex, rl - currentPageIndex);
+
+		
+		totalRows = currentRowIndex;
 		updated = null;
 		
 		return diff;
@@ -140,8 +171,18 @@ function DataView() {
 		if (suspend) return;
 		
 		var countBefore = rows.length;
+		var totalRowsBefore = totalRows;
 		var diff = recalc();
 		
+		// if the current page is no longer valid, go to last page and recalc
+		// we suffer a performance penalty here, but the main loop (recalc) remains highly optimized
+		if (pagesize && totalRows < pagenum*pagesize)
+		{
+			pagenum = Math.floor(totalRows/pagesize);
+			diff = recalc();
+		}
+		
+		if (totalRowsBefore != totalRows) onPagingInfoChanged.notify(getPagingInfo());
 		if (countBefore != rows.length) onRowCountChanged.notify({previous:countBefore, current:rows.length});
 		if (diff.length > 0 || countBefore != rows.length) onRowsChanged.notify(diff);
 	}
@@ -149,9 +190,14 @@ function DataView() {
 
 	
 	return {
-		"rows":			rows,			// note: neither the array or the data in it should really be modified directly
+		// properties
+		"rows":			rows,			// note: neither the array or the data in it should be modified directly
+		
+		// methods
 		"beginUpdate":	beginUpdate,	
 		"endUpdate":	endUpdate,
+		"setPagingOptions":	setPagingOptions,
+		"getPagingInfo": getPagingInfo,
 		"setItems":		setItems,
 		"setFilter":	setFilter,
 		"sort":			sort,
@@ -163,7 +209,10 @@ function DataView() {
 		"insertItem":	insertItem,
 		"addItem":		addItem,
 		"deleteItem":	deleteItem,
+		
+		// events
 		"onRowCountChanged":	onRowCountChanged,
-		"onRowsChanged":		onRowsChanged
+		"onRowsChanged":		onRowsChanged,
+		"onPagingInfoChanged":	onPagingInfoChanged
 	};
 }
