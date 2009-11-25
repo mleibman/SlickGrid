@@ -42,6 +42,7 @@
  * 	setValueHandler			-	If true, this handler will be called to set field value instead of context[field].
  * 	width					-	Width of the column in pixels.
  * 	resizable				-	If false, the column cannot be resized.
+ *  sortable				-	If true, the column can be sorted (onSort will be called).
  * 	minWidth				-	Minimum allowed column width for resizing.
  * 	maxWidth				-	Maximum allowed column width for resizing.
  * 	cssClass				-	A CSS class to add to the cell.
@@ -71,17 +72,23 @@ function SlickGrid($container,data,columns,options)
 {
 	// settings
 	var defaults = {
-		rowHeight: 24,
+		rowHeight: 25,
+		defaultColumnWidth: 80,
 		enableAddRow: true,
 		leaveSpaceForNewRows: false,
 		manualScrolling: false,
 		editable: true,
 		editOnDoubleClick: false,
 		enableCellNavigation: true,
-		defaultColumnWidth: 80,
 		enableColumnReorder: true,
 		asyncEditorLoading: true
 	};
+	
+	var columnDefaults = {
+		resizable: true,
+		sortable: true,
+		formatter: defaultFormatter
+	}
 	
 	// consts
 	var CAPACITY = 50;
@@ -96,6 +103,7 @@ function SlickGrid($container,data,columns,options)
 	var $divMainScroller;
 	var $divMain;
 	var viewportH, viewportW;
+	var headerColumnWidthDiff, headerColumnHeightDiff, cellWidthDiff, cellHeightDiff;  // padding+border
 		
 	var currentRow, currentCell;
 	var currentCellNode = null;
@@ -130,6 +138,7 @@ function SlickGrid($container,data,columns,options)
 	
 	function init() {
 		options = $.extend({},defaults,options);
+		columnDefaults.width = options.defaultColumnWidth;
 		
 		$container
 			.empty()
@@ -140,100 +149,135 @@ function SlickGrid($container,data,columns,options)
 			.css("position","relative")
 			.addClass(uid);
 		
-		$divHeadersScroller = $("<div class='grid-header' style='overflow:hidden;position:relative;' />").appendTo($container);
-		$divHeaders = $("<div style='width:10000px' />").appendTo($divHeadersScroller);
+		$divHeadersScroller = $("<div class='slick-header' style='overflow:hidden;position:relative;' />").appendTo($container);
+		$divHeaders = $("<div class='slick-header-columns' style='width:10000px' />").appendTo($divHeadersScroller);
 		$divMainScroller = $("<div tabIndex='0' hideFocus style='width:100%;overflow:scroll;outline:0;position:relative;outline:0px;'>").appendTo($container);
 		$divMain = $("<div class='grid-canvas' tabIndex='0' hideFocus />").appendTo($divMainScroller);
+	
+	
 		
-		$divMainScroller.height( $container.innerHeight() - $divHeadersScroller.outerHeight() );
+		// header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
+		// calculate the diff so we can set consistent sizes
+		measureCellPaddingAndBorder();
 		
 		for (var i = 0; i < columns.length; i++) 
 		{
-			var m = columns[i];
-			
+			var m = columns[i] = $.extend({},columnDefaults,columns[i]);
 			columnsById[m.id] = i;
 			
-			if (!m.width)
-				m.width = options.defaultColumnWidth;
-				
-			if (!m.formatter)
-				m.formatter = defaultFormatter;
-			
-			var header = $("<div class='ui-state-default ui-widget-header h c" + i + "' cell=" + i + " id='" + m.id + "' />")
+			var header = $("<div class='slick-header-column' cell=" + i + " id='" + m.id + "' />")
 				.html(m.name)
-				.width(m.width)
+				.width(m.width - headerColumnWidthDiff)
 				.appendTo($divHeaders);
+			
+			if (m.sortable) header.append("<span class='slick-sort-indicator' />")
+			if (m.resizable) header.append("<div class='slick-resizable-handle' />");
 		}
 		
-		$divHeaders.find(".h").each(function() {
-			var cell = parseInt($(this).attr("cell"));
-			var m = columns[cell];
-			
-			if (m.resizable === false) return;
-			
-			$(this).resizable({
-				handles: "e",
-				minWidth: (m.minWidth) ? m.minWidth : null,
-				maxWidth: (m.maxWidth) ? m.maxWidth : null,
-				stop: function(e, ui) {
-					var cellId = $(this).attr("id");
-					var cell = columnsById[cellId];
-					columns[cell].width = $(this).width();
-					$.rule("." + uid + " .grid-canvas .c" + cell, "style").css("width", columns[cell].width + "px");
-					resizeCanvas();
-					
-					// todo:  rerender single column instead of everything
-					if (columns[cell].rerenderOnResize)
-						removeAllRows();
-					
-					render();
-				}
-			});
-		});
+		$divMainScroller.height( $container.innerHeight() - $divHeadersScroller.outerHeight() );
 		
+		$divHeaders.disableSelection();
 		
-		// ignore .ui-resizable-handle to prevent sortable interfering with resizable
-		if (options.enableColumnReorder)
-			$divHeaders.sortable({
-				axis:"x", 
-				cancel:".ui-resizable-handle",
-				update: function(e,ui) {
-					var newOrder = $divHeaders.sortable("toArray");
-					
-					var lookup = {};
-					for (var i=0; i<columns.length; i++)
-					{
-						lookup[columns[i].id] = columns[i];
-					}
-					
-					for (var i=0; i<newOrder.length; i++)
-					{
-						columnsById[newOrder[i]] = i;
-						columns[i] = lookup[newOrder[i]];
-					}
-					
+        $divHeaders
+			.find(".slick-resizable-handle")
+			.bind('dragstart', function(e) {
+	            var $col = $(this).parent();
+				var colId = $col.attr("id");
+				if (!columns[columnsById[colId]].resizable) return false;	
+				if (currentEditor && !commitCurrentEdit()) return false;
+							
+	            $col
+					.data("colId", colId)
+					.data("width", $col.width())
+	            	.data("pageX", e.pageX)
+	            	.addClass("slick-header-column-active");
+	        })
+			.bind('drag', function(e) {
+	            var $col = $(this).parent(), w = $col.data("width") - $col.data("pageX") + e.pageX;
+				var cell = columnsById[$col.data("colId")];
+				var m = columns[cell];
+				if (m.minWidth) w = Math.max(m.minWidth - headerColumnWidthDiff,w);
+				if (m.maxWidth) w = Math.min(m.maxWidth - headerColumnWidthDiff,w);
+	            $col.css({ width: Math.max(0, w) });
+	        })
+			.bind('dragend', function(e) {
+				var $col = $(this).parent();
+				var cell = columnsById[$col.data("colId")];
+				$col.removeClass("slick-header-column-active");
+				columns[cell].width = $col.outerWidth();
+				$.rule("." + uid + " .grid-canvas .c" + cell, "style").css("width", (columns[cell].width - cellWidthDiff) + "px");
+				resizeCanvas();
+				
+				if (columns[cell].rerenderOnResize)
 					removeAllRows();
-					removeCssRules();
-					createCssRules();
-					render();
-					
-					if (self.onColumnsReordered)
-						self.onColumnsReordered();
-						
-					e.stopPropagation();
-				}
-				});
-			
-	
-		$divHeaders.bind("click", function(e) {
-			if (!$(e.target).hasClass(".h")) return;
-			
-			var id = $(e.target).attr("id");
-			
-			if (self.onColumnHeaderClick)
-				self.onColumnHeaderClick(columns[columnsById[id]]);
-		});	
+				
+				render();				
+	        })
 		
+        $divHeaders.click(function(e) {
+			var $col = $(e.target);
+            if (!$col.hasClass("slick-header-column") || !columns[columnsById[$col.attr("id")]].sortable) 
+                return;
+			
+			if (currentEditor && !commitCurrentEdit()) return;
+
+            if ($col.is(".slick-header-column-sorted")) 
+            {
+                $col.find(".slick-sort-indicator").toggleClass("slick-sort-indicator-asc").toggleClass("slick-sort-indicator-desc");
+            }
+            else 
+            {
+                $divHeaders.children().removeClass("slick-header-column-sorted");
+                $divHeaders.find(".slick-sort-indicator").removeClass("slick-sort-indicator-asc slick-sort-indicator-desc");
+                $col.addClass("slick-header-column-sorted");
+                $col.find(".slick-sort-indicator").addClass("slick-sort-indicator-asc");
+            }
+			
+			if (self.onSort)
+				self.onSort(columns[columnsById[$col.attr("id")]], $col.find(".slick-sort-indicator").hasClass("slick-sort-indicator-asc"));
+        })	
+
+		if (options.enableColumnReorder)
+                $divHeaders.sortable({
+                    axis: "x",
+                    cursor: "default",
+                    tolerance: "intersect",
+                    helper: "clone",
+                    placeholder: "slick-sortable-placeholder slick-header-column",
+                    forcePlaceholderSize: true,
+                    start: function(e, ui) {
+                        $(ui.helper).addClass("slick-header-column-active")
+                    },
+                    beforeStop: function(e, ui) {
+                        $(ui.helper).removeClass("slick-header-column-active")
+                    },
+					update: function(e,ui) {
+						var newOrder = $divHeaders.sortable("toArray");
+						
+						var lookup = {};
+						for (var i=0; i<columns.length; i++)
+						{
+							lookup[columns[i].id] = columns[i];
+						}
+						
+						for (var i=0; i<newOrder.length; i++)
+						{
+							columnsById[newOrder[i]] = i;
+							columns[i] = lookup[newOrder[i]];
+						}
+						
+						removeAllRows();
+						removeCssRules();
+						createCssRules();
+						render();
+						
+						if (self.onColumnsReordered)
+							self.onColumnsReordered();
+							
+						e.stopPropagation();
+					}					
+                })			
+	
 		
 		createCssRules();
 		resizeCanvas();
@@ -250,6 +294,7 @@ function SlickGrid($container,data,columns,options)
 		$divMain.bind("click", handleClick);
 		$divMain.bind("dblclick", handleDblClick);
 		$divMain.bind("contextmenu", handleContextMenu)
+		$divHeadersScroller.bind("contextmenu", handleHeaderContextMenu);
 
 		if ($.browser.msie) 
 			$divMainScroller[0].onselectstart = function() {
@@ -258,11 +303,24 @@ function SlickGrid($container,data,columns,options)
 				};
 	}
 	
+	function measureCellPaddingAndBorder() {
+		var tmp = $("<div class='slick-header-column cell='' id='' style='visibility:hidden'>-</div>").appendTo($divHeaders);
+		headerColumnWidthDiff = tmp.outerWidth() - tmp.width();
+		headerColumnHeightDiff = tmp.outerHeight() - tmp.height();
+		tmp.remove();
+		
+		var r = $("<div class='r' />").appendTo($divMain);
+		tmp = $("<div class='c' cell='' id='' style='visibility:hidden'>-</div>").appendTo(r);
+		cellWidthDiff = tmp.outerWidth() - tmp.width();
+		cellHeightDiff = tmp.outerHeight() - tmp.height();
+		r.remove();
+	}
+	
 	function createCssRules() {
-		$.rule(".grid-canvas .r .c { height:" + (options.rowHeight-5) + "px;}").appendTo("style");
+		$.rule(".grid-canvas .r .c { height:" + (options.rowHeight - cellHeightDiff) + "px;}").appendTo("style");
 		
 		for (var i = 0; i < columns.length; i++) {
-			$.rule("." + uid + " .grid-canvas .c" + i + " { width:" + columns[i].width + "px }").appendTo("style");
+			$.rule("." + uid + " .grid-canvas .c" + i + " { width:" + (columns[i].width - cellWidthDiff) + "px }").appendTo("style");
 		}
 	}
 	
@@ -279,7 +337,6 @@ function SlickGrid($container,data,columns,options)
 			cancelCurrentEdit();
 		
 		$divHeaders.sortable("destroy");
-		$divHeaders.find(".h").resizable("destroy");
 		$container.unbind("resize", resizeCanvas);
 		removeCssRules();
 		
@@ -288,10 +345,6 @@ function SlickGrid($container,data,columns,options)
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	// General
-	
-	function setColumnHeaderCssClass(id,classesToAdd,classesToRemove) {
-		$divHeaders.find(".h[id=" + id + "]").removeClass(classesToRemove).addClass(classesToAdd);
-	}
 	
 	function getColumnIndex(id) {
 		return columnsById[id];	
@@ -497,14 +550,14 @@ function SlickGrid($container,data,columns,options)
 	function resizeCanvas() {
 		viewportW = $divMainScroller.innerWidth();
 		viewportH = $divMainScroller.innerHeight();
-	    
+    
 		BUFFER = numVisibleRows = Math.ceil(viewportH / options.rowHeight);
 		CAPACITY = Math.max(50, numVisibleRows + 2*BUFFER);
 
 		var totalWidth = 0;
 		for (var i=0; i<columns.length; i++)
 		{
-			totalWidth += (columns[i].width + 5);
+			totalWidth += columns[i].width;
 		}
 		$divMain.width(totalWidth);
 	  
@@ -788,6 +841,15 @@ function SlickGrid($container,data,columns,options)
 				
 		if (options.editOnDoubleClick)
 			makeSelectedCellEditable();
+	}
+	
+	function handleHeaderContextMenu(e) 
+	{
+		if (self.onHeaderContextMenu && (!currentEditor || (validated = commitCurrentEdit())) ) 
+		{
+			e.preventDefault();
+			self.onHeaderContextMenu();
+		}
 	}
 
 	function getCellFromPoint(x,y) {
@@ -1128,7 +1190,8 @@ function SlickGrid($container,data,columns,options)
 	
 	$.extend(this, {
 		// Events
-		"onColumnHeaderClick":	null,
+		"onSort":			null,
+		"onHeaderContextMenu":	null,
 		"onClick":			null,
 		"onContextMenu":	null,
 		"onKeyDown":		null,
@@ -1158,7 +1221,6 @@ function SlickGrid($container,data,columns,options)
 		"editCurrentCell":	makeSelectedCellEditable,
 		"getSelectedRows":	getSelectedRows,
 		"setSelectedRows":	setSelectedRows,
-		"setColumnHeaderCssClass":	setColumnHeaderCssClass,
 		
 		// IEditor implementation
 		"commitCurrentEdit":	commitCurrentEdit,

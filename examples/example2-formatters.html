@@ -22,6 +22,7 @@
 		<script language="JavaScript" src="../lib/jquery-ui-1.7.2.custom.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.getScrollbarWidth.js"></script>
 		<script language="JavaScript" src="../lib/jquery.rule-1.0.1-min.js"></script>
+		<script language="JavaScript" src="../lib/jquery.event.drag-1.5.min.js"></script>
 			
 		<script language="JavaScript" src="../slick.editors.js"></script>
 		<script language="JavaScript" src="../slick.grid.js"></script>
@@ -59,7 +60,7 @@
 			{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter},
 			{id:"start", name:"Start", field:"start", minWidth:60},
 			{id:"finish", name:"Finish", field:"finish", minWidth:60},
-			{id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter}
+			{id:"effort-driven", name:"Effort Driven", sortable:false, width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter}
 		];
 
 		var options = {
@@ -85,6 +86,11 @@
 
 					
 			grid = new SlickGrid($("#myGrid"), data, columns, options);
+			
+			grid.onHeaderContextMenu = function() {
+				console.log(1)
+				
+			}
 		})
 		
 		</script>

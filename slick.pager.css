@@ -4,20 +4,21 @@
 	height: 26px;
 	border: 1px solid gray;
 	border-top: 0px;
-	background: silver;
+	background: url('images/header-columns-bg.gif') repeat-x center bottom;
 	vertical-align: middle;
 }
 
 .slick-pager .slick-pager-status
 {
 	display: inline-block;
-	padding: 4px;
+	padding: 6px;
 }
 
 .slick-pager .ui-icon
 {
 	display: inline-block;
 	margin: 2px;
+	border-color: gray;
 }
 
 .slick-pager .slick-pager-nav

@@ -25,22 +25,19 @@
 		}
 		
 		#gridHeader {
-			-moz-border-radius-topleft: 6px;
-			-moz-border-radius-topright: 6px;
-			border-top-left-radius: 6px;
-			border-top-right-radius: 6px;
-			border: 1px solid black;
+			border: 1px solid gray;
 			border-bottom: 0px;
-			background: silver;
+			border-top: 0px;
+			background: url('../images/header-bg.gif') repeat-x center top;
 			color: black;
 			font-weight: bold;
 			height: 24px;
-			
+			line-height: 24px;
 		}	
 		
 		#gridHeader label {
 			display: block;
-			margin: 4px;
+			margin: auto;
 			margin-left: 6px;
 		}	
 	</style>
@@ -51,6 +48,7 @@
 		<script language="JavaScript" src="../lib/jquery-ui-1.7.2.custom.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.getScrollbarWidth.js"></script>
 		<script language="JavaScript" src="../lib/jquery.rule-1.0.1-min.js"></script>
+		<script language="JavaScript" src="../lib/jquery.event.drag-1.5.min.js"></script>
 			
 		<script language="JavaScript" src="../slick.editors.js"></script>
 		<script language="JavaScript" src="../slick.grid.js"></script>
@@ -165,7 +163,6 @@
 
 		function comparer(a,b) {
 			var x = a[sortcol], y = b[sortcol];
-			
 			return sortdir * (x == y ? 0 : (x > y ? 1 : -1));
 		}
 		
@@ -205,24 +202,11 @@
 			
 			grid.onAddNewRow = addItem;
 			
-			grid.onColumnHeaderClick = function(columnDef) {
-				if (GlobalEditorLock.isEditing() && !GlobalEditorLock.commitCurrentEdit())
-					return;
-				
-				for (var i=0; i<columns.length; i++)
-					grid.setColumnHeaderCssClass(columns[i].id, "", "sort-asc sort-desc");
-				
-				if (sortcol == columnDef.field)
-					sortdir *= -1;
-				else
-					sortdir = 1;
-				
-				grid.setColumnHeaderCssClass(columnDef.id, sortdir == 1 ? "sort-asc" : "sort-desc", "");
-				
-				sortcol = columnDef.field;
+			grid.onSort = function(sortCol,sortAsc) {
+				sortdir = sortAsc?1:-1;
+				sortcol = sortCol.field;
 				dataView.sort(comparer);
 			}
-			
 			
 			// wire up model events to drive the grid
 			dataView.onRowCountChanged.subscribe(function(args) {
