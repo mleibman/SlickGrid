@@ -320,7 +320,11 @@ function SlickGrid($container,data,columns,options)
 		$.rule(".grid-canvas .r .c { height:" + (options.rowHeight - cellHeightDiff) + "px;}").appendTo("style");
 		
 		for (var i = 0; i < columns.length; i++) {
-			$.rule("." + uid + " .grid-canvas .c" + i + " { width:" + (columns[i].width - cellWidthDiff) + "px }").appendTo("style");
+			$.rule(
+				"." + uid + " .grid-canvas .c" + i + " { " +
+				"width:" + (columns[i].width - cellWidthDiff) + "px; " + 
+				"display: " + (columns[i].hidden ? "none" : "block") +
+				" }").appendTo("style");
 		}
 	}
 	
@@ -348,6 +352,15 @@ function SlickGrid($container,data,columns,options)
 	
 	function getColumnIndex(id) {
 		return columnsById[id];	
+	}
+	
+	function setColumnVisibility(column,visible) {
+		var index = columnsById[column.id];
+		columns[index].hidden = !visible;
+		resizeCanvas();
+		$.rule("." + uid + " .grid-canvas .c" + index, "style").css("display", visible?"block":"none");
+		var header = $divHeaders.find("[id=" + columns[index].id + "]");
+		header.css("display", visible?"block":"none");
 	}
 
 	function getSelectedRows() {
@@ -557,7 +570,8 @@ function SlickGrid($container,data,columns,options)
 		var totalWidth = 0;
 		for (var i=0; i<columns.length; i++)
 		{
-			totalWidth += columns[i].width;
+			if (columns[i].hidden != true)
+				totalWidth += columns[i].width;
 		}
 		$divMain.width(totalWidth);
 	  
@@ -848,7 +862,7 @@ function SlickGrid($container,data,columns,options)
 		if (self.onHeaderContextMenu && (!currentEditor || (validated = commitCurrentEdit())) ) 
 		{
 			e.preventDefault();
-			self.onHeaderContextMenu();
+			self.onHeaderContextMenu(e);
 		}
 	}
 
@@ -1206,6 +1220,7 @@ function SlickGrid($container,data,columns,options)
 		"setData":			setData,
 		"destroy":			destroy,
 		"getColumnIndex":	getColumnIndex,
+		"setColumnVisibility":	setColumnVisibility,
 		"updateCell":		updateCell,
 		"updateRow":		updateRow,
 		"removeRow":		removeRow,
