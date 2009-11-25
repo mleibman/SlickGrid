@@ -433,7 +433,7 @@ function SlickGrid($container,data,columns,options)
 	
 	function updateColumnWidth(index,width) {
 		columns[index].width = width;
-		$divHeaders.find(".slick-header-column[cell=" + index + "]").css("width",width - headerColumnWidthDiff);
+		$divHeaders.find(".slick-header-column[id=" + columns[index].id + "]").css("width",width - headerColumnWidthDiff);
 		$.rule("." + uid + " .grid-canvas .c" + index, "style").css("width", (columns[index].width - cellWidthDiff) + "px");
 	}
 	
