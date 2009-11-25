@@ -5,6 +5,7 @@
 	-moz-box-shadow: 2px 2px 2px silver;
 	-webkit-box-shadow: 2px 2px 2px silver;	
 	min-width: 100px;
+	cursor: default;
 }
 
 .slick-columnpicker li {
@@ -16,4 +17,14 @@
 
 .slick-columnpicker input {
 	margin: 4px;
+}
+
+.slick-columnpicker li a {
+	display: block;
+	padding: 4px;
+	font-weight: bold;
+}
+
+.slick-columnpicker li a:hover {
+	background: white;
 }

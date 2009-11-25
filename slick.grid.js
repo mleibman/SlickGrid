@@ -28,7 +28,8 @@
  * 	enableColumnReorder		-	Allows the user to reorder columns.
  * 	asyncEditorLoading		-	Makes cell editors load asynchronously after a small delay.
  * 								This greatly increases keyboard navigation speed.
- * 	
+ * 	forceFitColumns			-	Force column sizes to fit into the viewport (avoid horizontal scrolling).
+ * 
  * 
  * COLUMN DEFINITION (columns) OPTIONS:
  * 	id						-	Column ID.
@@ -81,7 +82,8 @@ function SlickGrid($container,data,columns,options)
 		editOnDoubleClick: false,
 		enableCellNavigation: true,
 		enableColumnReorder: true,
-		asyncEditorLoading: true
+		asyncEditorLoading: true,
+		forceFitColumns: false
 	};
 	
 	var columnDefaults = {
@@ -205,11 +207,16 @@ function SlickGrid($container,data,columns,options)
 				var cell = columnsById[$col.data("colId")];
 				$col.removeClass("slick-header-column-active");
 				columns[cell].width = $col.outerWidth();
-				$.rule("." + uid + " .grid-canvas .c" + cell, "style").css("width", (columns[cell].width - cellWidthDiff) + "px");
-				resizeCanvas();
+				
+				if (options.forceFitColumns)
+					autosizeColumns(columns[cell]);
+				else {
+					updateColumnWidth(cell, $col.outerWidth());
+					resizeCanvas();
+				}
 				
 				if (columns[cell].rerenderOnResize)
-					removeAllRows();
+					removeAllRows();				
 				
 				render();				
 	        })
@@ -251,9 +258,13 @@ function SlickGrid($container,data,columns,options)
                     beforeStop: function(e, ui) {
                         $(ui.helper).removeClass("slick-header-column-active")
                     },
-					update: function(e,ui) {
-						var newOrder = $divHeaders.sortable("toArray");
+					stop: function(e, ui) {
+						if (currentEditor && !commitCurrentEdit()) {
+							$(this).sortable("cancel");
+							return;
+						}
 						
+						var newOrder = $divHeaders.sortable("toArray");
 						var lookup = {};
 						for (var i=0; i<columns.length; i++)
 						{
@@ -352,6 +363,78 @@ function SlickGrid($container,data,columns,options)
 	
 	function getColumnIndex(id) {
 		return columnsById[id];	
+	}
+	
+	function autosizeColumns(columnToHold) {
+		var availWidth = viewportW-$.getScrollbarWidth();
+		var total = 0;
+		var existingTotal = 0;
+		var minWidth = Math.max(headerColumnWidthDiff,cellWidthDiff);
+		
+		for (var i = 0; i < columns.length; i++) {
+			if (!columns[i].hidden) 
+				existingTotal += columns[i].width;
+		}
+		
+		total = existingTotal;
+		
+		removeAllRows();
+		
+		// shrink
+		var workdone = true;
+		while (total > availWidth && workdone) {
+			workdone = false;
+			for (var i = 0; i < columns.length && total > availWidth; i++) {
+				var c = columns[i];
+				if (c.hidden || !c.resizable || c.minWidth == c.width || c.width == minWidth || (columnToHold && columnToHold.id == c.id)) continue;
+				total -= 1;
+				c.width -= 1;
+				workdone = true;
+			}			
+		}
+		
+		// shrink the column being "held" as a last resort
+		if (total > availWidth && columnToHold && columnToHold.resizable && !columnToHold.hidden) {
+			while (total > availWidth) {
+				if (columnToHold.minWidth == columnToHold.width || columnToHold.width == minWidth) break;
+				total -= 1;
+				columnToHold.width -= 1;
+			}
+		}
+		
+		// grow
+		workdone = true;
+		while (total < availWidth && workdone) {
+			workdone = false;
+			for (var i = 0; i < columns.length && total < availWidth; i++) {
+				var c = columns[i];
+				if (c.hidden || !c.resizable || c.maxWidth == c.width || (columnToHold && columnToHold.id == c.id)) continue;
+				total += 1;
+				c.width += 1;
+				workdone = true;
+			}
+		}
+
+		// grow the column being "held" as a last resort
+		if (total < availWidth && columnToHold && columnToHold.resizable && !columnToHold.hidden) {
+			while (total < availWidth) {
+				if (columnToHold.maxWidth == columnToHold.width) break;
+				total += 1;
+				columnToHold.width += 1;
+			}
+		}		
+		
+		for (var i=0; i<columns.length; i++) {
+			updateColumnWidth(i, columns[i].width);
+		}
+		
+		resizeCanvas();
+	}
+	
+	function updateColumnWidth(index,width) {
+		columns[index].width = width;
+		$divHeaders.find(".slick-header-column[cell=" + index + "]").css("width",width - headerColumnWidthDiff);
+		$.rule("." + uid + " .grid-canvas .c" + index, "style").css("width", (columns[index].width - cellWidthDiff) + "px");
 	}
 	
 	function setColumnVisibility(column,visible) {
@@ -862,6 +945,7 @@ function SlickGrid($container,data,columns,options)
 		if (self.onHeaderContextMenu && (!currentEditor || (validated = commitCurrentEdit())) ) 
 		{
 			e.preventDefault();
+			// TODO:  figure out which column was acted on and pass it as a param to the handler
 			self.onHeaderContextMenu(e);
 		}
 	}
@@ -1221,6 +1305,7 @@ function SlickGrid($container,data,columns,options)
 		"destroy":			destroy,
 		"getColumnIndex":	getColumnIndex,
 		"setColumnVisibility":	setColumnVisibility,
+		"autosizeColumns":	autosizeColumns,
 		"updateCell":		updateCell,
 		"updateRow":		updateRow,
 		"removeRow":		removeRow,
