@@ -147,7 +147,7 @@
 		function myFilter(item) {
 			if (item["percentComplete"] < percentCompleteThreshold) 
 				return false;
-				
+			
 			if (searchString != "" && item["title"].indexOf(searchString) == -1)
 				return false;
 				
@@ -215,16 +215,20 @@
 				grid.removeRows(rows);
 				grid.render();
 				
-				// since how the original data maps onto rows has changed,
-				// the selected rows in the grid need to be updated
-				var rows = [];
-				for (var i=0; i<selectedRowIds.length; i++) {
-					var idx = dataView.getRowById(selectedRowIds[i]);
-					if (idx != undefined)
-						rows.push(idx);
+				if (selectedRowIds.length > 0) 
+				{
+					// since how the original data maps onto rows has changed,
+					// the selected rows in the grid need to be updated
+					var rows = [];
+					for (var i = 0; i < selectedRowIds.length; i++) 
+					{
+						var idx = dataView.getRowById(selectedRowIds[i]);
+						if (idx != undefined) 
+							rows.push(idx);
+					}
+					
+					grid.setSelectedRows(rows);
 				}
-
-				grid.setSelectedRows(rows);
 			});
 			
 			dataView.onPagingInfoChanged.subscribe(function(pagingInfo) {
@@ -233,6 +237,9 @@
 			});
 			
 			
+			
+			var h_runfilters = null;
+			
 			// wire up the slider to apply the filter to the model
 			$("#pcSlider").slider({
 				"range":	"min",
@@ -240,8 +247,13 @@
 					if (GlobalEditorLock.isEditing()) 
 						GlobalEditorLock.cancelCurrentEdit();
 					
-					percentCompleteThreshold = ui.value;
-					dataView.refresh();
+					if (percentCompleteThreshold != ui.value) 
+					{
+						percentCompleteThreshold = ui.value;
+						
+						window.clearTimeout(h_runfilters);
+						window.setTimeout(dataView.refresh, 10);
+					}
 				}
 			});
 			

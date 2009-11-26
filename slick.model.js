@@ -58,6 +58,12 @@ function DataView() {
 	
 	function setItems(data) {
 		items = data.concat();
+		for (var i=0,l=items.length; i<l; i++) {
+			var id = items[i].id;
+			if (id == undefined || idxById[id] != undefined)
+				throw "Each data element must implement a unique 'id' property";
+			idxById[id] = i;			
+		}
 		refresh();
 	}
 	
@@ -121,9 +127,10 @@ function DataView() {
 		refresh();
 	}
 	
-	function recalc() {
+	function recalc(_items,_rows,_filter,_updated) {
 		var diff = [];
-		idxById = {};
+		var items=_items, rows=_rows, filter=_filter, updated=_updated; // cache as local vars
+		
 		rowsByIdx = [];
 		
 		// go over all items remapping them to rows on the fly 
@@ -136,11 +143,6 @@ function DataView() {
 		for (var i=0, il=items.length; i<il; i++) {
 			item = items[i];
 			id = item.id;
-
-			if (id == undefined || idxById[id] != undefined)
-				throw "Each data element must implement a unique 'id' property";
-
-			idxById[id] = i;
 
 			if (!filter || filter(item)) {
 				if (!pagesize || (currentRowIndex >= pagesize * pagenum && currentRowIndex < pagesize * (pagenum + 1))) {
@@ -172,14 +174,14 @@ function DataView() {
 		
 		var countBefore = rows.length;
 		var totalRowsBefore = totalRows;
-		var diff = recalc();
+		var diff = recalc(items,rows,filter,updated); // pass as direct refs to avoid closure perf hit
 		
 		// if the current page is no longer valid, go to last page and recalc
 		// we suffer a performance penalty here, but the main loop (recalc) remains highly optimized
 		if (pagesize && totalRows < pagenum*pagesize)
 		{
 			pagenum = Math.floor(totalRows/pagesize);
-			diff = recalc();
+			diff = recalc(items,rows,filter,updated);
 		}
 		
 		if (totalRowsBefore != totalRows) onPagingInfoChanged.notify(getPagingInfo());
