@@ -12,13 +12,14 @@
 		<script>
 			
 		var filterparam = 0;
+		
 		function filter(item) {
 			return item.percentComplete >= filterparam;
 		}		
 		
 		var data = [];
 	
-		for (var i=0; i<50000; i++) {
+		for (var i=0; i<=50000; i++) {
 			var d = (data[i] = {});
 
 			d["id"] = i;
@@ -38,7 +39,7 @@
 
 		console.time("refresh");
 		
-		for (var i = 0; i <= 100; i+=10) {
+		for (var i = 0; i <= 100; i+=2) {
 			filterparam = i;
 			dv.refresh();
 		}
