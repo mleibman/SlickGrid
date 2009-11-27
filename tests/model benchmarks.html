@@ -14,12 +14,18 @@
 		var filterparam = 0;
 		
 		function filter(item) {
+			// simulate a more expensive filer
+			var matches = 0;
+			if (item.title.indexOf("ask") != -1) matches++;
+			for (var i=0; i<5; i++)
+				matches += Math.random();
+			
 			return item.percentComplete >= filterparam;
 		}		
 		
 		var data = [];
 	
-		for (var i=0; i<=50000; i++) {
+		for (var i=0; i<20000; i++) {
 			var d = (data[i] = {});
 
 			d["id"] = i;
@@ -29,10 +35,11 @@
 
 		
 		var dv = new DataView();
-		//dv.beginUpdate();
+		dv.beginUpdate();
 		dv.setItems(data);
 		dv.setFilter(filter);
-		//dv.endUpdate();
+		//dv.setPagingOptions({pageSize:25});
+		dv.endUpdate();
 		
 		
 		var b = new Date();
