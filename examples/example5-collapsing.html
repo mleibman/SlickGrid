@@ -255,6 +255,8 @@
 			});
 			
 			
+			var h_runfilters = null;
+			
 			// wire up the slider to apply the filter to the model
 			$("#pcSlider").slider({
 				"range":	"min",
@@ -262,8 +264,12 @@
 					if (GlobalEditorLock.isEditing()) 
 						GlobalEditorLock.cancelCurrentEdit();
 					
-					percentCompleteThreshold = ui.value;
-					dataView.refresh();
+					if (percentCompleteThreshold != ui.value) 
+					{
+						window.clearTimeout(h_runfilters);
+						h_runfilters = window.setTimeout(dataView.refresh, 10);
+						percentCompleteThreshold = ui.value;
+					}
 				}
 			});
 			

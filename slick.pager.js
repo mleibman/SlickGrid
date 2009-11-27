@@ -127,7 +127,7 @@ function SlickGridPager(dataView, grid, $container)
 		
 		
 		if (pagingInfo.pageSize == 0) 
-			$status.text("Showing all");
+			$status.text("Showing all " + pagingInfo.totalRows + " rows");
 		else
 			$status.text("Showing page " + (pagingInfo.pageNum+1) + " of " + (Math.floor(pagingInfo.totalRows/pagingInfo.pageSize)+1));
 	}

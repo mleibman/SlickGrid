@@ -32,7 +32,6 @@ function DataView() {
 	var items = [];			// data by index
 	var rows = [];			// data by row
 	var idxById = {};		// indexes by id
-	var rowsByIdx = [];		// rows by index
 	var filter = null;		// filter function
 	var updated = null; 	// updated item ids
 	var suspend = false;	// suspends the recalculation
@@ -97,8 +96,11 @@ function DataView() {
 		return idxById[id];
 	}
 	
+	// slow implementation in favor of fast refresh()
 	function getRowById(id) {
-		return rowsByIdx[idxById[id]];
+		for (var i=0,l=rows.length; i<l; ++i) {
+			if (rows[i].id == id) return i;
+		}
 	}
 	
 	function getItemById(id) {
@@ -131,28 +133,24 @@ function DataView() {
 		var diff = [];
 		var items=_items, rows=_rows, filter=_filter, updated=_updated; // cache as local vars
 		
-		rowsByIdx = [];
-		
 		// go over all items remapping them to rows on the fly 
 		// while keeping track of the differences and updating indexes
 		var rl = rows.length;
 		var currentRowIndex = 0;
 		var currentPageIndex = 0;
 		var item,id;
-
-		for (var i=0, il=items.length; i<il; i++) {
+	
+		for (var i = 0, il = items.length; i < il; ++i) {
 			item = items[i];
 			id = item.id;
-
+			
 			if (!filter || filter(item)) {
 				if (!pagesize || (currentRowIndex >= pagesize * pagenum && currentRowIndex < pagesize * (pagenum + 1))) {
-				
-					if (currentPageIndex >= rl || id != rows[currentPageIndex].id || (updated && updated[id])) {
-						diff.push(currentPageIndex);
-					}
+					if (currentPageIndex >= rl || id != rows[currentPageIndex].id || (updated && updated[id]))
+						diff[diff.length] = currentPageIndex;
 					
 					rows[currentPageIndex] = item;
-					rowsByIdx[i] = currentPageIndex++;
+					currentPageIndex++;
 				}
 				
 				currentRowIndex++;
@@ -161,7 +159,6 @@ function DataView() {
 		
 		if (rl > currentPageIndex)
 			rows.splice(currentPageIndex, rl - currentPageIndex);
-
 		
 		totalRows = currentRowIndex;
 		updated = null;
@@ -174,12 +171,12 @@ function DataView() {
 		
 		var countBefore = rows.length;
 		var totalRowsBefore = totalRows;
+		
 		var diff = recalc(items,rows,filter,updated); // pass as direct refs to avoid closure perf hit
 		
 		// if the current page is no longer valid, go to last page and recalc
 		// we suffer a performance penalty here, but the main loop (recalc) remains highly optimized
-		if (pagesize && totalRows < pagenum*pagesize)
-		{
+		if (pagesize && totalRows < pagenum*pagesize) {
 			pagenum = Math.floor(totalRows/pagesize);
 			diff = recalc(items,rows,filter,updated);
 		}

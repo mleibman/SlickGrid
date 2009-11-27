@@ -98,7 +98,7 @@
 				<li>grid reacting to model events (onRowCountChanged, onRowsChanged)</li>
 				<li>
 					<b>FAST</b> DataView recalculation and <b>real-time</b> grid updating in response to data changes.<br/>
-					The grid holds 10'000 rows, yet you are able to sort, filter, scroll, navigate and edit as if it had 50 rows.
+					The grid holds <b>50'000</b> rows, yet you are able to sort, filter, scroll, navigate and edit as if it had 50 rows.
 				</li>
 				<li>adding new rows, bidirectional sorting</li>
 				<li>column options:  setValueHandler, cannotTriggerInsert</li>
@@ -129,7 +129,7 @@
 			editable: true,
 			enableAddRow: true,
 			enableCellNavigation: true,
-			asyncEditorLoading: false
+			asyncEditorLoading: true
 		};	
 
 		var sortcol = "title";
@@ -180,7 +180,7 @@
 		$(function()
 		{
 			// prepare the data
-			for (var i=0; i<10000; i++) {
+			for (var i=0; i<50000; i++) {
 				var d = (data[i] = {});
 				
 				d["id"] = "id_" + i;
@@ -249,10 +249,9 @@
 					
 					if (percentCompleteThreshold != ui.value) 
 					{
-						percentCompleteThreshold = ui.value;
-						
 						window.clearTimeout(h_runfilters);
-						window.setTimeout(dataView.refresh, 10);
+						h_runfilters = window.setTimeout(dataView.refresh, 10);
+						percentCompleteThreshold = ui.value;
 					}
 				}
 			});
