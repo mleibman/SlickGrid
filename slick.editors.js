@@ -24,7 +24,7 @@ var GraphicalPercentCompleteCellFormatter = function(row, cell, value, columnDef
 	else 
 		color = "green";
 	
-    return "<span style='display:inline-block;background:" + color + ";height:6px;width:" + value + "%'></span>";
+    return "<span class='percent-complete-bar' style='background:" + color + ";width:" + value + "%'></span>";
 };
 
 var YesNoCellFormatter = function(row, cell, value, columnDef, dataContext) {

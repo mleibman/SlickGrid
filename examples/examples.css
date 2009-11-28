@@ -68,6 +68,13 @@ li {
 	text-align: left;
 }
 
+.percent-complete-bar {
+	display: inline-block;
+	height: 6px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+}
+
 
 /* TextCellEditor, DateCellEditor */
 

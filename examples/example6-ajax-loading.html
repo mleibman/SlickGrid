@@ -17,7 +17,28 @@
 		
 		.sort-desc {
 			background: silver url('../images/sort-desc.png') no-repeat right center !important;
-		}				
+		}
+		
+		.loading-indicator {
+			display: inline-block;
+			padding: 12px;
+			background: white;
+			-opacity: 0.5;
+			color: black;
+			font-weight: bold;
+			z-index: 9999;
+			border: 1px solid red;
+			-moz-border-radius: 10px;
+			-webkit-border-radius: 10px;
+			-moz-box-shadow: 0px 0px 5px red;
+			-webkit-box-shadow: 0px 0px 5px red;	
+			-text-shadow: 1px 1px 1px white;			
+		}	
+		
+		.loading-indicator label {
+			padding-left: 20px;
+			background: url('../images/ajax-loader-small.gif') no-repeat center left;
+		}			
 		</style>
 	</head>
 	<body>
@@ -27,6 +48,7 @@
 		<script language="JavaScript" src="../lib/jquery.getScrollbarWidth.js"></script>
 		<script language="JavaScript" src="../lib/jquery.rule-1.0.1-min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.event.drag-1.5.min.js"></script>
+		<script language="JavaScript" src="../lib/jquery.jsonp-1.1.0.min.js"></script>
 			
 		<script language="JavaScript" src="../slick.remotemodel.js"></script>
 		<script language="JavaScript" src="../slick.grid.js"></script>
@@ -37,19 +59,13 @@
 		<tr>
 			<td valign="top" width="50%">
 				<div id="myGrid" style="width:800px;height:700px;"></div>
-				
-				<hr/>
-				<br/>
-				<b><u>Status:</u></b>&nbsp;<span id="status"></span>
 			</td>
 			<td valign="top">
 				<h2>Demonstrates:</h2>
-				
 				<ul>
 					<li>loading data through AJAX</li>
 					<li>custom row height</li>
 				</ul>
-				
 			</td>
 		</tr>
 		</table>
@@ -65,14 +81,11 @@
 		    return "<b><a href='" + dataContext["link"] + "' target=_blank>" + dataContext["title"] + "</a></b><br/>" + dataContext["description"];
 		};
 
-		var userIconFormatter = function(row, cell, value, columnDef, dataContext) {
-		    return "<img src='" + dataContext["user"].icon + "'>";
-		};
 		
 		var columns = [
-			{id:"num", name:"#", field:"index", width:40},
-			{id:"author", name:"Author", width:40, formatter:userIconFormatter, width:50},			
-			{id:"story", name:"Story", width:670, formatter:storyTitleFormatter, cssClass:"cell-story"}
+			{id:"num", name:"#", field:"index", width:40, sortable:false},
+			{id:"story", name:"Story", width:670, formatter:storyTitleFormatter, cssClass:"cell-story", sortable:false},
+			{id:"diggs", name:"Diggs", field:"diggs", width:60}
 		];
 
 		var options = {
@@ -82,7 +95,7 @@
 			enableCellNavigation: false
 		};	
 
-	
+		var loadingIndicator = null;
 
 	
 	
@@ -92,14 +105,28 @@
 			
 			grid.onViewportChanged = function() {
 				var vp = grid.getViewport();
-				var pagesize = vp.bottom - vp.top;
-				
-				loader.ensureData(vp.top - 2*pagesize, vp.bottom + 2*pagesize);
+				loader.ensureData(vp.top, vp.bottom);
 			}
 			
+			grid.onSort = function(sortCol,sortAsc) {
+				loader.setSort(sortCol.field,sortAsc?1:-1);
+				var vp = grid.getViewport();
+				loader.ensureData(vp.top, vp.bottom);				
+			}			
 			
 			loader.onDataLoading.subscribe(function() {
-				$("#status").text("Loading...");
+				if (!loadingIndicator)
+				{
+					loadingIndicator = $("<span class='loading-indicator'><label>Buffering...</label></span>").appendTo(document.body);
+					var $g = $("#myGrid");
+					
+					loadingIndicator	
+						.css("position", "absolute")
+						.css("top", $g.position().top + $g.height()/2 - loadingIndicator.height()/2)
+						.css("left", $g.position().left + $g.width()/2 - loadingIndicator.width()/2)
+				}
+				
+				loadingIndicator.show();
 			});
 			
 			loader.onDataLoaded.subscribe(function(args) {
@@ -110,17 +137,14 @@
 				grid.updateRowCount();				
 				grid.render();
 				
-				$("#status").text("Ready.");
+				loadingIndicator.fadeOut();
 			});
 			
 			
 			
 			// load the first page
 			grid.onViewportChanged();
-			
 		})
-		
 		</script>
-
 	</body>
 </html>
