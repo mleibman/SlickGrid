@@ -32,6 +32,7 @@ function RemoteModel() {
 	var sortdir = 1;	
 	var h_request = null;
 	var req = null; // ajax request
+	var req_page;
 	
 	// events
 	var onDataLoading = new EventHelper();
@@ -89,7 +90,10 @@ function RemoteModel() {
 		}
 		
 		
-		if (req) req.abort();
+		if (req) {
+			req.abort();
+			data[req_page*PAGESIZE] = undefined;
+		}
 		
 		if (h_request != null) 
 			window.clearTimeout(h_request);
@@ -97,6 +101,8 @@ function RemoteModel() {
 		h_request = window.setTimeout(function() {
 			for (var i=fromPage; i<=toPage; i++)
 				data[i*PAGESIZE] = null; // null indicates a 'requested but not available yet'
+			
+			req_page = fromPage;
 			
 			onDataLoading.notify({from:from, to:to});
 			
