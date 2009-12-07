@@ -16,31 +16,6 @@
 		.cell-effort-driven {
 			text-align: center;
 		}
-		
-		#gridHeader {
-			border: 1px solid gray;
-			border-bottom: 0px;
-			border-top: 0px;
-			background: url('../images/header-bg.gif') repeat-x center top;
-			color: black;
-			font-weight: bold;
-			height: 24px;
-			line-height: 24px;
-		}	
-		
-		#gridHeader label {
-			display: block;
-			margin: auto;
-			margin-left: 6px;
-		}	
-		
-		.options-panel {
-			-moz-border-radius: 6px;
-			-webkit-border-radius: 6px;
-			border: 1px solid silver;
-			background: #f0f0f0;	
-			padding: 4px;		
-		}
 	</style>
 	</head>
 	<body>
@@ -60,7 +35,7 @@
 
 		
 		<div style="width:600px;float:left;">
-			<div id="gridHeader" style="width:100%">
+			<div class="grid-header" style="width:100%">
 				<label>SlickGrid</label>
 			</div>
 			<div id="myGrid" style="width:100%;height:500px;"></div>
@@ -68,27 +43,21 @@
 		</div>
 		
 		<div class="options-panel" style="width:320px;margin-left:650px;">
-			
 			<b>Search:</b>
 			<hr/>
-					
 			<div style="padding:6px;">
 				<label style="width:200px;float:left">Show tasks with % at least: </label>
-				
 				<div style="padding:2px;">
 					<div style="width:100px;display:inline-block;" id="pcSlider"></div>
 				</div>
-				
 				<br/>
-				
 				<label style="width:200px;float:left">And title including:</label>
 				<input type=text id="txtSearch" style="width:100px;">
-				
 				<br/><br/>
-				
 				<button id="btnSelectRows">Select first 10 rows</button>
 			</div>
 		</div>
+
 				
 		<div style="margin-left:650px;margin-top:40px;;">
 			<h2>Demonstrates:</h2>
@@ -129,7 +98,8 @@
 			editable: true,
 			enableAddRow: true,
 			enableCellNavigation: true,
-			asyncEditorLoading: true
+			asyncEditorLoading: true,
+			forceFitColumns: true
 		};	
 
 		var sortcol = "title";

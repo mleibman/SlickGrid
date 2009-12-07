@@ -26,8 +26,9 @@ function EventHelper() {
  */
 function RemoteModel() {
 	// private
-	var PAGESIZE = 100;
+	var PAGESIZE = 50;
 	var data = {length:0};
+	var searchstr = "apple";
 	var sortcol = null;
 	var sortdir = 1;	
 	var h_request = null;
@@ -68,19 +69,22 @@ function RemoteModel() {
 		var fromPage = Math.floor(from / PAGESIZE);
 		var toPage = Math.floor(to / PAGESIZE);
 		
-		while (data[fromPage * PAGESIZE] !== undefined && fromPage <= toPage) 
+		while (data[fromPage * PAGESIZE] !== undefined && fromPage < toPage) 
 			fromPage++;
 		
-		while (data[toPage * PAGESIZE] !== undefined && fromPage <= toPage) 
+		while (data[toPage * PAGESIZE] !== undefined && fromPage < toPage) 
 			toPage--;
 			
 		if (fromPage > toPage || ((fromPage == toPage) && data[fromPage*PAGESIZE] !== undefined)) {
 			// TODO:  lookeahead
+			
+			//if ()
+			
 			return;
 		}
 			
 			
-		var url = "http://services.digg.com/stories/topic/apple?offset=" + (fromPage * PAGESIZE) + "&count=" + PAGESIZE + "&appkey=http://slickgrid.googlecode.com&type=javascript"
+		var url = "http://services.digg.com/search/stories?query=" + searchstr + "&offset=" + (fromPage * PAGESIZE) + "&count=" + PAGESIZE + "&appkey=http://slickgrid.googlecode.com&type=javascript"
 
 		
 		switch (sortcol) {
@@ -152,7 +156,10 @@ function RemoteModel() {
 		clear();
 	}
 	
-
+	function setSearch(str) {
+		searchstr = str;
+		clear();
+	}
 
 
 	init();
@@ -167,6 +174,7 @@ function RemoteModel() {
 		"ensureData": ensureData,
 		"reloadData": reloadData,
 		"setSort": setSort,
+		"setSearch": setSearch,
 
 		// events
 		"onDataLoading": onDataLoading,

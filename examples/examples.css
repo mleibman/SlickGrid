@@ -32,6 +32,39 @@ li {
     border: 1px solid gray;
 }
 
+.grid-header {
+	border: 1px solid gray;
+	border-bottom: 0px;
+	border-top: 0px;
+	background: url('../images/header-bg.gif') repeat-x center top;
+	color: black;
+	height: 24px;
+	line-height: 24px;
+}	
+
+.grid-header label {
+	display: inline-block;
+	font-weight: bold;
+	margin: auto;
+	margin-left: 6px;
+}	
+
+.grid-header #txtSearch {
+	margin: 0px 4px 0px 4px;
+	padding: 2px 2px;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	border: 1px solid silver;
+}
+
+.options-panel {
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border: 1px solid silver;
+	background: #f0f0f0;	
+	padding: 4px;		
+	margin-bottom: 20px;
+}
 
 
 /* Individual cell styles */

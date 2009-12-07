@@ -53,26 +53,29 @@
 		<script language="JavaScript" src="../slick.remotemodel.js"></script>
 		<script language="JavaScript" src="../slick.grid.js"></script>
 		<script language="JavaScript" src="../slick.globaleditorlock.js"></script>
+				
+		<div style="width:700px;float:left;">
+			<div class="grid-header" style="width:100%">
+				<label>Digg stories</label>
+				<span style="float:right;display:inline-block;">
+					Search:
+					<input type="text" id="txtSearch" value="apple">
+				</span>
+			</div>
+			<div id="myGrid" style="width:100%;height:600px;"></div>
+			<div id="pager" style="width:100%;height:20px;"></div>
+		</div>
 		
 		
-		<table width="100%">
-		<tr>
-			<td valign="top" width="50%">
-				<div id="myGrid" style="width:800px;height:700px;"></div>
-			</td>
-			<td valign="top">
+		<div style="margin-left:750px;margin-top:40px;;">
 				<h2>Demonstrates:</h2>
 				<ul>
 					<li>loading data through AJAX</li>
 					<li>custom row height</li>
 				</ul>
-			</td>
-		</tr>
-		</table>
-
+		</div>
 		
 		<script>
-		
 		var grid;
 		var data = [];
 		var loader = new RemoteModel();
@@ -84,7 +87,7 @@
 		
 		var columns = [
 			{id:"num", name:"#", field:"index", width:40, sortable:false},
-			{id:"story", name:"Story", width:670, formatter:storyTitleFormatter, cssClass:"cell-story", sortable:false},
+			{id:"story", name:"Story", width:580, formatter:storyTitleFormatter, cssClass:"cell-story", sortable:false},
 			{id:"diggs", name:"Diggs", field:"diggs", width:60}
 		];
 
@@ -140,6 +143,14 @@
 				loadingIndicator.fadeOut();
 			});
 			
+			$("#txtSearch").keyup(function(e) {
+				if (e.which == 13) {
+					loader.setSearch($(this).val());
+					var vp = grid.getViewport();
+					loader.ensureData(vp.top, vp.bottom);					
+				}
+			})
+				
 			
 			
 			// load the first page
