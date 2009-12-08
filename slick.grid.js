@@ -14,7 +14,6 @@
  * 
  * KNOWN ISSUES:
  * 	- keyboard navigation doesn't "jump" over unselectable cells for now
- *  - main page must have at least one STYLE element for jQuery Rule to work
  * 
  * 
  * OPTIONS:
@@ -156,8 +155,6 @@ function SlickGrid($container,data,columns,options)
 		$divMainScroller = $("<div tabIndex='0' hideFocus style='width:100%;overflow:scroll;outline:0;position:relative;outline:0px;'>").appendTo($container);
 		$divMain = $("<div class='grid-canvas' tabIndex='0' hideFocus />").appendTo($divMainScroller);
 	
-	
-		
 		// header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
 		// calculate the diff so we can set consistent sizes
 		measureCellPaddingAndBorder();
@@ -328,23 +325,20 @@ function SlickGrid($container,data,columns,options)
 	}
 	
 	function createCssRules() {
-		$.rule(".grid-canvas .r .c { height:" + (options.rowHeight - cellHeightDiff) + "px;}").appendTo("style");
+		var $style = $("<style type='text/css' rel='stylesheet' lib='slickgrid' />").appendTo($("head"));
+		$.rule(".grid-canvas .r .c { height:" + (options.rowHeight - cellHeightDiff) + "px;}").appendTo($style);
 		
 		for (var i = 0; i < columns.length; i++) {
 			$.rule(
 				"." + uid + " .grid-canvas .c" + i + " { " +
 				"width:" + (columns[i].width - cellWidthDiff) + "px; " + 
 				"display: " + (columns[i].hidden ? "none" : "block") +
-				" }").appendTo("style");
+				" }").appendTo($style);
 		}
 	}
 	
 	function removeCssRules() {
-		$.rule(".grid-canvas .r .c", "style").remove();
-		
-		for (var i = 0; i < columns.length; i++) {
-			$.rule("." + uid + " .grid-canvas .c" + i, "style").remove();
-		}
+		$("style[lib=slickgrid]").remove();
 	}
 		
 	function destroy() {
@@ -434,14 +428,14 @@ function SlickGrid($container,data,columns,options)
 	function updateColumnWidth(index,width) {
 		columns[index].width = width;
 		$divHeaders.find(".slick-header-column[id=" + columns[index].id + "]").css("width",width - headerColumnWidthDiff);
-		$.rule("." + uid + " .grid-canvas .c" + index, "style").css("width", (columns[index].width - cellWidthDiff) + "px");
+		$.rule("." + uid + " .grid-canvas .c" + index, "style[lib=slickgrid]").css("width", (columns[index].width - cellWidthDiff) + "px");
 	}
 	
 	function setColumnVisibility(column,visible) {
 		var index = columnsById[column.id];
 		columns[index].hidden = !visible;
 		resizeCanvas();
-		$.rule("." + uid + " .grid-canvas .c" + index, "style").css("display", visible?"block":"none");
+		$.rule("." + uid + " .grid-canvas .c" + index, "style[lib=slickgrid]").css("display", visible?"block":"none");
 		var header = $divHeaders.find("[id=" + columns[index].id + "]");
 		header.css("display", visible?"block":"none");
 	}
@@ -531,9 +525,7 @@ function SlickGrid($container,data,columns,options)
 	
 	function getRowHtml(row) {
 		var html = [];
-		
 		appendRowHtml(html,row);
-		
 		return html.join("");
 	}
 	
