@@ -289,6 +289,8 @@ function SlickGrid($container,data,columns,options)
 		
 		createCssRules();
 		resizeCanvas();
+		if (options.forceFitColumns)
+			autosizeColumns();
 		render();
 		
 		
@@ -435,9 +437,12 @@ function SlickGrid($container,data,columns,options)
 		var index = columnsById[column.id];
 		columns[index].hidden = !visible;
 		resizeCanvas();
-		$.rule("." + uid + " .grid-canvas .c" + index, "style[lib=slickgrid]").css("display", visible?"block":"none");
 		var header = $divHeaders.find("[id=" + columns[index].id + "]");
 		header.css("display", visible?"block":"none");
+		$.rule("." + uid + " .grid-canvas .c" + index, "style[lib=slickgrid]").css("display", visible?"block":"none");
+		
+		if (options.forceFitColumns)
+			autosizeColumns(columns[index]);
 	}
 
 	function getSelectedRows() {
