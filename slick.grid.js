@@ -778,6 +778,22 @@ function SlickGrid($container,data,columns,options)
 	// Interactivity
 
 	function handleKeyDown(e) {
+		// do we have any registered handlers?
+		if (self.onKeyDown && data[currentRow])
+		{
+			// grid must not be in edit mode
+			if (!currentEditor) 
+			{
+				// handler will return true if the event was handled
+				if (self.onKeyDown(e, currentRow, currentCell)) 
+				{
+					e.stopPropagation();
+					e.preventDefault();
+					return false;
+				}
+			}
+		}
+
 		switch (e.which) {
 			case 27:  // esc
 				if (GlobalEditorLock.isEditing() && GlobalEditorLock.hasLock(self))
@@ -810,23 +826,6 @@ function SlickGrid($container,data,columns,options)
 				break;
 								
 			default:
-
-				// do we have any registered handlers?
-				if (self.onKeyDown && data[currentRow])
-				{
-					// grid must not be in edit mode
-					if (!currentEditor) 
-					{
-						// handler will return true if the event was handled
-						if (self.onKeyDown(e, currentRow, currentCell)) 
-						{
-							e.stopPropagation();
-							e.preventDefault();
-							return false;
-						}
-					}
-				}			
-			
 				// exit without cancelling the event
 				return;
 		}

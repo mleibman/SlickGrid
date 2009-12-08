@@ -32,6 +32,7 @@ function DataView() {
 	var items = [];			// data by index
 	var rows = [];			// data by row
 	var idxById = {};		// indexes by id
+	var rowsById = null;	// rows by id; lazy-calculated
 	var filter = null;		// filter function
 	var updated = null; 	// updated item ids
 	var suspend = false;	// suspends the recalculation
@@ -96,11 +97,16 @@ function DataView() {
 		return idxById[id];
 	}
 	
-	// slow implementation in favor of fast refresh()
+	// calculate the lookup table on first call
 	function getRowById(id) {
-		for (var i=0,l=rows.length; i<l; ++i) {
-			if (rows[i].id == id) return i;
+		if (!rowsById) {
+			rowsById = {};
+			for (var i=0, l=rows.length; i<l; ++i) {
+				rowsById[rows[i].id] = i;
+			}		
 		}
+		
+		return rowsById[id];
 	}
 	
 	function getItemById(id) {
@@ -132,6 +138,8 @@ function DataView() {
 	function recalc(_items,_rows,_filter,_updated) {
 		var diff = [];
 		var items=_items, rows=_rows, filter=_filter, updated=_updated; // cache as local vars
+		
+		rowsById = null;
 		
 		// go over all items remapping them to rows on the fly 
 		// while keeping track of the differences and updating indexes

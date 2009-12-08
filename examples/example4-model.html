@@ -170,6 +170,32 @@
 			
 			grid.onAddNewRow = addItem;
 			
+			grid.onKeyDown = function(e) {
+				// select all rows on ctrl-a
+				if (e.which != 65 || !e.ctrlKey) 
+					return false;
+				
+				var rows = [];
+				selectedRowIds = [];
+				
+				for (var i=0; i<dataView.rows.length; i++) {
+					rows.push(i);
+					selectedRowIds.push(dataView.rows[i].id);
+				}
+				
+				grid.setSelectedRows(rows);	
+				
+				return true;			
+			}
+			
+			grid.onSelectedRowsChanged = function() {
+				selectedRowIds = [];
+				var rows = grid.getSelectedRows();
+				for (var i=0, l=rows.length; i<l; i++) {
+					selectedRowIds.push(rows[i].id);
+				}
+			}
+			
 			grid.onSort = function(sortCol,sortAsc) {
 				sortdir = sortAsc?1:-1;
 				sortcol = sortCol.field;
