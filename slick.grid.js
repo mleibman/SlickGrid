@@ -752,7 +752,8 @@ function SlickGrid($container,data,columns,options)
 		if (scrollLeft != currentScrollLeft)
 			$divHeadersScroller[0].scrollLeft = currentScrollLeft = scrollLeft;
 		
-		if (scrollDistance < MIN_BUFFER*options.rowHeight) return;
+		// min scroll distance = 25% of the viewport or MIN_BUFFER rows (whichever is smaller)
+		if (scrollDistance < Math.min(viewportH/4, MIN_BUFFER*options.rowHeight)) return;
 		
 		if (lastRenderedScrollTop == currentScrollTop)
 			scrollDir = 0;
