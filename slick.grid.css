@@ -84,7 +84,7 @@
 }
 
 .grid-canvas .r[row$="1"], .grid-canvas .r[row$="3"], .grid-canvas .r[row$="5"], .grid-canvas .r[row$="7"],	.grid-canvas .r[row$="9"]{
-	background: #f5f5f5;
+	background: #fafafa;
 }
 
 .grid-canvas .r.loading {
@@ -93,12 +93,14 @@
 }
 
 .grid-canvas .r:hover {
-	background-color: #f0f0f0;
+	-background-color: #f0f0f0;
+	background-image: url("images/row-over-bg.gif");
+	background-repeat: repeat-x;
 }
 
 .grid-canvas .r.selected {
 	z-index: 10;
-	background-color: #F5F7D7;
+	background: #DFE8F6;
 }
 
 .grid-canvas .r .c.editable {
@@ -145,4 +147,19 @@
 	border-color: red;
 }
 
+.slick-reorder-proxy {
+	display: inline-block;
+	background: blue;
+	opacity: 0.15;
+	filter: alpha(opacity=15);
+	cursor: move;
+}
+
+.slick-reorder-guide {
+	display: inline-block;
+	height: 2px;
+	background: blue;
+	opacity: 0.7;
+	filter: alpha(opacity=70);
+}
 

@@ -1,0 +1,166 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+		<title>SlickGrid example</title>
+		<link rel="stylesheet" href="../slick.grid.css" type="text/css" media="screen" charset="utf-8" />
+		<link rel="stylesheet" href="../css/custom-theme/jquery-ui-1.7.2.custom.css" type="text/css" media="screen" charset="utf-8" />
+		<link rel="stylesheet" href="examples.css" type="text/css" media="screen" charset="utf-8" />
+		<style>
+		.cell-title {
+			font-weight: bold;
+		}
+		.cell-effort-driven {
+			text-align: center;
+		}
+		.cell-reorder {
+			cursor: move;
+			background-image: url("../images/bullet_blue.png");
+			background-repeat: no-repeat;
+			background-position: center center;
+		}
+	</style>
+	</head>
+	<body>
+		<script language="JavaScript" src="../lib/firebugx.js"></script>
+		<script language="JavaScript" src="../lib/jquery-1.3.2.min.js"></script>
+		<script language="JavaScript" src="../lib/jquery-ui-1.7.2.custom.min.js"></script>
+		<script language="JavaScript" src="../lib/jquery.getScrollbarWidth.js"></script>
+		<script language="JavaScript" src="../lib/jquery.rule-1.0.1-min.js"></script>
+		<script language="JavaScript" src="../lib/jquery.event.drag.custom.js"></script>
+			
+		<script language="JavaScript" src="../slick.editors.js"></script>
+		<script language="JavaScript" src="../slick.grid.js"></script>
+		<script language="JavaScript" src="../slick.globaleditorlock.js"></script>
+		
+		
+		<div style="width:600px;float:left;">
+			<div class="grid-header" style="width:100%">
+				<label>Santa's TODO list:</label>
+			</div>
+			<div id="myGrid" style="width:100%;height:500px;"></div>
+		</div>		
+		
+		<div class="options-panel" style="width:320px;margin-left:650px;">
+			<b>Tools:</b>
+			<hr/>
+			<div style="padding:6px;">
+				<br/><br/>
+				<button id="btnSelectRows" onclick="grid.setSelectedRows([2,3,4])">Select first 10 rows</button>
+			</div>
+		</div>
+
+		
+		<script>
+		var grid;
+		
+		var data = [];
+
+        var columns = [{
+            id: "#",
+            name: "",
+            width: 40,
+            behavior: "move",
+            unselectable: true,
+            sortable: false,
+            resizable: false,
+            cssClass: "cell-reorder"
+        }, {
+            id: "name",
+            name: "Name",
+            field: "name",
+            width: 500,
+            cssClass: "cell-title",
+            editor: TextCellEditor,
+            validator: requiredFieldValidator
+        }, {
+            id: "complete",
+            name: "Complete",
+            sortable: false,
+            width: 60,
+            cssClass: "cell-effort-driven",
+            field: "complete",
+            cannotTriggerInsert: true,
+            formatter: BoolCellFormatter,
+            editor: YesNoCheckboxCellEditor
+        }];
+
+		var options = {
+			editable: true,
+			enableAddRow: true,
+			enableCellNavigation: true,
+			forceFitColumns: true
+		};	
+
+		function requiredFieldValidator(value) {
+			if (value == null || value == undefined || !value.length)
+				return {valid:false, msg:"This is a required field"};
+			else	
+				return {valid:true, msg:null};
+		}
+
+
+		$(function()
+		{
+			data = [
+				{ name: "Make a list", complete: true},
+				{ name: "Check it twice", complete: false},
+				{ name: "Find out who's naughty", complete: false},
+				{ name: "Find out who's nice", complete: false}
+			];
+			
+			grid = new SlickGrid($("#myGrid"), data, columns, options);
+			
+			grid.onAddNewRow =  function addItem(columnDef,value) {
+				var item = {name:"New task", complete: false};
+				item[columnDef.field] = value;
+				data.push(item);
+				grid.removeRows([data.length-1]);
+				grid.updateRowCount();
+				grid.render();
+			}
+			
+			grid.onBeforeMoveRows = function(rows,insertBefore) {
+				for (var i=0; i<rows.length; i++) {
+					// no point in moving before or after itself
+					if (rows[i] == insertBefore || rows[i] == insertBefore - 1) return false;
+				}
+				
+				return true;
+			}
+			
+			grid.onMoveRows = function(rows,insertBefore) {
+				var extractedRows = [], left, right;
+				left = data.slice(0,insertBefore);
+				right = data.slice(insertBefore,data.length);
+				
+				for (var i=0; i<rows.length; i++) {
+					extractedRows.push(data[rows[i]]);
+				}
+
+				rows.sort().reverse();
+				
+				for (var i=0; i<rows.length; i++) {
+					var row = rows[i];
+					if (row < insertBefore)
+						left.splice(row,1);
+					else
+						right.splice(row-insertBefore,1);
+				}
+								
+				data = left.concat(extractedRows.concat(right));
+				
+				var selectedRows = [];
+				for (var i=0; i<rows.length; i++) 
+					selectedRows.push(left.length+i);
+				
+				grid.setData(data);
+				grid.setSelectedRows(selectedRows);
+				grid.render();
+			}
+		})
+		
+		</script>
+
+	</body>
+</html>

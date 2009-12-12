@@ -81,7 +81,7 @@ function SlickGrid($container,data,columns,options)
 		editOnDoubleClick: false,
 		enableCellNavigation: true,
 		enableColumnReorder: true,
-		asyncEditorLoading: true,
+		asyncEditorLoading: false,
 		forceFitColumns: false
 	};
 	
@@ -131,11 +131,6 @@ function SlickGrid($container,data,columns,options)
 	var counter_rows_rendered = 0;
 	var counter_rows_removed = 0;
 	
-	var fragment = document.createDocumentFragment();
-	
-	// internal
-	var _forceSyncScrolling = false;
-	
 	
 	function init() {
 		options = $.extend({},defaults,options);
@@ -174,9 +169,108 @@ function SlickGrid($container,data,columns,options)
 		}
 		
 		$divMainScroller.height( $container.innerHeight() - $divHeadersScroller.outerHeight() );
-		
 		$divHeaders.disableSelection();
+
+		if (options.enableColumnReorder)
+			wireupColumnReorderEvents();
+			
+		wireupColumnSort();
+		wireupColumnResizeEvents();
+		wireupMoveEvents();
+		createCssRules();
+		resizeCanvas();
+		if (options.forceFitColumns)
+			autosizeColumns();
+		render();
 		
+		if (!options.manualScrolling)
+			$divMainScroller.bind("scroll", handleScroll);
+		
+		$container.bind("resize", resizeCanvas);
+		
+		$divMain.bind("keydown", handleKeyDown);
+		$divMain.bind("click", handleClick);
+		$divMain.bind("dblclick", handleDblClick);
+		$divMain.bind("contextmenu", handleContextMenu)
+		$divHeadersScroller.bind("contextmenu", handleHeaderContextMenu);
+
+		if ($.browser.msie) 
+			$divMainScroller[0].onselectstart = function() {
+				if (event.srcElement.tagName != "INPUT" && event.srcElement.tagName != "TEXTAREA") 
+					return false; 
+				};
+	}
+	
+	function wireupColumnSort() {
+        $divHeaders.click(function(e) {
+			var $col = $(e.target);
+            if (!$col.hasClass("slick-header-column") || !columns[columnsById[$col.attr("id")]].sortable) 
+                return;
+			
+			if (currentEditor && !commitCurrentEdit()) return;
+
+            if ($col.is(".slick-header-column-sorted")) 
+            {
+                $col.find(".slick-sort-indicator").toggleClass("slick-sort-indicator-asc").toggleClass("slick-sort-indicator-desc");
+            }
+            else 
+            {
+                $divHeaders.children().removeClass("slick-header-column-sorted");
+                $divHeaders.find(".slick-sort-indicator").removeClass("slick-sort-indicator-asc slick-sort-indicator-desc");
+                $col.addClass("slick-header-column-sorted");
+                $col.find(".slick-sort-indicator").addClass("slick-sort-indicator-asc");
+            }
+			
+			if (self.onSort)
+				self.onSort(columns[columnsById[$col.attr("id")]], $col.find(".slick-sort-indicator").hasClass("slick-sort-indicator-asc"));
+        })			
+	}
+	
+	function wireupColumnReorderEvents() {
+        $divHeaders.sortable({
+            axis: "x",
+            cursor: "default",
+            tolerance: "intersect",
+            helper: "clone",
+            placeholder: "slick-sortable-placeholder slick-header-column",
+            forcePlaceholderSize: true,
+            start: function(e, ui) {
+                $(ui.helper).addClass("slick-header-column-active")
+            },
+            beforeStop: function(e, ui) {
+                $(ui.helper).removeClass("slick-header-column-active")
+            },
+			stop: function(e, ui) {
+				if (currentEditor && !commitCurrentEdit()) {
+					$(this).sortable("cancel");
+					return;
+				}
+				
+				var newOrder = $divHeaders.sortable("toArray");
+				var lookup = {};
+				for (var i=0; i<columns.length; i++) {
+					lookup[columns[i].id] = columns[i];
+				}
+				
+				for (var i=0; i<newOrder.length; i++) {
+					columnsById[newOrder[i]] = i;
+					columns[i] = lookup[newOrder[i]];
+				}
+				
+				removeAllRows();
+				removeCssRules();
+				createCssRules();
+				render();
+				
+				if (self.onColumnsReordered)
+					self.onColumnsReordered();
+					
+				e.stopPropagation();
+			}					
+            })			
+	}
+	
+	function wireupColumnResizeEvents() {
         $divHeaders
 			.find(".slick-resizable-handle")
 			.bind('dragstart', function(e) {
@@ -217,100 +311,67 @@ function SlickGrid($container,data,columns,options)
 				
 				render();				
 	        })
-		
-        $divHeaders.click(function(e) {
-			var $col = $(e.target);
-            if (!$col.hasClass("slick-header-column") || !columns[columnsById[$col.attr("id")]].sortable) 
-                return;
-			
-			if (currentEditor && !commitCurrentEdit()) return;
+	}
 
-            if ($col.is(".slick-header-column-sorted")) 
-            {
-                $col.find(".slick-sort-indicator").toggleClass("slick-sort-indicator-asc").toggleClass("slick-sort-indicator-desc");
-            }
-            else 
-            {
-                $divHeaders.children().removeClass("slick-header-column-sorted");
-                $divHeaders.find(".slick-sort-indicator").removeClass("slick-sort-indicator-asc slick-sort-indicator-desc");
-                $col.addClass("slick-header-column-sorted");
-                $col.find(".slick-sort-indicator").addClass("slick-sort-indicator-asc");
-            }
-			
-			if (self.onSort)
-				self.onSort(columns[columnsById[$col.attr("id")]], $col.find(".slick-sort-indicator").hasClass("slick-sort-indicator-asc"));
-        })	
+	function wireupMoveEvents() {
+		$divMain
+			.bind("beforedragstart", function(e) {
+				var $cell = $(e.target).closest(".c");
+				if ($cell.length == 0) return false;
+				if (parseInt($cell.parent().attr("row")) >= data.length) return false;
+				var colDef = columns[$cell.attr("cell")];
+				if (colDef.behavior != "move") return false;
+			})
+			.bind("dragstart", function(e) {
+				if (currentEditor && !commitCurrentEdit()) return false;
+				
+				var row = parseInt($(e.target).closest(".r").attr("row"));
+				
+				if (!selectedRowsLookup[row])
+					setSelectedRows([row]);
+				
+				var $selectionProxy = $("<div class='slick-reorder-proxy'/>");
+				$selectionProxy	
+					.css("position", "absolute")
+					.css("zIndex", "99999")
+					.css("width", $(this).innerWidth())
+					.css("height", options.rowHeight*selectedRows.length)
+					.appendTo($divMainScroller);
 
-		if (options.enableColumnReorder)
-                $divHeaders.sortable({
-                    axis: "x",
-                    cursor: "default",
-                    tolerance: "intersect",
-                    helper: "clone",
-                    placeholder: "slick-sortable-placeholder slick-header-column",
-                    forcePlaceholderSize: true,
-                    start: function(e, ui) {
-                        $(ui.helper).addClass("slick-header-column-active")
-                    },
-                    beforeStop: function(e, ui) {
-                        $(ui.helper).removeClass("slick-header-column-active")
-                    },
-					stop: function(e, ui) {
-						if (currentEditor && !commitCurrentEdit()) {
-							$(this).sortable("cancel");
-							return;
-						}
-						
-						var newOrder = $divHeaders.sortable("toArray");
-						var lookup = {};
-						for (var i=0; i<columns.length; i++)
-						{
-							lookup[columns[i].id] = columns[i];
-						}
-						
-						for (var i=0; i<newOrder.length; i++)
-						{
-							columnsById[newOrder[i]] = i;
-							columns[i] = lookup[newOrder[i]];
-						}
-						
-						removeAllRows();
-						removeCssRules();
-						createCssRules();
-						render();
-						
-						if (self.onColumnsReordered)
-							self.onColumnsReordered();
-							
-						e.stopPropagation();
-					}					
-                })			
-	
-		
-		createCssRules();
-		resizeCanvas();
-		if (options.forceFitColumns)
-			autosizeColumns();
-		render();
-		
-		
-
-		if (!options.manualScrolling)
-			$divMainScroller.bind("scroll", handleScroll);
-		
-		$container.bind("resize", resizeCanvas);
-		
-		$divMain.bind("keydown", handleKeyDown);
-		$divMain.bind("click", handleClick);
-		$divMain.bind("dblclick", handleDblClick);
-		$divMain.bind("contextmenu", handleContextMenu)
-		$divHeadersScroller.bind("contextmenu", handleHeaderContextMenu);
-
-		if ($.browser.msie) 
-			$divMainScroller[0].onselectstart = function() {
-				if (event.srcElement.tagName != "INPUT" && event.srcElement.tagName != "TEXTAREA") 
-					return false; 
-				};
+				$(this)
+					.data("selectionProxy", $selectionProxy)
+					.data("insertBefore", -1);
+					
+				var $guide = $("<div class='slick-reorder-guide'/>");
+				$guide	
+					.css("position", "absolute")
+					.css("zIndex", "99998")
+					.css("width", $(this).innerWidth())
+					.css("top", -1000)
+					.appendTo($divMainScroller);
+				
+				return $guide;
+			})
+			.bind("drag", function(e) {
+				var top = e.clientY - $(this).offset().top;
+				$(this).data("selectionProxy").css("top",top-5);
+				
+				var insertBefore = Math.max(0,Math.min(Math.round(top/options.rowHeight),data.length));
+				if (insertBefore != $(this).data("insertBefore")) {
+					if (self.onBeforeMoveRows && self.onBeforeMoveRows(selectedRows.concat(),insertBefore) === false)
+						$(e.dragProxy).css("top", -1000);
+					else
+						$(e.dragProxy).css("top",insertBefore*options.rowHeight);	
+					$(this).data("insertBefore", insertBefore);			
+				}
+			})
+			.bind("dragend", function(e) {
+				$(e.dragProxy).remove();
+				$(this).data("selectionProxy").remove();
+				var insertBefore = $(this).data("insertBefore");
+				$(this).removeData("selectionProxy").removeData("insertBefore");
+				if (self.onMoveRows) self.onMoveRows(selectedRows.concat(),insertBefore);
+			})		
 	}
 	
 	function measureCellPaddingAndBorder() {
@@ -491,11 +552,12 @@ function SlickGrid($container,data,columns,options)
 		render();
 	}
 	
-    function setData(newData)
+    function setData(newData,scrollToTop)
 	{
 	    removeAllRows();    
 	    data = newData;
-	    $divMainScroller.scrollTop(0);
+		if (scrollToTop)
+	    	$divMainScroller.scrollTop(0);
 	}	
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////
@@ -1295,6 +1357,8 @@ function SlickGrid($container,data,columns,options)
 		"onViewportChanged":	null,
 		"onSelectedRowsChanged":	null,
 		"onColumnsReordered":	null,
+		"onBeforeMoveRows"	:	null,
+		"onMoveRows":		null,
 		
 		// Methods
 		"setOptions":		setOptions,
