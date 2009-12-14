@@ -93,6 +93,10 @@ function DataView() {
 		refresh();
 	}
 	
+	function getItemByIdx(i) {
+		return items[i];	
+	}
+	
 	function getIdxById(id) {
 		return idxById[id];
 	}
@@ -211,6 +215,7 @@ function DataView() {
 		"getIdxById":	getIdxById,
 		"getRowById":	getRowById,
 		"getItemById":	getItemById,
+		"getItemByIdx":	getItemByIdx,
 		"refresh":		refresh,
 		"updateItem":	updateItem,
 		"insertItem":	insertItem,
