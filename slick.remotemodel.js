@@ -84,7 +84,7 @@ function RemoteModel() {
 		}
 			
 			
-		var url = "http://services.digg.com/search/stories?query=" + searchstr + "&offset=" + (fromPage * PAGESIZE) + "&count=" + PAGESIZE + "&appkey=http://slickgrid.googlecode.com&type=javascript"
+		var url = "http://services.digg.com/search/stories?query=" + searchstr + "&offset=" + (fromPage * PAGESIZE) + "&count=" + (((toPage-fromPage)*PAGESIZE)+PAGESIZE) + "&appkey=http://slickgrid.googlecode.com&type=javascript"
 
 		
 		switch (sortcol) {
