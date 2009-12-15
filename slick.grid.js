@@ -92,6 +92,7 @@ function SlickGrid($container,data,columns,options)
 	var CAPACITY = 50;
 	var MIN_BUFFER = 5;
 	var BUFFER = MIN_BUFFER;  // will be set to equal one page
+	var POSTPROCESSING_DELAY = 50;
 	
 	// private
 	var uid = "slickgrid_" + Math.round(1000000 * Math.random());
@@ -123,6 +124,9 @@ function SlickGrid($container,data,columns,options)
 	// async call handles
 	var h_editorLoader = null;
 	var h_render = null;	
+	var h_postrender = null;
+	var postProcessedRows = {};
+	var rowsToPostProcess = [];
 	
 	// perf counters
 	var counter_rows_rendered = 0;
@@ -153,7 +157,12 @@ function SlickGrid($container,data,columns,options)
 		
 		$divMainScroller.height($container.innerHeight() - $divHeadersScroller.outerHeight());
 		
-		$divMainScroller.disableSelection();
+		if ($.browser.msie)		
+				$divMainScroller[0].onselectstart = function() {		
+					if (event.srcElement.tagName != "INPUT" && event.srcElement.tagName != "TEXTAREA")		
+						return false;		
+					};
+		
 		$divHeaders.disableSelection();
 
 		createColumnHeaders();
@@ -591,6 +600,7 @@ function SlickGrid($container,data,columns,options)
 			if ((i < visibleFrom || i > visibleTo) && i != currentRow) {
 				parentNode.removeChild(rowsCache[i]);
 				delete rowsCache[i];
+				delete postProcessedRows[i];
 				renderedRows--;		
 				counter_rows_removed++;	
 			}
@@ -600,6 +610,7 @@ function SlickGrid($container,data,columns,options)
 	function removeAllRows() {
 		$divMain[0].innerHTML = "";
 		rowsCache= {};
+		postProcessedRows = {};
 		counter_rows_removed += renderedRows;
 		renderedRows = 0;
 	}	
@@ -617,6 +628,7 @@ function SlickGrid($container,data,columns,options)
 		node.parentNode.removeChild(node);
 		node = null;
 		delete rowsCache[row];	
+		delete postProcessedRows[row];
 		renderedRows--;
 		counter_rows_removed++;
 	}
@@ -636,6 +648,7 @@ function SlickGrid($container,data,columns,options)
 		if (renderedRows > 10 && nodes.length == renderedRows) {
 			$divMain[0].innerHTML = "";
 			rowsCache= {};
+			postProcessedRows = {};
 			counter_rows_removed += renderedRows;
 			renderedRows = 0;			
 		} else {
@@ -643,6 +656,7 @@ function SlickGrid($container,data,columns,options)
 				var node = rowsCache[nodes[i]];
 				node.parentNode.removeChild(node);
 				delete rowsCache[nodes[i]];
+				delete postProcessedRows[nodes[i]];
 				renderedRows--;
 				counter_rows_removed++;
 			}
@@ -655,10 +669,12 @@ function SlickGrid($container,data,columns,options)
 		if ($cell.length == 0) return;
 		
 		var m = columns[cell], d = data[row];	
-		if (currentEditor && currentRow == row && currentCell == cell)
+		if (currentEditor && currentRow == row && currentCell == cell) 
 			currentEditor.setValue(d[m.field]);
-		else 
+		else {
 			$cell[0].innerHTML = d ? m.formatter(row, cell, d[m.field], m, d) : "";
+			invalidatePostProcessingResults(row);
+		}
 	}
 
 	function updateRow(row) {
@@ -674,6 +690,8 @@ function SlickGrid($container,data,columns,options)
 			else
 				this.innerHTML = "";
 		});
+		
+		invalidatePostProcessingResults(row);
 	}
 
 	function resizeCanvas() {
@@ -710,6 +728,7 @@ function SlickGrid($container,data,columns,options)
 			if (i >= l) {
 				parentNode.removeChild(rowsCache[i]);
 				delete rowsCache[i];
+				delete postProcessedRows[i];
 				renderedRows--;
 				counter_rows_removed++;
 			}
@@ -755,6 +774,17 @@ function SlickGrid($container,data,columns,options)
 			avgRowRenderTime = (new Date() - _start) / (renderedRows - rowsBefore);
 	}	
 	
+	function startPostProcessing() {
+		window.clearTimeout(h_postrender);
+		h_postrender = window.setTimeout(processPostRenderChunk, POSTPROCESSING_DELAY);		
+	}
+	
+	function invalidatePostProcessingResults(row) {
+		delete postProcessedRows[row];
+		rowsToPostProcess.unshift(row);
+		startPostProcessing();
+	}
+	
 	function render() {
 		var vp = getViewport();
 		var from = Math.max(0, vp.top - (scrollDir >= 0 ? MIN_BUFFER : BUFFER));
@@ -765,7 +795,14 @@ function SlickGrid($container,data,columns,options)
 		else
 			cleanupRows(from,to);
 
-		renderRows(from,to);		
+		renderRows(from,to);	
+				
+		rowsToPostProcess = [];
+		for (var i=from; i<=to; i++) {
+			rowsToPostProcess.push(i);
+		}
+		
+		startPostProcessing();
 		
 		lastRenderedScrollTop = currentScrollTop;
 		h_render = null;
@@ -799,6 +836,22 @@ function SlickGrid($container,data,columns,options)
 			
 		if (self.onViewportChanged)
 			self.onViewportChanged();
+	}
+
+	function processPostRenderChunk() {
+		if (rowsToPostProcess.length == 0) return;
+		while (rowsToPostProcess.length > 0) {
+			var row = rowsToPostProcess.shift();
+			if (postProcessedRows[row] || row>=data.length) continue;
+			var node = rowsCache[row];
+			if (!node) continue;
+	
+			if (self.onPostProcessRowNode)
+				self.onPostProcessRowNode(node, row, data[row]);
+			startPostProcessing();
+			postProcessedRows[row] = true;
+			return;			
+		}
 	}
 
 
@@ -1044,8 +1097,10 @@ function SlickGrid($container,data,columns,options)
 		currentEditor.destroy();
 		$(currentCellNode).removeClass("editable invalid");
 		
-		if (data[currentRow]) 
+		if (data[currentRow]) {
 			currentCellNode.innerHTML = columns[currentCell].formatter(currentRow, currentCell, data[currentRow][columns[currentCell].field], columns[currentCell], data[currentRow]);
+			invalidatePostProcessingResults(currentRow);
+		}
 		
 		currentEditor = null;
 		
@@ -1275,6 +1330,7 @@ function SlickGrid($container,data,columns,options)
 		"onColumnsReordered":	null,
 		"onBeforeMoveRows"	:	null,
 		"onMoveRows":		null,
+		"onPostProcessRowNode":	null,
 		
 		// Methods
 		"setOptions":		setOptions,

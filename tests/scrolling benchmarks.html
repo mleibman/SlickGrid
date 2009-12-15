@@ -129,6 +129,11 @@
 			// initialize the grid
 			grid = new SlickGrid($("#myGrid"), dataView.rows, columns, options);
 			
+			
+			grid.onPostProcessRowNode = function(rowNode) {
+				rowNode.lastChild.style.background = "yellow"
+			}
+						
 			// wire up model events to drive the grid
 			dataView.onRowCountChanged.subscribe(function(args) {
 				grid.resizeCanvas();
