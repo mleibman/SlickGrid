@@ -173,7 +173,6 @@ function DataView() {
 			rows.splice(currentPageIndex, rl - currentPageIndex);
 		
 		totalRows = currentRowIndex;
-		updated = null;
 		
 		return diff;
 	}
@@ -192,6 +191,8 @@ function DataView() {
 			pagenum = Math.floor(totalRows/pagesize);
 			diff = recalc(items,rows,filter,updated);
 		}
+
+		updated = null;
 		
 		if (totalRowsBefore != totalRows) onPagingInfoChanged.notify(getPagingInfo());
 		if (countBefore != rows.length) onRowCountChanged.notify({previous:countBefore, current:rows.length});
