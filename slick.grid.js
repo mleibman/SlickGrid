@@ -798,6 +798,8 @@ function SlickGrid($container,data,columns,options)
 		renderRows(from,to);	
 				
 		rowsToPostProcess = [];
+		from = Math.max(0,vp.top-MIN_BUFFER);
+		to = Math.min(options.enableAddRow ? data.length : data.length - 1, vp.bottom+MIN_BUFFER);
 		for (var i=from; i<=to; i++) {
 			rowsToPostProcess.push(i);
 		}
