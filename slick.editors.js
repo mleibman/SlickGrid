@@ -119,6 +119,64 @@ var TextCellEditor = function($container, columnDef, value, dataContext) {
     this.init();
 }
 
+var IntegerCellEditor = function($container, columnDef, value, dataContext) {
+    var $input;
+    var defaultValue = value;
+    var scope = this;
+    
+    this.init = function() {
+        $input = $("<INPUT type=text class='editor-text' />");
+        
+        if (value != null) 
+        {
+            $input[0].defaultValue = value;
+            $input.val(defaultValue);
+        }
+        
+        $input.appendTo($container);
+        $input.focus().select();
+    }
+    
+    
+    this.destroy = function() {
+        $input.remove();
+    }
+    
+    this.focus = function() {
+        $input.focus();
+    }
+    
+    this.setValue = function(value) {
+        $input.val(value);
+        defaultValue = value;
+    }
+    
+    this.getValue = function() {
+		var val = $.trim($input.val());
+        return (val == "") ? 0 : parseInt($input.val(), 10);
+    }
+    
+    this.isValueChanged = function() {
+        return (!($input.val() == "" && defaultValue == null)) && ($input.val() != defaultValue);
+    }
+    
+    this.validate = function() {
+        if (isNaN($input.val())) 
+            return {
+                valid: false,
+                msg: "Please enter a valid integer"
+            };
+        
+        return {
+            valid: true,
+            msg: null
+        };
+    }
+    
+    this.init();
+}
+
+
 var DateCellEditor = function($container, columnDef, value, dataContext) {
     var $input;
     var defaultValue = value;
