@@ -165,13 +165,12 @@ function SlickGrid($container,data,columns,options)
 		
 		$divHeaders.disableSelection();
 
-		createColumnHeaders();
-		if (options.forceFitColumns)
-			autosizeColumns();
-			
+		createColumnHeaders();			
 		setupMoveEvents();
 		createCssRules();
 		resizeCanvas();
+		if (options.forceFitColumns)
+			autosizeColumns();		
 		render();
 		
 		if (!options.manualScrolling)
