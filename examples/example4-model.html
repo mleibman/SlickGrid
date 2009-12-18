@@ -85,13 +85,13 @@
 		var selectedRowIds = [];
 
 		var columns = [
-			{id:"sel", name:"#", cssClass:"cell-selection", width:40, cannotTriggerInsert:true, resizable:false, sortable:false, unselectable:true },
-			{id:"title", name:"Title", field:"title", width:120, minWidth:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, setValueHandler:updateItem},
-			{id:"duration", name:"Duration", field:"duration", editor:TextCellEditor, setValueHandler:updateItem},
-			{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter, editor:PercentCompleteCellEditor, setValueHandler:updateItem},
-			{id:"start", name:"Start", field:"start", minWidth:60, editor:DateCellEditor, setValueHandler:updateItem},
-			{id:"finish", name:"Finish", field:"finish", minWidth:60, editor:DateCellEditor, setValueHandler:updateItem},
-			{id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter, editor:YesNoCheckboxCellEditor, setValueHandler:updateItem, cannotTriggerInsert:true}
+			{id:"sel", name:"#", cssClass:"cell-selection", width:40, cannotTriggerInsert:true, resizable:false,  unselectable:true },
+			{id:"title", name:"Title", field:"title", width:120, minWidth:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, setValueHandler:updateItem, sortable:true},
+			{id:"duration", name:"Duration", field:"duration", editor:TextCellEditor, setValueHandler:updateItem, sortable:true},
+			{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter, editor:PercentCompleteCellEditor, setValueHandler:updateItem, sortable:true},
+			{id:"start", name:"Start", field:"start", minWidth:60, editor:DateCellEditor, setValueHandler:updateItem, sortable:true},
+			{id:"finish", name:"Finish", field:"finish", minWidth:60, editor:DateCellEditor, setValueHandler:updateItem, sortable:true},
+			{id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter, editor:YesNoCheckboxCellEditor, setValueHandler:updateItem, cannotTriggerInsert:true, sortable:true}
 		];
 
 		var options = {

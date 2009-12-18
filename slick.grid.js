@@ -71,10 +71,10 @@ function SlickGrid($container,data,columns,options)
 	var defaults = {
 		rowHeight: 25,
 		defaultColumnWidth: 80,
-		enableAddRow: true,
+		enableAddRow: false,
 		leaveSpaceForNewRows: false,
 		manualScrolling: false,
-		editable: true,
+		editable: false,
 		editOnDoubleClick: false,
 		enableCellNavigation: true,
 		enableColumnReorder: true,
@@ -84,7 +84,7 @@ function SlickGrid($container,data,columns,options)
 	
 	var columnDefaults = {
 		resizable: true,
-		sortable: true,
+		sortable: false,
 		formatter: defaultFormatter
 	}
 	
@@ -148,7 +148,7 @@ function SlickGrid($container,data,columns,options)
 		
 		$divHeadersScroller = $("<div class='slick-header' style='overflow:hidden;position:relative;' />").appendTo($container);
 		$divHeaders = $("<div class='slick-header-columns' style='width:100000px' />").appendTo($divHeadersScroller);
-		$divMainScroller = $("<div tabIndex='0' hideFocus style='width:100%;overflow:scroll;outline:0;position:relative;outline:0px;'>").appendTo($container);
+		$divMainScroller = $("<div tabIndex='0' hideFocus style='width:100%;overflow-x:auto;overflow-y:scroll;outline:0;position:relative;outline:0px;'>").appendTo($container);
 		$divMain = $("<div class='grid-canvas' tabIndex='0' hideFocus />").appendTo($divMainScroller);
 	
 		// header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
