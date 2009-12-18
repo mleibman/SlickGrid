@@ -93,9 +93,9 @@
 }
 
 .grid-canvas .r:hover {
-	-background-color: #f0f0f0;
 	background-image: url("images/row-over-bg.gif");
 	background-repeat: repeat-x;
+	z-index: 5;
 }
 
 .grid-canvas .r.selected {
