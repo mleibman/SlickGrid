@@ -62,7 +62,6 @@
             width: 40,
             behavior: "move",
             unselectable: true,
-            sortable: false,
             resizable: false,
             cssClass: "cell-reorder"
         }, {
@@ -76,7 +75,6 @@
         }, {
             id: "complete",
             name: "Complete",
-            sortable: false,
             width: 60,
             cssClass: "cell-effort-driven",
             field: "complete",
@@ -109,7 +107,7 @@
 				{ name: "Find out who's nice", complete: false}
 			];
 			
-			grid = new SlickGrid($("#myGrid"), data, columns, options);
+			grid = new Slick.Grid($("#myGrid"), data, columns, options);
 			
 			grid.onAddNewRow =  function addItem(columnDef,value) {
 				var item = {name:"New task", complete: false};

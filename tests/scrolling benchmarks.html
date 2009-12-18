@@ -119,7 +119,7 @@
 			
 
 			// initialize the model
-			dataView = new DataView();
+			dataView = new Slick.Data.DataView();
 			dataView.beginUpdate();
 			dataView.setItems(data);
 			dataView.setFilter(myFilter);
@@ -127,7 +127,7 @@
 			
 			
 			// initialize the grid
-			grid = new SlickGrid($("#myGrid"), dataView.rows, columns, options);
+			grid = new Slick.Grid($("#myGrid"), dataView.rows, columns, options);
 			
 			
 			grid.onPostProcessRowNode = function(rowNode) {

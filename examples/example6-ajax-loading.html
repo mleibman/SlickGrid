@@ -10,15 +10,7 @@
 		.cell-story {
 			white-space: normal!important;
 		}
-		
-		.sort-asc {
-			background: silver url('../images/sort-asc.png') no-repeat right center !important;
-		}
-		
-		.sort-desc {
-			background: silver url('../images/sort-desc.png') no-repeat right center !important;
-		}
-		
+
 		.loading-indicator {
 			display: inline-block;
 			padding: 12px;
@@ -78,7 +70,7 @@
 		<script>
 		var grid;
 		var data = [];
-		var loader = new RemoteModel();
+		var loader = new Slick.Data.RemoteModel();
 
 		var storyTitleFormatter = function(row, cell, value, columnDef, dataContext) {
 		    return "<b><a href='" + dataContext["link"] + "' target=_blank>" + dataContext["title"] + "</a></b><br/>" + dataContext["description"];
@@ -104,7 +96,7 @@
 	
 		$(function()
 		{
-			grid = new SlickGrid($("#myGrid"), loader.data, columns, options);
+			grid = new Slick.Grid($("#myGrid"), loader.data, columns, options);
 			
 			grid.onViewportChanged = function() {
 				var vp = grid.getViewport();

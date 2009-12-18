@@ -126,6 +126,7 @@
 	padding: 2px;
 	padding-top: 1px;
 	padding-left: 1px;
+	white-space: nowrap;
 }
 
 .grid-canvas .r .c.editable {

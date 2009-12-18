@@ -15,14 +15,6 @@
 			text-align: center;
 		}
 		
-		.sort-asc {
-			background: silver url('../images/sort-asc.png') no-repeat right center !important;
-		}
-		
-		.sort-desc {
-			background: silver url('../images/sort-desc.png') no-repeat right center !important;
-		}
-		
 		.toggle {
 			height: 9px;
 			width: 9px;
@@ -212,7 +204,7 @@
 			
 
 			// initialize the model
-			dataView = new DataView();
+			dataView = new Slick.Data.DataView();
 			dataView.beginUpdate();
 			dataView.setItems(data);
 			dataView.setFilter(myFilter);
@@ -220,7 +212,7 @@
 			
 			
 			// initialize the grid
-			grid = new SlickGrid($("#myGrid"), dataView.rows, columns, options);
+			grid = new Slick.Grid($("#myGrid"), dataView.rows, columns, options);
 			
 			grid.onAddNewRow = addItem;
 					
@@ -261,8 +253,8 @@
 			$("#pcSlider").slider({
 				"range":	"min",
 				"slide":	function(event,ui) {
-					if (GlobalEditorLock.isEditing()) 
-						GlobalEditorLock.cancelCurrentEdit();
+					if (Slick.GlobalEditorLock.isEditing()) 
+						Slick.GlobalEditorLock.cancelCurrentEdit();
 					
 					if (percentCompleteThreshold != ui.value) 
 					{
@@ -276,8 +268,8 @@
 			
 			// wire up the search textbox to apply the filter to the model
 			$("#txtSearch").keyup(function(e) {
-				if (GlobalEditorLock.isEditing()) 
-					GlobalEditorLock.cancelCurrentEdit();
+				if (Slick.GlobalEditorLock.isEditing()) 
+					Slick.GlobalEditorLock.cancelCurrentEdit();
 							
 				// clear on Esc			
 				if (e.which == 27) 
