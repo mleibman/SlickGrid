@@ -46,7 +46,7 @@
 			<hr/>
 			<div style="padding:6px;">
 				<br/><br/>
-				<button id="btnSelectRows" onclick="grid.setSelectedRows([0,1,2])">Select first 3 rows</button>
+				<button id="btnSelectRows" onclick="selectMultipleRows()">Select first 3 rows</button>
 			</div>
 		</div>
 
@@ -97,6 +97,10 @@
 				return {valid:true, msg:null};
 		}
 
+        function selectMultipleRows() {
+            if (Slick.GlobalEditorLock.isEditing() && !Slick.GlobalEditorLock.commitCurrentEdit()) return;
+            grid.setSelectedRows([0,1,2]);
+        }
 
 		$(function()
 		{
@@ -156,9 +160,7 @@
 				grid.setSelectedRows(selectedRows);
 				grid.render();
 			}
-		})
-		
+		})		
 		</script>
-
 	</body>
 </html>
