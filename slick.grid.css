@@ -74,40 +74,36 @@
 	outline: 0px;
 }
 
-.grid-canvas * {
-	outline: 0px;
-}
-
-.grid-canvas .r {
+.slick-row {
 	position: absolute;
 	background: white;
 }
 
-.grid-canvas .r[row$="1"], .grid-canvas .r[row$="3"], .grid-canvas .r[row$="5"], .grid-canvas .r[row$="7"],	.grid-canvas .r[row$="9"]{
+.slick-row[row$="1"], .slick-row[row$="3"], .slick-row[row$="5"], .slick-row[row$="7"],	.slick-row[row$="9"] {
 	background: #fafafa;
 }
 
-.grid-canvas .r.loading {
+.slick-row.loading {
 	opacity: 0.5;
 	filter: alpha(opacity=50);
 }
 
-.grid-canvas .r:hover {
+.slick-row:hover {
 	background-image: url("images/row-over-bg.gif");
 	background-repeat: repeat-x;
 	z-index: 5;
 }
 
-.grid-canvas .r.selected {
+.slick-row.selected {
 	z-index: 10;
 	background: #DFE8F6;
 }
 
-.grid-canvas .r .c.editable {
+.slick-cell.editable {
 	z-index: 11;
 }
 
-.grid-canvas .r .c {
+.slick-cell {
 	float: left;
 	
 	border: 1px solid transparent;
@@ -129,22 +125,22 @@
 	white-space: nowrap;
 }
 
-.grid-canvas .r .c.editable {
+.slick-cell.editable {
 	overflow: visible;
 }
 
-.grid-canvas .r .c.selected {
+.slick-cell.selected {
 	border-color: gray;
 	border-style: solid;	
 }
 
-.grid-canvas .r .c.editable {
+.slick-cell.editable {
 	background: white;
 	border-color: black;
 	border-style: solid;
 }
 
-.grid-canvas .r .c.invalid {
+.slick-cell.invalid {
 	border-color: red;
 }
 
@@ -163,4 +159,3 @@
 	opacity: 0.7;
 	filter: alpha(opacity=70);
 }
-

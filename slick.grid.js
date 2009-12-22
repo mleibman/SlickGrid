@@ -321,7 +321,7 @@
 		function setupMoveEvents() {
 			$divMain
 				.bind("beforedragstart", function(e) {
-					var $cell = $(e.target).closest(".c");
+					var $cell = $(e.target).closest(".slick-cell");
 					if ($cell.length == 0) return false;
 					if (parseInt($cell.parent().attr("row")) >= data.length) return false;
 					var colDef = columns[$cell.attr("cell")];
@@ -330,7 +330,7 @@
 				.bind("dragstart", function(e) {
 					if (currentEditor && !commitCurrentEdit()) return false;
 					
-					var row = parseInt($(e.target).closest(".r").attr("row"));
+					var row = parseInt($(e.target).closest(".slick-row").attr("row"));
 					
 					if (!selectedRowsLookup[row])
 						setSelectedRows([row]);
@@ -385,8 +385,8 @@
 			headerColumnHeightDiff = tmp.outerHeight() - tmp.height();
 			tmp.remove();
 			
-			var r = $("<div class='r' />").appendTo($divMain);
-			tmp = $("<div class='c' cell='' id='' style='visibility:hidden'>-</div>").appendTo(r);
+			var r = $("<div class='slick-row' />").appendTo($divMain);
+			tmp = $("<div class='slick-cell' cell='' id='' style='visibility:hidden'>-</div>").appendTo(r);
 			cellWidthDiff = tmp.outerWidth() - tmp.width();
 			cellHeightDiff = tmp.outerHeight() - tmp.height();
 			r.remove();
@@ -394,11 +394,11 @@
 		
 		function createCssRules() {
 			var $style = $("<style type='text/css' rel='stylesheet' lib='slickgrid' />").appendTo($("head"));
-			$.rule(".grid-canvas .r .c { height:" + (options.rowHeight - cellHeightDiff) + "px;}").appendTo($style);
+			$.rule("." + uid + " .slick-cell { height:" + (options.rowHeight - cellHeightDiff) + "px;}").appendTo($style);
 			
 			for (var i = 0; i < columns.length; i++) {
 				$.rule(
-					"." + uid + " .grid-canvas .c" + i + " { " +
+					"." + uid + " .c" + i + " { " +
 					"width:" + (columns[i].width - cellWidthDiff) + "px; " + 
 					"display: " + (columns[i].hidden ? "none" : "block") +
 					" }").appendTo($style);
@@ -496,7 +496,7 @@
 		function updateColumnWidth(index,width) {
 			columns[index].width = width;
 			$divHeaders.find(".slick-header-column[id=" + columns[index].id + "]").css("width",width - headerColumnWidthDiff);
-			$.rule("." + uid + " .grid-canvas .c" + index, "style[lib=slickgrid]").css("width", (columns[index].width - cellWidthDiff) + "px");
+			$.rule("." + uid + " .c" + index, "style[lib=slickgrid]").css("width", (columns[index].width - cellWidthDiff) + "px");
 		}
 		
 		function setColumnVisibility(column,visible) {
@@ -505,7 +505,7 @@
 			resizeCanvas();
 			var header = $divHeaders.find("[id=" + columns[index].id + "]");
 			header.css("display", visible?"block":"none");
-			$.rule("." + uid + " .grid-canvas .c" + index, "style[lib=slickgrid]").css("display", visible?"block":"none");
+			$.rule("." + uid + " .c" + index, "style[lib=slickgrid]").css("display", visible?"block":"none");
 			
 			if (options.forceFitColumns)
 				autosizeColumns(columns[index]);
@@ -572,14 +572,14 @@
 		function appendRowHtml(stringArray,row) {
 			var d = data[row];
 			var dataLoading = row < data.length && !d;
-			var css = "r" + (dataLoading ? " loading" : "") + (selectedRowsLookup[row] ? " selected" : "");
+			var css = "slick-row " + (dataLoading ? " loading" : "") + (selectedRowsLookup[row] ? " selected" : "");
 			
 			stringArray.push("<div class='" + css + "' row='" + row + "' style='top:" + (options.rowHeight*row) + "px'>");
 			
 			for (var i=0, cols=columns.length; i<cols; i++) {
 				var m = columns[i];
 	
-				stringArray.push("<div " + (m.unselectable ? "" : "hideFocus tabIndex=0 ") + "class='c c" + i + (m.cssClass ? " " + m.cssClass : "") + "' cell=" + i + ">");
+				stringArray.push("<div " + (m.unselectable ? "" : "hideFocus tabIndex=0 ") + "class='slick-cell c" + i + (m.cssClass ? " " + m.cssClass : "") + "' cell=" + i + ">");
 	
 				// if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)				
 				if (d && row < data.length)
@@ -752,7 +752,7 @@
 			
 			var x = document.createElement("div");
 			x.innerHTML = stringArray.join("");
-	
+
 			for (var i = 0, l = x.childNodes.length; i < l; i++) 
 				rowsCache[rows[i]] = parentNode.appendChild(x.firstChild);
 			
@@ -902,7 +902,7 @@
 		}	
 		
 		function handleClick(e)	{
-			var $cell = $(e.target).closest(".c");
+			var $cell = $(e.target).closest(".slick-cell");
 			if ($cell.length == 0) return;
 			
 			// are we editing this cell?
@@ -933,7 +933,7 @@
 		}
 		
 		function handleContextMenu(e) {
-			var $cell = $(e.target).closest(".c");
+			var $cell = $(e.target).closest(".slick-cell");
 			if ($cell.length == 0) return;
 			
 			// are we editing this cell?
@@ -958,7 +958,7 @@
 		}
 		
 		function handleDblClick(e) {
-			var $cell = $(e.target).closest(".c");
+			var $cell = $(e.target).closest(".slick-cell");
 			if ($cell.length == 0) return;
 			
 			// are we editing this cell?
@@ -1147,17 +1147,17 @@
 			if (!Slick.GlobalEditorLock.commitCurrentEdit()) return;
 			
 			var nextRow = rowsCache[currentRow + dy];
-			var nextCell = nextRow ? $(nextRow).find(".c[cell=" + (currentCell + dx) + "][tabIndex=0]") : null;
+			var nextCell = nextRow ? $(nextRow).find(".slick-cell[cell=" + (currentCell + dx) + "][tabIndex=0]") : null;
 			
 			if (rollover && dy == 0 && !(nextRow && nextCell && nextCell.length)) {
 				if (!nextCell || !nextCell.length) {
 					if (dx > 0) {
 						nextRow = rowsCache[currentRow + dy + 1];
-						nextCell = nextRow ? $(nextRow).find(".c[cell][tabIndex=0]:first") : null;						
+						nextCell = nextRow ? $(nextRow).find(".slick-cell[cell][tabIndex=0]:first") : null;						
 					}
 					else {
 						nextRow = rowsCache[currentRow + dy - 1];
-						nextCell = nextRow ? $(nextRow).find(".c[cell][tabIndex=0]:last") : null;		
+						nextCell = nextRow ? $(nextRow).find(".slick-cell[cell][tabIndex=0]:last") : null;		
 					}
 				}
 			}
@@ -1183,7 +1183,7 @@
 			if (!rowsCache[row])
 				renderRows(row,row);
 			
-			var cell = $(rowsCache[row]).find(".c[cell=" + cell + "][tabIndex=0]")[0];
+			var cell = $(rowsCache[row]).find(".slick-cell[cell=" + cell + "][tabIndex=0]")[0];
 			
 			setSelectedCellAndRow(cell);
 			
