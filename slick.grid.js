@@ -601,13 +601,8 @@
 			var rowsBefore = renderedRows;
 			var parentNode = $divMain[0];
 			for (var i in rowsCache) {
-				if ((i < visibleFrom || i > visibleTo) && i != currentRow) {
-					parentNode.removeChild(rowsCache[i]);
-					delete rowsCache[i];
-					delete postProcessedRows[i];
-					renderedRows--;		
-					counter_rows_removed++;	
-				}
+				if ((i < visibleFrom || i > visibleTo) && i != currentRow)
+					removeRowFromCache(i);
 			}
 		}
 		
@@ -618,6 +613,16 @@
 			counter_rows_removed += renderedRows;
 			renderedRows = 0;
 		}	
+	
+		function removeRowFromCache(row) {
+			var node = rowsCache[row];
+			if (!node) return;
+			node.parentNode.removeChild(node);
+			delete rowsCache[row];
+			delete postProcessedRows[row];
+			renderedRows--;
+			counter_rows_removed++;
+		}
 	
 		function removeRow(row) {
 			removeRows([row]);
@@ -638,14 +643,8 @@
 			if (renderedRows > 10 && nodes.length == renderedRows) {
 				removeAllRows();			
 			} else {
-				for (var i=0, nl=nodes.length; i<nl; i++) {
-					var node = rowsCache[nodes[i]];
-					node.parentNode.removeChild(node);
-					delete rowsCache[nodes[i]];
-					delete postProcessedRows[nodes[i]];
-					renderedRows--;
-					counter_rows_removed++;
-				}
+				for (var i=0, nl=nodes.length; i<nl; i++) 
+					removeRowFromCache(nodes[i]);
 			}
 		}
 		
@@ -711,13 +710,8 @@
 			var parentNode = $divMain[0];
 			var l = options.enableAddRow ? data.length : data.length - 1;
 			for (var i in rowsCache) {
-				if (i >= l) {
-					parentNode.removeChild(rowsCache[i]);
-					delete rowsCache[i];
-					delete postProcessedRows[i];
-					renderedRows--;
-					counter_rows_removed++;
-				}
+				if (i >= l)
+					removeRowFromCache(i);
 			}
 			
 		    var newHeight = Math.max(options.rowHeight * (data.length - 1 + (options.leaveSpaceForNewRows?numVisibleRows-1:0)), viewportH - $.getScrollbarWidth());
