@@ -692,7 +692,7 @@
 			}
 			$divMain.width(totalWidth);
 		  
-		    var newHeight = Math.max(options.rowHeight * (data.length - 1 + (options.leaveSpaceForNewRows?numVisibleRows-1:0)), viewportH - $.getScrollbarWidth());
+		    var newHeight = Math.max(options.rowHeight * (data.length + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0)), viewportH - $.getScrollbarWidth());
 			$divMainScroller.height( $container.innerHeight() - $divHeadersScroller.outerHeight() );
 			
 	        // browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
@@ -714,7 +714,7 @@
 					removeRowFromCache(i);
 			}
 			
-		    var newHeight = Math.max(options.rowHeight * (data.length - 1 + (options.leaveSpaceForNewRows?numVisibleRows-1:0)), viewportH - $.getScrollbarWidth());
+		    var newHeight = Math.max(options.rowHeight * (data.length + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0)), viewportH - $.getScrollbarWidth());
 			
 	        // browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
 			if ($divMainScroller.scrollTop() > newHeight - $divMainScroller.height() + $.getScrollbarWidth()) 
