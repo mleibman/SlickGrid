@@ -25,6 +25,7 @@
  * 	asyncEditorLoading		-	Makes cell editors load asynchronously after a small delay.
  * 								This greatly increases keyboard navigation speed.
  * 	forceFitColumns			-	Force column sizes to fit into the viewport (avoid horizontal scrolling).
+ *  enableAsyncPostProcessing	-	If true, async post rendering will occur and asyncPostProcess delegates on columns will be called.
  * 
  * 
  * COLUMN DEFINITION (columns) OPTIONS:
@@ -44,7 +45,7 @@
  * 	maxWidth				-	Maximum allowed column width for resizing.
  * 	cssClass				-	A CSS class to add to the cell.
  * 	rerenderOnResize		-	Rerender the column when it is resized (useful for columns relying on cell width or adaptive formatters).
- * 	
+ * 	asyncPostProcess		-	Function responsible for manipulating the cell DOM node after it has been rendered (called in the background).
  * 
  * EVENTS:
  * 
@@ -80,7 +81,8 @@
 			enableCellNavigation: true,
 			enableColumnReorder: true,
 			asyncEditorLoading: false,
-			forceFitColumns: false
+			forceFitColumns: false,
+			enableAsyncPostRender: false
 		};
 		
 		var columnDefaults = {
@@ -93,7 +95,8 @@
 		var CAPACITY = 50;
 		var MIN_BUFFER = 5;
 		var BUFFER = MIN_BUFFER;  // will be set to equal one page
-		var POSTPROCESSING_DELAY = 50, EDITOR_LOAD_DELAY = 100;
+		var POSTPROCESSING_DELAY = 60,  // must be greater than the delay in handleScroll 
+			EDITOR_LOAD_DELAY = 100;
 		
 		// private
 		var uid = "slickgrid_" + Math.round(1000000 * Math.random());
@@ -127,7 +130,9 @@
 		var h_render = null;	
 		var h_postrender = null;
 		var postProcessedRows = {};
-		var rowsToPostProcess = [];
+		var postProcessToRow = null;
+		var postProcessFromRow = null;
+		var postProcessInProgress = false;
 		
 		// perf counters
 		var counter_rows_rendered = 0;
@@ -550,9 +555,8 @@
 			render();
 		}
 		
-	    function setData(newData,scrollToTop)
-		{
-		    removeAllRows();    
+	    function setData(newData,scrollToTop) {
+	    	removeAllRows();    
 		    data = newData;
 			if (scrollToTop)
 		    	$divMainScroller.scrollTop(0);
@@ -757,13 +761,15 @@
 		}	
 		
 		function startPostProcessing() {
+			if (!options.enableAsyncPostRender) return;
 			clearTimeout(h_postrender);
-			h_postrender = setTimeout(processPostRenderChunk, POSTPROCESSING_DELAY);		
+			h_postrender = setTimeout(asyncPostProcessRows, POSTPROCESSING_DELAY);
 		}
 		
 		function invalidatePostProcessingResults(row) {
 			delete postProcessedRows[row];
-			rowsToPostProcess.unshift(row);
+			postProcessFromRow = Math.min(postProcessFromRow,row);
+			postProcessToRow = Math.max(postProcessToRow);
 			startPostProcessing();
 		}
 		
@@ -779,13 +785,8 @@
 	
 			renderRows(from,to);	
 					
-			rowsToPostProcess = [];
-			from = Math.max(0,vp.top-MIN_BUFFER);
-			to = Math.min(options.enableAddRow ? data.length : data.length - 1, vp.bottom+MIN_BUFFER);
-			for (var i=from; i<=to; i++) {
-				rowsToPostProcess.push(i);
-			}
-			
+			postProcessFromRow = Math.max(0,vp.top-MIN_BUFFER);
+			postProcessToRow = Math.min(options.enableAddRow ? data.length : data.length - 1, vp.bottom+MIN_BUFFER);
 			startPostProcessing();
 			
 			lastRenderedScrollTop = currentScrollTop;
@@ -822,19 +823,22 @@
 				self.onViewportChanged();
 		}
 	
-		function processPostRenderChunk() {
-			if (rowsToPostProcess.length == 0) return;
-			while (rowsToPostProcess.length > 0) {
-				var row = rowsToPostProcess.shift();
-				if (postProcessedRows[row] || row>=data.length) continue;
-				var node = rowsCache[row];
-				if (!node) continue;
-		
-				if (self.onPostProcessRowNode)
-					self.onPostProcessRowNode(node, row, data[row]);
-				startPostProcessing();
+		function asyncPostProcessRows () {
+			while (postProcessFromRow <= postProcessToRow) {
+				row = (scrollDir > 0) ? postProcessFromRow++ : postProcessToRow--;
+				var rowNode = rowsCache[row];
+				if (!rowNode || postProcessedRows[row] || row>=data.length) continue;
+				
+				var d = data[row], cellNodes = rowNode.childNodes;
+				for (var i=0, l=columns.length; i<l; i++) {
+					var m = columns[i];
+					if (m.asyncPostRender) 
+						m.asyncPostRender(cellNodes[i], postProcessFromRow, d, m);
+				}
+				
 				postProcessedRows[row] = true;
-				return;			
+				h_postrender = setTimeout(asyncPostProcessRows, POSTPROCESSING_DELAY);
+				return;
 			}
 		}
 	
@@ -1314,7 +1318,6 @@
 			"onColumnsReordered":	null,
 			"onBeforeMoveRows"	:	null,
 			"onMoveRows":		null,
-			"onPostProcessRowNode":	null,
 			
 			// Methods
 			"setOptions":		setOptions,

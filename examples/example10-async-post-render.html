@@ -45,7 +45,7 @@
 			<p>
 			With SlickGrid, you can still have rich, complex cells rendered against the actual DOM nodes while still preserving the speed and responsiveness.
 			This is achieved through async background post-rendering.  
-			SlickGrid exposes a <u>onPostProcessRowNode(rowNode,row,context)</u> event which you can subscribe to and implement your own rendering there.
+			SlickGrid exposes a <u>asyncPostRender</u> property on a column which you can use to set your own function that will manipulate the cell DOM node directly.
 			The event is fired one by one for all visible rows in the viewport on a timer so it doesn't impact the UI responsiveness.
 			You should still make sure that post-processing one row doesn't take too long though.
 			SlickGrid will figure out what and when needs to be updated for you.
@@ -72,7 +72,18 @@
 		function waitingFormatter(value) {
 			return "wait...";
 		}	
-			
+		
+		function renderSparkline(cellNode, row, dataContext, colDef) {
+			var vals = [
+				dataContext["n1"],
+				dataContext["n2"],
+				dataContext["n3"],
+				dataContext["n4"],
+				dataContext["n5"]
+			];
+				
+			$(cellNode).empty().sparkline(vals, {width:"100%"});			
+		}
 			
 		var grid;
 		
@@ -85,17 +96,16 @@
 			{id:"n3", name:"3", field:"n3", sortable:false, editor:IntegerCellEditor, width:40, validator:requiredFieldValidator},
 			{id:"n4", name:"4", field:"n4", sortable:false, editor:IntegerCellEditor, width:40, validator:requiredFieldValidator},
 			{id:"n5", name:"5", field:"n5", sortable:false, editor:IntegerCellEditor, width:40, validator:requiredFieldValidator},
-			{id:"chart", name:"Chart", sortable:false, width:60, formatter:waitingFormatter, rerenderOnResize:true}
-			
+			{id:"chart", name:"Chart", sortable:false, width:60, formatter:waitingFormatter, rerenderOnResize:true, asyncPostRender:renderSparkline}			
 		];
 
 		var options = {
 			editable: true,
 			enableAddRow: false,
 			enableCellNavigation: true,
-			asyncEditorLoading: false
+			asyncEditorLoading: false,
+			enableAsyncPostRender: true
 		};	
-
 
 
 		$(function()
@@ -113,22 +123,7 @@
 
 					
 			grid = new Slick.Grid($("#myGrid"), data, columns, options);
-			
-			
-			grid.onPostProcessRowNode = function(rowNode, row, dataContext) {
-				var vals = [
-					dataContext["n1"],
-					dataContext["n2"],
-					dataContext["n3"],
-					dataContext["n4"],
-					dataContext["n5"]
-				];
-				
-				$(rowNode).children().eq(grid.getColumnIndex("chart")).sparkline(vals, {width:"100%"});
-			}			
 		})
-		
 		</script>
-
 	</body>
 </html>

@@ -24,10 +24,9 @@
 		<script language="JavaScript" src="../lib/jquery.rule-1.0.1-min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.event.drag.custom.js"></script>
 			
-		<script language="JavaScript" src="../slick.editors.js"></script>
 		<script language="JavaScript" src="../slick.grid.js"></script>
 		<script language="JavaScript" src="../slick.globaleditorlock.js"></script>
-		<script language="JavaScript" src="../slick.model.js"></script>
+		<script language="JavaScript" src="../slick.editors.js"></script>
 		
 		<button onclick="grid.debug()">Debug info</button>
 		<button onclick="startBench(100)">Run (+= 100px)</button>
@@ -42,64 +41,28 @@
 			
 		
 		<script>
-
-		var dataView;
 		var grid;
-		
 		var data = [];
 
+		function testPostRender(cellNode, row, dataContext, colDef) {
+			cellNode.style.backgroundColor = 'yellow';
+		}
+		
 		var columns = [
-			{id:"title", name:"Title", field:"title", width:120, cssClass:"cell-title", editor:TextCellEditor, setValueHandler:updateItem},
-			{id:"duration", name:"Duration", field:"duration", editor:TextCellEditor, setValueHandler:updateItem},
-			{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter, editor:PercentCompleteCellEditor, setValueHandler:updateItem},
-			{id:"start", name:"Start", field:"start", minWidth:60, editor:DateCellEditor, setValueHandler:updateItem},
-			{id:"finish", name:"Finish", field:"finish", minWidth:60, editor:DateCellEditor, setValueHandler:updateItem},
-			{id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter, editor:YesNoCheckboxCellEditor, setValueHandler:updateItem, cannotTriggerInsert:true}
+			{id:"title", name:"Title", field:"title", width:120, cssClass:"cell-title"},
+			{id:"duration", name:"Duration", field:"duration"},
+			{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter},
+			{id:"start", name:"Start", field:"start", minWidth:60},
+			{id:"finish", name:"Finish", field:"finish", minWidth:60},
+			{id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter, asyncPostRender:testPostRender}
 		];
 
 		var options = {
-			editable: true,
-			enableAddRow: true,
+			editable: false,
+			enableAddRow: false,
 			enableCellNavigation: true,
-			asyncEditorLoading: true
+			enableAsyncPostRender: true
 		};	
-
-
-		var percentCompleteThreshold = 0;
-		var searchString = "";
-
-		function myFilter(item) {
-			if (item["percentComplete"] < percentCompleteThreshold) 
-				return false;
-				
-			if (searchString != "" && item["title"].indexOf(searchString) == -1)
-				return false;
-				
-			return true;
-		}
-		
-		function percentCompleteSort(a,b) {
-			return a["percentComplete"] - b["percentComplete"];
-		}
-
-		var sortcol = "title";
-		var sortdir = 1;
-		function comparer(a,b) {
-			var x = a[sortcol], y = b[sortcol];
-			
-			return sortdir * (x == y ? 0 : (x > y ? 1 : -1));
-		}
-		
-		function updateItem(value,columnDef,item) {
-			item[columnDef.field] = value;
-			dataView.updateItem(item.id,item);
-		}
-		
-		function addItem(columnDef,value) {
-			var item = {"id": "new_" + (Math.round(Math.random()*10000)), "title":"New task", "duration":"1 day", "percentComplete":0, "start":"01/01/2009", "finish":"01/01/2009", "effortDriven":false};
-			item[columnDef.field] = value;
-			dataView.addItem(item);
-		}
 
 
 		$(function()
@@ -117,41 +80,12 @@
 				d["effortDriven"] = (i % 5 == 0);
 			}
 			
-
-			// initialize the model
-			dataView = new Slick.Data.DataView();
-			dataView.beginUpdate();
-			dataView.setItems(data);
-			dataView.setFilter(myFilter);
-			dataView.endUpdate();
-			
 			
 			// initialize the grid
-			grid = new Slick.Grid($("#myGrid"), dataView.rows, columns, options);
-			
-			
-			grid.onPostProcessRowNode = function(rowNode) {
-				rowNode.lastChild.style.background = "yellow"
-			}
-						
-			// wire up model events to drive the grid
-			dataView.onRowCountChanged.subscribe(function(args) {
-				grid.resizeCanvas();
-			});
-			
-			dataView.onRowsChanged.subscribe(function(rows) {
-				for (var i=0, rl=rows.length; i<rl; i++) {
-					grid.removeRow(rows[i]);
-				}
-				
-				grid.render();
-			});
+			grid = new Slick.Grid($("#myGrid"), data, columns, options);
 			
 			$grid = $("#myGrid div.grid-canvas").parent();
 		})
-		
-		
-		
 		
 		
         var $grid;
@@ -183,6 +117,5 @@
         }
 		
 		</script>
-
 	</body>
 </html>
