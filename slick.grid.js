@@ -667,7 +667,7 @@
 			if (!rowsCache[row]) return;
 			
 			// todo:  perf:  iterate over direct children?
-			$(rowsCache[row]).find(".c").each(function(i) {
+			$(rowsCache[row]).find(".slick-cell").each(function(i) {
 				var m = columns[i];
 				if (row == currentRow && i == currentCell && currentEditor)
 					currentEditor.setValue(data[currentRow][m.field]);
@@ -902,7 +902,7 @@
 		}	
 		
 		function handleClick(e)	{
-			var $cell = $(e.target).closest(".slick-cell");
+			var $cell = $(e.target).closest(".slick-cell"); 
 			if ($cell.length == 0) return;
 			
 			// are we editing this cell?
@@ -1034,6 +1034,8 @@
 					else 
 						makeSelectedCellEditable();
 				}
+				else
+					currentCellNode.focus();
 			}
 			else {
 				currentRow = null;
