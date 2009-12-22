@@ -45,7 +45,7 @@
  * 	maxWidth				-	Maximum allowed column width for resizing.
  * 	cssClass				-	A CSS class to add to the cell.
  * 	rerenderOnResize		-	Rerender the column when it is resized (useful for columns relying on cell width or adaptive formatters).
- * 	asyncPostProcess		-	Function responsible for manipulating the cell DOM node after it has been rendered (called in the background).
+ * 	asyncPostRender			-	Function responsible for manipulating the cell DOM node after it has been rendered (called in the background).
  * 
  * EVENTS:
  * 
