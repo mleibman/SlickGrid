@@ -363,19 +363,20 @@
 					
 					var insertBefore = Math.max(0,Math.min(Math.round(top/options.rowHeight),data.length));
 					if (insertBefore != $(this).data("insertBefore")) {
-						if (self.onBeforeMoveRows && self.onBeforeMoveRows(selectedRows.concat(),insertBefore) === false)
-							$(e.dragProxy).css("top", -1000);
+						if (self.onBeforeMoveRows && self.onBeforeMoveRows(getSelectedRows(),insertBefore) === false)
+							$(e.dragProxy).css("top", -1000).data("canMove",false);
 						else
-							$(e.dragProxy).css("top",insertBefore*options.rowHeight);	
+							$(e.dragProxy).css("top",insertBefore*options.rowHeight).data("canMove",true);	
 						$(this).data("insertBefore", insertBefore);			
 					}
 				})
 				.bind("dragend", function(e) {
+					var canMove = $(e.dragProxy).data("canMove");
 					$(e.dragProxy).remove();
 					$(this).data("selectionProxy").remove();
 					var insertBefore = $(this).data("insertBefore");
 					$(this).removeData("selectionProxy").removeData("insertBefore");
-					if (self.onMoveRows) self.onMoveRows(selectedRows.concat(),insertBefore);
+					if (self.onMoveRows && canMove) self.onMoveRows(getSelectedRows(),insertBefore);
 				})		
 		}
 		
@@ -512,7 +513,7 @@
 		}
 	
 		function getSelectedRows() {
-			return selectedRows.concat();
+			return selectedRows.sort().concat();
 		}	
 	
 		function setSelectedRows(rows) {
@@ -714,9 +715,9 @@
 					removeRowFromCache(i);
 			}
 			
-		    var newHeight = Math.max(options.rowHeight * (data.length + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0)), viewportH - $.getScrollbarWidth());
-			
-	        // browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
+			var newHeight = Math.max(options.rowHeight * (data.length + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0)), viewportH - $.getScrollbarWidth());			
+	        
+			// browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
 			if ($divMainScroller.scrollTop() > newHeight - $divMainScroller.height() + $.getScrollbarWidth()) 
 				$divMainScroller.scrollTop(newHeight - $divMainScroller.height() + $.getScrollbarWidth());
 			$divMain.height(newHeight);			

@@ -42,18 +42,17 @@
 		</div>		
 		
 		<div class="options-panel" style="width:320px;margin-left:650px;">
-			<b>Tools:</b>
+			<b>Tips:</b>
 			<hr/>
 			<div style="padding:6px;">
-				<br/><br/>
-				<button id="btnSelectRows" onclick="selectMultipleRows()">Select first 3 rows</button>
+				Click to select, Ctrl-click to toggle selection, Shift-click to select a range.<br/>
+				Drag one or more rows to reorder.
 			</div>
 		</div>
 
 		
 		<script>
 		var grid;
-		
 		var data = [];
 
         var columns = [{
@@ -120,6 +119,30 @@
 				grid.removeRows([data.length-1]);
 				grid.updateRowCount();
 				grid.render();
+			}
+			
+			grid.onClick = function(e, row, cell) {
+				if (columns[cell].id == "#") {
+					var selectedRows = grid.getSelectedRows();
+					var idx = $.inArray(row,selectedRows);
+					
+					if (idx == -1 && !e.ctrlKey && !e.shiftKey) 
+						selectedRows = [row];
+					else if (idx == -1 && e.ctrlKey) 
+						selectedRows.push(row);
+					else if (idx != -1 && e.ctrlKey) 
+						selectedRows = $.grep(selectedRows, function(o,i) { return (o != row) });
+					else if (idx == -1 && selectedRows.length == 1 && e.shiftKey) {
+						var from = Math.min(row,selectedRows[0]);
+						var to = Math.max(row,selectedRows[0]);
+						selectedRows = [];
+						for (var i=from; i<=to; i++)
+							selectedRows.push(i);
+					}
+
+					grid.setSelectedRows(selectedRows);
+					return true;
+				}
 			}
 			
 			grid.onBeforeMoveRows = function(rows,insertBefore) {
