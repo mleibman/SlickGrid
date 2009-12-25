@@ -8,11 +8,7 @@
  * 	- frozen columns
  * 	- consistent events (EventHelper?  jQuery events?)
  *
- * 
- * KNOWN ISSUES:
- * 	- keyboard navigation doesn't "jump" over unselectable cells for now
  *
- * 
  * OPTIONS:
  *  rowHeight				-	Row height in pixels.
  * 	enableAddRow			-	If true, a blank row will be displayed at the bottom - typing values in that row will add a new one.
@@ -1139,23 +1135,26 @@
 		}
 	
 		function gotoDir(dy, dx, rollover) {
-			if (!currentCellNode) return;
-			if (!options.enableCellNavigation) return;		
+			if (!currentCellNode || !options.enableCellNavigation) return;		
 			if (!Slick.GlobalEditorLock.commitCurrentEdit()) return;
 			
 			var nextRow = rowsCache[currentRow + dy];
-			var nextCell = nextRow ? $(nextRow).find(".slick-cell[cell=" + (currentCell + dx) + "][tabIndex=0]") : null;
+			var nextCell = nextRow ? $(nextRow).find(".slick-cell[cell=" + (currentCell + dx) + "]") : null;
+			if (nextCell && !nextCell.is("[tabIndex=0]:visible"))
+				nextCell = (dx>0)?nextCell.nextAll("[tabIndex=0]:visible:first"):nextCell.prevAll("[tabIndex=0]:visible:first");
 			
 			if (rollover && dy == 0 && !(nextRow && nextCell && nextCell.length)) {
 				if (!nextCell || !nextCell.length) {
 					if (dx > 0) {
 						nextRow = rowsCache[currentRow + dy + 1];
-						nextCell = nextRow ? $(nextRow).find(".slick-cell[cell][tabIndex=0]:first") : null;						
+						nextCell = nextRow ? $(nextRow).find(".slick-cell[cell]:first") : null;	
 					}
 					else {
 						nextRow = rowsCache[currentRow + dy - 1];
-						nextCell = nextRow ? $(nextRow).find(".slick-cell[cell][tabIndex=0]:last") : null;		
+						nextCell = nextRow ? $(nextRow).find(".slick-cell[cell]:last") : null;		
 					}
+					if (nextCell && !nextCell.is("[tabIndex=0]:visible"))
+						nextCell = (dx>0)?nextCell.nextAll("[tabIndex=0]:visible:first"):nextCell.prevAll("[tabIndex=0]:visible:first");
 				}
 			}
 			
@@ -1180,7 +1179,7 @@
 			if (!rowsCache[row])
 				renderRows(row,row);
 			
-			var cell = $(rowsCache[row]).find(".slick-cell[cell=" + cell + "][tabIndex=0]")[0];
+			var cell = $(rowsCache[row]).find(".slick-cell[cell=" + cell + "][tabIndex=0]:visible")[0];
 			
 			setSelectedCellAndRow(cell);
 			
