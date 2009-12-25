@@ -128,8 +128,7 @@
 		var postProcessedRows = {};
 		var postProcessToRow = null;
 		var postProcessFromRow = null;
-		var postProcessInProgress = false;
-		
+
 		// perf counters
 		var counter_rows_rendered = 0;
 		var counter_rows_removed = 0;
@@ -1017,7 +1016,7 @@
 				
 				scrollSelectedCellIntoView();
 				
-				if (options.editable && !options.editOnDoubleClick && (data[currentRow] || currentRow == data.length)) {
+				if (options.editable && !options.editOnDoubleClick && isCellPotentiallyEditable(currentRow,currentCell)) {
 					clearTimeout(h_editorLoader);
 					
 					if (async) 
