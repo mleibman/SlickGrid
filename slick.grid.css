@@ -107,7 +107,7 @@
 	float: left;
 
     border: 1px solid transparent;
-    border-right: dotted silver;
+    border-right: 1px dotted silver;
     border-bottom-color: silver;
 
     height: 19px;
@@ -128,14 +128,14 @@
 }
 
 .slick-cell.selected {
-    border: solid gray;
-
+	border-color: gray;
+	border-style: solid;
 }
 
 .slick-cell.editable {
 	background: white;
-    border: solid black;
-
+	border-color: black;
+	border-style: solid;
 }
 
 .slick-cell.invalid {
