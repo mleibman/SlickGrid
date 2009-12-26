@@ -20,7 +20,7 @@
     height: 16px;
     line-height: 16px;
     background: url(images/header-columns-bg.gif) repeat-x center bottom;
-    margin: 0px;
+    margin: 0;
     padding: 4px;
     border-right: 1px solid silver;
     float: left;
@@ -56,7 +56,7 @@
     cursor: e-resize;
     width: 4px;
     right: -2px;
-    top: 0px;
+    top: 0;
     height: 100%;
 }
 
@@ -71,7 +71,7 @@
 
 .grid-canvas {
 	position: relative;
-	outline: 0px;
+	outline: 0;
 }
 
 .slick-row {
@@ -89,9 +89,9 @@
 }
 
 .slick-row:hover {
-	background-image: url("images/row-over-bg.gif");
-	background-repeat: repeat-x;
-	z-index: 5;
+    background: url("images/row-over-bg.gif") repeat-x;
+
+    z-index: 5;
 }
 
 .slick-row.selected {
@@ -105,13 +105,12 @@
 
 .slick-cell {
 	float: left;
-	
-	border: 1px solid transparent;
-	border-right-color: silver;
-	border-right-style: dotted;
-	border-bottom-color: silver;
-	
-	height: 19px;
+
+    border: 1px solid transparent;
+    border-right: dotted silver;
+    border-bottom-color: silver;
+
+    height: 19px;
 	
 	overflow: hidden;
     text-overflow: ellipsis;	
@@ -119,10 +118,9 @@
 	vertical-align: middle;
 	line-height: 19px;
 	z-index: 1;
-	padding: 2px;
-	padding-top: 1px;
-	padding-left: 1px;
-	white-space: nowrap;
+    padding: 1px 2px 2px 1px;
+
+    white-space: nowrap;
 }
 
 .slick-cell.editable {
@@ -130,14 +128,14 @@
 }
 
 .slick-cell.selected {
-	border-color: gray;
-	border-style: solid;	
+    border: solid gray;
+
 }
 
 .slick-cell.editable {
 	background: white;
-	border-color: black;
-	border-style: solid;
+    border: solid black;
+
 }
 
 .slick-cell.invalid {

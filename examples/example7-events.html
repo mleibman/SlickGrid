@@ -26,12 +26,12 @@
 		
 		#contextMenu li
 		{
-			padding: 4px;	
-			list-style: none;
+            padding: 4px 4px 4px 14px;
+            list-style: none;
 			cursor: pointer;
 			background: url("../images/arrow_right_peppermint.png") no-repeat center left;
-			padding-left: 14px;
-		} 
+
+        }
 		
 		#contextMenu li:hover
 		{
@@ -103,43 +103,45 @@
 
 
 		$(function()
-		{
-			for (var i=0; i<100; i++) {
-				var d = (data[i] = {});
+        {
+            for (var i = 0; i < 100; i++) {
+                var d = (data[i] = {});
 
-				d["title"] = "Task " + i;
-				d["priority"] = "Medium";
-			}
+                d["title"] = "Task " + i;
+                d["priority"] = "Medium";
+            }
 
-					
-			grid = new Slick.Grid($("#myGrid"), data, columns, options);
-			
-			grid.onContextMenu = function (e, row, cell) 
-			{
-				$("#contextMenu")
-					.data("row", row)
-					.css("top", e.pageY)
-					.css("left", e.pageX)
-					.show();
-				
-				$("body").one("click", function() { $("#contextMenu").hide(); })
-				
-				return true;
-			}
-			
-			grid.onClick = function (e, row, cell) 
-			{
-				if (columns[cell].id == "priority")
-				{
-					var states = { "Low": "Medium", "Medium": "High", "High": "Low" };
-					
-					data[row].priority = states[data[row].priority];
-					grid.updateRow(row);
-					
-					return true;
-				}
-			}
-		})
+
+            grid = new Slick.Grid($("#myGrid"), data, columns, options);
+
+            grid.onContextMenu = function (e, row, cell)
+            {
+                $("#contextMenu")
+                        .data("row", row)
+                        .css("top", e.pageY)
+                        .css("left", e.pageX)
+                        .show();
+
+                $("body").one("click", function() {
+                    $("#contextMenu").hide();
+                });
+
+                return true;
+            };
+
+            grid.onClick = function (e, row, cell)
+            {
+                if (columns[cell].id == "priority")
+                {
+                    var states = { "Low": "Medium", "Medium": "High", "High": "Low" };
+
+                    data[row].priority = states[data[row].priority];
+                    grid.updateRow(row);
+
+                    return true;
+                }
+            }
+        });
 		
 		
 		$("#contextMenu").click(function(e) {

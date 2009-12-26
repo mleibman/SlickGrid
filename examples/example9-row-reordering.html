@@ -15,9 +15,9 @@
 		}
 		.cell-reorder {
 			cursor: move;
-			background-image: url("../images/bullet_blue.png");
-			background-repeat: no-repeat;
-			background-position: center center;
+			background: url("../images/bullet_blue.png") no-repeat center center;
+
+
 		}
 	</style>
 	</head>
@@ -112,47 +112,49 @@
 			
 			grid = new Slick.Grid($("#myGrid"), data, columns, options);
 			
-			grid.onAddNewRow =  function addItem(columnDef,value) {
-				var item = {name:"New task", complete: false};
-				item[columnDef.field] = value;
-				data.push(item);
-				grid.removeRows([data.length-1]);
-				grid.updateRowCount();
-				grid.render();
-			}
+			grid.onAddNewRow = function addItem(columnDef, value) {
+                var item = {name:"New task", complete: false};
+                item[columnDef.field] = value;
+                data.push(item);
+                grid.removeRows([data.length - 1]);
+                grid.updateRowCount();
+                grid.render();
+            };
 			
 			grid.onClick = function(e, row, cell) {
-				if (columns[cell].id == "#") {
-					var selectedRows = grid.getSelectedRows();
-					var idx = $.inArray(row,selectedRows);
-					
-					if (idx == -1 && !e.ctrlKey && !e.shiftKey) 
-						selectedRows = [row];
-					else if (idx == -1 && e.ctrlKey) 
-						selectedRows.push(row);
-					else if (idx != -1 && e.ctrlKey) 
-						selectedRows = $.grep(selectedRows, function(o,i) { return (o != row) });
-					else if (idx == -1 && selectedRows.length == 1 && e.shiftKey) {
-						var from = Math.min(row,selectedRows[0]);
-						var to = Math.max(row,selectedRows[0]);
-						selectedRows = [];
-						for (var i=from; i<=to; i++)
-							selectedRows.push(i);
-					}
+                if (columns[cell].id == "#") {
+                    var selectedRows = grid.getSelectedRows();
+                    var idx = $.inArray(row, selectedRows);
 
-					grid.setSelectedRows(selectedRows);
-					return true;
-				}
-			}
+                    if (idx == -1 && !e.ctrlKey && !e.shiftKey)
+                        selectedRows = [row];
+                    else if (idx == -1 && e.ctrlKey)
+                        selectedRows.push(row);
+                    else if (idx != -1 && e.ctrlKey)
+                        selectedRows = $.grep(selectedRows, function(o, i) {
+                            return (o != row)
+                        });
+                    else if (idx == -1 && selectedRows.length == 1 && e.shiftKey) {
+                        var from = Math.min(row, selectedRows[0]);
+                        var to = Math.max(row, selectedRows[0]);
+                        selectedRows = [];
+                        for (var i = from; i <= to; i++)
+                            selectedRows.push(i);
+                    }
+
+                    grid.setSelectedRows(selectedRows);
+                    return true;
+                }
+            };
 			
-			grid.onBeforeMoveRows = function(rows,insertBefore) {
-				for (var i=0; i<rows.length; i++) {
-					// no point in moving before or after itself
-					if (rows[i] == insertBefore || rows[i] == insertBefore - 1) return false;
-				}
-				
-				return true;
-			}
+			grid.onBeforeMoveRows = function(rows, insertBefore) {
+                for (var i = 0; i < rows.length; i++) {
+                    // no point in moving before or after itself
+                    if (rows[i] == insertBefore || rows[i] == insertBefore - 1) return false;
+                }
+
+                return true;
+            };
 			
 			grid.onMoveRows = function(rows,insertBefore) {
 				var extractedRows = [], left, right;

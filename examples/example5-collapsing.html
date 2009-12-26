@@ -216,24 +216,24 @@
 			
 			grid.onAddNewRow = addItem;
 					
-			grid.onClick = function(e,row,cell) {
-				if ($(e.target).hasClass("toggle")) {
-					
-					var item = dataView.rows[row];
-					if (item) {
-						if (!item._collapsed)
-							item._collapsed = true;
-						else 
-							item._collapsed = false;
-						
-						dataView.updateItem(item.id,item);						
-					}
-					
-					return true;
-				}
-				
-				return false;
-			}
+			grid.onClick = function(e, row, cell) {
+                if ($(e.target).hasClass("toggle")) {
+
+                    var item = dataView.rows[row];
+                    if (item) {
+                        if (!item._collapsed)
+                            item._collapsed = true;
+                        else
+                            item._collapsed = false;
+
+                        dataView.updateItem(item.id, item);
+                    }
+
+                    return true;
+                }
+
+                return false;
+            };
 			
 			
 			// wire up model events to drive the grid

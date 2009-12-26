@@ -22,7 +22,7 @@
 			border: 1px solid red;
 			-moz-border-radius: 10px;
 			-webkit-border-radius: 10px;
-			-moz-box-shadow: 0px 0px 5px red;
+			-moz-box-shadow: 0 0 5px red;
 			-webkit-box-shadow: 0px 0px 5px red;	
 			-text-shadow: 1px 1px 1px white;			
 		}	
@@ -99,15 +99,15 @@
 			grid = new Slick.Grid($("#myGrid"), loader.data, columns, options);
 			
 			grid.onViewportChanged = function() {
-				var vp = grid.getViewport();
-				loader.ensureData(vp.top, vp.bottom);
-			}
+                var vp = grid.getViewport();
+                loader.ensureData(vp.top, vp.bottom);
+            };
 			
-			grid.onSort = function(sortCol,sortAsc) {
-				loader.setSort(sortCol.field,sortAsc?1:-1);
-				var vp = grid.getViewport();
-				loader.ensureData(vp.top, vp.bottom);				
-			}			
+			grid.onSort = function(sortCol, sortAsc) {
+                loader.setSort(sortCol.field, sortAsc ? 1 : -1);
+                var vp = grid.getViewport();
+                loader.ensureData(vp.top, vp.bottom);
+            };
 			
 			loader.onDataLoading.subscribe(function() {
 				if (!loadingIndicator)
@@ -136,12 +136,12 @@
 			});
 			
 			$("#txtSearch").keyup(function(e) {
-				if (e.which == 13) {
-					loader.setSearch($(this).val());
-					var vp = grid.getViewport();
-					loader.ensureData(vp.top, vp.bottom);					
-				}
-			})
+                if (e.which == 13) {
+                    loader.setSearch($(this).val());
+                    var vp = grid.getViewport();
+                    loader.ensureData(vp.top, vp.bottom);
+                }
+            });
 				
 			
 			

@@ -82,10 +82,10 @@
 		};
 		
 		var columnDefaults = {
-			resizable: true,
-			sortable: false,
-			formatter: defaultFormatter
-		}
+            resizable: true,
+            sortable: false,
+            formatter: defaultFormatter
+        };
 		
 		// consts
 		var CAPACITY = 50;
@@ -149,7 +149,7 @@
 			
 			$divHeadersScroller = $("<div class='slick-header' style='overflow:hidden;position:relative;' />").appendTo($container);
 			$divHeaders = $("<div class='slick-header-columns' style='width:100000px' />").appendTo($divHeadersScroller);
-			$divMainScroller = $("<div tabIndex='0' hideFocus style='width:100%;overflow-x:auto;overflow-y:scroll;outline:0;position:relative;outline:0px;'>").appendTo($container);
+			$divMainScroller = $("<div tabIndex='0' hideFocus style='width:100%;overflow-x:auto;overflow-y:scroll;outline:0;position:relative;'>").appendTo($container);
 			$divMain = $("<div class='grid-canvas' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($divMainScroller);
 		
 			// header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
@@ -182,7 +182,7 @@
 			$divMain.bind("keydown", handleKeyDown);
 			$divMain.bind("click", handleClick);
 			$divMain.bind("dblclick", handleDblClick);
-			$divMain.bind("contextmenu", handleContextMenu)
+			$divMain.bind("contextmenu", handleContextMenu);
 			$divHeadersScroller.bind("contextmenu", handleHeaderContextMenu);
 		}
 		
@@ -196,7 +196,7 @@
 					.width(m.width - headerColumnWidthDiff)
 					.appendTo($divHeaders);
 				
-				if (m.sortable) header.append("<span class='slick-sort-indicator' />")
+				if (m.sortable) header.append("<span class='slick-sort-indicator' />");
 				if (m.resizable) header.append("<div class='slick-resizable-handle' />");
 			}
 			
@@ -815,7 +815,7 @@
 	
 		function asyncPostProcessRows () {
 			while (postProcessFromRow <= postProcessToRow) {
-				row = (scrollDir > 0) ? postProcessFromRow++ : postProcessToRow--;
+				var row = (scrollDir > 0) ? postProcessFromRow++ : postProcessToRow--;
 				var rowNode = rowsCache[row];
 				if (!rowNode || postProcessedRows[row] || row>=data.length) continue;
 				

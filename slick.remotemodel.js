@@ -5,14 +5,14 @@ function EventHelper() {
 	this.handlers = [];
 	
 	this.subscribe = function(fn) {
-		this.handlers.push(fn);
-	}
+        this.handlers.push(fn);
+    };
 	
 	this.notify = function(args) {
-		for (var i = 0; i < this.handlers.length; i++) {
-			this.handlers[i].call(this, args);
-		}
-	}
+        for (var i = 0; i < this.handlers.length; i++) {
+            this.handlers[i].call(this, args);
+        }
+    };
 	
 	return this;
 }
@@ -84,7 +84,7 @@ function EventHelper() {
 			}
 				
 				
-			var url = "http://services.digg.com/search/stories?query=" + searchstr + "&offset=" + (fromPage * PAGESIZE) + "&count=" + (((toPage-fromPage)*PAGESIZE)+PAGESIZE) + "&appkey=http://slickgrid.googlecode.com&type=javascript"
+			var url = "http://services.digg.com/search/stories?query=" + searchstr + "&offset=" + (fromPage * PAGESIZE) + "&count=" + (((toPage - fromPage) * PAGESIZE) + PAGESIZE) + "&appkey=http://slickgrid.googlecode.com&type=javascript";
 	
 			
 			switch (sortcol) {

@@ -21,9 +21,9 @@
 				var $li = $("<li />").appendTo($menu);
 				
 				var $input = $("<input type='checkbox' />")
-					.attr("id", "columnpicker_" + i)
-					.data("id", columns[i].id)
-					.appendTo($li)
+                        .attr("id", "columnpicker_" + i)
+                        .data("id", columns[i].id)
+                        .appendTo($li);
 				
 				if (!columns[i].hidden)
 					$input.attr("checked","checked");

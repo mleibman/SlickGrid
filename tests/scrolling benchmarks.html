@@ -66,26 +66,26 @@
 
 
 		$(function()
-		{
-			// prepare the data
-			for (var i=0; i<5000; i++) {
-				var d = (data[i] = {});
-				
-				d["id"] = "id_" + i;
-				d["title"] = "Task " + i;
-				d["duration"] = "5 days";
-				d["percentComplete"] = Math.round(Math.random() * 100);
-				d["start"] = "01/01/2009";
-				d["finish"] = "01/05/2009";
-				d["effortDriven"] = (i % 5 == 0);
-			}
-			
-			
-			// initialize the grid
-			grid = new Slick.Grid($("#myGrid"), data, columns, options);
-			
-			$grid = $("#myGrid div.grid-canvas").parent();
-		})
+        {
+            // prepare the data
+            for (var i = 0; i < 5000; i++) {
+                var d = (data[i] = {});
+
+                d["id"] = "id_" + i;
+                d["title"] = "Task " + i;
+                d["duration"] = "5 days";
+                d["percentComplete"] = Math.round(Math.random() * 100);
+                d["start"] = "01/01/2009";
+                d["finish"] = "01/05/2009";
+                d["effortDriven"] = (i % 5 == 0);
+            }
+
+
+            // initialize the grid
+            grid = new Slick.Grid($("#myGrid"), data, columns, options);
+
+            $grid = $("#myGrid div.grid-canvas").parent();
+        });
 		
 		
         var $grid;

@@ -15,7 +15,7 @@
 		
 		function getNavState()
 		{
-			var cannotLeaveEditMode = !(!Slick.GlobalEditorLock.isEditing() || Slick.GlobalEditorLock.commitCurrentEdit())
+			var cannotLeaveEditMode = !(!Slick.GlobalEditorLock.isEditing() || Slick.GlobalEditorLock.commitCurrentEdit());
 			var pagingInfo = dataView.getPagingInfo();
 			var lastPage = Math.floor(pagingInfo.totalRows/pagingInfo.pageSize);
 			
@@ -108,9 +108,13 @@
 				.appendTo($nav);
 			
 			$container.find(".ui-icon")
-				.addClass("ui-state-default ui-corner-all")
-				.mouseover(function(e) { $(e.target).addClass("ui-state-hover") })
-				.mouseout(function(e) { $(e.target).removeClass("ui-state-hover") })
+                    .addClass("ui-state-default ui-corner-all")
+                    .mouseover(function(e) {
+                $(e.target).addClass("ui-state-hover")
+            })
+                    .mouseout(function(e) {
+                $(e.target).removeClass("ui-state-hover")
+            });
 			
 			$container.children().wrapAll("<div class='slick-pager zui-state-default' />");
 		}

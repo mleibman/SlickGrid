@@ -5,14 +5,14 @@ function EventHelper() {
 	this.handlers = [];
 	
 	this.subscribe = function(fn) {
-		this.handlers.push(fn);
-	}
+        this.handlers.push(fn);
+    };
 	
 	this.notify = function(args) {
-		for (var i = 0; i < this.handlers.length; i++) {
-			this.handlers[i].call(this, args);
-		}
-	}
+        for (var i = 0; i < this.handlers.length; i++) {
+            this.handlers[i].call(this, args);
+        }
+    };
 	
 	return this;
 }
