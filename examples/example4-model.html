@@ -206,7 +206,19 @@
 
                 // using temporary Object.prototype.toString override
                 // more limited and does lexicographic sort only by default, but can be much faster
-                dataView.fastSort(sortcol,sortAsc);
+
+                var percentCompleteValueFn = function() {
+                    var val = this["percentComplete"];
+                    if (val < 10)
+                        return "00" + val;
+                    else if (val < 100)
+                        return "0" + val;
+                    else
+                        return val;
+                }
+
+                // use numeric sort of % and lexicographic for everything else
+                dataView.fastSort((sortcol=="percentComplete")?percentCompleteValueFn:sortcol,sortAsc);
             };
 			
 			// wire up model events to drive the grid
