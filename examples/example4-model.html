@@ -199,7 +199,14 @@
 			grid.onSort = function(sortCol, sortAsc) {
                 sortdir = sortAsc ? 1 : -1;
                 sortcol = sortCol.field;
-                dataView.sort(comparer);
+
+                // using native sort with comparer
+                // preferred method but can be very slow in IE with huge datasets
+                //dataView.sort(comparer);
+
+                // using temporary Object.prototype.toString override
+                // more limited and does lexicographic sort only by default, but can be much faster
+                dataView.fastSort(sortcol,sortAsc);
             };
 			
 			// wire up model events to drive the grid

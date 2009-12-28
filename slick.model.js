@@ -36,7 +36,7 @@ function EventHelper() {
 		var filter = null;		// filter function
 		var updated = null; 	// updated item ids
 		var suspend = false;	// suspends the recalculation
-		
+
 		var pagesize = 0;
 		var pagenum = 0;
 		var totalRows = 0;
@@ -87,7 +87,24 @@ function EventHelper() {
 			items.sort(comparer);
 			refresh();
 		}
-		
+
+        /***
+         * Provides a workaround for the extremely slow sorting in IE.
+         * Does a [lexicographic] sort on a give column by temporarily overriding Object.prototype.toString
+         * to return the value of that field and then doing a native Array.sort().
+         */
+        function fastSort(field,ascending) {
+            var oldToString = Object.prototype.toString;
+            Object.prototype.toString = (typeof field == "function")?field:function() { return this[field] };
+            // an extra reversal for descending sort keeps the sort stable
+            // (assuming a stable native sort implementation, which isn't true in some cases)
+            if (!ascending) items.reverse();
+            items.sort();
+            Object.prototype.toString = oldToString;
+            if (!ascending) items.reverse();
+            refresh();
+        }
+
 		function setFilter(filterFn) {
 			filter = filterFn;
 			refresh();
@@ -213,6 +230,7 @@ function EventHelper() {
 			"setItems":		setItems,
 			"setFilter":	setFilter,
 			"sort":			sort,
+            "fastSort":     fastSort,
 			"getIdxById":	getIdxById,
 			"getRowById":	getRowById,
 			"getItemById":	getItemById,
