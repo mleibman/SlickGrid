@@ -150,7 +150,7 @@
 			
 			$divHeadersScroller = $("<div class='slick-header' style='overflow:hidden;position:relative;' />").appendTo($container);
 			$divHeaders = $("<div class='slick-header-columns' style='width:100000px' />").appendTo($divHeadersScroller);
-			$divMainScroller = $("<div tabIndex='0' hideFocus style='width:100%;overflow-x:auto;overflow-y:scroll;outline:0;position:relative;'>").appendTo($container);
+			$divMainScroller = $("<div class='grid-scroller' tabIndex='0' hideFocus style='width:100%;outline:0;position:relative;'>").appendTo($container);
 			$divMain = $("<div class='grid-canvas' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($divMainScroller);
 		
 			// header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
@@ -398,7 +398,8 @@
 		
 		function createCssRules() {
 			var $style = $("<style type='text/css' rel='stylesheet' lib='slickgrid' />").appendTo($("head"));
-			$.rule("." + uid + " .slick-cell { height:" + (options.rowHeight - cellHeightDiff) + "px;}").appendTo($style);
+			var rowHeight = (options.rowHeight - cellHeightDiff);
+			$.rule("." + uid + " .slick-cell { height:" + rowHeight + "px; line-height:" + rowHeight + "px; }").appendTo($style);
 			
 			for (var i = 0; i < columns.length; i++) {
 				$.rule(
@@ -586,7 +587,7 @@
 				stringArray.push("<div " + (m.unselectable ? "" : "hideFocus tabIndex=0 ") + "class='slick-cell c" + i + (m.cssClass ? " " + m.cssClass : "") + "' cell=" + i + ">");
 	
 				// if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)				
-				if (d && row < data.length)
+				if (d && row < data.length && !options.enableAsyncPostRender && !m.asyncPostRender)
 					stringArray.push(m.formatter(row, i, d[m.field], m, d));
 				
 				stringArray.push("</div>");

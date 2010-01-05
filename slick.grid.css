@@ -63,6 +63,9 @@
 	background: silver;
 }
 
+.grid-scroller {
+	overflow: auto;
+}
 
 .grid-canvas {
 	position: relative;
