@@ -5,43 +5,43 @@
  * 
  * 
  * TODO:
- * 	- frozen columns
- * 	- consistent events (EventHelper?  jQuery events?)
+ *	- frozen columns
+ *	- consistent events (EventHelper?  jQuery events?)
  *
  *
  * OPTIONS:
- *  rowHeight				-	Row height in pixels.
- * 	enableAddRow			-	If true, a blank row will be displayed at the bottom - typing values in that row will add a new one.
- * 	manualScrolling			-	Disable automatic rerender on scroll.  Client will take care of calling Grid.onScroll().
- * 	editable				-	If false, no cells will be switched into edit mode.
- * 	editOnDoubleClick		-	Cell will not automatically go into edit mode without being double-clicked.
- * 	enableCellNavigation	-	If false, no cells will be selectable.
- * 	defaultColumnWidth		-	Default column width in pixels (if columns[cell].width is not specified).
- * 	enableColumnReorder		-	Allows the user to reorder columns.
- * 	asyncEditorLoading		-	Makes cell editors load asynchronously after a small delay.
- * 								This greatly increases keyboard navigation speed.
- * 	forceFitColumns			-	Force column sizes to fit into the viewport (avoid horizontal scrolling).
- *  enableAsyncPostProcessing	-	If true, async post rendering will occur and asyncPostProcess delegates on columns will be called.
+ *	rowHeight			-	Row height in pixels.
+ *	enableAddRow			-	If true, a blank row will be displayed at the bottom - typing values in that row will add a new one.
+ *	manualScrolling			-	Disable automatic rerender on scroll.  Client will take care of calling Grid.onScroll().
+ *	editable			-	If false, no cells will be switched into edit mode.
+ *	editOnDoubleClick		-	Cell will not automatically go into edit mode without being double-clicked.
+ *	enableCellNavigation		-	If false, no cells will be selectable.
+ *	defaultColumnWidth		-	Default column width in pixels (if columns[cell].width is not specified).
+ *	enableColumnReorder		-	Allows the user to reorder columns.
+ *	asyncEditorLoading		-	Makes cell editors load asynchronously after a small delay.
+ *								This greatly increases keyboard navigation speed.
+ *	forceFitColumns			-	Force column sizes to fit into the viewport (avoid horizontal scrolling).
+ *	enableAsyncPostRender		-	If true, async post rendering will occur and asyncPostRender delegates on columns will be called.
  * 
  * 
  * COLUMN DEFINITION (columns) OPTIONS:
- * 	id						-	Column ID.
- * 	name					-	Column name to put in the header.
- * 	field					-	Property of the data context to bind to.
- * 	formatter				-	Function responsible for rendering the contents of a cell.
- * 	editor					-	An Editor class.
- * 	validator				-	An extra validation function to be passed to the editor.
- * 	unselectable			-	If true, the cell cannot be selected (and therefore edited).
- * 	cannotTriggerInsert		-	If true, a new row cannot be created from just the value of this cell.
- * 	setValueHandler			-	If true, this handler will be called to set field value instead of context[field].
- * 	width					-	Width of the column in pixels.
- * 	resizable				-	If false, the column cannot be resized.
- *  sortable				-	If true, the column can be sorted (onSort will be called).
- * 	minWidth				-	Minimum allowed column width for resizing.
- * 	maxWidth				-	Maximum allowed column width for resizing.
- * 	cssClass				-	A CSS class to add to the cell.
- * 	rerenderOnResize		-	Rerender the column when it is resized (useful for columns relying on cell width or adaptive formatters).
- * 	asyncPostRender			-	Function responsible for manipulating the cell DOM node after it has been rendered (called in the background).
+ *	id				-	Column ID.
+ *	name				-	Column name to put in the header.
+ *	field				-	Property of the data context to bind to.
+ *	formatter			-	Function responsible for rendering the contents of a cell.
+ *	editor				-	An Editor class.
+ *	validator			-	An extra validation function to be passed to the editor.
+ *	unselectable			-	If true, the cell cannot be selected (and therefore edited).
+ *	cannotTriggerInsert		-	If true, a new row cannot be created from just the value of this cell.
+ *	setValueHandler			-	If true, this handler will be called to set field value instead of context[field].
+ *	width				-	Width of the column in pixels.
+ *	resizable			-	If false, the column cannot be resized.
+ *	sortable			-	If true, the column can be sorted (onSort will be called).
+ *	minWidth			-	Minimum allowed column width for resizing.
+ *	maxWidth			-	Maximum allowed column width for resizing.
+ *	cssClass			-	A CSS class to add to the cell.
+ *	rerenderOnResize		-	Rerender the column when it is resized (useful for columns relying on cell width or adaptive formatters).
+ *	asyncPostRender			-	Function responsible for manipulating the cell DOM node after it has been rendered (called in the background).
  * 
  * EVENTS:
  * 
@@ -50,10 +50,10 @@
  * 
  * NOTES:
  * 
- * 	Cell/row DOM manipulations are done directly bypassing jQuery's DOM manipulation methods.
- * 	This increases the speed dramatically, but can only be done safely because there are no event handlers
- * 	or data associated with any cell/row DOM nodes.  Cell editors must make sure they implement .destroy() 
- * 	and do proper cleanup.
+ *	Cell/row DOM manipulations are done directly bypassing jQuery's DOM manipulation methods.
+ *	This increases the speed dramatically, but can only be done safely because there are no event handlers
+ *	or data associated with any cell/row DOM nodes.  Cell editors must make sure they implement .destroy() 
+ *	and do proper cleanup.
  * 
  * 
  * @param {jQuery} $container	Container object to create the grid in.
@@ -82,16 +82,16 @@
 		};
 		
 		var columnDefaults = {
-            resizable: true,
-            sortable: false,
-            formatter: defaultFormatter
-        };
+		resizable: true,
+		sortable: false,
+		formatter: defaultFormatter
+	};
 		
 		// consts
 		var CAPACITY = 50;
 		var MIN_BUFFER = 5;
 		var BUFFER = MIN_BUFFER;  // will be set to equal one page
-		var POSTPROCESSING_DELAY = 60,  // must be greater than the delay in handleScroll 
+		var POSTPROCESSING_DELAY = 60,	// must be greater than the delay in handleScroll 
 			EDITOR_LOAD_DELAY = 100;
 		
 		// private
@@ -145,7 +145,8 @@
 				.css("overflow","hidden")
 				.css("outline",0)
 				.css("position","relative")
-				.addClass(uid);
+				.addClass(uid)
+				.addClass("ui-widget");
 			
 			$divHeadersScroller = $("<div class='slick-header' style='overflow:hidden;position:relative;' />").appendTo($container);
 			$divHeaders = $("<div class='slick-header-columns' style='width:100000px' />").appendTo($divHeadersScroller);
@@ -191,12 +192,19 @@
 				var m = columns[i] = $.extend({},columnDefaults,columns[i]);
 				columnsById[m.id] = i;
 				
-				var header = $("<div class='slick-header-column' cell=" + i + " id='" + m.id + "' />")
+				var header = $("<div class='slick-header-column ui-state-default ui-widget-header' cell=" + i + " id='" + m.id + "' />")
 					.html(m.name)
 					.width(m.width - headerColumnWidthDiff)
 					.appendTo($divHeaders);
 				
-				if (m.sortable) header.append("<span class='slick-sort-indicator' />");
+				if (m.sortable) {
+					header.append("<span class='slick-sort-indicator' />");
+					header.hover(
+						function () { $(this).addClass('ui-state-hover'); },
+						function () { $(this).removeClass('ui-state-hover'); }
+					);
+				}
+
 				if (m.resizable) header.append("<div class='slick-resizable-handle' />");
 			}
 			
@@ -207,40 +215,40 @@
 		}
 		
 		function setupColumnSort() {
-	        $divHeaders.click(function(e) {
+		$divHeaders.click(function(e) {
 				var $col = $(e.target);
-	            if (!$col.hasClass("slick-header-column") || !columns[columnsById[$col.attr("id")]].sortable) 
-	                return;
+		    if (!$col.hasClass("slick-header-column") || !columns[columnsById[$col.attr("id")]].sortable) 
+			return;
 				
 				if (currentEditor && !commitCurrentEdit()) return;
 	
-	            if ($col.is(".slick-header-column-sorted")) 
-	            {
-	                $col.find(".slick-sort-indicator").toggleClass("slick-sort-indicator-asc").toggleClass("slick-sort-indicator-desc");
-	            }
-	            else 
-	            {
-	                $divHeaders.children().removeClass("slick-header-column-sorted");
-	                $divHeaders.find(".slick-sort-indicator").removeClass("slick-sort-indicator-asc slick-sort-indicator-desc");
-	                $col.addClass("slick-header-column-sorted");
-	                $col.find(".slick-sort-indicator").addClass("slick-sort-indicator-asc");
-	            }
+		    if ($col.is(".slick-header-column-sorted")) 
+		    {
+			$col.find(".slick-sort-indicator").toggleClass("slick-sort-indicator-asc").toggleClass("slick-sort-indicator-desc");
+		    }
+		    else 
+		    {
+			$divHeaders.children().removeClass("slick-header-column-sorted");
+			$divHeaders.find(".slick-sort-indicator").removeClass("slick-sort-indicator-asc slick-sort-indicator-desc");
+			$col.addClass("slick-header-column-sorted");
+			$col.find(".slick-sort-indicator").addClass("slick-sort-indicator-asc");
+		    }
 				
 				if (self.onSort)
 					self.onSort(columns[columnsById[$col.attr("id")]], $col.find(".slick-sort-indicator").hasClass("slick-sort-indicator-asc"));
-	        })			
+		})			
 		}
 		
 		function setupColumnReorderEvents() {
-	        $divHeaders.sortable({
-	            axis: "x",
-	            cursor: "default",
-	            tolerance: "intersect",
-	            helper: "clone",
-	            placeholder: "slick-sortable-placeholder slick-header-column",
-	            forcePlaceholderSize: true,
-	            start: function(e, ui) { $(ui.helper).addClass("slick-header-column-active") },
-	            beforeStop: function(e, ui) { $(ui.helper).removeClass("slick-header-column-active") },
+		$divHeaders.sortable({
+		    axis: "x",
+		    cursor: "default",
+		    tolerance: "intersect",
+		    helper: "clone",
+		    placeholder: "slick-sortable-placeholder slick-header-column",
+		    forcePlaceholderSize: true,
+		    start: function(e, ui) { $(ui.helper).addClass("slick-header-column-active") },
+		    beforeStop: function(e, ui) { $(ui.helper).removeClass("slick-header-column-active") },
 				stop: function(e, ui) {
 					if (currentEditor && !commitCurrentEdit()) {
 						$(this).sortable("cancel");
@@ -267,32 +275,32 @@
 						
 					e.stopPropagation();
 				}					
-	    	})			
+		})			
 		}
 		
 		function setupColumnResizeEvents() {
-	        $divHeaders
+		$divHeaders
 				.find(".slick-resizable-handle")
 				.bind('dragstart', function(e) {
-		            var $col = $(this).parent();
+			    var $col = $(this).parent();
 					var colId = $col.attr("id");
 					if (!columns[columnsById[colId]].resizable) return false;	
 					if (currentEditor && !commitCurrentEdit()) return false;
 								
-		            $col
+			    $col
 						.data("colId", colId)
 						.data("width", $col.width())
-		            	.data("pageX", e.pageX)
-		            	.addClass("slick-header-column-active");
-		        })
+				.data("pageX", e.pageX)
+				.addClass("slick-header-column-active");
+			})
 				.bind('drag', function(e) {
-		            var $col = $(this).parent(), w = $col.data("width") - $col.data("pageX") + e.pageX;
+			    var $col = $(this).parent(), w = $col.data("width") - $col.data("pageX") + e.pageX;
 					var cell = columnsById[$col.data("colId")];
 					var m = columns[cell];
 					if (m.minWidth) w = Math.max(m.minWidth - headerColumnWidthDiff,w);
 					if (m.maxWidth) w = Math.min(m.maxWidth - headerColumnWidthDiff,w);
-		            $col.css({ width: Math.max(0, w) });
-		        })
+			    $col.css({ width: Math.max(0, w) });
+			})
 				.bind('dragend', function(e) {
 					var $col = $(this).parent();
 					var cell = columnsById[$col.data("colId")];
@@ -310,7 +318,7 @@
 						removeAllRows();				
 					
 					render();				
-		        })
+			})
 		}
 	
 		function setupMoveEvents() {
@@ -376,7 +384,7 @@
 		}
 		
 		function measureCellPaddingAndBorder() {
-			var tmp = $("<div class='slick-header-column cell='' id='' style='visibility:hidden'>-</div>").appendTo($divHeaders);
+			var tmp = $("<div class='slick-header-column ui-state-default' cell='' id='' style='visibility:hidden'>-</div>").appendTo($divHeaders);
 			headerColumnWidthDiff = tmp.outerWidth() - tmp.width();
 			headerColumnHeightDiff = tmp.outerHeight() - tmp.height();
 			tmp.remove();
@@ -523,14 +531,14 @@
 			for (var i=0; i<selectedRows.length; i++) {
 				var row = selectedRows[i];
 				if (rowsCache[row] && !lookup[row])
-					$(rowsCache[row]).removeClass("selected");
+					$(rowsCache[row]).removeClass("selected ui-state-active");
 			}
 	
 			// select new ones
 			for (var i=0; i<rows.length; i++) {
 				var row = rows[i];
 				if (rowsCache[row] && !selectedRowsLookup[row])
-					$(rowsCache[row]).addClass("selected");
+					$(rowsCache[row]).addClass("selected ui-state-active");
 			}
 	
 			selectedRows = rows.concat();
@@ -552,10 +560,10 @@
 		}
 		
 	    function setData(newData,scrollToTop) {
-	    	removeAllRows();    
+		removeAllRows();    
 		    data = newData;
 			if (scrollToTop)
-		    	$divMainScroller.scrollTop(0);
+			$divMainScroller.scrollTop(0);
 		}	
 		
 		//////////////////////////////////////////////////////////////////////////////////////////////
@@ -568,9 +576,9 @@
 		function appendRowHtml(stringArray,row) {
 			var d = data[row];
 			var dataLoading = row < data.length && !d;
-			var css = "slick-row " + (dataLoading ? " loading" : "") + (selectedRowsLookup[row] ? " selected" : "");
+			var css = "slick-row " + (dataLoading ? " loading" : "") + (selectedRowsLookup[row] ? " selected ui-state-active" : "");
 			
-			stringArray.push("<div class='" + css + "' row='" + row + "' style='top:" + (options.rowHeight*row) + "px'>");
+			stringArray.push("<div class='ui-widget-content " + css + "' row='" + row + "' style='top:" + (options.rowHeight*row) + "px'>");
 			
 			for (var i=0, cols=columns.length; i<cols; i++) {
 				var m = columns[i];
@@ -691,7 +699,7 @@
 		    var newHeight = Math.max(options.rowHeight * (data.length + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0)), viewportH - $.getScrollbarWidth());
 			$divMainScroller.height( $container.innerHeight() - $divHeadersScroller.outerHeight() );
 			
-	        // browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
+		// browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
 			if ($divMainScroller.scrollTop() > newHeight - $divMainScroller.height() + $.getScrollbarWidth()) {
 				$divMainScroller.scrollTop(newHeight - $divMainScroller.height() + $.getScrollbarWidth());
 			}
@@ -701,7 +709,7 @@
 		}
 		
 		function updateRowCount() {
-		  	// remove the rows that are now outside of the data range
+			// remove the rows that are now outside of the data range
 			// this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
 			var parentNode = $divMain[0];
 			var l = options.enableAddRow ? data.length : data.length - 1;
@@ -711,7 +719,7 @@
 			}
 			
 			var newHeight = Math.max(options.rowHeight * (data.length + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0)), viewportH - $.getScrollbarWidth());			
-	        
+		
 			// browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
 			if ($divMainScroller.scrollTop() > newHeight - $divMainScroller.height() + $.getScrollbarWidth()) 
 				$divMainScroller.scrollTop(newHeight - $divMainScroller.height() + $.getScrollbarWidth());
@@ -1329,7 +1337,7 @@
 			"render":			render,
 			"getViewport":		getViewport,
 			"resizeCanvas":		resizeCanvas,
-			"updateRowCount": 	updateRowCount,
+			"updateRowCount":	updateRowCount,
 			"scroll":			scroll,  // TODO
 			"getCellFromPoint":	getCellFromPoint,
 			"gotoCell":			gotoCell,
