@@ -105,13 +105,10 @@
 	border-right: 1px dotted silver;
 	border-bottom-color: silver;
 
-	height: 19px;
-	
 	overflow: hidden;
 	text-overflow: ellipsis;	
 	white-space: nowrap;
 	vertical-align: middle;
-	line-height: 19px;
 	z-index: 1;
 	padding: 1px 2px 2px 1px;
 
