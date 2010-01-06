@@ -130,7 +130,7 @@
 
 		function comparer(a,b) {
 			var x = a[sortcol], y = b[sortcol];
-			return sortdir * (x == y ? 0 : (x > y ? 1 : -1));
+			return (x == y ? 0 : (x > y ? 1 : -1));
 		}
 		
 		function updateItem(value,columnDef,item) {
@@ -202,7 +202,7 @@
 
                 // using native sort with comparer
                 // preferred method but can be very slow in IE with huge datasets
-                //dataView.sort(comparer);
+                //dataView.sort(comparer,sortAsc);
 
                 // using temporary Object.prototype.toString override
                 // more limited and does lexicographic sort only by default, but can be much faster

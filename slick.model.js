@@ -83,8 +83,10 @@ function EventHelper() {
 			return {pageSize:pagesize, pageNum:pagenum, totalRows:totalRows};
 		}
 		
-		function sort(comparer) {
+		function sort(comparer,ascending) {
+            if (ascending === false) items.reverse();
 			items.sort(comparer);
+            if (ascending === false) items.reverse();
 			refresh();
 		}
 
