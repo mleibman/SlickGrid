@@ -1,6 +1,6 @@
 .slick-header {
 	width: 100%;
-	border-bottom: 1px solid silver;
+	border: 0px;
 	overflow: hidden;
 }
 
@@ -72,7 +72,7 @@
 	outline: 0;
 }
 
-.slick-row, .slick-row.ui-state-active {
+.slick-row.ui-widget-content, .slick-row.ui-state-active {
 	position: absolute;
 	border: 0px;
 }
@@ -88,10 +88,6 @@
 .slick-row.loading {
 	opacity: 0.5;
 	filter: alpha(opacity=50);
-}
-
-.slick-cell.editable {
-	z-index: 11;
 }
 
 .slick-cell {
@@ -115,10 +111,9 @@
 }
 
 .slick-cell.editable {
+	z-index: 11;
 	overflow: visible;
-}
-
-.slick-cell.editable {
+	background: white;
 	border-color: black;
 	border-style: solid;
 }
