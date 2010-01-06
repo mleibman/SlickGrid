@@ -22,6 +22,7 @@
  *								This greatly increases keyboard navigation speed.
  *	forceFitColumns			-	Force column sizes to fit into the viewport (avoid horizontal scrolling).
  *	enableAsyncPostRender		-	If true, async post rendering will occur and asyncPostRender delegates on columns will be called.
+ *	enableRowReordering		-	If true, rows can be reordered using drag & drop
  * 
  * 
  * COLUMN DEFINITION (columns) OPTIONS:
@@ -78,7 +79,8 @@
 			enableColumnReorder: true,
 			asyncEditorLoading: false,
 			forceFitColumns: false,
-			enableAsyncPostRender: false
+			enableAsyncPostRender: false,
+			enableRowReordering: false
 		};
 		
 		var columnDefaults = {
@@ -168,7 +170,8 @@
 			$divHeaders.disableSelection();
 	
 			createColumnHeaders();			
-			setupMoveEvents();
+			if (options.enableRowReordering)
+				setupRowReordering();
 			createCssRules();
 			resizeCanvas();
 			if (options.forceFitColumns)
@@ -321,7 +324,7 @@
 			})
 		}
 	
-		function setupMoveEvents() {
+		function setupRowReordering() {
 			$divMain
 				.bind("beforedragstart", function(e) {
 					var $cell = $(e.target).closest(".slick-cell");
