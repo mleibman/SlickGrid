@@ -150,7 +150,7 @@
 				.addClass(uid)
 				.addClass("ui-widget");
 			
-			$divHeadersScroller = $("<div class='slick-header' style='overflow:hidden;position:relative;' />").appendTo($container);
+			$divHeadersScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
 			$divHeaders = $("<div class='slick-header-columns' style='width:100000px' />").appendTo($divHeadersScroller);
 			$divMainScroller = $("<div class='grid-scroller' tabIndex='0' hideFocus style='width:100%;outline:0;position:relative;'>").appendTo($container);
 			$divMain = $("<div class='grid-canvas' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($divMainScroller);
@@ -195,12 +195,12 @@
 				var m = columns[i] = $.extend({},columnDefaults,columns[i]);
 				columnsById[m.id] = i;
 				
-				var header = $("<div class='slick-header-column ui-state-default ui-widget-header' cell=" + i + " id='" + m.id + "' />")
+				var header = $("<div class='ui-state-default slick-header-column' cell=" + i + " id='" + m.id + "' />")
 					.html(m.name)
 					.width(m.width - headerColumnWidthDiff)
 					.appendTo($divHeaders);
 				
-				if (m.sortable) {
+				if (options.enableColumnReorder || m.sortable || m.resizable) {
 					header.append("<span class='slick-sort-indicator' />");
 					header.hover(
 						function () { $(this).addClass('ui-state-hover'); },
@@ -248,7 +248,7 @@
 		    cursor: "default",
 		    tolerance: "intersect",
 		    helper: "clone",
-		    placeholder: "slick-sortable-placeholder slick-header-column",
+		    placeholder: "ui-state-default ui-state-highlight slick-header-column",
 		    forcePlaceholderSize: true,
 		    start: function(e, ui) { $(ui.helper).addClass("slick-header-column-active") },
 		    beforeStop: function(e, ui) { $(ui.helper).removeClass("slick-header-column-active") },
@@ -387,7 +387,7 @@
 		}
 		
 		function measureCellPaddingAndBorder() {
-			var tmp = $("<div class='slick-header-column ui-state-default' cell='' id='' style='visibility:hidden'>-</div>").appendTo($divHeaders);
+			var tmp = $("<div class='ui-state-default slick-header-column' cell='' id='' style='visibility:hidden'>-</div>").appendTo($divHeaders);
 			headerColumnWidthDiff = tmp.outerWidth() - tmp.width();
 			headerColumnHeightDiff = tmp.outerHeight() - tmp.height();
 			tmp.remove();
@@ -535,14 +535,14 @@
 			for (var i=0; i<selectedRows.length; i++) {
 				var row = selectedRows[i];
 				if (rowsCache[row] && !lookup[row])
-					$(rowsCache[row]).removeClass("selected ui-state-active");
+					$(rowsCache[row]).removeClass("ui-state-active selected");
 			}
 	
 			// select new ones
 			for (var i=0; i<rows.length; i++) {
 				var row = rows[i];
 				if (rowsCache[row] && !selectedRowsLookup[row])
-					$(rowsCache[row]).addClass("selected ui-state-active");
+					$(rowsCache[row]).addClass("ui-state-active selected");
 			}
 	
 			selectedRows = rows.concat();
@@ -590,7 +590,7 @@
 				stringArray.push("<div " + (m.unselectable ? "" : "hideFocus tabIndex=0 ") + "class='slick-cell c" + i + (m.cssClass ? " " + m.cssClass : "") + "' cell=" + i + ">");
 	
 				// if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)				
-				if (d && row < data.length && !options.enableAsyncPostRender && !m.asyncPostRender)
+				if (d && row < data.length && !(options.enableAsyncPostRender && m.asyncPostRender))
 					stringArray.push(m.formatter(row, i, d[m.field], m, d));
 				
 				stringArray.push("</div>");

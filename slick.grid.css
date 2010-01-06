@@ -1,7 +1,7 @@
-.slick-header {
+.slick-header.ui-state-default {
 	width: 100%;
-	border: 0px;
 	overflow: hidden;
+	border-left: 0px;
 }
 
 .slick-header-columns {
@@ -12,7 +12,7 @@
 	overflow: hidden;
 }
 
-.slick-header-column {
+.slick-header-column.ui-state-default {
 	position: relative;
 	display: inline-block;
 	overflow: hidden;
@@ -22,11 +22,19 @@
 	margin: 0;
 	padding: 4px;
 	border-right: 1px solid silver;
+	border-left: none;
+	border-top: none;
+	border-bottom: none;
 	float: left;
 }
 
 .slick-header-column-sorted {
 	font-style: italic;
+}
+
+.slick-header-column-active {
+	opacity: 0.5;
+	filter: alpha(opacity=50);
 }
 
 .slick-sort-indicator {
@@ -59,7 +67,7 @@
 	background: gray;
 }
 
-.slick-sortable-placeholder {
+.slick-sortable-placeholder.ui-state-default {
 	background: silver;
 }
 
