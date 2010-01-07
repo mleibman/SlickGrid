@@ -22,9 +22,9 @@
 	margin: 0;
 	padding: 4px;
 	border-right: 1px solid silver;
-	border-left: none;
-	border-top: none;
-	border-bottom: none;
+	border-left: 0px;
+	border-top: 0px;
+	border-bottom: 0px;
 	float: left;
 }
 
