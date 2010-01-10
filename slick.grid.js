@@ -918,7 +918,7 @@
 			if (options.enableCellNavigation && !columns[cell].unselectable) {
 				// commit current edit before proceeding
 				if (validated == true || (validated == null && commitCurrentEdit())) 
-					setSelectedCellAndRow($cell[0]);
+					setSelectedCellAndRow($cell[0],!options.editOnDoubleClick);
 			}
 		}
 		
@@ -1000,7 +1000,7 @@
 		//////////////////////////////////////////////////////////////////////////////////////////////
 		// Cell switching
 		
-		function setSelectedCell(newCell,async) {
+		function setSelectedCell(newCell,editMode) {
 			if (currentCellNode != null) {
 				makeSelectedCellNormal();			
 				$(currentCellNode).removeClass("selected");
@@ -1016,10 +1016,10 @@
 				
 				scrollSelectedCellIntoView();
 				
-				if (options.editable && !options.editOnDoubleClick && isCellPotentiallyEditable(currentRow,currentCell)) {
+				if (options.editable && editMode && isCellPotentiallyEditable(currentRow,currentCell)) {
 					clearTimeout(h_editorLoader);
 					
-					if (async) 
+					if (options.asyncEditorLoading) 
 						h_editorLoader = setTimeout(makeSelectedCellEditable, EDITOR_LOAD_DELAY);
 					else 
 						makeSelectedCellEditable();
@@ -1033,8 +1033,8 @@
 			}
 		}
 		
-		function setSelectedCellAndRow(newCell,async) {
-			setSelectedCell(newCell,async);
+		function setSelectedCellAndRow(newCell,editMode) {
+			setSelectedCell(newCell,editMode);
 			
 			if (newCell) 
 				setSelectedRows([currentRow]);
@@ -1159,7 +1159,7 @@
 			
 			
 			if (nextRow && nextCell && nextCell.length) {
-				setSelectedCellAndRow(nextCell[0],options.asyncEditorLoading);
+				setSelectedCellAndRow(nextCell[0],true);
 				
 				// if no editor was created, set the focus back on the cell
 				if (!currentEditor) 
@@ -1180,7 +1180,7 @@
 			
 			var cell = $(rowsCache[row]).find(".slick-cell[cell=" + cell + "][tabIndex=0]:visible")[0];
 			
-			setSelectedCellAndRow(cell);
+			setSelectedCellAndRow(cell,!options.editOnDoubleClick);
 			
 			// if no editor was created, set the focus back on the cell
 			if (!currentEditor) 
