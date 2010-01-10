@@ -12,7 +12,6 @@
  * OPTIONS:
  *	rowHeight			-	Row height in pixels.
  *	enableAddRow			-	If true, a blank row will be displayed at the bottom - typing values in that row will add a new one.
- *	manualScrolling			-	Disable automatic rerender on scroll.  Client will take care of calling Grid.onScroll().
  *	editable			-	If false, no cells will be switched into edit mode.
  *	editOnDoubleClick		-	Cell will not automatically go into edit mode without being double-clicked.
  *	enableCellNavigation		-	If false, no cells will be selectable.
@@ -71,7 +70,6 @@
 			defaultColumnWidth: 80,
 			enableAddRow: false,
 			leaveSpaceForNewRows: false,
-			manualScrolling: false,
 			editable: false,
 			editOnDoubleClick: false,
 			enableCellNavigation: true,
@@ -175,8 +173,7 @@
 				autosizeColumns();		
 			render();
 			
-			if (!options.manualScrolling)
-				$divMainScroller.bind("scroll", handleScroll);
+			$divMainScroller.bind("scroll", handleScroll);
 			
 			$container.bind("resize", resizeCanvas);
 			
@@ -595,16 +592,8 @@
 			
 			stringArray.push("</div>");			
 		}
-		
-		function getRowHtml(row) {
-			var html = [];
-			appendRowHtml(html,row);
-			return html.join("");
-		}
-		
+
 		function cleanupRows(visibleFrom,visibleTo) {
-			var rowsBefore = renderedRows;
-			var parentNode = $divMain[0];
 			for (var i in rowsCache) {
 				if ((i < visibleFrom || i > visibleTo) && i != currentRow)
 					removeRowFromCache(i);
@@ -685,6 +674,7 @@
 		}
 	
 		function resizeCanvas() {
+            $divMainScroller.height( $container.innerHeight() - $divHeadersScroller.outerHeight() );
 			viewportW = $divMainScroller.innerWidth();
 			viewportH = $divMainScroller.innerHeight();
 			BUFFER = numVisibleRows = Math.ceil(viewportH / options.rowHeight);
@@ -697,10 +687,8 @@
 			}
 			$divMain.width(totalWidth);
 		  
+            // browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
 		    var newHeight = Math.max(options.rowHeight * (data.length + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0)), viewportH - $.getScrollbarWidth());
-			$divMainScroller.height( $container.innerHeight() - $divHeadersScroller.outerHeight() );
-			
-		// browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
 			if ($divMainScroller.scrollTop() > newHeight - $divMainScroller.height() + $.getScrollbarWidth()) {
 				$divMainScroller.scrollTop(newHeight - $divMainScroller.height() + $.getScrollbarWidth());
 			}
@@ -1313,6 +1301,7 @@
 			"onSort":			null,
 			"onHeaderContextMenu":	null,
 			"onClick":			null,
+            "onDblClick":       null,
 			"onContextMenu":	null,
 			"onKeyDown":		null,
 			"onAddNewRow":		null,
@@ -1339,7 +1328,6 @@
 			"getViewport":		getViewport,
 			"resizeCanvas":		resizeCanvas,
 			"updateRowCount":	updateRowCount,
-			"scroll":			scroll,  // TODO
 			"getCellFromPoint":	getCellFromPoint,
 			"gotoCell":			gotoCell,
 			"editCurrentCell":	makeSelectedCellEditable,
