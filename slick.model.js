@@ -58,6 +58,7 @@ function EventHelper() {
 		
 		function setItems(data) {
 			items = data.concat();
+			idxById = {};
 			for (var i=0,l=items.length; i<l; i++) {
 				var id = items[i].id;
 				if (id == undefined || idxById[id] != undefined)
