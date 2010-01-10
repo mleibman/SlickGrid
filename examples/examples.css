@@ -116,7 +116,7 @@ input.editor-text {
 	margin: 0;
 	background: transparent;
 	outline: 0;
-    padding: 3px 0 0;
+    padding: 0;
 
 }
 
@@ -134,7 +134,7 @@ input.editor-percentcomplete {
 	margin: 0;
 	background: transparent;
 	outline: 0;
-    padding: 3px 0 0;
+    padding: 0;
 
     float: left;
 }

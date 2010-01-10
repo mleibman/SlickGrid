@@ -22,7 +22,6 @@
  *								This greatly increases keyboard navigation speed.
  *	forceFitColumns			-	Force column sizes to fit into the viewport (avoid horizontal scrolling).
  *	enableAsyncPostRender		-	If true, async post rendering will occur and asyncPostRender delegates on columns will be called.
- *	enableRowReordering		-	If true, rows can be reordered using drag & drop
  * 
  * 
  * COLUMN DEFINITION (columns) OPTIONS:
@@ -79,8 +78,7 @@
 			enableColumnReorder: true,
 			asyncEditorLoading: false,
 			forceFitColumns: false,
-			enableAsyncPostRender: false,
-			enableRowReordering: false
+			enableAsyncPostRender: false
 		};
 		
 		var columnDefaults = {
@@ -152,7 +150,7 @@
 			
 			$divHeadersScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
 			$divHeaders = $("<div class='slick-header-columns' style='width:100000px' />").appendTo($divHeadersScroller);
-			$divMainScroller = $("<div class='grid-scroller' tabIndex='0' hideFocus style='width:100%;outline:0;position:relative;'>").appendTo($container);
+			$divMainScroller = $divMainScroller = $("<div tabIndex='0' hideFocus style='width:100%;overflow-x:auto;overflow-y:scroll;outline:0;position:relative;'>").appendTo($container);
 			$divMain = $("<div class='grid-canvas' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($divMainScroller);
 		
 			// header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
@@ -170,8 +168,7 @@
 			$divHeaders.disableSelection();
 	
 			createColumnHeaders();			
-			if (options.enableRowReordering)
-				setupRowReordering();
+			setupRowReordering();
 			createCssRules();
 			resizeCanvas();
 			if (options.forceFitColumns)
@@ -590,7 +587,7 @@
 				stringArray.push("<div " + (m.unselectable ? "" : "hideFocus tabIndex=0 ") + "class='slick-cell c" + i + (m.cssClass ? " " + m.cssClass : "") + "' cell=" + i + ">");
 	
 				// if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)				
-				if (d && row < data.length && !(options.enableAsyncPostRender && m.asyncPostRender))
+				if (d && row < data.length)
 					stringArray.push(m.formatter(row, i, d[m.field], m, d));
 				
 				stringArray.push("</div>");
