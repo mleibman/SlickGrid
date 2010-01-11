@@ -10,35 +10,35 @@
  *
  *
  * OPTIONS:
- *	rowHeight			-	Row height in pixels.
+ *	rowHeight				-	Row height in pixels.
  *	enableAddRow			-	If true, a blank row will be displayed at the bottom - typing values in that row will add a new one.
- *	editable			-	If false, no cells will be switched into edit mode.
+ *	editable				-	If false, no cells will be switched into edit mode.
  *	editOnDoubleClick		-	Cell will not automatically go into edit mode without being double-clicked.
- *	enableCellNavigation		-	If false, no cells will be selectable.
+ *	enableCellNavigation	-	If false, no cells will be selectable.
  *	defaultColumnWidth		-	Default column width in pixels (if columns[cell].width is not specified).
  *	enableColumnReorder		-	Allows the user to reorder columns.
  *	asyncEditorLoading		-	Makes cell editors load asynchronously after a small delay.
  *								This greatly increases keyboard navigation speed.
  *	forceFitColumns			-	Force column sizes to fit into the viewport (avoid horizontal scrolling).
- *	enableAsyncPostRender		-	If true, async post rendering will occur and asyncPostRender delegates on columns will be called.
+ *	enableAsyncPostRender	-	If true, async post rendering will occur and asyncPostRender delegates on columns will be called.
  * 
  * 
  * COLUMN DEFINITION (columns) OPTIONS:
- *	id				-	Column ID.
- *	name				-	Column name to put in the header.
- *	field				-	Property of the data context to bind to.
- *	formatter			-	Function responsible for rendering the contents of a cell.
- *	editor				-	An Editor class.
- *	validator			-	An extra validation function to be passed to the editor.
+ *	id						-	Column ID.
+ *	name					-	Column name to put in the header.
+ *	field					-	Property of the data context to bind to.
+ *	formatter				-	Function responsible for rendering the contents of a cell.
+ *	editor					-	An Editor class.
+ *	validator				-	An extra validation function to be passed to the editor.
  *	unselectable			-	If true, the cell cannot be selected (and therefore edited).
  *	cannotTriggerInsert		-	If true, a new row cannot be created from just the value of this cell.
  *	setValueHandler			-	If true, this handler will be called to set field value instead of context[field].
- *	width				-	Width of the column in pixels.
- *	resizable			-	If false, the column cannot be resized.
- *	sortable			-	If true, the column can be sorted (onSort will be called).
- *	minWidth			-	Minimum allowed column width for resizing.
- *	maxWidth			-	Maximum allowed column width for resizing.
- *	cssClass			-	A CSS class to add to the cell.
+ *	width					-	Width of the column in pixels.
+ *	resizable				-	If false, the column cannot be resized.
+ *	sortable				-	If true, the column can be sorted (onSort will be called).
+ *	minWidth				-	Minimum allowed column width for resizing.
+ *	maxWidth				-	Maximum allowed column width for resizing.
+ *	cssClass				-	A CSS class to add to the cell.
  *	rerenderOnResize		-	Rerender the column when it is resized (useful for columns relying on cell width or adaptive formatters).
  *	asyncPostRender			-	Function responsible for manipulating the cell DOM node after it has been rendered (called in the background).
  * 
@@ -80,10 +80,10 @@
 		};
 		
 		var columnDefaults = {
-		resizable: true,
-		sortable: false,
-		formatter: defaultFormatter
-	};
+            resizable: true,
+            sortable: false,
+            formatter: defaultFormatter
+        };
 		
 		// consts
 		var CAPACITY = 50;
@@ -104,7 +104,7 @@
 			
 		var currentRow, currentCell;
 		var currentCellNode = null;
-		var currentEditor = null;	
+		var currentEditor = null;
 		
 		var rowsCache = {};
 		var renderedRows = 0;
@@ -121,7 +121,7 @@
 		
 		// async call handles
 		var h_editorLoader = null;
-		var h_render = null;	
+		var h_render = null;
 		var h_postrender = null;
 		var postProcessedRows = {};
 		var postProcessToRow = null;
@@ -148,7 +148,7 @@
 			
 			$divHeadersScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
 			$divHeaders = $("<div class='slick-header-columns' style='width:100000px' />").appendTo($divHeadersScroller);
-			$divMainScroller = $divMainScroller = $("<div tabIndex='0' hideFocus style='width:100%;overflow-x:auto;overflow-y:scroll;outline:0;position:relative;'>").appendTo($container);
+			$divMainScroller = $("<div tabIndex='0' hideFocus style='width:100%;overflow-x:auto;overflow-y:scroll;outline:0;position:relative;'>").appendTo($container);
 			$divMain = $("<div class='grid-canvas' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($divMainScroller);
 		
 			// header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
@@ -165,12 +165,12 @@
 			
 			$divHeaders.disableSelection();
 	
-			createColumnHeaders();			
+			createColumnHeaders();
 			setupRowReordering();
 			createCssRules();
 			resizeCanvas();
 			if (options.forceFitColumns)
-				autosizeColumns();		
+				autosizeColumns();
 			render();
 			
 			$divMainScroller.bind("scroll", handleScroll);
@@ -212,109 +212,107 @@
 		}
 		
 		function setupColumnSort() {
-		$divHeaders.click(function(e) {
+			$divHeaders.click(function(e) {
 				var $col = $(e.target);
-		    if (!$col.hasClass("slick-header-column") || !columns[columnsById[$col.attr("id")]].sortable) 
-			return;
-				
+				if (!$col.hasClass("slick-header-column") || !columns[columnsById[$col.attr("id")]].sortable)
+					return;
+
 				if (currentEditor && !commitCurrentEdit()) return;
-	
-		    if ($col.is(".slick-header-column-sorted")) 
-		    {
-			$col.find(".slick-sort-indicator").toggleClass("slick-sort-indicator-asc").toggleClass("slick-sort-indicator-desc");
-		    }
-		    else 
-		    {
-			$divHeaders.children().removeClass("slick-header-column-sorted");
-			$divHeaders.find(".slick-sort-indicator").removeClass("slick-sort-indicator-asc slick-sort-indicator-desc");
-			$col.addClass("slick-header-column-sorted");
-			$col.find(".slick-sort-indicator").addClass("slick-sort-indicator-asc");
-		    }
-				
+
+				if ($col.is(".slick-header-column-sorted")) {
+					$col.find(".slick-sort-indicator").toggleClass("slick-sort-indicator-asc").toggleClass("slick-sort-indicator-desc");
+				}
+				else {
+					$divHeaders.children().removeClass("slick-header-column-sorted");
+					$divHeaders.find(".slick-sort-indicator").removeClass("slick-sort-indicator-asc slick-sort-indicator-desc");
+					$col.addClass("slick-header-column-sorted");
+					$col.find(".slick-sort-indicator").addClass("slick-sort-indicator-asc");
+				}
+
 				if (self.onSort)
 					self.onSort(columns[columnsById[$col.attr("id")]], $col.find(".slick-sort-indicator").hasClass("slick-sort-indicator-asc"));
-		})			
+			})
 		}
 		
 		function setupColumnReorderEvents() {
-		$divHeaders.sortable({
-		    axis: "x",
-		    cursor: "default",
-		    tolerance: "intersect",
-		    helper: "clone",
-		    placeholder: "ui-state-default ui-state-highlight slick-header-column",
-		    forcePlaceholderSize: true,
-		    start: function(e, ui) { $(ui.helper).addClass("slick-header-column-active") },
-		    beforeStop: function(e, ui) { $(ui.helper).removeClass("slick-header-column-active") },
-				stop: function(e, ui) {
-					if (currentEditor && !commitCurrentEdit()) {
-						$(this).sortable("cancel");
-						return;
+			$divHeaders.sortable({
+				axis: "x",
+				cursor: "default",
+				tolerance: "intersect",
+				helper: "clone",
+				placeholder: "slick-sortable-placeholder ui-state-default slick-header-column",
+				forcePlaceholderSize: true,
+				start: function(e, ui) { $(ui.helper).addClass("slick-header-column-active") },
+				beforeStop: function(e, ui) { $(ui.helper).removeClass("slick-header-column-active") },
+					stop: function(e, ui) {
+						if (currentEditor && !commitCurrentEdit()) {
+							$(this).sortable("cancel");
+							return;
+						}
+
+						var newOrder = $divHeaders.sortable("toArray"), lookup = {};
+						for (var i=0; i<columns.length; i++) {
+							lookup[columns[i].id] = columns[i];
+						}
+
+						for (var i=0; i<newOrder.length; i++) {
+							columnsById[newOrder[i]] = i;
+							columns[i] = lookup[newOrder[i]];
+						}
+
+						removeAllRows();
+						removeCssRules();
+						createCssRules();
+						render();
+
+						if (self.onColumnsReordered)
+							self.onColumnsReordered();
+
+						e.stopPropagation();
 					}
-					
-					var newOrder = $divHeaders.sortable("toArray"), lookup = {};
-					for (var i=0; i<columns.length; i++) {
-						lookup[columns[i].id] = columns[i];
-					}
-					
-					for (var i=0; i<newOrder.length; i++) {
-						columnsById[newOrder[i]] = i;
-						columns[i] = lookup[newOrder[i]];
-					}
-					
-					removeAllRows();
-					removeCssRules();
-					createCssRules();
-					render();
-					
-					if (self.onColumnsReordered)
-						self.onColumnsReordered();
-						
-					e.stopPropagation();
-				}					
-		})			
+			})
 		}
 		
 		function setupColumnResizeEvents() {
-		$divHeaders
+			$divHeaders
 				.find(".slick-resizable-handle")
 				.bind('dragstart', function(e) {
-			    var $col = $(this).parent();
+					var $col = $(this).parent();
 					var colId = $col.attr("id");
-					if (!columns[columnsById[colId]].resizable) return false;	
+					if (!columns[columnsById[colId]].resizable) return false;
 					if (currentEditor && !commitCurrentEdit()) return false;
-								
-			    $col
+
+					$col
 						.data("colId", colId)
 						.data("width", $col.width())
-				.data("pageX", e.pageX)
-				.addClass("slick-header-column-active");
-			})
+						.data("pageX", e.pageX)
+						.addClass("slick-header-column-active");
+				})
 				.bind('drag', function(e) {
-			    var $col = $(this).parent(), w = $col.data("width") - $col.data("pageX") + e.pageX;
+					var $col = $(this).parent(), w = $col.data("width") - $col.data("pageX") + e.pageX;
 					var cell = columnsById[$col.data("colId")];
 					var m = columns[cell];
 					if (m.minWidth) w = Math.max(m.minWidth - headerColumnWidthDiff,w);
 					if (m.maxWidth) w = Math.min(m.maxWidth - headerColumnWidthDiff,w);
-			    $col.css({ width: Math.max(0, w) });
-			})
+					$col.css({ width: Math.max(0, w) });
+				})
 				.bind('dragend', function(e) {
 					var $col = $(this).parent();
 					var cell = columnsById[$col.data("colId")];
 					$col.removeClass("slick-header-column-active");
 					columns[cell].width = $col.outerWidth();
-					
+
 					if (options.forceFitColumns)
 						autosizeColumns(columns[cell]);
 					else {
 						updateColumnWidth(cell, $col.outerWidth());
 						resizeCanvas();
 					}
-					
+
 					if (columns[cell].rerenderOnResize)
-						removeAllRows();				
-					
-					render();				
+						removeAllRows();
+
+					render();
 			})
 		}
 	
@@ -360,14 +358,14 @@
 				.bind("drag", function(e) {
 					var top = e.clientY - $(this).offset().top;
 					$(this).data("selectionProxy").css("top",top-5);
-					
+
 					var insertBefore = Math.max(0,Math.min(Math.round(top/options.rowHeight),data.length));
 					if (insertBefore != $(this).data("insertBefore")) {
 						if (self.onBeforeMoveRows && self.onBeforeMoveRows(getSelectedRows(),insertBefore) === false)
 							$(e.dragProxy).css("top", -1000).data("canMove",false);
 						else
-							$(e.dragProxy).css("top",insertBefore*options.rowHeight).data("canMove",true);	
-						$(this).data("insertBefore", insertBefore);			
+							$(e.dragProxy).css("top",insertBefore*options.rowHeight).data("canMove",true);
+						$(this).data("insertBefore", insertBefore);
 					}
 				})
 				.bind("dragend", function(e) {
@@ -377,7 +375,7 @@
 					var insertBefore = $(this).data("insertBefore");
 					$(this).removeData("selectionProxy").removeData("insertBefore");
 					if (self.onMoveRows && canMove) self.onMoveRows(getSelectedRows(),insertBefore);
-				})		
+				})
 		}
 		
 		function measureCellPaddingAndBorder() {
@@ -426,7 +424,7 @@
 		// General
 		
 		function getColumnIndex(id) {
-			return columnsById[id];	
+			return columnsById[id];
 		}
 		
 		function autosizeColumns(columnToHold) {
@@ -454,7 +452,7 @@
 					total -= 1;
 					c.width -= 1;
 					workdone = true;
-				}			
+				}
 			}
 			
 			// shrink the column being "held" as a last resort
@@ -540,7 +538,7 @@
 			}
 	
 			selectedRows = rows.concat();
-			selectedRowsLookup = lookup;				
+			selectedRowsLookup = lookup;
 		}
 	
 		function setOptions(args) {
@@ -552,14 +550,14 @@
 			if (options.enableAddRow != args.enableAddRow)
 				removeRow(data.length);
 				
-			options = $.extend(options,args);		
+			options = $.extend(options,args);
 			
 			render();
 		}
 		
-	    function setData(newData,scrollToTop) {
-		removeAllRows();    
-		    data = newData;
+		function setData(newData,scrollToTop) {
+			removeAllRows();
+			data = newData;
 			if (scrollToTop)
 			$divMainScroller.scrollTop(0);
 		}	
@@ -590,7 +588,7 @@
 				stringArray.push("</div>");
 			}
 			
-			stringArray.push("</div>");			
+			stringArray.push("</div>");
 		}
 
 		function cleanupRows(visibleFrom,visibleTo) {
@@ -635,7 +633,7 @@
 			}
 			
 			if (renderedRows > 10 && nodes.length == renderedRows) {
-				removeAllRows();			
+				removeAllRows();
 			} else {
 				for (var i=0, nl=nodes.length; i<nl; i++) 
 					removeRowFromCache(nodes[i]);
@@ -674,7 +672,7 @@
 		}
 	
 		function resizeCanvas() {
-            $divMainScroller.height( $container.innerHeight() - $divHeadersScroller.outerHeight() );
+			$divMainScroller.height( $container.innerHeight() - $divHeadersScroller.outerHeight() );
 			viewportW = $divMainScroller.innerWidth();
 			viewportH = $divMainScroller.innerHeight();
 			BUFFER = numVisibleRows = Math.ceil(viewportH / options.rowHeight);
@@ -687,8 +685,8 @@
 			}
 			$divMain.width(totalWidth);
 		  
-            // browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
-		    var newHeight = Math.max(options.rowHeight * (data.length + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0)), viewportH - $.getScrollbarWidth());
+			// browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
+			var newHeight = Math.max(options.rowHeight * (data.length + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0)), viewportH - $.getScrollbarWidth());
 			if ($divMainScroller.scrollTop() > newHeight - $divMainScroller.height() + $.getScrollbarWidth()) {
 				$divMainScroller.scrollTop(newHeight - $divMainScroller.height() + $.getScrollbarWidth());
 			}
@@ -712,7 +710,7 @@
 			// browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
 			if ($divMainScroller.scrollTop() > newHeight - $divMainScroller.height() + $.getScrollbarWidth()) 
 				$divMainScroller.scrollTop(newHeight - $divMainScroller.height() + $.getScrollbarWidth());
-			$divMain.height(newHeight);			
+			$divMain.height(newHeight);
 		}
 		
 		function getViewport()
@@ -770,7 +768,7 @@
 			else
 				cleanupRows(from,to);
 	
-			renderRows(from,to);	
+			renderRows(from,to);
 					
 			postProcessFromRow = Math.max(0,vp.top-MIN_BUFFER);
 			postProcessToRow = Math.min(options.enableAddRow ? data.length : data.length - 1, vp.bottom+MIN_BUFFER);
@@ -877,7 +875,7 @@
 				case 13:  // enter
 					gotoDir(1,0);
 					break;
-									
+
 				default:
 					// exit without cancelling the event
 					return;
@@ -885,7 +883,7 @@
 			
 			e.stopPropagation();
 			e.preventDefault();
-			return false;		
+			return false;
 		}	
 		
 		function handleClick(e)	{
@@ -896,7 +894,7 @@
 			if (currentCellNode == $cell[0] && currentEditor != null) return;
 			
 			var row = parseInt($cell.parent().attr("row"));
-			var cell = parseInt($cell.attr("cell"));		
+			var cell = parseInt($cell.attr("cell"));
 			var validated = null;
 		
 			// do we have any registered handlers?
@@ -999,7 +997,7 @@
 		
 		function setSelectedCell(newCell,editMode) {
 			if (currentCellNode != null) {
-				makeSelectedCellNormal();			
+				makeSelectedCellNormal();
 				$(currentCellNode).removeClass("selected");
 			}
 			
@@ -1039,7 +1037,7 @@
 				setSelectedRows([]);
 				
 			if (self.onSelectedRowsChanged)
-				self.onSelectedRowsChanged();			
+				self.onSelectedRowsChanged();
 		}
 		
 		function clearTextSelection() {
@@ -1065,7 +1063,7 @@
 			if (!columns[cell].editor)
 				return false;
 				
-			return true;		
+			return true;
 		}
 	
 		function makeSelectedCellNormal() {
@@ -1085,7 +1083,7 @@
 			// IE can't set focus to anything else correctly
 			if ($.browser.msie) clearTextSelection();
 	
-			Slick.GlobalEditorLock.leaveEditMode(self);		
+			Slick.GlobalEditorLock.leaveEditMode(self);
 		}
 	
 		function makeSelectedCellEditable() {
@@ -1126,7 +1124,7 @@
 			// or page up?
 			else if (currentRow * options.rowHeight < scrollTop) {
 				$divMainScroller[0].scrollTop = (currentRow + 2) * options.rowHeight - viewportH;
-				handleScroll();			
+				handleScroll();
 			}	
 		}
 	
@@ -1143,11 +1141,11 @@
 				if (!nextCell || !nextCell.length) {
 					if (dx > 0) {
 						nextRow = rowsCache[currentRow + dy + 1];
-						nextCell = nextRow ? $(nextRow).find(".slick-cell[cell]:first") : null;	
+						nextCell = nextRow ? $(nextRow).find(".slick-cell[cell]:first") : null;
 					}
 					else {
 						nextRow = rowsCache[currentRow + dy - 1];
-						nextCell = nextRow ? $(nextRow).find(".slick-cell[cell]:last") : null;		
+						nextCell = nextRow ? $(nextRow).find(".slick-cell[cell]:last") : null;
 					}
 					if (nextCell && !nextCell.is("[tabIndex=0]:visible"))
 						nextCell = (dx>0)?nextCell.nextAll("[tabIndex=0]:visible:first"):nextCell.prevAll("[tabIndex=0]:visible:first");
@@ -1298,19 +1296,19 @@
 		
 		$.extend(this, {
 			// Events
-			"onSort":			null,
+			"onSort":				null,
 			"onHeaderContextMenu":	null,
-			"onClick":			null,
-            "onDblClick":       null,
-			"onContextMenu":	null,
-			"onKeyDown":		null,
-			"onAddNewRow":		null,
+			"onClick":				null,
+			"onDblClick":			null,
+			"onContextMenu":		null,
+			"onKeyDown":			null,
+			"onAddNewRow":			null,
 			"onValidationError":	null,
 			"onViewportChanged":	null,
 			"onSelectedRowsChanged":	null,
 			"onColumnsReordered":	null,
 			"onBeforeMoveRows"	:	null,
-			"onMoveRows":		null,
+			"onMoveRows":			null,
 			
 			// Methods
 			"setOptions":		setOptions,

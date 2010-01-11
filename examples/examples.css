@@ -1,4 +1,6 @@
- * {
+@import url('slick-default-theme.css');
+
+* {
     font-family: arial;
     font-size: 8pt;
 }
@@ -66,6 +68,7 @@ li {
 	margin-bottom: 20px;
 }
 
+ 
 
 /* Individual cell styles */
 .slick-cell.task-name {

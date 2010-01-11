@@ -32,11 +32,6 @@
 	font-style: italic;
 }
 
-.slick-header-column-active {
-	opacity: 0.5;
-	filter: alpha(opacity=50);
-}
-
 .slick-sort-indicator {
 	display: inline-block;
 	width: 8px;
@@ -67,7 +62,7 @@
 	background: gray;
 }
 
-.slick-sortable-placeholder.ui-state-default {
+.slick-sortable-placeholder {
 	background: silver;
 }
 
@@ -79,19 +74,6 @@
 .slick-row.ui-widget-content, .slick-row.ui-state-active {
 	position: absolute;
 	border: 0px;
-}
-
-.slick-row[row$="1"], .slick-row[row$="3"], .slick-row[row$="5"], .slick-row[row$="7"],	.slick-row[row$="9"] {
-	background: #fafafa;
-}
-
-.slick-row.ui-state-active {
-	background: #F5F7D7;
-}
-
-.slick-row.loading {
-	opacity: 0.5;
-	filter: alpha(opacity=50);
 }
 
 .slick-cell {
@@ -117,10 +99,6 @@
 	background: white;
 	border-color: black;
 	border-style: solid;
-}
-
-.slick-cell.invalid {
-	border-color: red;
 }
 
 .slick-cell:focus {
