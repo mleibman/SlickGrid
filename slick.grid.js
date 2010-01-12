@@ -987,7 +987,7 @@
                 var d = data[row], cellNodes = rowNode.childNodes;
                 for (var i=0, l=columns.length; i<l; i++) {
                     var m = columns[i];
-                    if (m.asyncPostRender) {
+                    if (m.asyncPostRender && !m.hidden) {
                         m.asyncPostRender(cellNodes[i], postProcessFromRow, d, m);
                     }
                 }
