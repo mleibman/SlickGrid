@@ -101,6 +101,7 @@
 		var $divMain;
 		var viewportH, viewportW;
 		var headerColumnWidthDiff, headerColumnHeightDiff, cellWidthDiff, cellHeightDiff;  // padding+border
+		var absoluteMinWidth;
 			
 		var currentRow, currentCell;
 		var currentCellNode = null;
@@ -381,6 +382,7 @@
 			var tmp = $("<div class='ui-state-default slick-header-column' cell='' id='' style='visibility:hidden'>-</div>").appendTo($divHeaders);
 			headerColumnWidthDiff = tmp.outerWidth() - tmp.width();
 			headerColumnHeightDiff = tmp.outerHeight() - tmp.height();
+			absoluteMinWidth = Math.max(headerColumnWidthDiff,cellWidthDiff);
 			tmp.remove();
 			
 			var r = $("<div class='slick-row' />").appendTo($divMain);
@@ -430,7 +432,6 @@
 			var availWidth = viewportW-$.getScrollbarWidth();
 			var total = 0;
 			var existingTotal = 0;
-			var minWidth = Math.max(headerColumnWidthDiff,cellWidthDiff);
 			
 			for (var i = 0; i < columns.length; i++) {
 				if (!columns[i].hidden) 
@@ -447,7 +448,7 @@
 				workdone = false;
 				for (var i = 0; i < columns.length && total > availWidth; i++) {
 					var c = columns[i];
-					if (c.hidden || !c.resizable || c.minWidth == c.width || c.width == minWidth || (columnToHold && columnToHold.id == c.id)) continue;
+					if (c.hidden || !c.resizable || c.minWidth == c.width || c.width == absoluteMinWidth || (columnToHold && columnToHold.id == c.id)) continue;
 					total -= 1;
 					c.width -= 1;
 					workdone = true;
@@ -457,7 +458,7 @@
 			// shrink the column being "held" as a last resort
 			if (total > availWidth && columnToHold && columnToHold.resizable && !columnToHold.hidden) {
 				while (total > availWidth) {
-					if (columnToHold.minWidth == columnToHold.width || columnToHold.width == minWidth) break;
+					if (columnToHold.minWidth == columnToHold.width || columnToHold.width == absoluteMinWidth) break;
 					total -= 1;
 					columnToHold.width -= 1;
 				}
