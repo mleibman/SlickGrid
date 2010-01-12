@@ -277,42 +277,38 @@
 		}
 		
 		function setupColumnResizeEvents() {
+			var $col, i, m, width, pageX;
 			$divHeaders
 				.find(".slick-resizable-handle")
 				.bind('dragstart', function(e) {
-					var $col = $(this).parent();
-					var colId = $col.attr("id");
-					if (!columns[columnsById[colId]].resizable) return false;
+					$col = $(this).parent();
+					i = columnsById[$col.attr('id')];
+					m = columns[i];
+					if (!m.resizable) return false;
 					if (currentEditor && !commitCurrentEdit()) return false;
-
-					$col
-						.data("colId", colId)
-						.data("width", $col.width())
-						.data("pageX", e.pageX)
-						.addClass("slick-header-column-active");
+					width = $col.width();
+					pageX = e.pageX;
+					$col.addClass("slick-header-column-active");
 				})
 				.bind('drag', function(e) {
-					var $col = $(this).parent(), w = $col.data("width") - $col.data("pageX") + e.pageX;
-					var cell = columnsById[$col.data("colId")];
-					var m = columns[cell];
+					var w = width - pageX + e.pageX;
 					if (m.minWidth) w = Math.max(m.minWidth - headerColumnWidthDiff,w);
 					if (m.maxWidth) w = Math.min(m.maxWidth - headerColumnWidthDiff,w);
 					$col.css({ width: Math.max(0, w) });
 				})
 				.bind('dragend', function(e) {
 					var $col = $(this).parent();
-					var cell = columnsById[$col.data("colId")];
 					$col.removeClass("slick-header-column-active");
-					columns[cell].width = $col.outerWidth();
+					m.width = $col.outerWidth();
 
 					if (options.forceFitColumns)
-						autosizeColumns(columns[cell]);
+						autosizeColumns(m);
 					else {
-						updateColumnWidth(cell, $col.outerWidth());
+						updateColumnWidth(i, $col.outerWidth());
 						resizeCanvas();
 					}
 
-					if (columns[cell].rerenderOnResize)
+					if (m.rerenderOnResize)
 						removeAllRows();
 
 					render();
