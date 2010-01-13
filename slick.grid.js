@@ -395,7 +395,7 @@
 		}
 		
 		function createCssRules() {
-			var $style = $("<style type='text/css' rel='stylesheet' lib='slickgrid' />").appendTo($("head"));
+			var $style = $("<style type='text/css' rel='stylesheet' lib='slickgrid" + uid + "' />").appendTo($("head"));
 			var rowHeight = (options.rowHeight - cellHeightDiff);
 			$.rule("." + uid + " .slick-cell { height:" + rowHeight + "px; line-height:" + rowHeight + "px; }").appendTo($style);
 			
@@ -409,7 +409,7 @@
 		}
 		
 		function removeCssRules() {
-			$("style[lib=slickgrid]").remove();
+			$("style[lib=slickgrid" + uid + "]").remove();
 		}
 			
 		function destroy() {
@@ -499,7 +499,7 @@
 		function updateColumnWidth(index,width) {
 			columns[index].width = width;
 			$divHeaders.find(".slick-header-column[id=" + columns[index].id + "]").css("width",width - headerColumnWidthDiff);
-			$.rule("." + uid + " .c" + index, "style[lib=slickgrid]").css("width", (columns[index].width - cellWidthDiff) + "px");
+			$.rule("." + uid + " .c" + index, "style[lib=slickgrid" + uid + "]").css("width", (columns[index].width - cellWidthDiff) + "px");
 		}
 		
 		function setColumnVisibility(column,visible) {
@@ -508,7 +508,7 @@
 			resizeCanvas();
 			var header = $divHeaders.find("[id=" + columns[index].id + "]");
 			header.css("display", visible?"block":"none");
-			$.rule("." + uid + " .c" + index, "style[lib=slickgrid]").css("display", visible?"block":"none");
+			$.rule("." + uid + " .c" + index, "style[lib=slickgrid" + uid + "]").css("display", visible?"block":"none");
 			
 			if (options.forceFitColumns)
 				autosizeColumns(columns[index]);
