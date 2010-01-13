@@ -75,8 +75,10 @@
 			enableCellNavigation: true,
 			enableColumnReorder: true,
 			asyncEditorLoading: false,
+			asyncEditorLoadDelay: 100,
 			forceFitColumns: false,
-			enableAsyncPostRender: false
+			enableAsyncPostRender: false,
+			asyncPostRenderDelay: 60
 		};
 		
 		var columnDefaults = {
@@ -89,8 +91,6 @@
 		var CAPACITY = 50;
 		var MIN_BUFFER = 5;
 		var BUFFER = MIN_BUFFER;  // will be set to equal one page
-		var POSTPROCESSING_DELAY = 60,	// must be greater than the delay in handleScroll 
-			EDITOR_LOAD_DELAY = 100;
 		
 		// private
 		var uid = "slickgrid_" + Math.round(1000000 * Math.random());
@@ -193,7 +193,10 @@
 					.html(m.name)
 					.width(m.width - headerColumnWidthDiff)
 					.appendTo($divHeaders);
-				
+
+				if (m.hidden)
+					header.css("display","none");
+
 				if (options.enableColumnReorder || m.sortable || m.resizable) {
 					header.append("<span class='slick-sort-indicator' />");
 					header.hover(
@@ -748,13 +751,13 @@
 		function startPostProcessing() {
 			if (!options.enableAsyncPostRender) return;
 			clearTimeout(h_postrender);
-			h_postrender = setTimeout(asyncPostProcessRows, POSTPROCESSING_DELAY);
+			h_postrender = setTimeout(asyncPostProcessRows, options.asyncPostRenderDelay);
 		}
 		
 		function invalidatePostProcessingResults(row) {
 			delete postProcessedRows[row];
 			postProcessFromRow = Math.min(postProcessFromRow,row);
-			postProcessToRow = Math.max(postProcessToRow);
+			postProcessToRow = Math.max(postProcessToRow,row);
 			startPostProcessing();
 		}
 		
@@ -762,7 +765,7 @@
 			var vp = getViewport();
 			var from = Math.max(0, vp.top - (scrollDir >= 0 ? MIN_BUFFER : BUFFER));
 			var to = Math.min(options.enableAddRow ? data.length : data.length - 1, vp.bottom + (scrollDir > 0 ? BUFFER : MIN_BUFFER));
-			
+
 			if (renderedRows > 10 && Math.abs(lastRenderedScrollTop - currentScrollTop) > options.rowHeight*CAPACITY)
 				removeAllRows();
 			else
@@ -795,7 +798,7 @@
 				scrollDir = 1;
 			else	
 				scrollDir = -1;
-			
+
 			if (h_render)
 				clearTimeout(h_render);
 	
@@ -803,7 +806,7 @@
 				render();
 			else
 				h_render = setTimeout(render, 50);
-				
+
 			if (self.onViewportChanged)
 				self.onViewportChanged();
 		}
@@ -822,7 +825,7 @@
 				}
 				
 				postProcessedRows[row] = true;
-				h_postrender = setTimeout(asyncPostProcessRows, POSTPROCESSING_DELAY);
+				h_postrender = setTimeout(asyncPostProcessRows, options.asyncPostRenderDelay);
 				return;
 			}
 		}
@@ -1015,7 +1018,7 @@
 					clearTimeout(h_editorLoader);
 					
 					if (options.asyncEditorLoading) 
-						h_editorLoader = setTimeout(makeSelectedCellEditable, EDITOR_LOAD_DELAY);
+						h_editorLoader = setTimeout(makeSelectedCellEditable, options.asyncEditorLoadDelay);
 					else 
 						makeSelectedCellEditable();
 				}
