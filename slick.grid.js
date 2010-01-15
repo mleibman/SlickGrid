@@ -101,7 +101,7 @@
 		var $divMain;
 		var viewportH, viewportW;
 		var headerColumnWidthDiff, headerColumnHeightDiff, cellWidthDiff, cellHeightDiff;  // padding+border
-		var absoluteMinWidth;
+		var absoluteColumnMinWidth;
 			
 		var currentRow, currentCell;
 		var currentCellNode = null;
@@ -281,7 +281,7 @@
 			var $col, i, m, width, pageX, columnElements, minPageX, maxPageX;
 			$divHeaders
 				.find(".slick-resizable-handle")
-				.bind('dragstart', function(e) {
+				.bind("dragstart", function(e) {
 					$col = $(this).parent();
 					i = columnsById[$col.attr('id')];
 					m = columns[i];
@@ -305,7 +305,7 @@
 									else
 										stretchLeewayOnRight = null;
 								}
-								shrinkLeewayOnRight += c.width - Math.max(c.minWidth || 0, absoluteMinWidth);
+								shrinkLeewayOnRight += c.width - Math.max(c.minWidth || 0, absoluteColumnMinWidth);
 							}
 						}
 					}
@@ -320,7 +320,7 @@
 								else
 									stretchLeewayOnLeft = null;
 							}
-							shrinkLeewayOnLeft += c.width - Math.max(c.minWidth || 0, absoluteMinWidth);
+							shrinkLeewayOnLeft += c.width - Math.max(c.minWidth || 0, absoluteColumnMinWidth);
 						}
 					}
 					if (shrinkLeewayOnRight == null) shrinkLeewayOnRight = 100000;
@@ -330,14 +330,14 @@
 					maxPageX = pageX + Math.min(shrinkLeewayOnRight, stretchLeewayOnLeft);
 					minPageX = pageX - Math.min(shrinkLeewayOnLeft, stretchLeewayOnRight);
 				})
-				.bind('drag', function(e) {
+				.bind("drag", function(e) {
 					var d = Math.min(maxPageX, Math.max(minPageX, e.pageX)) - pageX, x;
 					if (d < 0) { // shrink column
 						x = d;
 						for (var j = i; j >= 0; j--) {
 							var c = columns[j];
 							if (c.resizable && !c.hidden) {
-								var actualMinWidth = Math.max(c.minWidth || 0, absoluteMinWidth);
+								var actualMinWidth = Math.max(c.minWidth || 0, absoluteColumnMinWidth);
 								if (x && c.width + x < actualMinWidth) {
 									x += c.width - actualMinWidth;
 									$(columnElements[j]).css({width: actualMinWidth - headerColumnWidthDiff});
@@ -383,7 +383,7 @@
 							for (var j = i + 1; j < columns.length; j++) {
 								var c = columns[j];
 								if (c.resizable && !c.hidden) {
-									var actualMinWidth = Math.max(c.minWidth || 0, absoluteMinWidth);
+									var actualMinWidth = Math.max(c.minWidth || 0, absoluteColumnMinWidth);
 									if (x && c.width + x < actualMinWidth) {
 										x += c.width - actualMinWidth;
 										$(columnElements[j]).css({width: actualMinWidth - headerColumnWidthDiff});
@@ -396,7 +396,7 @@
 						}
 					}
 				})
-				.bind('dragend', function(e) {
+				.bind("dragend", function(e) {
 					$col.removeClass("slick-header-column-active");
 					m.width = $col.outerWidth();
 
@@ -485,7 +485,7 @@
 			cellHeightDiff = tmp.outerHeight() - tmp.height();
 			r.remove();
 
-			absoluteMinWidth = Math.max(headerColumnWidthDiff,cellWidthDiff);
+			absoluteColumnMinWidth = Math.max(headerColumnWidthDiff,cellWidthDiff);
 		}
 		
 		function createCssRules() {
@@ -544,7 +544,7 @@
 				workdone = false;
 				for (var i = 0; i < columns.length && total > availWidth; i++) {
 					var c = columns[i];
-					if (c.hidden || !c.resizable || c.minWidth == c.width || c.width == absoluteMinWidth || (columnToHold && columnToHold.id == c.id)) continue;
+					if (c.hidden || !c.resizable || c.minWidth == c.width || c.width == absoluteColumnMinWidth || (columnToHold && columnToHold.id == c.id)) continue;
 					total -= 1;
 					c.width -= 1;
 					workdone = true;
@@ -554,7 +554,7 @@
 			// shrink the column being "held" as a last resort
 			if (total > availWidth && columnToHold && columnToHold.resizable && !columnToHold.hidden) {
 				while (total > availWidth) {
-					if (columnToHold.minWidth == columnToHold.width || columnToHold.width == absoluteMinWidth) break;
+					if (columnToHold.minWidth == columnToHold.width || columnToHold.width == absoluteColumnMinWidth) break;
 					total -= 1;
 					columnToHold.width -= 1;
 				}
