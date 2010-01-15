@@ -241,8 +241,8 @@
 
         function setupColumnSort() {
             $divHeaders.click(function(e) {
-                var $col = $(e.target);
-                if (!$col.hasClass("slick-header-column") || !columns[columnsById[$col.attr("id")]].sortable) {
+                var $col = $(e.target).closest(".slick-header-column");
+                if (!$col.length || !columns[columnsById[$col.attr("id")]].sortable) {
                     return;
                 }
 
