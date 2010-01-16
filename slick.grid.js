@@ -980,7 +980,7 @@
 
         function asyncPostProcessRows () {
             while (postProcessFromRow <= postProcessToRow) {
-                var row = (scrollDir > 0) ? postProcessFromRow++ : postProcessToRow--;
+                var row = (scrollDir >= 0) ? postProcessFromRow++ : postProcessToRow--;
                 var rowNode = rowsCache[row];
                 if (!rowNode || postProcessedRows[row] || row>=data.length) { continue; }
 
