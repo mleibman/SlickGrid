@@ -398,14 +398,11 @@
 				})
 				.bind("dragend", function(e) {
 					$col.removeClass("slick-header-column-active");
-					m.width = $col.outerWidth();
-
 					for (var j = 0; j < columns.length; j++) {
 						var c = columns[j], newWidth = $(columnElements[j]).outerWidth();
+						if (c.width != newWidth && c.rerenderOnResize)
+							removeAllRows();
 						updateColumnWidth(j, newWidth);
-						if (c.width != newWidth) {
-							if (c.rerenderOnResize) removeAllRows();
-						}
 					}
 					resizeCanvas();
 			})
