@@ -10,11 +10,11 @@
 		.cell-title {
 			font-weight: bold;
 		}
-		
+
 		.cell-effort-driven {
 			text-align: center;
 		}
-		
+
 		.description * {
 			font-size: 11pt;
 		}
@@ -22,29 +22,29 @@
 	</head>
 	<body>
 		<script language="JavaScript" src="../lib/firebugx.js"></script>
-		<script language="JavaScript" src="../lib/jquery-1.4.min.js"></script>
+		<script language="JavaScript" src="../lib/jquery-1.4.1.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery-ui-1.7.2.custom.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.getScrollbarWidth.js"></script>
 		<script language="JavaScript" src="../lib/jquery.rule-1.0.1-min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.event.drag.custom.js"></script>
 		<script language="JavaScript" src="../lib/jquery.sparkline.min.js"></script>
-			
+
 		<script language="JavaScript" src="../slick.editors.js"></script>
 		<script language="JavaScript" src="../slick.grid.js"></script>
 		<script language="JavaScript" src="../slick.globaleditorlock.js"></script>
-		
+
 		<div style="width:600px;float:left;">
 			<div class="grid-header" style="width:100%">
 				<label>Scores:</label>
 			</div>
 			<div id="myGrid" style="width:100%;height:500px;"></div>
 		</div>
-				
+
 		<div style="margin-left:650px;margin-top:40px;" class="description">
 			<h2>Demonstrates:</h2>
 			<p>
 			With SlickGrid, you can still have rich, complex cells rendered against the actual DOM nodes while still preserving the speed and responsiveness.
-			This is achieved through async background post-rendering.  
+			This is achieved through async background post-rendering.
 			SlickGrid exposes a <u>asyncPostRender</u> property on a column which you can use to set your own function that will manipulate the cell DOM node directly.
 			The event is fired one by one for all visible rows in the viewport on a timer so it doesn't impact the UI responsiveness.
 			You should still make sure that post-processing one row doesn't take too long though.
@@ -52,27 +52,27 @@
 			</p>
 			<p>
 			The example below is a list of 500 rows with a title and 5 integer cells followed by graphical representation of these integers.
-			The graph is drawn using a CANVAS element in the background.  
+			The graph is drawn using a CANVAS element in the background.
 			The grid is editable, so you can edit the numbers and see the changes reflected (almost) immediately in the graph.
 			The graph cell behaves just like an ordinary cell and can be resized/reordered.
 			The graphs themselves are created using the excellent <a href="http://www.omnipotent.net/jquery.sparkline/" target="_blank">jQuery Sparklines</a> library.
-			</p>			
+			</p>
 		</div>
-		
 
-		
+
+
 		<script>
 		function requiredFieldValidator(value) {
 			if (value == null || value == undefined || !value.length)
 				return {valid:false, msg:"This is a required field"};
-			else	
+			else
 				return {valid:true, msg:null};
 		}
-			
+
 		function waitingFormatter(value) {
 			return "wait...";
-		}	
-		
+		}
+
 		function renderSparkline(cellNode, row, dataContext, colDef) {
 			var vals = [
 				dataContext["n1"],
@@ -81,12 +81,12 @@
 				dataContext["n4"],
 				dataContext["n5"]
 			];
-				
-			$(cellNode).empty().sparkline(vals, {width:"100%"});			
+
+			$(cellNode).empty().sparkline(vals, {width:"100%"});
 		}
-			
+
 		var grid;
-		
+
 		var data = [];
 
 		var columns = [
@@ -96,7 +96,7 @@
 			{id:"n3", name:"3", field:"n3", sortable:false, editor:IntegerCellEditor, width:40, validator:requiredFieldValidator},
 			{id:"n4", name:"4", field:"n4", sortable:false, editor:IntegerCellEditor, width:40, validator:requiredFieldValidator},
 			{id:"n5", name:"5", field:"n5", sortable:false, editor:IntegerCellEditor, width:40, validator:requiredFieldValidator},
-			{id:"chart", name:"Chart", sortable:false, width:60, formatter:waitingFormatter, rerenderOnResize:true, asyncPostRender:renderSparkline}			
+			{id:"chart", name:"Chart", sortable:false, width:60, formatter:waitingFormatter, rerenderOnResize:true, asyncPostRender:renderSparkline}
 		];
 
 		var options = {
@@ -105,7 +105,7 @@
 			enableCellNavigation: true,
 			asyncEditorLoading: false,
 			enableAsyncPostRender: true
-		};	
+		};
 
 
 		$(function()
@@ -121,7 +121,7 @@
 				d["n5"] = Math.round(Math.random() * 10);
 			}
 
-					
+
 			grid = new Slick.Grid($("#myGrid"), data, columns, options);
 		})
 		</script>

@@ -23,24 +23,24 @@
 	</head>
 	<body>
 		<script language="JavaScript" src="../lib/firebugx.js"></script>
-		<script language="JavaScript" src="../lib/jquery-1.4.min.js"></script>
+		<script language="JavaScript" src="../lib/jquery-1.4.1.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery-ui-1.7.2.custom.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.getScrollbarWidth.js"></script>
 		<script language="JavaScript" src="../lib/jquery.rule-1.0.1-min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.event.drag.custom.js"></script>
-			
+
 		<script language="JavaScript" src="../slick.editors.js"></script>
 		<script language="JavaScript" src="../slick.grid.js"></script>
 		<script language="JavaScript" src="../slick.globaleditorlock.js"></script>
-		
-		
+
+
 		<div style="width:600px;float:left;">
 			<div class="grid-header" style="width:100%">
 				<label>Santa's TODO list:</label>
 			</div>
 			<div id="myGrid" style="width:100%;height:500px;"></div>
-		</div>		
-		
+		</div>
+
 		<div class="options-panel" style="width:320px;margin-left:650px;">
 			<b>Tips:</b>
 			<hr/>
@@ -50,7 +50,7 @@
 			</div>
 		</div>
 
-		
+
 		<script>
 		var grid;
 		var data = [];
@@ -88,12 +88,12 @@
 			enableRowReordering: true,
 			enableCellNavigation: true,
 			forceFitColumns: true
-		};	
+		};
 
 		function requiredFieldValidator(value) {
 			if (value == null || value == undefined || !value.length)
 				return {valid:false, msg:"This is a required field"};
-			else	
+			else
 				return {valid:true, msg:null};
 		}
 
@@ -110,9 +110,9 @@
 				{ name: "Find out who's naughty", complete: false},
 				{ name: "Find out who's nice", complete: false}
 			];
-			
+
 			grid = new Slick.Grid($("#myGrid"), data, columns, options);
-			
+
 			grid.onAddNewRow = function addItem(columnDef, value) {
                 var item = {name:"New task", complete: false};
                 item[columnDef.field] = value;
@@ -121,7 +121,7 @@
                 grid.updateRowCount();
                 grid.render();
             };
-			
+
 			grid.onClick = function(e, row, cell) {
                 if (columns[cell].id == "#") {
                     var selectedRows = grid.getSelectedRows();
@@ -147,7 +147,7 @@
                     return true;
                 }
             };
-			
+
 			grid.onBeforeMoveRows = function(rows, insertBefore) {
                 for (var i = 0; i < rows.length; i++) {
                     // no point in moving before or after itself
@@ -156,18 +156,18 @@
 
                 return true;
             };
-			
+
 			grid.onMoveRows = function(rows,insertBefore) {
 				var extractedRows = [], left, right;
 				left = data.slice(0,insertBefore);
 				right = data.slice(insertBefore,data.length);
-				
+
 				for (var i=0; i<rows.length; i++) {
 					extractedRows.push(data[rows[i]]);
 				}
 
 				rows.sort().reverse();
-				
+
 				for (var i=0; i<rows.length; i++) {
 					var row = rows[i];
 					if (row < insertBefore)
@@ -175,18 +175,18 @@
 					else
 						right.splice(row-insertBefore,1);
 				}
-								
+
 				data = left.concat(extractedRows.concat(right));
-				
+
 				var selectedRows = [];
-				for (var i=0; i<rows.length; i++) 
+				for (var i=0; i<rows.length; i++)
 					selectedRows.push(left.length+i);
-				
+
 				grid.setData(data);
 				grid.setSelectedRows(selectedRows);
 				grid.render();
 			}
-		})		
+		})
 		</script>
 	</body>
 </html>

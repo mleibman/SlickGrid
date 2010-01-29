@@ -11,23 +11,23 @@
 			background: white!important;
 			border-color: transparent!important;
       line-height: 19px!important;
-		}	
-		
+		}
+
 		/* alternating offsets */
 		.slick-row .cell-inner {
 			margin-right: 60px;
 		}
-		
-		.slick-row[row$="1"] .cell-inner,  .slick-row[row$="3"] .cell-inner,  .slick-row[row$="5"] .cell-inner,  
+
+		.slick-row[row$="1"] .cell-inner,  .slick-row[row$="3"] .cell-inner,  .slick-row[row$="5"] .cell-inner,
 		.slick-row[row$="7"] .cell-inner, .slick-row[row$="9"] .cell-inner {
 			margin-left: 60px;
 			margin-right: 0;
-		}		
-		
+		}
+
 		.contact-card-cell {
 			border-color: transparent!important;
 		}
-		
+
 		.cell-inner {
 			height: 80px;
 			margin: 10px;
@@ -40,11 +40,11 @@
 			-webkit-box-shadow: 1px 1px 5px silver;
 			-webkit-transition: all 0.5s;
 		}
-		
+
 		.cell-inner:hover {
 			background: #f0f0f0;
 		}
-		
+
 		.cell-left {
 			width: 40px;
 			height: 100%;
@@ -52,7 +52,7 @@
 			border-right: 1px dotted gray;
 			background: url("../images/user_identity.gif") no-repeat top center;
 		}
-		
+
 		.cell-main {
 			margin-left: 50px;
 		}
@@ -60,16 +60,16 @@
 	</head>
 	<body>
 		<script language="JavaScript" src="../lib/firebugx.js"></script>
-		<script language="JavaScript" src="../lib/jquery-1.4.min.js"></script>
+		<script language="JavaScript" src="../lib/jquery-1.4.1.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery-ui-1.7.2.custom.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.getScrollbarWidth.js"></script>
 		<script language="JavaScript" src="../lib/jquery.rule-1.0.1-min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.event.drag.custom.js"></script>
-			
+
 		<script language="JavaScript" src="../slick.grid.js"></script>
 		<script language="JavaScript" src="../slick.globaleditorlock.js"></script>
-		
-		
+
+
 		<table width="100%">
 		<tr>
 			<td valign="top" width="50%">
@@ -77,16 +77,16 @@
 			</td>
 			<td valign="top">
 				<h2>Demonstrates:</h2>
-				
+
 				<ul>
-					<li>Template-based rendering using John Resig's <a href="http://ejohn.org/blog/javascript-micro-templating/" target=_blank>micro-templates</a> while still using SlickGrid's virtual rendering technology.</li>					
+					<li>Template-based rendering using John Resig's <a href="http://ejohn.org/blog/javascript-micro-templating/" target=_blank>micro-templates</a> while still using SlickGrid's virtual rendering technology.</li>
 				</ul>
 			</td>
 		</tr>
 		</table>
 
 
-		<!-- cell template -->		
+		<!-- cell template -->
 		<script type="text/html" id="cell_template">
 			<div class="cell-inner">
 				<div class="cell-left"></div>
@@ -100,28 +100,28 @@
 		</script>
 
 
-		
+
 		<script>
 		// Simple JavaScript Templating
 		// John Resig - http://ejohn.org/ - MIT Licensed
 		(function(){
 		  var cache = {};
-		 
+
 		  this.tmpl = function tmpl(str, data){
 		    // Figure out if we're getting a template, or if we need to
 		    // load the template - and be sure to cache the result.
 		    var fn = !/\W/.test(str) ?
 		      cache[str] = cache[str] ||
 		        tmpl(document.getElementById(str).innerHTML) :
-		     
+
 		      // Generate a reusable function that will serve as a template
 		      // generator (and which will be cached).
 		      new Function("obj",
 		        "var p=[],print=function(){p.push.apply(p,arguments);};" +
-		       
+
 		        // Introduce the data as local variables using with(){}
 		        "with(obj){p.push('" +
-		       
+
 		        // Convert the template into pure JavaScript
 		        str
 		          .replace(/[\r\t\n]/g, " ")
@@ -132,13 +132,13 @@
 		          .split("%>").join("p.push('")
 		          .split("\r").join("\\'")
 		      + "');}return p.join('');");
-		   
+
 		    // Provide some basic currying to the user
 		    return data ? fn( data ) : fn;
 		  };
 		})();
-			
-			
+
+
 		var grid;
 		var data = [];
 
@@ -151,10 +151,10 @@
 			editable: false,
 			enableAddRow: false,
 			enableCellNavigation: false
-		};	
+		};
 
 		var compiled_template = tmpl("cell_template");
-		
+
 		function renderCell(row, cell, value, columnDef, dataContext) {
 			return compiled_template(dataContext);
 		}
@@ -170,10 +170,10 @@
 				d["phone"] = "206-000-0000";
 			}
 
-					
+
 			grid = new Slick.Grid($("#myGrid"), data, columns, options);
 		})
-		
+
 		</script>
 	</body>
 </html>

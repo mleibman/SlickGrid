@@ -24,29 +24,29 @@
 			-moz-border-radius: 10px;
 			-webkit-border-radius: 10px;
 			-moz-box-shadow: 0 0 5px red;
-			-webkit-box-shadow: 0px 0px 5px red;	
-			-text-shadow: 1px 1px 1px white;			
-		}	
-		
+			-webkit-box-shadow: 0px 0px 5px red;
+			-text-shadow: 1px 1px 1px white;
+		}
+
 		.loading-indicator label {
 			padding-left: 20px;
 			background: url('../images/ajax-loader-small.gif') no-repeat center left;
-		}			
+		}
 		</style>
 	</head>
 	<body>
 		<script language="JavaScript" src="../lib/firebugx.js"></script>
-		<script language="JavaScript" src="../lib/jquery-1.4.min.js"></script>
+		<script language="JavaScript" src="../lib/jquery-1.4.1.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery-ui-1.7.2.custom.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.getScrollbarWidth.js"></script>
 		<script language="JavaScript" src="../lib/jquery.rule-1.0.1-min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.event.drag.custom.js"></script>
 		<script language="JavaScript" src="../lib/jquery.jsonp-1.1.0.min.js"></script>
-			
+
 		<script language="JavaScript" src="../slick.remotemodel.js"></script>
 		<script language="JavaScript" src="../slick.grid.js"></script>
 		<script language="JavaScript" src="../slick.globaleditorlock.js"></script>
-				
+
 		<div style="width:700px;float:left;">
 			<div class="grid-header" style="width:100%">
 				<label>Digg stories</label>
@@ -58,8 +58,8 @@
 			<div id="myGrid" style="width:100%;height:600px;"></div>
 			<div id="pager" style="width:100%;height:20px;"></div>
 		</div>
-		
-		
+
+
 		<div style="margin-left:750px;margin-top:40px;;">
 				<h2>Demonstrates:</h2>
 				<ul>
@@ -67,7 +67,7 @@
 					<li>custom row height</li>
 				</ul>
 		</div>
-		
+
 		<script>
 		var grid;
 		var data = [];
@@ -77,7 +77,7 @@
 		    return "<b><a href='" + dataContext["link"] + "' target=_blank>" + dataContext["title"] + "</a></b><br/>" + dataContext["description"];
 		};
 
-		
+
 		var columns = [
 			{id:"num", name:"#", field:"index", width:40},
 			{id:"story", name:"Story", width:580, formatter:storyTitleFormatter, cssClass:"cell-story"},
@@ -89,53 +89,53 @@
 			editable: false,
 			enableAddRow: false,
 			enableCellNavigation: false
-		};	
+		};
 
 		var loadingIndicator = null;
 
-	
-	
+
+
 		$(function()
 		{
 			grid = new Slick.Grid($("#myGrid"), loader.data, columns, options);
-			
+
 			grid.onViewportChanged = function() {
                 var vp = grid.getViewport();
                 loader.ensureData(vp.top, vp.bottom);
             };
-			
+
 			grid.onSort = function(sortCol, sortAsc) {
                 loader.setSort(sortCol.field, sortAsc ? 1 : -1);
                 var vp = grid.getViewport();
                 loader.ensureData(vp.top, vp.bottom);
             };
-			
+
 			loader.onDataLoading.subscribe(function() {
 				if (!loadingIndicator)
 				{
 					loadingIndicator = $("<span class='loading-indicator'><label>Buffering...</label></span>").appendTo(document.body);
 					var $g = $("#myGrid");
-					
-					loadingIndicator	
+
+					loadingIndicator
 						.css("position", "absolute")
 						.css("top", $g.position().top + $g.height()/2 - loadingIndicator.height()/2)
 						.css("left", $g.position().left + $g.width()/2 - loadingIndicator.width()/2)
 				}
-				
+
 				loadingIndicator.show();
 			});
-			
+
 			loader.onDataLoaded.subscribe(function(args) {
 				for (var i = args.from; i <= args.to; i++) {
 					grid.removeRow(i);
 				}
 
-				grid.updateRowCount();				
+				grid.updateRowCount();
 				grid.render();
-				
+
 				loadingIndicator.fadeOut();
 			});
-			
+
 			$("#txtSearch").keyup(function(e) {
                 if (e.which == 13) {
                     loader.setSearch($(this).val());
@@ -143,9 +143,9 @@
                     loader.ensureData(vp.top, vp.bottom);
                 }
             });
-				
-			
-			
+
+
+
 			// load the first page
 			grid.onViewportChanged();
 		})
