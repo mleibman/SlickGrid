@@ -143,9 +143,18 @@
 				.attr("hideFocus",true)
 				.css("overflow","hidden")
 				.css("outline",0)
-				.css("position","relative")
 				.addClass(uid)
 				.addClass("ui-widget");
+
+            switch ($container.css("position")) {
+            case "absolute": // if the container is already positioning origin, keep it as it is
+            case "relative":
+            case "fixed":
+                break;
+            default: // container is not a positioning origin, convert it to one
+                $container.css("position","relative");
+                break;
+            }
 
 			$divHeadersScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
 			$divHeaders = $("<div class='slick-header-columns' style='width:100000px' />").appendTo($divHeadersScroller);
