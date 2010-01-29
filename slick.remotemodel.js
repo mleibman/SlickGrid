@@ -3,20 +3,20 @@
  */
 function EventHelper() {
 	this.handlers = [];
-	
+
 	this.subscribe = function(fn) {
         this.handlers.push(fn);
     };
-	
+
 	this.notify = function(args) {
         for (var i = 0; i < this.handlers.length; i++) {
             this.handlers[i].call(this, args);
         }
     };
-	
+
 	return this;
 }
-	
+
 
 (function() {
 	/***
@@ -30,86 +30,86 @@ function EventHelper() {
 		var data = {length:0};
 		var searchstr = "apple";
 		var sortcol = null;
-		var sortdir = 1;	
+		var sortdir = 1;
 		var h_request = null;
 		var req = null; // ajax request
 		var req_page;
-		
+
 		// events
 		var onDataLoading = new EventHelper();
 		var onDataLoaded = new EventHelper();
-		
-		
+
+
 		function init() {
 		}
-		
-		
+
+
 		function isDataLoaded(from,to) {
 			for (var i=from; i<=to; i++) {
 				if (data[i] == undefined || data[i] == null)
 					return false;
 			}
-			
+
 			return true;
 		}
-		
-		
+
+
 		function clear() {
 			for (var key in data) {
 				delete data[key];
 			}
 			data.length = 0;
 		}
-	
-	
+
+
 		function ensureData(from,to) {
 			if (from < 0)
 				from = 0;
-			
+
 			var fromPage = Math.floor(from / PAGESIZE);
 			var toPage = Math.floor(to / PAGESIZE);
-			
-			while (data[fromPage * PAGESIZE] !== undefined && fromPage < toPage) 
+
+			while (data[fromPage * PAGESIZE] !== undefined && fromPage < toPage)
 				fromPage++;
-			
-			while (data[toPage * PAGESIZE] !== undefined && fromPage < toPage) 
+
+			while (data[toPage * PAGESIZE] !== undefined && fromPage < toPage)
 				toPage--;
-				
+
 			if (fromPage > toPage || ((fromPage == toPage) && data[fromPage*PAGESIZE] !== undefined)) {
 				// TODO:  lookeahead
-				
+
 				//if ()
-				
+
 				return;
 			}
-				
-				
+
+
 			var url = "http://services.digg.com/search/stories?query=" + searchstr + "&offset=" + (fromPage * PAGESIZE) + "&count=" + (((toPage - fromPage) * PAGESIZE) + PAGESIZE) + "&appkey=http://slickgrid.googlecode.com&type=javascript";
-	
-			
+
+
 			switch (sortcol) {
-				case "diggs":	
+				case "diggs":
 					url += ("&sort=" + ((sortdir>0)?"digg_count-asc":"digg_count-desc"));
 					break;
 			}
-			
-			
+
+
 			if (req) {
 				req.abort();
 				data[req_page*PAGESIZE] = undefined;
 			}
-			
-			if (h_request != null) 
+
+			if (h_request != null)
 				clearTimeout(h_request);
-			
+
 			h_request = setTimeout(function() {
 				for (var i=fromPage; i<=toPage; i++)
 					data[i*PAGESIZE] = null; // null indicates a 'requested but not available yet'
-				
+
 				req_page = fromPage;
-				
+
 				onDataLoading.notify({from:from, to:to});
-				
+
 				req = $.jsonp({
 					url: url,
 					callbackParameter: "callback",
@@ -121,53 +121,53 @@ function EventHelper() {
 					});
 			}, 50);
 		}
-		
-		
+
+
 		function onError(fromPage,toPage) {
 			alert("error loading pages " + fromPage + " to " + toPage);
 		}
-		
+
 		function onSuccess(resp) {
 			var from = resp.offset, to = resp.offset + resp.count;
 			data.length = parseInt(resp.total);
-			
+
 			for (var i = 0; i < resp.stories.length; i++) {
 				data[from + i] = resp.stories[i];
 				data[from + i].index = from + i;
 			}
-			
+
 			req = null;
-			
-			onDataLoaded.notify({from:from, to:to});		
+
+			onDataLoaded.notify({from:from, to:to});
 		}
-		
-		
+
+
 		function reloadData(from,to) {
 			for (var i=from; i<=to; i++)
 				delete data[i];
-				
+
 			ensureData(from,to);
 		}
-		
-		
+
+
 		function setSort(column,dir) {
 			sortcol = column;
 			sortdir = dir;
 			clear();
 		}
-		
+
 		function setSearch(str) {
 			searchstr = str;
 			clear();
 		}
-	
-	
+
+
 		init();
-		
+
 		return {
 			// properties
-			"data": data,			
-			
+			"data": data,
+
 			// methods
 			"clear": clear,
 			"isDataLoaded": isDataLoaded,
@@ -175,7 +175,7 @@ function EventHelper() {
 			"reloadData": reloadData,
 			"setSort": setSort,
 			"setSearch": setSearch,
-	
+
 			// events
 			"onDataLoading": onDataLoading,
 			"onDataLoaded": onDataLoaded

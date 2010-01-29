@@ -5,17 +5,17 @@
 	var GlobalEditorLock = new function()
 	{
 	    var currentEditor = null;
-	    
+
 	    this.isEditing = function()
         {
             return (currentEditor != null);
         };
-	    
+
 	    this.hasLock = function(editor)
         {
             return (currentEditor == editor);
         };
-	    
+
 	    this.enterEditMode = function(editor)
         {
             if (currentEditor != null)
@@ -29,7 +29,7 @@
 
             currentEditor = editor;
         };
-	    
+
 	    this.leaveEditMode = function(editor)
         {
             if (currentEditor != editor)
@@ -37,7 +37,7 @@
 
             currentEditor = null;
         };
-	    
+
 	    this.commitCurrentEdit = function()
         {
             if (currentEditor)
@@ -45,14 +45,14 @@
 
             return true;
         };
-	    
+
 	    this.cancelCurrentEdit = function()
 	    {
-	        if (currentEditor) 
+	        if (currentEditor)
 	            currentEditor.cancelCurrentEdit();
 	    }
 	};
-	
+
 	// Slick.GlobalEditorLock
 	$.extend(true, window, { Slick: { GlobalEditorLock: GlobalEditorLock }});
 })();

@@ -3,27 +3,27 @@ var SelectorCellFormatter = function(row, cell, value, columnDef, dataContext) {
 };
 
 var PercentCompleteCellFormatter = function(row, cell, value, columnDef, dataContext) {
-    if (value == null || value === "") 
+    if (value == null || value === "")
         return "-";
-    else if (value < 50) 
+    else if (value < 50)
         return "<span style='color:red;font-weight:bold;'>" + value + "%</span>";
-    else 
+    else
         return "<span style='color:green'>" + value + "%</span>";
 };
 
 var GraphicalPercentCompleteCellFormatter = function(row, cell, value, columnDef, dataContext) {
-    if (value == null || value === "") 
+    if (value == null || value === "")
         return "";
-    
+
 	var color;
-	
+
 	if (value < 30)
 		color = "red";
 	else if (value < 70)
 		color = "silver";
-	else 
+	else
 		color = "green";
-	
+
     return "<span class='percent-complete-bar' style='background:" + color + ";width:" + value + "%'></span>";
 };
 
@@ -33,8 +33,8 @@ var YesNoCellFormatter = function(row, cell, value, columnDef, dataContext) {
 
 var BoolCellFormatter = function(row, cell, value, columnDef, dataContext) {
     return value ? "<img src='../images/tick.png'>" : "";
-};			
-	
+};
+
 var TaskNameFormatter = function(row, cell, value, columnDef, dataContext) {
     // todo:  html encode
     var spacer = "<span style='display:inline-block;height:1px;width:" + (2 + 15 * dataContext["indent"]) + "px'></span>";
@@ -43,12 +43,12 @@ var TaskNameFormatter = function(row, cell, value, columnDef, dataContext) {
 
 var ResourcesFormatter = function(row, cell, value, columnDef, dataContext) {
     var resources = dataContext["resources"];
-    
-    if (!resources || resources.length == 0) 
+
+    if (!resources || resources.length == 0)
         return "";
 
 	if (columnDef.width < 50)
-		return (resources.length > 1 ? "<center><img src='../images/user_identity_plus.gif' " : "<center><img src='../images/user_identity.gif' ") + 
+		return (resources.length > 1 ? "<center><img src='../images/user_identity_plus.gif' " : "<center><img src='../images/user_identity.gif' ") +
 				" title='" + resources.join(", ") + "'></center>";
 	else
 		return resources.join(", ");

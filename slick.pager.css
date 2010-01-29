@@ -1,4 +1,4 @@
-.slick-pager 
+.slick-pager
 {
 	width: 100%;
 	height: 26px;
@@ -42,7 +42,7 @@
 
 .slick-pager .slick-pager-settings a
 {
-	padding: 2px;	
+	padding: 2px;
 	text-decoration: underline;
 	cursor: pointer;
 }
