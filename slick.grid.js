@@ -96,7 +96,9 @@
         var columnDefaults = {
             resizable: true,
             sortable: false,
-            formatter: defaultFormatter
+            formatter: function defaultFormatter(row, cell, value, columnDef, dataContext) {
+                return (value === null || value === undefined) ? "" : value;
+            }
         };
 
         // consts
@@ -212,8 +214,17 @@
             $divHeadersScroller.bind("contextmenu", handleHeaderContextMenu);
         }
 
+        function hoverBegin() {
+            $(this).addClass('ui-state-hover');
+        }
+
+        function hoverEnd() {
+            $(this).removeClass('ui-state-hover');
+        }
+
         function createColumnHeaders() {
-            for (var i = 0; i < columns.length; i++) {
+            var i;
+            for (i = 0; i < columns.length; i++) {
                 var m = columns[i] = $.extend({},columnDefaults,columns[i]);
                 columnsById[m.id] = i;
 
@@ -228,10 +239,7 @@
 
                 if (options.enableColumnReorder || m.sortable || m.resizable) {
                     header.append("<span class='slick-sort-indicator' />");
-                    header.hover(
-                        function () { $(this).addClass('ui-state-hover'); },
-                        function () { $(this).removeClass('ui-state-hover'); }
-                    );
+                    header.hover(hoverBegin, hoverEnd);
                 }
 
                 if (m.resizable) { header.append("<div class='slick-resizable-handle' />"); }
@@ -712,10 +720,6 @@
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Rendering / Scrolling
-
-        function defaultFormatter(row, cell, value, columnDef, dataContext) {
-            return (value === null || value === undefined) ? "" : value;
-        }
 
         function appendRowHtml(stringArray,row) {
             var d = data[row];
