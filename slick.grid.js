@@ -20,7 +20,8 @@
  *     asyncEditorLoading    - Makes cell editors load asynchronously after a small delay.
  *                             This greatly increases keyboard navigation speed.
  *     forceFitColumns       - Force column sizes to fit into the viewport (avoid horizontal scrolling).
- *     enableAsyncPostRender -If true, async post rendering will occur and asyncPostRender delegates on columns will be called.
+ *     enableAsyncPostRender - If true, async post rendering will occur and asyncPostRender delegates on columns will be called.
+ *     autoHeight            - If true, vertically resizes to fit all rows.
  *
  *
  * COLUMN DEFINITION (columns) OPTIONS:
@@ -88,7 +89,8 @@
             asyncEditorLoadDelay: 100,
             forceFitColumns: false,
             enableAsyncPostRender: false,
-            asyncPostRenderDelay: 60
+            asyncPostRenderDelay: 60,
+            autoHeight: false
         };
 
         var columnDefaults = {
@@ -168,7 +170,10 @@
 
             $divHeadersScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
             $divHeaders = $("<div class='slick-header-columns' style='width:100000px' />").appendTo($divHeadersScroller);
-            $divMainScroller = $("<div tabIndex='0' hideFocus style='width:100%;overflow-x:auto;overflow-y:scroll;outline:0;position:relative;'>").appendTo($container);
+
+            // with autoHeight, we can set the mainscroller's y-overflow to auto, since the scroll bar will not appear
+            var msStyle = "width:100%;overflow-x:auto;outline:0;position:relative;overflow-y:" + (options.autoHeight ? "auto;" : "scroll;");
+            $divMainScroller = $("<div tabIndex='0' hideFocus style='" + msStyle + "'>").appendTo($container);
             $divMain = $("<div class='grid-canvas' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($divMainScroller);
 
             // header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
@@ -561,7 +566,8 @@
         }
 
         function autosizeColumns(columnToHold) {
-            var i, c, availWidth = viewportW-$.getScrollbarWidth(),
+            var i, c,
+                availWidth = (options.autoHeight ? viewportW : viewportW - $.getScrollbarWidth()), // with AutoHeight, we do not need to accomodate the vertical scroll bar
                 total = 0,
                 existingTotal = 0;
 
@@ -825,7 +831,14 @@
         }
 
         function resizeCanvas() {
-            $divMainScroller.height( $container.innerHeight() - $divHeadersScroller.outerHeight() );
+            var newHeight = options.rowHeight * (data.length + (options.enableAddRow ? 1 : 0) + (options.leaveSpaceForNewRows? numVisibleRows - 1 : 0));
+            if (options.autoHeight) { // use computed height to set both canvas _and_ divMainScroller, effectively hiding scroll bars.
+                $divMainScroller.height(newHeight);
+            }
+            else {
+                $divMainScroller.height( $container.innerHeight() - $divHeadersScroller.outerHeight() );
+            }
+
             viewportW = $divMainScroller.innerWidth();
             viewportH = $divMainScroller.innerHeight();
             BUFFER = numVisibleRows = Math.ceil(viewportH / options.rowHeight);
@@ -840,12 +853,12 @@
             $divMain.width(totalWidth);
 
             // browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
-            var newHeight = Math.max(options.rowHeight * (data.length + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0)), viewportH - $.getScrollbarWidth());
+            newHeight = Math.max(newHeight, viewportH - $.getScrollbarWidth());
             if ($divMainScroller.scrollTop() > newHeight - $divMainScroller.height() + $.getScrollbarWidth()) {
                 $divMainScroller.scrollTop(newHeight - $divMainScroller.height() + $.getScrollbarWidth());
             }
-            $divMain.height(newHeight);
 
+            $divMain.height(newHeight);
             render();
         }
 
