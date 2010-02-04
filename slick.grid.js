@@ -1,6 +1,6 @@
 /***
  *
- * (c) 2009 Michael Leibman (michael.leibman@gmail.com)
+ * (c) 2009-2010 Michael Leibman (michael.leibman@gmail.com)
  * All rights reserved.
  *
  *
