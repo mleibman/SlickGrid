@@ -79,6 +79,8 @@
  *
  */
 (function() {
+    var scrollbarDimensions; // shared across all grids on this page
+
     function SlickGrid($container,data,columns,options) {
         // settings
         var defaults = {
@@ -167,7 +169,26 @@
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Initialization
 
+        function measureScrollbar() {
+            /// <summary>
+            /// Measure width of a vertical scrollbar
+            /// and height of a horizontal scrollbar.
+            /// </summary
+            /// <returns>
+            /// { width: pixelWidth, height: pixelHeight }
+            /// </returns>
+            var $c = $("<div style='position:absolute; top:-10000px; left:-10000px; width:100px; height:100px; overflow:scroll;'></div>").appendTo("body");
+            var dim = { width: $c.width() - $c[0].clientWidth, height: $c.height() - $c[0].clientHeight };
+            $c.remove();
+            return dim;
+        }
+
         function init() {
+            /// <summary>
+            /// Initialize 'this' (self) instance of a SlickGrid.
+            /// This function is called by the constructor.
+            /// </summary>
+            scrollbarDimensions = scrollbarDimensions || measureScrollbar(); // skip measurement if already have dimensions
             options = $.extend({},defaults,options);
             columnDefaults.width = options.defaultColumnWidth;
 
@@ -600,7 +621,7 @@
 
         autosizeColumns = function autosizeColumnsFn(columnToHold) {
             var i, c,
-                availWidth = (options.autoHeight ? viewportW : viewportW - $.getScrollbarWidth()), // with AutoHeight, we do not need to accomodate the vertical scroll bar
+                availWidth = (options.autoHeight ? viewportW : viewportW - scrollbarDimensions.width), // with AutoHeight, we do not need to accomodate the vertical scroll bar
                 total = 0,
                 existingTotal = 0;
 
@@ -883,9 +904,9 @@
             $divMain.width(totalWidth);
 
             // browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
-            newHeight = Math.max(newHeight, viewportH - $.getScrollbarWidth());
-            if ($divMainScroller.scrollTop() > newHeight - $divMainScroller.height() + $.getScrollbarWidth()) {
-                $divMainScroller.scrollTop(newHeight - $divMainScroller.height() + $.getScrollbarWidth());
+            newHeight = Math.max(newHeight, viewportH - scrollbarDimensions.height);
+            if ($divMainScroller.scrollTop() > newHeight - $divMainScroller.height() + scrollbarDimensions.height) {
+                $divMainScroller.scrollTop(newHeight - $divMainScroller.height() + scrollbarDimensions.height);
             }
 
             $divMain.height(newHeight);
@@ -903,11 +924,11 @@
                 }
             }
 
-            var newHeight = Math.max(options.rowHeight * (data.length + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0)), viewportH - $.getScrollbarWidth());
+            var newHeight = Math.max(options.rowHeight * (data.length + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0)), viewportH - scrollbarDimensions.height);
 
             // browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
-            if ($divMainScroller.scrollTop() > newHeight - $divMainScroller.height() + $.getScrollbarWidth()) {
-                $divMainScroller.scrollTop(newHeight - $divMainScroller.height() + $.getScrollbarWidth());
+            if ($divMainScroller.scrollTop() > newHeight - $divMainScroller.height() + scrollbarDimensions.height) {
+                $divMainScroller.scrollTop(newHeight - $divMainScroller.height() + scrollbarDimensions.height);
             }
             $divMain.height(newHeight);
         }
