@@ -1,3 +1,7 @@
+/*jslint white: false, onevar: false, undef: false, nomen: true, eqeqeq: true, plusplus: false, bitwise: true, regexp: true, strict: true, newcap: true, immed: true */// Force JSLinq (http://jslint.com/) "Good Parts" flags - (strict whitespace, one var per function, disallow undefined variables, disallow ++/--)
+/*global $: false, window: false, document: false, alert: false, console: false */// Define recognized globals for JSLint
+"use strict";
+
 /***
  *
  * (c) 2009-2010 Michael Leibman (michael.leibman@gmail.com)
@@ -184,9 +188,10 @@
 
             $divMainScroller.height($container.innerHeight() - $divHeadersScroller.outerHeight());
 
-            if ($.browser.msie) {
+            if ($.browser.msie) { // disable text selection (except in INPUT and TEXTAREA) in IE
                 $divMainScroller[0].onselectstart = function() {
-                    if (event.srcElement.tagName != "INPUT" && event.srcElement.tagName != "TEXTAREA") {
+                    var srcElement = window.event.srcElement;
+                    if (srcElement.tagName !== "INPUT" && srcElement.tagName !== "TEXTAREA") {
                         return false;
                     }
                 };
@@ -447,7 +452,7 @@
                     $col.removeClass("slick-header-column-active");
                     for (var j = 0; j < columns.length; j++) {
                         var c = columns[j], newWidth = $(columnElements[j]).outerWidth();
-                        if (c.width != newWidth && c.rerenderOnResize) {
+                        if (c.width !== newWidth && c.rerenderOnResize) {
                             removeAllRows();
                         }
                         updateColumnWidth(j, newWidth);
@@ -463,7 +468,7 @@
                     if ($cell.length === 0) { return false; }
                     if (parseInt($cell.parent().attr("row"), 10) >= data.length) { return false; }
                     var colDef = columns[$cell.attr("cell")];
-                    if (colDef.behavior != "move") { return false; }
+                    if (colDef.behavior !== "move") { return false; }
                 })
                 .bind("dragstart", function(e) {
                     if (currentEditor && !commitCurrentEdit()) { return false; }
@@ -501,7 +506,7 @@
                     $(this).data("selectionProxy").css("top",top-5);
 
                     var insertBefore = Math.max(0,Math.min(Math.round(top/options.rowHeight),data.length));
-                    if (insertBefore != $(this).data("insertBefore")) {
+                    if (insertBefore !== $(this).data("insertBefore")) {
                         if (self.onBeforeMoveRows && self.onBeforeMoveRows(getSelectedRows(),insertBefore) === false) {
                             $(e.dragProxy).css("top", -1000).data("canMove",false);
                         }
@@ -595,7 +600,7 @@
                 workdone = false;
                 for (i = 0; i < columns.length && total > availWidth; i++) {
                     c = columns[i];
-                    if (c.hidden || !c.resizable || c.minWidth == c.width || c.width == absoluteColumnMinWidth || (columnToHold && columnToHold.id == c.id)) { continue; }
+                    if (c.hidden || !c.resizable || c.minWidth === c.width || c.width === absoluteColumnMinWidth || (columnToHold && columnToHold.id === c.id)) { continue; }
                     total -= 1;
                     c.width -= 1;
                     workdone = true;
@@ -605,7 +610,7 @@
             // shrink the column being "held" as a last resort
             if (total > availWidth && columnToHold && columnToHold.resizable && !columnToHold.hidden) {
                 while (total > availWidth) {
-                    if (columnToHold.minWidth == columnToHold.width || columnToHold.width == absoluteColumnMinWidth) { break; }
+                    if (columnToHold.minWidth === columnToHold.width || columnToHold.width === absoluteColumnMinWidth) { break; }
                     total -= 1;
                     columnToHold.width -= 1;
                 }
@@ -617,7 +622,7 @@
                 workdone = false;
                 for (i = 0; i < columns.length && total < availWidth; i++) {
                     c = columns[i];
-                    if (c.hidden || !c.resizable || c.maxWidth == c.width || (columnToHold && columnToHold.id == c.id)) { continue; }
+                    if (c.hidden || !c.resizable || c.maxWidth === c.width || (columnToHold && columnToHold.id === c.id)) { continue; }
                     total += 1;
                     c.width += 1;
                     workdone = true;
@@ -627,7 +632,7 @@
             // grow the column being "held" as a last resort
             if (total < availWidth && columnToHold && columnToHold.resizable && !columnToHold.hidden) {
                 while (total < availWidth) {
-                    if (columnToHold.maxWidth == columnToHold.width) { break; }
+                    if (columnToHold.maxWidth === columnToHold.width) { break; }
                     total += 1;
                     columnToHold.width += 1;
                 }
@@ -701,7 +706,7 @@
 
             makeSelectedCellNormal();
 
-            if (options.enableAddRow != args.enableAddRow) {
+            if (options.enableAddRow !== args.enableAddRow) {
                 removeRow(data.length);
             }
 
@@ -746,7 +751,7 @@
 
         function cleanupRows(visibleFrom,visibleTo) {
             for (var i in rowsCache) {
-                if ((i < visibleFrom || i > visibleTo) && i != currentRow) {
+                if ((i < visibleFrom || i > visibleTo) && i !== currentRow) {
                     removeRowFromCache(i);
                 }
             }
@@ -780,7 +785,7 @@
             scrollDir = 0;
             var nodes = [];
             for (i=0, rl=rows.length; i<rl; i++) {
-                if (currentEditor && currentRow == i) {
+                if (currentEditor && currentRow === i) {
                     throw "Grid : removeRow : Cannot remove a row that is currently in edit mode";
                 }
 
@@ -789,7 +794,7 @@
                 }
             }
 
-            if (renderedRows > 10 && nodes.length == renderedRows) {
+            if (renderedRows > 10 && nodes.length === renderedRows) {
                 removeAllRows();
             }
             else {
@@ -805,7 +810,7 @@
             if ($cell.length === 0) { return; }
 
             var m = columns[cell], d = data[row];
-            if (currentEditor && currentRow == row && currentCell == cell) {
+            if (currentEditor && currentRow === row && currentCell === cell) {
                 currentEditor.setValue(d[m.field]);
             }
             else {
@@ -820,7 +825,7 @@
             // todo:  perf:  iterate over direct children?
             $(rowsCache[row]).find(".slick-cell").each(function(i) {
                 var m = columns[i];
-                if (row == currentRow && i == currentCell && currentEditor) {
+                if (row === currentRow && i === currentCell && currentEditor) {
                     currentEditor.setValue(data[currentRow][m.field]);
                 }
                 else if (data[row]) {
@@ -869,7 +874,7 @@
         function updateRowCount() {
             // remove the rows that are now outside of the data range
             // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
-            var parentNode = $divMain[0];
+            // var parentNode = $divMain[0];
             var l = options.enableAddRow ? data.length : data.length - 1;
             for (var i in rowsCache) {
                 if (i >= l) {
@@ -886,8 +891,7 @@
             $divMain.height(newHeight);
         }
 
-        function getViewport()
-        {
+        function getViewport() {
             return {
                 top:    Math.floor(currentScrollTop / options.rowHeight),
                 bottom: Math.floor((currentScrollTop + viewportH) / options.rowHeight)
@@ -900,7 +904,7 @@
                 rowsBefore = renderedRows,
                 stringArray = [],
                 rows =[],
-                _start = new Date();
+                startTimestamp = new Date();
 
             for (i = from; i <= to; i++) {
                 if (rowsCache[i]) { continue; }
@@ -918,7 +922,7 @@
             }
 
             if (renderedRows - rowsBefore > MIN_BUFFER) {
-                avgRowRenderTime = (new Date() - _start) / (renderedRows - rowsBefore);
+                avgRowRenderTime = (new Date() - startTimestamp) / (renderedRows - rowsBefore);
             }
         }
 
@@ -962,14 +966,14 @@
             var scrollDistance = Math.abs(lastRenderedScrollTop - currentScrollTop);
             var scrollLeft = $divMainScroller[0].scrollLeft;
 
-            if (scrollLeft != currentScrollLeft) {
+            if (scrollLeft !== currentScrollLeft) {
                 $divHeadersScroller[0].scrollLeft = currentScrollLeft = scrollLeft;
             }
 
             // min scroll distance = 25% of the viewport or MIN_BUFFER rows (whichever is smaller)
             if (scrollDistance < Math.min(viewportH/4, MIN_BUFFER*options.rowHeight)) { return; }
 
-            if (lastRenderedScrollTop == currentScrollTop) {
+            if (lastRenderedScrollTop === currentScrollTop) {
                 scrollDir = 0;
             }
             else if (lastRenderedScrollTop < currentScrollTop) {
@@ -1079,7 +1083,7 @@
             if ($cell.length === 0) { return; }
 
             // are we editing this cell?
-            if (currentCellNode == $cell[0] && currentEditor !== null) { return; }
+            if (currentCellNode === $cell[0] && currentEditor !== null) { return; }
 
             var row = parseInt($cell.parent().attr("row"), 10);
             var cell = parseInt($cell.attr("cell"), 10);
@@ -1111,7 +1115,7 @@
             if ($cell.length === 0) { return; }
 
             // are we editing this cell?
-            if (currentCellNode == $cell[0] && currentEditor !== null) { return; }
+            if (currentCellNode === $cell[0] && currentEditor !== null) { return; }
 
             var row = parseInt($cell.parent().attr("row"), 10);
             var cell = parseInt($cell.attr("cell"), 10);
@@ -1136,7 +1140,7 @@
             if ($cell.length === 0) { return; }
 
             // are we editing this cell?
-            if (currentCellNode == $cell[0] && currentEditor !== null) { return; }
+            if (currentCellNode === $cell[0] && currentEditor !== null) { return; }
 
             var row = parseInt($cell.parent().attr("row"), 10);
             var cell = parseInt($cell.attr("cell"), 10);
@@ -1551,4 +1555,4 @@
 
     // Slick.Grid
     $.extend(true, window, { Slick: { Grid: SlickGrid }});
-})();
+}());
