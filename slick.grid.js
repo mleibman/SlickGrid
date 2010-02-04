@@ -275,6 +275,9 @@
 
         setupColumnSort = function setupColumnSortFn() {
             $divHeaders.click(function(e) {
+                if ($(e.target).hasClass("slick-resizable-handle")) {
+                    return;
+                }
                 var $col = $(e.target).closest(".slick-header-column");
                 if (!$col.length || !columns[columnsById[$col.attr("id")]].sortable) {
                     return;
