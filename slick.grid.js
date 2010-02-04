@@ -14,33 +14,36 @@
  *
  *
  * OPTIONS:
- *     rowHeight             - Row height in pixels.
- *     enableAddRow          - If true, a blank row will be displayed at the bottom - typing values in that row will add a new one.
- *     editable              - If false, no cells will be switched into edit mode.
- *     editOnDoubleClick     - Cell will not automatically go into edit mode without being double-clicked.
- *     enableCellNavigation  - If false, no cells will be selectable.
- *     defaultColumnWidth    - Default column width in pixels (if columns[cell].width is not specified).
- *     enableColumnReorder   - Allows the user to reorder columns.
- *     asyncEditorLoading    - Makes cell editors load asynchronously after a small delay.
+ *     rowHeight             - (default 25px) Row height in pixels.
+ *     enableAddRow          - (default false) If true, a blank row will be displayed at the bottom - typing values in that row will add a new one.
+ *     leaveSpaceForNewRows  - (default false)
+ *     editable              - (default false) If false, no cells will be switched into edit mode.
+ *     editOnDoubleClick     - (default false) Cell will not automatically go into edit mode without being double-clicked.
+ *     enableCellNavigation  - (default true) If false, no cells will be selectable.
+ *     defaultColumnWidth    - (default 80px) Default column width in pixels (if columns[cell].width is not specified).
+ *     enableColumnReorder   - (default true) Allows the user to reorder columns.
+ *     asyncEditorLoading    - (default false) Makes cell editors load asynchronously after a small delay.
  *                             This greatly increases keyboard navigation speed.
- *     forceFitColumns       - Force column sizes to fit into the viewport (avoid horizontal scrolling).
- *     enableAsyncPostRender - If true, async post rendering will occur and asyncPostRender delegates on columns will be called.
- *     autoHeight            - If true, vertically resizes to fit all rows.
+ *     asyncEditorLoadDelay  - (default 100msec) Delay after which cell editor is loaded. Ignored unless asyncEditorLoading is true.
+ *     forceFitColumns       - (default false) Force column sizes to fit into the viewport (avoid horizontal scrolling).
+ *     enableAsyncPostRender - (default false) If true, async post rendering will occur and asyncPostRender delegates on columns will be called.
+ *     asyncPostRenderDelay  - (default 60msec) Delay after which async post renderer delegate is called.
+ *     autoHeight            - (default false) If true, vertically resizes to fit all rows.
  *
  *
  * COLUMN DEFINITION (columns) OPTIONS:
  *     id                  - Column ID.
  *     name                - Column name to put in the header.
  *     field               - Property of the data context to bind to.
- *     formatter           - Function responsible for rendering the contents of a cell.
+ *     formatter           - (default 'return value || ""') Function responsible for rendering the contents of a cell. Signature: function formatter(row, cell, value, columnDef, dataContext) { ... return "..."; }
  *     editor              - An Editor class.
  *     validator           - An extra validation function to be passed to the editor.
  *     unselectable        - If true, the cell cannot be selected (and therefore edited).
  *     cannotTriggerInsert - If true, a new row cannot be created from just the value of this cell.
  *     setValueHandler     - If true, this handler will be called to set field value instead of context[field].
  *     width               - Width of the column in pixels.
- *     resizable           - If false, the column cannot be resized.
- *     sortable            - If true, the column can be sorted (onSort will be called).
+ *     resizable           - (default true) If false, the column cannot be resized.
+ *     sortable            - (default false) If true, the column can be sorted (onSort will be called).
  *     minWidth            - Minimum allowed column width for resizing.
  *     maxWidth            - Maximum allowed column width for resizing.
  *     cssClass            - A CSS class to add to the cell.
