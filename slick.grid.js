@@ -62,7 +62,8 @@
  *     onColumnsReordered    -
  *     onBeforeMoveRows      -
  *     onMoveRows            -
- *
+ *     onCellChange          -  Raised when cell has been edited.   Args: row,cell,dataContext.
+ *     onBeforeEditCell      -  Raised before a cell goes into edit mode.  Return false to cancel.  Args: row,cell,dataContext.
  *
  * NOTES:
  *     Cell/row DOM manipulations are done directly bypassing jQuery's DOM manipulation methods.
@@ -1322,6 +1323,11 @@
                 return;
             }
 
+            if (self.onBeforeEditCell && self.onBeforeEditCell(currentRow,currentCell,data[currentRow]) === false) {
+                currentCellNode.focus();
+                return;
+            }
+
             Slick.GlobalEditorLock.enterEditMode(self);
 
             $(currentCellNode).addClass("editable");
@@ -1435,6 +1441,10 @@
                                 data[currentRow][columns[currentCell].field] = value;
                                 makeSelectedCellNormal();
                             }
+
+                            if (self.onCellChange) {
+                                self.onCellChange(currentRow,currentCell,data[currentRow]);
+                            }
                         }
                         else if (self.onAddNewRow) {
                             makeSelectedCellNormal();
@@ -1540,6 +1550,8 @@
             "onColumnsReordered":    null,
             "onBeforeMoveRows":      null,
             "onMoveRows":            null,
+            "onCellChange":          null,
+            "onBeforeEditCell":      null,
 
             // Methods
             "setOptions":          setOptions,
