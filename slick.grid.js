@@ -106,6 +106,7 @@
         var columnDefaults = {
             resizable: true,
             sortable: false,
+            minWidth: 30,
             formatter: function defaultFormatter(row, cell, value, columnDef, dataContext) {
                 return (value === null || value === undefined) ? "" : value;
             }
@@ -328,9 +329,11 @@
 
         setupColumnReorderEvents = function setupColumnReorderEventsFn() {
             $divHeaders.sortable({
+                containment: 'parent',
                 axis: "x",
                 cursor: "default",
-                tolerance: "intersect",
+                cursorAt: "left",
+                tolerance: "intersection",
                 helper: "clone",
                 placeholder: "slick-sortable-placeholder ui-state-default slick-header-column",
                 forcePlaceholderSize: true,
@@ -375,7 +378,6 @@
             columnElements = $divHeaders.find(".slick-header-column:visible");
             columnElements.find('.slick-resizable-handle').remove();
             columnElements.each(function(i,e) {
-                console.debug(i);
                 c = columns[i];
                 if (c.resizable) {
                     if (firstResizable === undefined) firstResizable = i;
