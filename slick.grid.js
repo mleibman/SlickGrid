@@ -765,7 +765,7 @@ if (!jQuery.fn.drag) {
 
         setSelectedRows = function setSelectedRowsFn(rows) {
             var i, row;
-            if (Slick.GlobalEditorLock.isEditing() && !Slick.GlobalEditorLock.hasLock(self)) {
+            if (options.editable && Slick.GlobalEditorLock.isEditing() && !Slick.GlobalEditorLock.hasLock(self)) {
                 throw "Grid : setSelectedRows : cannot set selected rows when somebody else has an edit lock";
             }
 
@@ -1135,7 +1135,7 @@ if (!jQuery.fn.drag) {
 
             switch (e.which) {
             case 27:  // esc
-                if (Slick.GlobalEditorLock.isEditing() && Slick.GlobalEditorLock.hasLock(self)) {
+                if (options.editable && Slick.GlobalEditorLock.isEditing() && Slick.GlobalEditorLock.hasLock(self)) {
                     cancelCurrentEdit(self);
                 }
                 if (currentCellNode) {
@@ -1385,7 +1385,9 @@ if (!jQuery.fn.drag) {
             // IE can't set focus to anything else correctly
             if ($.browser.msie) { clearTextSelection(); }
 
-            Slick.GlobalEditorLock.leaveEditMode(self);
+            if (options.editable) {
+                Slick.GlobalEditorLock.leaveEditMode(self);
+            }
         };
 
         makeSelectedCellEditable = function makeSelectedCellEditableFn() {
@@ -1440,7 +1442,7 @@ if (!jQuery.fn.drag) {
 
         gotoDir = function gotoDirFn(dy, dx, rollover) {
             if (!currentCellNode || !options.enableCellNavigation) { return; }
-            if (!Slick.GlobalEditorLock.commitCurrentEdit()) { return; }
+            if (options.editable && !Slick.GlobalEditorLock.commitCurrentEdit()) { return; }
 
             var nextRow = rowsCache[currentRow + dy];
             var nextCell = nextRow ? $(nextRow).find(".slick-cell[cell=" + (currentCell + dx) + "]") : null;
@@ -1482,7 +1484,7 @@ if (!jQuery.fn.drag) {
             if (row > data.length || row < 0 || cell >= columns.length || cell < 0) { return; }
             if (!options.enableCellNavigation || columns[cell].unselectable) { return; }
 
-            if (!Slick.GlobalEditorLock.commitCurrentEdit()) { return; }
+            if (options.editable && !Slick.GlobalEditorLock.commitCurrentEdit()) { return; }
 
             if (!rowsCache[row]) {
                 renderRows(row,row);
