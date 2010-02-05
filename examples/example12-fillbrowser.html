@@ -3,7 +3,7 @@
     <head>
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>Large grid example - SlickGrid</title>
+        <title>SlickGrid example 12: Fill browser</title>
         <link rel="stylesheet" href="../slick.grid.css" type="text/css" media="screen" charset="utf-8" />
         <link rel="stylesheet" href="examples.css" type="text/css" media="screen" charset="utf-8" />
         <style>
@@ -26,12 +26,10 @@
         </div>
 
         <script language="JavaScript" src="../lib/jquery-1.4.1.min.js"></script>
-        <script language="JavaScript" src="../lib/jquery-ui-1.7.2.custom.min.js"></script>
         <script language="JavaScript" src="../lib/jquery.rule-1.0.1-min.js"></script>
         <script language="JavaScript" src="../lib/jquery.event.drag.custom.js"></script>
-        <script language="JavaScript" src="../slick.editors.js"></script>
+
         <script language="JavaScript" src="../slick.grid.js"></script>
-        <script language="JavaScript" src="../slick.globaleditorlock.js"></script>
         <script>
             var grid,
                 data = [],
@@ -55,9 +53,8 @@
                     { id:"c17", name:"C17", field:"c17", width:120 }
                 ],
                 options = {
-                    editable: false,
-                    enableAddRow: false,
-                    enableCellNavigation: false
+                    enableCellNavigation: false,
+                    enableColumnReorder: false
                 };
 
             for (var i = 10000; i-- > 0;) {

@@ -81,6 +81,18 @@
  * @param {Object} options     Grid options.
  *
  */
+
+// make sure required JavaScript modules are loaded
+if (typeof jQuery === "undefined") {
+    throw new Error("SlickGrid requires jquery module to be loaded");
+}
+if (!jQuery.rule) {
+    throw new Error("SlickGrid requires jquery.rule module to be loaded");
+}
+if (!jQuery.fn.drag) {
+    throw new Error("SlickGrid requires jquery.event.drag module to be loaded");
+}
+
 (function() {
     var scrollbarDimensions; // shared across all grids on this page
 
@@ -210,6 +222,20 @@
             scrollbarDimensions = scrollbarDimensions || measureScrollbar(); // skip measurement if already have dimensions
             options = $.extend({},defaults,options);
             columnDefaults.width = options.defaultColumnWidth;
+
+            // validate loaded JavaScript modules against requested options
+            if (options.enableColumnReorder && !jQuery.fn.sortable) {
+                throw new Error("SlickGrid's \"enableColumnReorder = true\" option requires jquery-ui.sortable module to be loaded");
+            }
+            if (options.editable) {
+                if (typeof SelectorCellFormatter === "undefined") {
+                    throw new Error("SlickGrid's \"editable = true\" option requires slick.editors module to be loaded");
+                }
+                if (!Slick.GlobalEditorLock) {
+                    throw new Error("SlickGrid's \"editable = true\" option requires slick.globaleditorlock module to be loaded");
+                }
+            }
+
 
             $container
                 .empty()

@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-		<title>SlickGrid example</title>
+		<title>SlickGrid example 5: Collapsing</title>
 		<link rel="stylesheet" href="../slick.grid.css" type="text/css" media="screen" charset="utf-8" />
 		<link rel="stylesheet" href="../css/custom-theme/jquery-ui-1.7.2.custom.css" type="text/css" media="screen" charset="utf-8" />
 		<link rel="stylesheet" href="examples.css" type="text/css" media="screen" charset="utf-8" />
@@ -32,51 +32,41 @@
 	</style>
 	</head>
 	<body>
+		<table width="100%">
+		<tr>
+			<td valign="top" width="50%">
+				<div style="border:1px solid gray;background:wheat;padding:6px;">
+					<label>Show tasks with % at least: </label>
+					<div style="padding:4px;">
+						<div style="width:100px;" id="pcSlider"></div>
+					</div>
+					<br/>
+					<label>And title including:</label>
+					<input type=text id="txtSearch">
+				</div>
+				<br/>
+				<div id="myGrid" style="width:600px;height:500px;"></div>
+			</td>
+			<td valign="top">
+				<h2>Demonstrates:</h2>
+				<ul>
+					<li>implementing expand/collapse as a filter for DataView</li>
+				</ul>
+			</td>
+		</tr>
+		</table>
+
 		<script language="JavaScript" src="../lib/firebugx.js"></script>
+
 		<script language="JavaScript" src="../lib/jquery-1.4.1.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery-ui-1.7.2.custom.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.rule-1.0.1-min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.event.drag.custom.js"></script>
 
 		<script language="JavaScript" src="../slick.editors.js"></script>
-		<script language="JavaScript" src="../slick.grid.js"></script>
 		<script language="JavaScript" src="../slick.globaleditorlock.js"></script>
+		<script language="JavaScript" src="../slick.grid.js"></script>
 		<script language="JavaScript" src="../slick.model.js"></script>
-
-
-		<table width="100%">
-		<tr>
-			<td valign="top" width="50%">
-
-				<div style="border:1px solid gray;background:wheat;padding:6px;">
-
-					<label>Show tasks with % at least: </label>
-					<div style="padding:4px;">
-						<div style="width:100px;" id="pcSlider"></div>
-					</div>
-
-					<br/>
-
-					<label>And title including:</label>
-					<input type=text id="txtSearch">
-				</div>
-
-				<br/>
-
-				<div id="myGrid" style="width:600px;height:500px;"></div>
-			</td>
-			<td valign="top">
-				<h2>Demonstrates:</h2>
-
-				<ul>
-					<li>implementing expand/collapse as a filter for DataView</li>
-				</ul>
-
-			</td>
-		</tr>
-		</table>
-
-
 
 		<script>
 		function requiredFieldValidator(value) {
