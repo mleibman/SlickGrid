@@ -283,8 +283,11 @@
                 }
 
                 if (options.enableColumnReorder || m.sortable || m.resizable) {
-                    header.append("<span class='slick-sort-indicator' />");
                     header.hover(hoverBegin, hoverEnd);
+                }
+
+                if (m.sortable) {
+                    header.append("<span class='slick-sort-indicator' />");
                 }
 
                 if (m.resizable) { header.append("<div class='slick-resizable-handle' />"); }
@@ -1611,3 +1614,4 @@
     // Slick.Grid
     $.extend(true, window, { Slick: { Grid: SlickGrid }});
 }());
+
