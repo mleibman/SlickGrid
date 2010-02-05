@@ -63,6 +63,12 @@ function EventHelper() {
 
 
 		function ensureData(from,to) {
+			if (req) {
+				req.abort();
+				for (var i=req.fromPage; i<=req.toPage; i++)
+					data[i*PAGESIZE] = undefined;
+			}
+
 			if (from < 0)
 				from = 0;
 
@@ -83,7 +89,6 @@ function EventHelper() {
 				return;
 			}
 
-
 			var url = "http://services.digg.com/search/stories?query=" + searchstr + "&offset=" + (fromPage * PAGESIZE) + "&count=" + (((toPage - fromPage) * PAGESIZE) + PAGESIZE) + "&appkey=http://slickgrid.googlecode.com&type=javascript";
 
 
@@ -93,20 +98,12 @@ function EventHelper() {
 					break;
 			}
 
-
-			if (req) {
-				req.abort();
-				data[req_page*PAGESIZE] = undefined;
-			}
-
 			if (h_request != null)
 				clearTimeout(h_request);
 
 			h_request = setTimeout(function() {
 				for (var i=fromPage; i<=toPage; i++)
 					data[i*PAGESIZE] = null; // null indicates a 'requested but not available yet'
-
-				req_page = fromPage;
 
 				onDataLoading.notify({from:from, to:to});
 
@@ -119,6 +116,8 @@ function EventHelper() {
 						onError(fromPage, toPage)
 					}
 					});
+				req.fromPage = fromPage;
+				req.toPage = toPage;
 			}, 50);
 		}
 
