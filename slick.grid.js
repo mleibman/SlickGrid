@@ -187,6 +187,21 @@
             return dim;
         }
 
+        function disableSelection($target) {
+            /// <summary>
+            /// Disable text selection (using mouse) in
+            /// the specified target.
+            /// </summary
+            if ($target && $target.jquery) {
+                if ($target.disableSelection) { // if jquery:ui.core has been loaded, use it
+                    $target.disableSelection();
+                }
+                else { // otherwise, use "stolen" implementation :)
+                    $target.attr('unselectable', 'on').css('MozUserSelect', 'none').bind('selectstart.ui', function() { return false; }); // from jquery:ui.core.js 1.7.2
+                }
+            }
+        }
+
         function init() {
             /// <summary>
             /// Initialize 'this' (self) instance of a SlickGrid.
@@ -229,16 +244,8 @@
 
             $divMainScroller.height($container.innerHeight() - $divHeadersScroller.outerHeight());
 
-            if ($.browser.msie) { // disable text selection (except in INPUT and TEXTAREA) in IE
-                $divMainScroller[0].onselectstart = function() {
-                    var srcElement = window.event.srcElement;
-                    if (srcElement.tagName !== "INPUT" && srcElement.tagName !== "TEXTAREA") {
-                        return false;
-                    }
-                };
-            }
-
-            $divHeaders.disableSelection();
+            disableSelection($divHeaders);
+            disableSelection($divMainScroller);
 
             createColumnHeaders();
             setupRowReordering();
