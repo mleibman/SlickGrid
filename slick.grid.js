@@ -227,13 +227,8 @@ if (!jQuery.fn.drag) {
             if (options.enableColumnReorder && !jQuery.fn.sortable) {
                 throw new Error("SlickGrid's \"enableColumnReorder = true\" option requires jquery-ui.sortable module to be loaded");
             }
-            if (options.editable) {
-                if (typeof SelectorCellFormatter === "undefined") {
-                    throw new Error("SlickGrid's \"editable = true\" option requires slick.editors module to be loaded");
-                }
-                if (!Slick.GlobalEditorLock) {
-                    throw new Error("SlickGrid's \"editable = true\" option requires slick.globaleditorlock module to be loaded");
-                }
+            if (options.editable && !Slick.GlobalEditorLock) {
+                throw new Error("SlickGrid's \"editable = true\" option requires slick.globaleditorlock module to be loaded");
             }
 
 
