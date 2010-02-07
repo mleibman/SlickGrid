@@ -1461,7 +1461,7 @@ if (!jQuery.fn.drag) {
                 return;
             }
 
-           options.editorLock.enterEditMode(self);
+            options.editorLock.enterEditMode(self);
 
             $(currentCellNode).addClass("editable");
 
