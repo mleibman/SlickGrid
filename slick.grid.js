@@ -2,6 +2,64 @@
 /*global $: false, jQuery: false, window: false, console: false, document: false, alert: false, setTimeout: false, clearTimeout: false, Slick: false */// Define recognized globals for JSLint
 "use strict";
 
+
+(function() {
+	/***
+	 * A lock for controlling access to the editing functionality for multiple components capable of editing the same data.
+	 */
+	function EditorLock()
+	{
+	    var currentEditor = null;
+
+	    this.isEditing = function() {
+            return (currentEditor != null);
+        };
+
+	    this.hasLock = function(editor){
+            return (currentEditor == editor);
+        };
+
+	    this.enterEditMode = function(editor) {
+            if (currentEditor != null)
+                throw "EditorLock : enterEditMode : currentEditor == null";
+
+            if (!editor.commitCurrentEdit)
+                throw "EditorLock : enterEditMode : editor must implement .commitCurrentEdit()";
+
+            if (!editor.cancelCurrentEdit)
+                throw "EditorLock : enterEditMode : editor must implement .cancelCurrentEdit()";
+
+            currentEditor = editor;
+        };
+
+	    this.leaveEditMode = function(editor) {
+            if (currentEditor != editor)
+                throw "EditorLock : leaveEditMode() : currentEditor != editor";
+
+            currentEditor = null;
+        };
+
+	    this.commitCurrentEdit = function() {
+            if (currentEditor)
+                return currentEditor.commitCurrentEdit();
+
+            return true;
+        };
+
+	    this.cancelCurrentEdit = function() {
+	        if (currentEditor)
+	            currentEditor.cancelCurrentEdit();
+	    }
+
+        return this;
+	};
+
+	// Slick.EditorLock, Slick.GlobalEditorLock
+	$.extend(true, window, { Slick: { EditorLock: EditorLock, GlobalEditorLock: new EditorLock() }});
+})();
+
+
+
 /***
  *
  * (c) 2009-2010 Michael Leibman (michael.leibman@gmail.com)
@@ -29,7 +87,7 @@
  *     enableAsyncPostRender - (default false) If true, async post rendering will occur and asyncPostRender delegates on columns will be called.
  *     asyncPostRenderDelay  - (default 60msec) Delay after which async post renderer delegate is called.
  *     autoHeight            - (default false) If true, vertically resizes to fit all rows.
- *
+ *     editorLock            - (default Slick.GlobalEditorLock) A Slick.EditorLock instance to use for controlling concurrent data edits.
  *
  * COLUMN DEFINITION (columns) OPTIONS:
  *     id                  - Column ID.
@@ -112,7 +170,8 @@ if (!jQuery.fn.drag) {
             forceFitColumns: false,
             enableAsyncPostRender: false,
             asyncPostRenderDelay: 60,
-            autoHeight: false
+            autoHeight: false,
+            editorLock: Slick.GlobalEditorLock
         };
 
         var columnDefaults = {
@@ -227,10 +286,6 @@ if (!jQuery.fn.drag) {
             if (options.enableColumnReorder && !jQuery.fn.sortable) {
                 throw new Error("SlickGrid's \"enableColumnReorder = true\" option requires jquery-ui.sortable module to be loaded");
             }
-            if (options.editable && !Slick.GlobalEditorLock) {
-                throw new Error("SlickGrid's \"editable = true\" option requires slick.globaleditorlock module to be loaded");
-            }
-
 
             $container
                 .empty()
@@ -765,7 +820,7 @@ if (!jQuery.fn.drag) {
 
         setSelectedRows = function setSelectedRowsFn(rows) {
             var i, row;
-            if (options.editable && Slick.GlobalEditorLock.isEditing() && !Slick.GlobalEditorLock.hasLock(self)) {
+            if (options.editorLock.isEditing() && !options.editorLock.hasLock(self)) {
                 throw "Grid : setSelectedRows : cannot set selected rows when somebody else has an edit lock";
             }
 
@@ -1135,7 +1190,7 @@ if (!jQuery.fn.drag) {
 
             switch (e.which) {
             case 27:  // esc
-                if (options.editable && Slick.GlobalEditorLock.isEditing() && Slick.GlobalEditorLock.hasLock(self)) {
+                if (options.editorLock.isEditing() && options.editorLock.hasLock(self)) {
                     cancelCurrentEdit(self);
                 }
                 if (currentCellNode) {
@@ -1385,9 +1440,7 @@ if (!jQuery.fn.drag) {
             // IE can't set focus to anything else correctly
             if ($.browser.msie) { clearTextSelection(); }
 
-            if (options.editable) {
-                Slick.GlobalEditorLock.leaveEditMode(self);
-            }
+            options.editorLock.leaveEditMode(self);
         };
 
         makeSelectedCellEditable = function makeSelectedCellEditableFn() {
@@ -1408,7 +1461,7 @@ if (!jQuery.fn.drag) {
                 return;
             }
 
-            Slick.GlobalEditorLock.enterEditMode(self);
+           options.editorLock.enterEditMode(self);
 
             $(currentCellNode).addClass("editable");
 
@@ -1442,7 +1495,7 @@ if (!jQuery.fn.drag) {
 
         gotoDir = function gotoDirFn(dy, dx, rollover) {
             if (!currentCellNode || !options.enableCellNavigation) { return; }
-            if (options.editable && !Slick.GlobalEditorLock.commitCurrentEdit()) { return; }
+            if (!options.editorLock.commitCurrentEdit()) { return; }
 
             var nextRow = rowsCache[currentRow + dy];
             var nextCell = nextRow ? $(nextRow).find(".slick-cell[cell=" + (currentCell + dx) + "]") : null;
@@ -1484,7 +1537,7 @@ if (!jQuery.fn.drag) {
             if (row > data.length || row < 0 || cell >= columns.length || cell < 0) { return; }
             if (!options.enableCellNavigation || columns[cell].unselectable) { return; }
 
-            if (options.editable && !Slick.GlobalEditorLock.commitCurrentEdit()) { return; }
+            if (!options.editorLock.commitCurrentEdit()) { return; }
 
             if (!rowsCache[row]) {
                 renderRows(row,row);
@@ -1502,7 +1555,7 @@ if (!jQuery.fn.drag) {
 
 
         //////////////////////////////////////////////////////////////////////////////////////////////
-        // IEditor implementation for Slick.GlobalEditorLock
+        // IEditor implementation for the editor lock
 
         commitCurrentEdit = function commitCurrentEditFn() {
             if (currentEditor) {
