@@ -13,11 +13,11 @@
             updatePager(dataView.getPagingInfo());
         }
 
-        function getNavState()
-        {
-            var cannotLeaveEditMode = !(!Slick.GlobalEditorLock.isEditing() || Slick.GlobalEditorLock.commitCurrentEdit());
-            var pagingInfo = dataView.getPagingInfo();
-            var lastPage = Math.floor(pagingInfo.totalRows/pagingInfo.pageSize);
+		function getNavState()
+		{
+			var cannotLeaveEditMode = !Slick.GlobalEditorLock.commitCurrentEdit();
+			var pagingInfo = dataView.getPagingInfo();
+			var lastPage = Math.floor(pagingInfo.totalRows/pagingInfo.pageSize);
 
             return {
                 canGotoFirst:	!cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum > 0,

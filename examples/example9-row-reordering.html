@@ -94,7 +94,7 @@
 		}
 
         function selectMultipleRows() {
-            if (Slick.GlobalEditorLock.isEditing() && !Slick.GlobalEditorLock.commitCurrentEdit()) return;
+            if (!Slick.GlobalEditorLock.commitCurrentEdit()) { return; }
             grid.setSelectedRows([0,1,2]);
         }
 

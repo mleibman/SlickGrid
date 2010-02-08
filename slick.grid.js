@@ -3,63 +3,6 @@
 "use strict";
 
 
-(function() {
-	/***
-	 * A lock for controlling access to the editing functionality for multiple components capable of editing the same data.
-	 */
-	function EditorLock()
-	{
-	    var currentEditor = null;
-
-	    this.isEditing = function() {
-            return (currentEditor != null);
-        };
-
-	    this.hasLock = function(editor){
-            return (currentEditor == editor);
-        };
-
-	    this.enterEditMode = function(editor) {
-            if (currentEditor != null)
-                throw "EditorLock : enterEditMode : currentEditor == null";
-
-            if (!editor.commitCurrentEdit)
-                throw "EditorLock : enterEditMode : editor must implement .commitCurrentEdit()";
-
-            if (!editor.cancelCurrentEdit)
-                throw "EditorLock : enterEditMode : editor must implement .cancelCurrentEdit()";
-
-            currentEditor = editor;
-        };
-
-	    this.leaveEditMode = function(editor) {
-            if (currentEditor != editor)
-                throw "EditorLock : leaveEditMode() : currentEditor != editor";
-
-            currentEditor = null;
-        };
-
-	    this.commitCurrentEdit = function() {
-            if (currentEditor)
-                return currentEditor.commitCurrentEdit();
-
-            return true;
-        };
-
-	    this.cancelCurrentEdit = function() {
-	        if (currentEditor)
-	            currentEditor.cancelCurrentEdit();
-	    }
-
-        return this;
-	};
-
-	// Slick.EditorLock, Slick.GlobalEditorLock
-	$.extend(true, window, { Slick: { EditorLock: EditorLock, GlobalEditorLock: new EditorLock() }});
-})();
-
-
-
 /***
  *
  * (c) 2009-2010 Michael Leibman (michael.leibman@gmail.com)
@@ -157,7 +100,112 @@ if (!jQuery.fn.drag) {
 (function() {
     var scrollbarDimensions; // shared across all grids on this page
 
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // EditorLock class implementation (available as Slick.EditorLock)
+
+    function EditorLock() {
+        /// <summary>
+        /// Track currently active edit controller and ensure
+        /// that onle a single controller can be active at a time.
+        /// Edit controller is an object that is responsible for
+        /// gory details of looking after editor in the browser,
+        /// and allowing EditorLock clients to either accept
+        /// or cancel editor changes without knowing any of the
+        /// implementation details. SlickGrid instance is used
+        /// as edit controller for cell editors.
+        /// </summary>
+
+        var currentEditController = null;
+
+        this.isActive = function isActive(editController) {
+            /// <summary>
+            /// Return true if the specified editController
+            /// is currently active in this lock instance
+            /// (i.e. if that controller acquired edit lock).
+            /// If invoked without parameters ("editorLock.isActive()"),
+            /// return true if any editController is currently
+            /// active in this lock instance.
+            /// </summary>
+            return (editController ? currentEditController === editController : currentEditController !== null);
+        };
+
+        this.activate = function activate(editController) {
+            /// <summary>
+            /// Set the specified editController as the active
+            /// controller in this lock instance (acquire edit lock).
+            /// If another editController is already active,
+            /// an error will be thrown (i.e. before calling
+            /// this method isActive() must be false,
+            /// afterwards isActive() will be true).
+            /// </summary>
+            if (editController === currentEditController) { // already activated?
+                return;
+            }
+            if (currentEditController !== null) {
+                throw "SlickGrid.EditorLock.activate: an editController is still active, can't activate another editController";
+            }
+            if (!editController.commitCurrentEdit) {
+                throw "SlickGrid.EditorLock.activate: editController must implement .commitCurrentEdit()";
+            }
+            if (!editController.cancelCurrentEdit) {
+                throw "SlickGrid.EditorLock.activate: editController must implement .cancelCurrentEdit()";
+            }
+            currentEditController = editController;
+        };
+
+        this.deactivate = function deactivate(editController) {
+            /// <summary>
+            /// Unset the specified editController as the active
+            /// controller in this lock instance (release edit lock).
+            /// If the specified editController is not the editController
+            /// that is currently active in this lock instance,
+            /// an error will be thrown.
+            /// </summary>
+            if (currentEditController !== editController) {
+                throw "SlickGrid.EditorLock.deactivate: specified editController is not the currently active one";
+            }
+            currentEditController = null;
+        };
+
+        this.commitCurrentEdit = function commitCurrentEdit() {
+            /// <summary>
+            /// Invoke the "commitCurrentEdit" method on the
+            /// editController that is active in this lock
+            /// instance and return the return value of that method
+            /// (if no controller is active, return true).
+            /// "commitCurrentEdit" is expected to return true
+            /// to indicate successful commit, false otherwise.
+            /// </summary>
+            return (currentEditController ? currentEditController.commitCurrentEdit() : true);
+        };
+
+        this.cancelCurrentEdit = function cancelCurrentEdit() {
+            /// <summary>
+            /// Invoke the "cancelCurrentEdit" method on the
+            /// editController that is active in this lock
+            /// instance (if no controller is active, do nothing).
+            /// </summary>
+            if (currentEditController) {
+                currentEditController.cancelCurrentEdit();
+            }
+        };
+    } // end of EditorLock function (class)
+
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // SlickGrid class implementation (available as Slick.Grid)
+
     function SlickGrid($container,data,columns,options) {
+        /// <summary>
+        /// Create and manage virtual grid in the specified $container,
+        /// connecting it to the specified data source. Data is presented
+        /// as a grid with the specified columns and data.length rows.
+        /// Options alter behaviour of the grid.
+        /// </summary>
+
         // settings
         var defaults = {
             rowHeight: 25,
@@ -241,8 +289,8 @@ if (!jQuery.fn.drag) {
             createCssRules, resizeCanvas, autosizeColumns, render, handleScroll,
             handleKeyDown, handleClick, handleDblClick, handleContextMenu,
             handleHeaderContextMenu, setupColumnSort, setupColumnResize,
-            setupColumnReorderEvents, commitCurrentEdit, removeAllRows, removeCssRules,
-            updateColumnWidth, setSelectedRows, getSelectedRows, cancelCurrentEdit,
+            setupColumnReorderEvents, removeAllRows, removeCssRules,
+            updateColumnWidth, setSelectedRows, getSelectedRows,
             makeSelectedCellNormal, removeRow, removeRowFromCache, invalidatePostProcessingResults,
             asyncPostProcessRows, gotoDir, setSelectedCellAndRow, makeSelectedCellEditable,
             scrollSelectedCellIntoView, isCellPotentiallyEditable;
@@ -414,7 +462,7 @@ if (!jQuery.fn.drag) {
                     return;
                 }
 
-                if (currentEditor && !commitCurrentEdit()) { return; }
+                if (!options.editorLock.commitCurrentEdit()) { return; }
 
                 if ($col.is(".slick-header-column-sorted")) {
                     $col.find(".slick-sort-indicator").toggleClass("slick-sort-indicator-asc").toggleClass("slick-sort-indicator-desc");
@@ -447,7 +495,7 @@ if (!jQuery.fn.drag) {
                 stop: function(e, ui) {
                     var i;
 
-                    if (currentEditor && !commitCurrentEdit()) {
+                    if (!options.editorLock.commitCurrentEdit()) {
                         $(this).sortable("cancel");
                         return;
                     }
@@ -495,7 +543,7 @@ if (!jQuery.fn.drag) {
                 $("<div class='slick-resizable-handle' />")
                     .appendTo(e)
                     .bind("dragstart", function(e) {
-                        if (currentEditor && !commitCurrentEdit()) { return false; }
+                        if (!options.editorLock.commitCurrentEdit()) { return false; }
                         width = $col.width();
                         pageX = e.pageX;
                         $col.addClass("slick-header-column-active");
@@ -635,7 +683,7 @@ if (!jQuery.fn.drag) {
                     if (colDef.behavior !== "move") { return false; }
                 })
                 .bind("dragstart", function(e) {
-                    if (currentEditor && !commitCurrentEdit()) { return false; }
+                    if (!options.editorLock.commitCurrentEdit()) { return false; }
 
                     var row = parseInt($(e.target).closest(".slick-row").attr("row"), 10);
 
@@ -725,9 +773,7 @@ if (!jQuery.fn.drag) {
         };
 
         function destroy() {
-            if (currentEditor) {
-                cancelCurrentEdit();
-            }
+            options.editorLock.cancelCurrentEdit();
 
             if (self.onBeforeDestroy) { self.onBeforeDestroy(); }
             $divHeaders.sortable("destroy");
@@ -839,7 +885,7 @@ if (!jQuery.fn.drag) {
 
         setSelectedRows = function setSelectedRowsFn(rows) {
             var i, row;
-            if (options.editorLock.isEditing() && !options.editorLock.hasLock(self)) {
+            if (options.editorLock.isActive() && !options.editorLock.isActive(self)) { // there are 3 possible states: a) editor lock is inactive: OK, b) editor lock is active and this SlickGrid is the controller: OK, c) editor lock is active but some other controller locked it: throw
                 throw "Grid : setSelectedRows : cannot set selected rows when somebody else has an edit lock";
             }
 
@@ -869,7 +915,7 @@ if (!jQuery.fn.drag) {
         };
 
         function setOptions(args) {
-            if (currentEditor && !commitCurrentEdit()) {
+            if (!options.editorLock.commitCurrentEdit()) {
                 return;
             }
 
@@ -1225,9 +1271,7 @@ if (!jQuery.fn.drag) {
 
             switch (e.which) {
             case 27:  // esc
-                if (options.editorLock.isEditing() && options.editorLock.hasLock(self)) {
-                    cancelCurrentEdit(self);
-                }
+                options.editorLock.cancelCurrentEdit(); // noop if lock is inactive
                 if (currentCellNode) {
                     currentCellNode.focus();
                 }
@@ -1278,7 +1322,8 @@ if (!jQuery.fn.drag) {
             // do we have any registered handlers?
             if (data[row] && self.onClick) {
                 // grid must not be in edit mode
-                if (!currentEditor || (validated = commitCurrentEdit())) {
+                validated = options.editorLock.commitCurrentEdit();
+                if (validated) {
                     // handler will return true if the event was handled
                     if (self.onClick(e, row, cell)) {
                         e.stopPropagation();
@@ -1290,7 +1335,7 @@ if (!jQuery.fn.drag) {
 
             if (options.enableCellNavigation && !columns[cell].unselectable) {
                 // commit current edit before proceeding
-                if (validated === true || (validated === null && commitCurrentEdit())) {
+                if (validated === true || (validated === null && options.editorLock.commitCurrentEdit())) {
                     setSelectedCellAndRow($cell[0],!options.editOnDoubleClick);
                 }
             }
@@ -1310,7 +1355,8 @@ if (!jQuery.fn.drag) {
             // do we have any registered handlers?
             if (data[row] && self.onContextMenu) {
                 // grid must not be in edit mode
-                if (!currentEditor || (validated = commitCurrentEdit())) {
+                validated = options.editorLock.commitCurrentEdit();
+                if (validated) {
                     // handler will return true if the event was handled
                     if (self.onContextMenu(e, row, cell)) {
                         e.stopPropagation();
@@ -1335,7 +1381,8 @@ if (!jQuery.fn.drag) {
             // do we have any registered handlers?
             if (data[row] && self.onDblClick) {
                 // grid must not be in edit mode
-                if (!currentEditor || (validated = commitCurrentEdit())) {
+                validated = options.editorLock.commitCurrentEdit();
+                if (validated) {
                     // handler will return true if the event was handled
                     if (self.onDblClick(e, row, cell)) {
                         e.stopPropagation();
@@ -1351,8 +1398,7 @@ if (!jQuery.fn.drag) {
         };
 
         handleHeaderContextMenu = function handleHeaderContextMenuFn(e) {
-            var validated = null;
-            if (self.onHeaderContextMenu && (!currentEditor || (validated = commitCurrentEdit()))) {
+            if (self.onHeaderContextMenu && options.editorLock.commitCurrentEdit()) {
                 e.preventDefault();
                 // TODO:  figure out which column was acted on and pass it as a param to the handler
                 self.onHeaderContextMenu(e);
@@ -1475,7 +1521,7 @@ if (!jQuery.fn.drag) {
             // IE can't set focus to anything else correctly
             if ($.browser.msie) { clearTextSelection(); }
 
-            options.editorLock.leaveEditMode(self);
+            options.editorLock.deactivate(self);
         };
 
         makeSelectedCellEditable = function makeSelectedCellEditableFn() {
@@ -1496,7 +1542,7 @@ if (!jQuery.fn.drag) {
                 return;
             }
 
-            options.editorLock.enterEditMode(self);
+            options.editorLock.activate(self);
 
             $(currentCellNode).addClass("editable");
 
@@ -1592,7 +1638,7 @@ if (!jQuery.fn.drag) {
         //////////////////////////////////////////////////////////////////////////////////////////////
         // IEditor implementation for the editor lock
 
-        commitCurrentEdit = function commitCurrentEditFn() {
+        function commitCurrentEdit() {
             if (currentEditor) {
                 if (currentEditor.isValueChanged()) {
                     var validationResults = currentEditor.validate();
@@ -1637,11 +1683,11 @@ if (!jQuery.fn.drag) {
                 makeSelectedCellNormal();
             }
             return true;
-        };
+        }
 
-        cancelCurrentEdit = function cancelCurrentEditFn() {
+        function cancelCurrentEdit() {
             makeSelectedCellNormal();
-        };
+        }
 
 
 
@@ -1754,5 +1800,11 @@ if (!jQuery.fn.drag) {
     }
 
     // Slick.Grid
-    $.extend(true, window, { Slick: { Grid: SlickGrid }});
+    $.extend(true, window, {
+        Slick: {
+            Grid: SlickGrid,
+            EditorLock: EditorLock,
+            GlobalEditorLock: new EditorLock()
+        }
+    });
 }());

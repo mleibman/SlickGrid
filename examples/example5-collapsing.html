@@ -241,8 +241,7 @@
 			$("#pcSlider").slider({
 				"range":	"min",
 				"slide":	function(event,ui) {
-					if (Slick.GlobalEditorLock.isEditing())
-						Slick.GlobalEditorLock.cancelCurrentEdit();
+                    Slick.GlobalEditorLock.cancelCurrentEdit();
 
 					if (percentCompleteThreshold != ui.value)
 					{
@@ -256,8 +255,7 @@
 
 			// wire up the search textbox to apply the filter to the model
 			$("#txtSearch").keyup(function(e) {
-				if (Slick.GlobalEditorLock.isEditing())
-					Slick.GlobalEditorLock.cancelCurrentEdit();
+                Slick.GlobalEditorLock.cancelCurrentEdit();
 
 				// clear on Esc
 				if (e.which == 27)
