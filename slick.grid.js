@@ -8,6 +8,7 @@
  * (c) 2009-2010 Michael Leibman (michael.leibman@gmail.com)
  * All rights reserved.
  *
+ * SlickGrid v1.0.0
  *
  * TODO:
  * - frozen columns
@@ -1750,6 +1751,8 @@ if (!jQuery.fn.drag) {
         // Public API
 
         $.extend(this, {
+            "slickGridVersion": "1.0.0",
+
             // Events
             "onSort":                null,
             "onHeaderContextMenu":   null,
