@@ -8,7 +8,7 @@
  * (c) 2009-2010 Michael Leibman (michael.leibman@gmail.com)
  * All rights reserved.
  *
- * SlickGrid v1.0.0
+ * SlickGrid v1.1.0
  *
  * TODO:
  * - frozen columns
@@ -16,24 +16,25 @@
  *
  *
  * OPTIONS:
- *     rowHeight             - (default 25px) Row height in pixels.
- *     enableAddRow          - (default false) If true, a blank row will be displayed at the bottom - typing values in that row will add a new one.
- *     leaveSpaceForNewRows  - (default false)
- *     editable              - (default false) If false, no cells will be switched into edit mode.
- *     editOnDoubleClick     - (default false) Cell will not automatically go into edit mode without being double-clicked.
- *     enableCellNavigation  - (default true) If false, no cells will be selectable.
- *     defaultColumnWidth    - (default 80px) Default column width in pixels (if columns[cell].width is not specified).
- *     enableColumnReorder   - (default true) Allows the user to reorder columns.
- *     asyncEditorLoading    - (default false) Makes cell editors load asynchronously after a small delay.
- *                             This greatly increases keyboard navigation speed.
- *     asyncEditorLoadDelay  - (default 100msec) Delay after which cell editor is loaded. Ignored unless asyncEditorLoading is true.
- *     forceFitColumns       - (default false) Force column sizes to fit into the viewport (avoid horizontal scrolling).
- *     enableAsyncPostRender - (default false) If true, async post rendering will occur and asyncPostRender delegates on columns will be called.
- *     asyncPostRenderDelay  - (default 60msec) Delay after which async post renderer delegate is called.
- *     autoHeight            - (default false) If true, vertically resizes to fit all rows.
- *     editorLock            - (default Slick.GlobalEditorLock) A Slick.EditorLock instance to use for controlling concurrent data edits.
+ *     rowHeight                - (default 25px) Row height in pixels.
+ *     enableAddRow             - (default false) If true, a blank row will be displayed at the bottom - typing values in that row will add a new one.
+ *     leaveSpaceForNewRows     - (default false)
+ *     editable                 - (default false) If false, no cells will be switched into edit mode.
+ *     editOnDoubleClick        - (default false) Cell will not automatically go into edit mode without being double-clicked.
+ *     enableCellNavigation     - (default true) If false, no cells will be selectable.
+ *     defaultColumnWidth       - (default 80px) Default column width in pixels (if columns[cell].width is not specified).
+ *     enableColumnReorder      - (default true) Allows the user to reorder columns.
+ *     asyncEditorLoading       - (default false) Makes cell editors load asynchronously after a small delay.
+ *                                This greatly increases keyboard navigation speed.
+ *     asyncEditorLoadDelay     - (default 100msec) Delay after which cell editor is loaded. Ignored unless asyncEditorLoading is true.
+ *     forceFitColumns          - (default false) Force column sizes to fit into the viewport (avoid horizontal scrolling).
+ *     enableAsyncPostRender    - (default false) If true, async post rendering will occur and asyncPostRender delegates on columns will be called.
+ *     asyncPostRenderDelay     - (default 60msec) Delay after which async post renderer delegate is called.
+ *     autoHeight               - (default false) If true, vertically resizes to fit all rows.
+ *     editorLock               - (default Slick.GlobalEditorLock) A Slick.EditorLock instance to use for controlling concurrent data edits.
  *     showSecondaryHeaderRow   - (default false) If true, an extra blank (to be populated externally) row will be displayed just below the header columns.
  *     secondaryHeaderRowHeight - (default 25px) The height of the secondary header row.
+ *
  *
  * COLUMN DEFINITION (columns) OPTIONS:
  *     id                  - Column ID.
@@ -72,6 +73,7 @@
  *     onCellChange          -  Raised when cell has been edited.   Args: row,cell,dataContext.
  *     onBeforeEditCell      -  Raised before a cell goes into edit mode.  Return false to cancel.  Args: row,cell,dataContext.
  *     onBeforeDestroy       -  Raised just before the grid control is destroyed (part of the destroy() method).
+ *
  *
  * NOTES:
  *     Cell/row DOM manipulations are done directly bypassing jQuery's DOM manipulation methods.
@@ -1751,7 +1753,7 @@ if (!jQuery.fn.drag) {
         // Public API
 
         $.extend(this, {
-            "slickGridVersion": "1.0.0",
+            "slickGridVersion": "1.1.0",
 
             // Events
             "onSort":                null,
