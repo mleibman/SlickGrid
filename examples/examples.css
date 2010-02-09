@@ -48,8 +48,17 @@ li {
 	display: inline-block;
 	font-weight: bold;
     margin: auto auto auto 6px;
+}
 
-}	
+.grid-header .ui-icon {
+    margin: 4px 4px auto 6px;
+    background-color: transparent;
+    border-color: transparent;
+}
+
+.grid-header .ui-icon.ui-state-hover {
+    background-color: white;
+}
 
 .grid-header #txtSearch {
 	margin: 0 4px 0 4px;

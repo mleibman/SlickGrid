@@ -88,6 +88,8 @@
  *     asyncPostRenderDelay  - (default 60msec) Delay after which async post renderer delegate is called.
  *     autoHeight            - (default false) If true, vertically resizes to fit all rows.
  *     editorLock            - (default Slick.GlobalEditorLock) A Slick.EditorLock instance to use for controlling concurrent data edits.
+ *     showSecondaryHeaderRow   - (default false) If true, an extra blank (to be populated externally) row will be displayed just below the header columns.
+ *     secondaryHeaderRowHeight - (default 25px) The height of the secondary header row.
  *
  * COLUMN DEFINITION (columns) OPTIONS:
  *     id                  - Column ID.
@@ -125,6 +127,7 @@
  *     onMoveRows            -
  *     onCellChange          -  Raised when cell has been edited.   Args: row,cell,dataContext.
  *     onBeforeEditCell      -  Raised before a cell goes into edit mode.  Return false to cancel.  Args: row,cell,dataContext.
+ *     onBeforeDestroy       -  Raised just before the grid control is destroyed (part of the destroy() method).
  *
  * NOTES:
  *     Cell/row DOM manipulations are done directly bypassing jQuery's DOM manipulation methods.
@@ -171,7 +174,9 @@ if (!jQuery.fn.drag) {
             enableAsyncPostRender: false,
             asyncPostRenderDelay: 60,
             autoHeight: false,
-            editorLock: Slick.GlobalEditorLock
+            editorLock: Slick.GlobalEditorLock,
+            showSecondaryHeaderRow: false,
+            secondaryHeaderRowHeight: 25
         };
 
         var columnDefaults = {
@@ -193,6 +198,8 @@ if (!jQuery.fn.drag) {
         var self = this;
         var $divHeadersScroller;
         var $divHeaders;
+        var $divSecondaryHeadersScroller;
+        var $divSecondaryHeaders;
         var $divMainScroller;
         var $divMain;
         var viewportH, viewportW;
@@ -309,6 +316,13 @@ if (!jQuery.fn.drag) {
             $divHeadersScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
             $divHeaders = $("<div class='slick-header-columns' style='width:100000px' />").appendTo($divHeadersScroller);
 
+            $divSecondaryHeadersScroller = $("<div class='slick-header-secondary ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+            $divSecondaryHeaders = $("<div class='slick-header-columns-secondary' style='width:100000px' />").appendTo($divSecondaryHeadersScroller);
+
+            if (!options.showSecondaryHeaderRow) {
+                $divSecondaryHeadersScroller.hide();
+            }
+
             // with autoHeight, we can set the mainscroller's y-overflow to auto, since the scroll bar will not appear
             var msStyle = "width:100%;overflow-x:auto;outline:0;position:relative;overflow-y:" + (options.autoHeight ? "auto;" : "scroll;");
             $divMainScroller = $("<div tabIndex='0' hideFocus style='" + msStyle + "'>").appendTo($container);
@@ -318,7 +332,10 @@ if (!jQuery.fn.drag) {
             // calculate the diff so we can set consistent sizes
             measureCellPaddingAndBorder();
 
-            $divMainScroller.height($container.innerHeight() - $divHeadersScroller.outerHeight());
+            $divMainScroller.height(
+                    $container.innerHeight() -
+                    $divHeadersScroller.outerHeight() -
+                    (options.showSecondaryHeaderRow ? $divSecondaryHeadersScroller.outerHeight() : 0));
 
             // for usability reasons, all text selection in SlickGrid is disabled
             // with the exception of input and textarea elements (selection must
@@ -691,6 +708,7 @@ if (!jQuery.fn.drag) {
         createCssRules = function createCssRulesFn() {
             var $style = $("<style type='text/css' rel='stylesheet' lib='slickgrid" + uid + "' />").appendTo($("head"));
             var rowHeight = (options.rowHeight - cellHeightDiff);
+            $.rule("." + uid + " .slick-header-columns-secondary {  height:" + options.secondaryHeaderRowHeight + "px; }").appendTo($style);
             $.rule("." + uid + " .slick-cell { height:" + rowHeight + "px; line-height:" + rowHeight + "px; }").appendTo($style);
 
             for (var i = 0; i < columns.length; i++) {
@@ -711,6 +729,7 @@ if (!jQuery.fn.drag) {
                 cancelCurrentEdit();
             }
 
+            if (self.onBeforeDestroy) { self.onBeforeDestroy(); }
             $divHeaders.sortable("destroy");
             $container.unbind("resize", resizeCanvas);
             removeCssRules();
@@ -873,6 +892,19 @@ if (!jQuery.fn.drag) {
             }
         }
 
+        function getSecondaryHeaderRow() {
+            return $divSecondaryHeaders[0];
+        }
+
+        function showSecondaryHeaderRow() {
+            options.showSecondaryHeaderRow = true;
+            $divSecondaryHeadersScroller.slideDown("fast", resizeCanvas);
+        }
+
+        function hideSecondaryHeaderRow() {
+            options.showSecondaryHeaderRow = false;
+            $divSecondaryHeadersScroller.slideUp("fast", resizeCanvas);
+        }
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Rendering / Scrolling
@@ -996,8 +1028,10 @@ if (!jQuery.fn.drag) {
                 $divMainScroller.height(newHeight);
             }
             else {
-                $divMainScroller.height( $container.innerHeight() - $divHeadersScroller.outerHeight() );
-            }
+            $divMainScroller.height(
+                    $container.innerHeight() -
+                    $divHeadersScroller.outerHeight() -
+                    (options.showSecondaryHeaderRow ? $divSecondaryHeadersScroller.outerHeight() : 0));            }
 
             viewportW = $divMainScroller.innerWidth();
             viewportH = $divMainScroller.innerHeight();
@@ -1119,6 +1153,7 @@ if (!jQuery.fn.drag) {
 
             if (scrollLeft !== currentScrollLeft) {
                 $divHeadersScroller[0].scrollLeft = currentScrollLeft = scrollLeft;
+                $divSecondaryHeadersScroller[0].scrollLeft = currentScrollLeft = scrollLeft;
             }
 
             // min scroll distance = 25% of the viewport or MIN_BUFFER rows (whichever is smaller)
@@ -1685,6 +1720,7 @@ if (!jQuery.fn.drag) {
             "onMoveRows":            null,
             "onCellChange":          null,
             "onBeforeEditCell":      null,
+            "onBeforeDestroy":       null,
 
             // Methods
             "setOptions":          setOptions,
@@ -1707,6 +1743,9 @@ if (!jQuery.fn.drag) {
             "editCurrentCell":     makeSelectedCellEditable,
             "getSelectedRows":     getSelectedRows,
             "setSelectedRows":     setSelectedRows,
+            "getSecondaryHeaderRow":    getSecondaryHeaderRow,
+            "showSecondaryHeaderRow":   showSecondaryHeaderRow,
+            "hideSecondaryHeaderRow":   hideSecondaryHeaderRow,
 
             // IEditor implementation
             "commitCurrentEdit": commitCurrentEdit,
