@@ -108,6 +108,9 @@ if (!jQuery.fn.drag) {
     //////////////////////////////////////////////////////////////////////////////////////////////
     // EditorLock class implementation (available as Slick.EditorLock)
 
+    /**
+     * @constructor
+     */
     function EditorLock() {
         /// <summary>
         /// Track currently active edit controller and ensure
@@ -201,6 +204,9 @@ if (!jQuery.fn.drag) {
     //////////////////////////////////////////////////////////////////////////////////////////////
     // SlickGrid class implementation (available as Slick.Grid)
 
+    /**
+     * @constructor
+     */
     function SlickGrid($container,data,columns,options) {
         /// <summary>
         /// Create and manage virtual grid in the specified $container,
@@ -401,7 +407,7 @@ if (!jQuery.fn.drag) {
             createCssRules();
             resizeCanvas();
             if (options.forceFitColumns) {
-                autosizeColumns();
+                autosizeColumns(null);
             }
             render();
 
@@ -983,7 +989,7 @@ if (!jQuery.fn.drag) {
 
         function cleanupRows(visibleFrom,visibleTo) {
             for (var i in rowsCache) {
-                if ((i < visibleFrom || i > visibleTo) && i !== currentRow) {
+                if (((i = parseInt(i, 10)) !== currentRow) && (i < visibleFrom || i > visibleTo)) {
                     removeRowFromCache(i);
                 }
             }
@@ -1163,7 +1169,7 @@ if (!jQuery.fn.drag) {
         function startPostProcessing() {
             if (!options.enableAsyncPostRender) { return; }
             clearTimeout(h_postrender);
-            h_postrender = setTimeout(asyncPostProcessRows, options.asyncPostRenderDelay);
+            h_postrender = setTimeout(asyncPostProcessRows, options.asyncPostRenderDelay, "JavaScript");
         }
 
         invalidatePostProcessingResults = function invalidatePostProcessingResultsFn(row) {
@@ -1226,7 +1232,7 @@ if (!jQuery.fn.drag) {
                 render();
             }
             else {
-                h_render = setTimeout(render, 50);
+                h_render = setTimeout(render, 50, "JavaScript");
             }
 
             if (self.onViewportChanged) {
@@ -1249,7 +1255,7 @@ if (!jQuery.fn.drag) {
                 }
 
                 postProcessedRows[row] = true;
-                h_postrender = setTimeout(asyncPostProcessRows, options.asyncPostRenderDelay);
+                h_postrender = setTimeout(asyncPostProcessRows, options.asyncPostRenderDelay, "JavaScript");
                 return;
             }
         };
@@ -1285,20 +1291,20 @@ if (!jQuery.fn.drag) {
                 break;
 
             case 37:  // left
-                gotoDir(0,-1);
+                gotoDir(0, -1, false);
                 break;
 
             case 39:  // right
-                gotoDir(0,1);
+                gotoDir(0, 1, false);
                 break;
 
             case 38:  // up
-                gotoDir(-1,0);
+                gotoDir(-1, 0, false);
                 break;
 
             case 40:  // down
             case 13:  // enter
-                gotoDir(1,0);
+                gotoDir(1, 0, false);
                 break;
 
             default:
@@ -1445,7 +1451,7 @@ if (!jQuery.fn.drag) {
                     clearTimeout(h_editorLoader);
 
                     if (options.asyncEditorLoading) {
-                        h_editorLoader = setTimeout(makeSelectedCellEditable, options.asyncEditorLoadDelay);
+                        h_editorLoader = setTimeout(makeSelectedCellEditable, options.asyncEditorLoadDelay, "JavaScript");
                     }
                     else {
                         makeSelectedCellEditable();
@@ -1717,7 +1723,7 @@ if (!jQuery.fn.drag) {
             // render 200 rows in the viewport
             renderRows(0, 200);
 
-            cleanupRows();
+            cleanupRows(0, 200);
         };
 
         this.stressTest = function() {
@@ -1725,11 +1731,11 @@ if (!jQuery.fn.drag) {
 
             renderRows(0,500);
 
-            cleanupRows();
+            cleanupRows(0, 500);
 
             console.timeEnd("benchmark-stress");
 
-            setTimeout(self.stressTest, 50);
+            setTimeout(self.stressTest, 50, "JavaScript");
         };
 
         this.benchmarkFn = function(fn) {
