@@ -110,17 +110,17 @@ public static class Program
         var source = files.Select(f => File.ReadAllText(f)).Aggregate((s1,s2) => string.Concat(s1, Environment.NewLine, s2));
         source = source.Replace("\"use strict\";", string.Empty);
         var versionMatch = Regex.Match(source, versionRegex, RegexOptions.CultureInvariant | RegexOptions.Multiline);
-        if (versionMatch.Success)
+        if (versionMatch.Success && versionMatch.Groups.Count > 1)
         {
             outputFileName = string.Format(CultureInfo.InvariantCulture, outputFileName, versionMatch.Groups[1].Value);
         }
         var outputFileNameDir = Path.GetDirectoryName(outputFileName);
-        if (!string.IsNullOrEmpty(outputFileNameDir) && !Directory.Exists(outputFileNameDir))
+        if (!string.IsNullOrEmpty(outputFileNameDir) && !Directory.Exists(outputFileNameDir)) // ensure target dir exists
         {
             Directory.CreateDirectory(outputFileNameDir);
         }
         var outputFileNameOrig = Path.ChangeExtension(outputFileName, string.Concat(".orig", Path.GetExtension(outputFileName)));
-        if (File.Exists(outputFileNameOrig)) { File.SetAttributes(outputFileNameOrig, FileAttributes.Normal); }
+        if (File.Exists(outputFileNameOrig)) { File.SetAttributes(outputFileNameOrig, FileAttributes.Normal); } // ensure we can overwrite files marked as read-only
         File.WriteAllText(outputFileNameOrig, source);
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine("OK");
@@ -130,7 +130,7 @@ public static class Program
         Console.Write("Calling Closure Compiler: ");
         var webClient = new WebClient();
         webClient.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
-        var request = "compilation_level=SIMPLE_OPTIMIZATIONS&output_format=json&output_info=errors&output_info=warnings&output_info=compiled_code&" + "js_code=" + HttpUtility.UrlEncode(source);
+        var request = string.Concat("compilation_level=SIMPLE_OPTIMIZATIONS&output_format=json&output_info=errors&output_info=warnings&output_info=compiled_code&js_code=", HttpUtility.UrlEncode(source));
         var response = new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(webClient.UploadString("http://closure-compiler.appspot.com/compile", request));
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine("OK");
@@ -163,7 +163,7 @@ public static class Program
         // write output file
         Console.ForegroundColor = ConsoleColor.DarkGray;
         Console.Write("Writing Minimized File: ");
-        if (File.Exists(outputFileName)) { File.SetAttributes(outputFileName, FileAttributes.Normal); }
+        if (File.Exists(outputFileName)) { File.SetAttributes(outputFileName, FileAttributes.Normal); } // ensure we can overwrite files marked as read-only
         File.WriteAllText(outputFileName, response.GetValueOrDefault<string>("compiledCode"));
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine("OK");
