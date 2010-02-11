@@ -3,8 +3,8 @@
 "use strict";
 
 
-/***
- *
+/**
+ * @license
  * (c) 2009-2010 Michael Leibman (michael.leibman@gmail.com)
  * All rights reserved.
  *
@@ -86,7 +86,6 @@
  * @param {Array} data         An array of objects for databinding.
  * @param {Array} columns      An array of column definitions.
  * @param {Object} options     Grid options.
- *
  */
 
 // make sure required JavaScript modules are loaded
@@ -104,13 +103,10 @@ if (!jQuery.fn.drag) {
     var scrollbarDimensions; // shared across all grids on this page
 
 
-
     //////////////////////////////////////////////////////////////////////////////////////////////
     // EditorLock class implementation (available as Slick.EditorLock)
 
-    /**
-     * @constructor
-     */
+    /** @constructor */
     function EditorLock() {
         /// <summary>
         /// Track currently active edit controller and ensure
@@ -204,9 +200,7 @@ if (!jQuery.fn.drag) {
     //////////////////////////////////////////////////////////////////////////////////////////////
     // SlickGrid class implementation (available as Slick.Grid)
 
-    /**
-     * @constructor
-     */
+    /** @constructor */
     function SlickGrid($container,data,columns,options) {
         /// <summary>
         /// Create and manage virtual grid in the specified $container,
