@@ -260,6 +260,8 @@ if (!jQuery.fn.drag) {
         var currentRow, currentCell;
         var currentCellNode = null;
         var currentEditor = null;
+        var editController;
+
 
         var rowsCache = {};
         var renderedRows = 0;
@@ -333,6 +335,11 @@ if (!jQuery.fn.drag) {
                 throw new Error("SlickGrid's \"enableColumnReorder = true\" option requires jquery-ui.sortable module to be loaded");
             }
 
+            editController = {
+                "commitCurrentEdit":    commitCurrentEdit,
+                "cancelCurrentEdit":    cancelCurrentEdit
+            }
+
             $container
                 .empty()
                 .attr("tabIndex",0)
@@ -343,13 +350,13 @@ if (!jQuery.fn.drag) {
                 .addClass("ui-widget");
 
             switch ($container.css("position")) {
-            case "absolute": // if the container is already positioning origin, keep it as it is
-            case "relative":
-            case "fixed":
-                break;
-            default: // container is not a positioning origin, convert it to one
-                $container.css("position","relative");
-                break;
+                case "absolute": // if the container is already positioning origin, keep it as it is
+                case "relative":
+                case "fixed":
+                    break;
+                default: // container is not a positioning origin, convert it to one
+                    $container.css("position","relative");
+                    break;
             }
 
             $divHeadersScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
@@ -394,9 +401,7 @@ if (!jQuery.fn.drag) {
             render();
 
             $divMainScroller.bind("scroll", handleScroll);
-
             $container.bind("resize", resizeCanvas);
-
             $divMain.bind("keydown", handleKeyDown);
             $divMain.bind("click", handleClick);
             $divMain.bind("dblclick", handleDblClick);
@@ -772,6 +777,10 @@ if (!jQuery.fn.drag) {
         //////////////////////////////////////////////////////////////////////////////////////////////
         // General
 
+        function getEditController() {
+            return editController;
+        }
+        
         function getColumnIndex(id) {
             return columnsById[id];
         }
@@ -1506,7 +1515,7 @@ if (!jQuery.fn.drag) {
             // IE can't set focus to anything else correctly
             if ($.browser.msie) { clearTextSelection(); }
 
-            options.editorLock.deactivate(self);
+            options.editorLock.deactivate(editController);
         }
 
         function makeSelectedCellEditable() {
@@ -1527,7 +1536,7 @@ if (!jQuery.fn.drag) {
                 return;
             }
 
-            options.editorLock.activate(self);
+            options.editorLock.activate(editController);
 
             $(currentCellNode).addClass("editable");
 
@@ -1780,8 +1789,7 @@ if (!jQuery.fn.drag) {
             "hideSecondaryHeaderRow":   hideSecondaryHeaderRow,
 
             // IEditor implementation
-            "commitCurrentEdit": commitCurrentEdit,
-            "cancelCurrentEdit": cancelCurrentEdit
+            "getEditController":    getEditController
         });
     }
 
