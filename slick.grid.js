@@ -404,14 +404,6 @@ if (!jQuery.fn.drag) {
             $divHeadersScroller.bind("contextmenu", handleHeaderContextMenu);
         }
 
-        function hoverBegin() {
-            $(this).addClass('ui-state-hover');
-        }
-
-        function hoverEnd() {
-            $(this).removeClass('ui-state-hover');
-        }
-
         function createColumnHeaders() {
             var i;
             for (i = 0; i < columns.length; i++) {
@@ -428,7 +420,9 @@ if (!jQuery.fn.drag) {
                 }
 
                 if (options.enableColumnReorder || m.sortable) {
-                    header.hover(hoverBegin, hoverEnd);
+                    header.hover(
+                        function() { $(this).addClass('ui-state-hover'); },
+                        function() { $(this).removeClass('ui-state-hover'); });
                 }
 
                 if (m.sortable) {
