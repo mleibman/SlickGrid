@@ -286,18 +286,6 @@ if (!jQuery.fn.drag) {
         var counter_rows_rendered = 0;
         var counter_rows_removed = 0;
 
-        // forward declarations (declare names of functions that are called before being defined;
-        // this will prevent browser from assuming they are global functions)
-        var measureCellPaddingAndBorder, createColumnHeaders, setupRowReordering,
-            createCssRules, resizeCanvas, autosizeColumns, render, handleScroll,
-            handleKeyDown, handleClick, handleDblClick, handleContextMenu,
-            handleHeaderContextMenu, setupColumnSort, setupColumnResize,
-            setupColumnReorderEvents, removeAllRows, removeCssRules,
-            updateColumnWidth, setSelectedRows, getSelectedRows,
-            makeSelectedCellNormal, removeRow, removeRowFromCache, invalidatePostProcessingResults,
-            asyncPostProcessRows, gotoDir, setSelectedCellAndRow, makeSelectedCellEditable,
-            scrollSelectedCellIntoView, isCellPotentiallyEditable;
-
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Initialization
@@ -424,7 +412,7 @@ if (!jQuery.fn.drag) {
             $(this).removeClass('ui-state-hover');
         }
 
-        createColumnHeaders = function createColumnHeadersFn() {
+        function createColumnHeaders() {
             var i;
             for (i = 0; i < columns.length; i++) {
                 var m = columns[i] = $.extend({},columnDefaults,columns[i]);
@@ -451,11 +439,11 @@ if (!jQuery.fn.drag) {
             setupColumnSort();
             setupColumnResize();
             if (options.enableColumnReorder) {
-                setupColumnReorderEvents();
+                setupColumnReorder();
             }
-        };
+        }
 
-        setupColumnSort = function setupColumnSortFn() {
+        function setupColumnSort() {
             $divHeaders.click(function(e) {
                 if ($(e.target).hasClass("slick-resizable-handle")) {
                     return;
@@ -481,9 +469,9 @@ if (!jQuery.fn.drag) {
                     self.onSort(columns[columnsById[$col.attr("id")]], $col.find(".slick-sort-indicator").hasClass("slick-sort-indicator-asc"));
                 }
             });
-        };
+        }
 
-        setupColumnReorderEvents = function setupColumnReorderEventsFn() {
+        function setupColumnReorder() {
             $divHeaders.sortable({
                 containment: 'parent',
                 axis: "x",
@@ -495,7 +483,7 @@ if (!jQuery.fn.drag) {
                 forcePlaceholderSize: true,
                 start: function(e, ui) { $(ui.helper).addClass("slick-header-column-active"); },
                 beforeStop: function(e, ui) { $(ui.helper).removeClass("slick-header-column-active"); },
-                stop: function(e, ui) {
+                stop: function(e) {
                     var i;
 
                     if (!options.editorLock.commitCurrentEdit()) {
@@ -527,13 +515,13 @@ if (!jQuery.fn.drag) {
                     setupColumnResize();
                 }
             });
-        };
+        }
 
-        setupColumnResize = function setupColumnResizeEventsFn() {
+        function setupColumnResize() {
             var $col, j, c, width, pageX, columnElements, minPageX, maxPageX, firstResizable, lastResizable;
             columnElements = $divHeaders.find(".slick-header-column:visible");
             columnElements.find('.slick-resizable-handle').remove();
-            columnElements.each(function(i,e) {
+            columnElements.each(function(i) {
                 c = columns[i];
                 if (c.resizable) {
                     if (firstResizable === undefined) { firstResizable = i; }
@@ -674,9 +662,9 @@ if (!jQuery.fn.drag) {
                         resizeCanvas();
                     });
                 });
-        };
+        }
 
-        setupRowReordering = function setupRowReorderingFn() {
+        function setupRowReordering() {
             $divMain
                 .bind("beforedragstart", function(e) {
                     var $cell = $(e.target).closest(".slick-cell");
@@ -739,9 +727,9 @@ if (!jQuery.fn.drag) {
                     $(this).removeData("selectionProxy").removeData("insertBefore");
                     if (self.onMoveRows && canMove) { self.onMoveRows(getSelectedRows(),insertBefore); }
                 });
-        };
+        }
 
-        measureCellPaddingAndBorder = function measureCellPaddingAndBorderFn() {
+        function measureCellPaddingAndBorder() {
             var tmp = $("<div class='ui-state-default slick-header-column' cell='' id='' style='visibility:hidden'>-</div>").appendTo($divHeaders);
             headerColumnWidthDiff = tmp.outerWidth() - tmp.width();
             headerColumnHeightDiff = tmp.outerHeight() - tmp.height();
@@ -754,9 +742,9 @@ if (!jQuery.fn.drag) {
             r.remove();
 
             absoluteColumnMinWidth = Math.max(headerColumnWidthDiff,cellWidthDiff);
-        };
+        }
 
-        createCssRules = function createCssRulesFn() {
+        function createCssRules() {
             var $style = $("<style type='text/css' rel='stylesheet' lib='slickgrid" + uid + "' />").appendTo($("head"));
             var rowHeight = (options.rowHeight - cellHeightDiff);
             $.rule("." + uid + " .slick-header-columns-secondary {  height:" + options.secondaryHeaderRowHeight + "px; }").appendTo($style);
@@ -769,11 +757,11 @@ if (!jQuery.fn.drag) {
                     "display: " + (columns[i].hidden ? "none" : "block") +
                     " }").appendTo($style);
             }
-        };
+        }
 
-        removeCssRules = function removeCssRulesFn() {
+        function removeCssRules() {
             $("style[lib=slickgrid" + uid + "]").remove();
-        };
+        }
 
         function destroy() {
             options.editorLock.cancelCurrentEdit();
@@ -794,7 +782,7 @@ if (!jQuery.fn.drag) {
             return columnsById[id];
         }
 
-        autosizeColumns = function autosizeColumnsFn(columnToHold) {
+        function autosizeColumns(columnToHold) {
             var i, c,
                 availWidth = (options.autoHeight ? viewportW : viewportW - scrollbarDimensions.width), // with AutoHeight, we do not need to accomodate the vertical scroll bar
                 total = 0,
@@ -859,13 +847,13 @@ if (!jQuery.fn.drag) {
             }
 
             resizeCanvas();
-        };
+        }
 
-        updateColumnWidth = function updateColumnWidth(index,width) {
+        function updateColumnWidth(index,width) {
             columns[index].width = width;
             $divHeaders.find(".slick-header-column[id=" + columns[index].id + "]").css("width",width - headerColumnWidthDiff);
             $.rule("." + uid + " .c" + index, "style[lib=slickgrid" + uid + "]").css("width", (columns[index].width - cellWidthDiff) + "px");
-        };
+        }
 
         function setColumnVisibility(column,visible) {
             var index = columnsById[column.id];
@@ -882,11 +870,11 @@ if (!jQuery.fn.drag) {
             setupColumnResize();
         }
 
-        getSelectedRows = function getSelectedRowsFn() {
+        function getSelectedRows() {
             return selectedRows.sort().concat();
-        };
+        }
 
-        setSelectedRows = function setSelectedRowsFn(rows) {
+        function setSelectedRows(rows) {
             var i, row;
             if (options.editorLock.isActive() && !options.editorLock.isActive(self)) { // there are 3 possible states: a) editor lock is inactive: OK, b) editor lock is active and this SlickGrid is the controller: OK, c) editor lock is active but some other controller locked it: throw
                 throw "Grid : setSelectedRows : cannot set selected rows when somebody else has an edit lock";
@@ -915,7 +903,7 @@ if (!jQuery.fn.drag) {
 
             selectedRows = rows.concat();
             selectedRowsLookup = lookup;
-        };
+        }
 
         function setOptions(args) {
             if (!options.editorLock.commitCurrentEdit()) {
@@ -989,15 +977,15 @@ if (!jQuery.fn.drag) {
             }
         }
 
-        removeAllRows = function removeAllRowsFn() {
+        function removeAllRows() {
             $divMain[0].innerHTML = "";
             rowsCache= {};
             postProcessedRows = {};
             counter_rows_removed += renderedRows;
             renderedRows = 0;
-        };
+        }
 
-        removeRowFromCache = function removeRowFromCacheFn(row) {
+        function removeRowFromCache(row) {
             var node = rowsCache[row];
             if (!node) { return; }
             node.parentNode.removeChild(node);
@@ -1005,7 +993,7 @@ if (!jQuery.fn.drag) {
             delete postProcessedRows[row];
             renderedRows--;
             counter_rows_removed++;
-        };
+        }
 
         function removeRows(rows) {
             var i, rl, nl;
@@ -1032,9 +1020,9 @@ if (!jQuery.fn.drag) {
             }
         }
 
-        removeRow = function removeRowFn(row) {
+        function removeRow(row) {
             removeRows([row]);
-        };
+        }
 
         function updateCell(row,cell) {
             if (!rowsCache[row]) { return; }
@@ -1071,7 +1059,7 @@ if (!jQuery.fn.drag) {
             invalidatePostProcessingResults(row);
         }
 
-        resizeCanvas = function resizeCanvasFn() {
+        function resizeCanvas() {
             var newHeight = options.rowHeight * (data.length + (options.enableAddRow ? 1 : 0) + (options.leaveSpaceForNewRows? numVisibleRows - 1 : 0));
             if (options.autoHeight) { // use computed height to set both canvas _and_ divMainScroller, effectively hiding scroll bars.
                 $divMainScroller.height(newHeight);
@@ -1103,7 +1091,7 @@ if (!jQuery.fn.drag) {
 
             $divMain.height(newHeight);
             render();
-        };
+        }
 
         function updateRowCount() {
             // remove the rows that are now outside of the data range
@@ -1166,14 +1154,14 @@ if (!jQuery.fn.drag) {
             h_postrender = setTimeout(asyncPostProcessRows, options.asyncPostRenderDelay, "JavaScript");
         }
 
-        invalidatePostProcessingResults = function invalidatePostProcessingResultsFn(row) {
+        function invalidatePostProcessingResults(row) {
             delete postProcessedRows[row];
             postProcessFromRow = Math.min(postProcessFromRow,row);
             postProcessToRow = Math.max(postProcessToRow,row);
             startPostProcessing();
-        };
+        }
 
-        render = function renderFn() {
+        function render() {
             var vp = getViewport();
             var from = Math.max(0, vp.top - (scrollDir >= 0 ? MIN_BUFFER : BUFFER));
             var to = Math.min(options.enableAddRow ? data.length : data.length - 1, vp.bottom + (scrollDir > 0 ? BUFFER : MIN_BUFFER));
@@ -1193,9 +1181,9 @@ if (!jQuery.fn.drag) {
 
             lastRenderedScrollTop = currentScrollTop;
             h_render = null;
-        };
+        }
 
-        handleScroll = function handleScrollFn() {
+        function handleScroll() {
             currentScrollTop = $divMainScroller[0].scrollTop;
             var scrollDistance = Math.abs(lastRenderedScrollTop - currentScrollTop);
             var scrollLeft = $divMainScroller[0].scrollLeft;
@@ -1232,9 +1220,9 @@ if (!jQuery.fn.drag) {
             if (self.onViewportChanged) {
                 self.onViewportChanged();
             }
-        };
+        }
 
-        asyncPostProcessRows = function asyncPostProcessRowsFn() {
+        function asyncPostProcessRows() {
             while (postProcessFromRow <= postProcessToRow) {
                 var row = (scrollDir >= 0) ? postProcessFromRow++ : postProcessToRow--;
                 var rowNode = rowsCache[row];
@@ -1252,13 +1240,13 @@ if (!jQuery.fn.drag) {
                 h_postrender = setTimeout(asyncPostProcessRows, options.asyncPostRenderDelay, "JavaScript");
                 return;
             }
-        };
+        }
 
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Interactivity
 
-        handleKeyDown = function handleKeyDownFn(e) {
+        function handleKeyDown(e) {
             // do we have any registered handlers?
             if (self.onKeyDown && data[currentRow]) {
                 // grid must not be in edit mode
@@ -1309,9 +1297,9 @@ if (!jQuery.fn.drag) {
             e.stopPropagation();
             e.preventDefault();
             return false;
-        };
+        }
 
-        handleClick = function handleClickFn(e) {
+        function handleClick(e) {
             var $cell = $(e.target).closest(".slick-cell");
             if ($cell.length === 0) { return; }
 
@@ -1342,9 +1330,9 @@ if (!jQuery.fn.drag) {
                     setSelectedCellAndRow($cell[0],!options.editOnDoubleClick);
                 }
             }
-        };
+        }
 
-        handleContextMenu = function handleContextMenuFn(e) {
+        function handleContextMenu(e) {
             var $cell = $(e.target).closest(".slick-cell");
             if ($cell.length === 0) { return; }
 
@@ -1368,9 +1356,9 @@ if (!jQuery.fn.drag) {
                     }
                 }
             }
-        };
+        }
 
-        handleDblClick = function handleDblClickFn(e) {
+        function handleDblClick(e) {
             var $cell = $(e.target).closest(".slick-cell");
             if ($cell.length === 0) { return; }
 
@@ -1398,15 +1386,15 @@ if (!jQuery.fn.drag) {
             if (options.editOnDoubleClick) {
                 makeSelectedCellEditable();
             }
-        };
+        }
 
-        handleHeaderContextMenu = function handleHeaderContextMenuFn(e) {
+        function handleHeaderContextMenu(e) {
             if (self.onHeaderContextMenu && options.editorLock.commitCurrentEdit()) {
                 e.preventDefault();
                 // TODO:  figure out which column was acted on and pass it as a param to the handler
                 self.onHeaderContextMenu(e);
             }
-        };
+        }
 
         function getCellFromPoint(x,y) {
             var row = Math.floor(y/options.rowHeight);
@@ -1461,7 +1449,7 @@ if (!jQuery.fn.drag) {
             }
         }
 
-        setSelectedCellAndRow = function setSelectedCellAndRowFn(newCell,editMode) {
+        function setSelectedCellAndRow(newCell,editMode) {
             setSelectedCell(newCell,editMode);
 
             if (newCell) {
@@ -1474,7 +1462,7 @@ if (!jQuery.fn.drag) {
             if (self.onSelectedRowsChanged) {
                 self.onSelectedRowsChanged();
             }
-        };
+        }
 
         function clearTextSelection() {
             if (document.selection && document.selection.empty) {
@@ -1488,7 +1476,7 @@ if (!jQuery.fn.drag) {
             }
         }
 
-        isCellPotentiallyEditable = function isCellPotentiallyEditableFn(row,cell) {
+        function isCellPotentiallyEditable(row,cell) {
             // is the data for this row loaded?
             if (row < data.length && !data[row]) {
                 return false;
@@ -1505,9 +1493,9 @@ if (!jQuery.fn.drag) {
             }
 
             return true;
-        };
+        }
 
-        makeSelectedCellNormal = function makeSelectedCellNormalFn() {
+        function makeSelectedCellNormal() {
             if (!currentEditor) { return; }
 
             currentEditor.destroy();
@@ -1525,9 +1513,9 @@ if (!jQuery.fn.drag) {
             if ($.browser.msie) { clearTextSelection(); }
 
             options.editorLock.deactivate(self);
-        };
+        }
 
-        makeSelectedCellEditable = function makeSelectedCellEditableFn() {
+        function makeSelectedCellEditable() {
             if (!currentCellNode) { return; }
             if (!options.editable) {
                 throw "Grid : makeSelectedCellEditable : should never get called when options.editable is false";
@@ -1559,9 +1547,9 @@ if (!jQuery.fn.drag) {
             currentCellNode.innerHTML = "";
 
             currentEditor = new columns[currentCell].editor($(currentCellNode), columns[currentCell], value, data[currentRow]);
-        };
+        }
 
-        scrollSelectedCellIntoView = function scrollSelectedCellIntoViewFn() {
+        function scrollSelectedCellIntoView() {
             if (!currentCellNode) { return; }
             var scrollTop = $divMainScroller[0].scrollTop;
 
@@ -1575,9 +1563,9 @@ if (!jQuery.fn.drag) {
                 $divMainScroller[0].scrollTop = (currentRow + 2) * options.rowHeight - viewportH;
                 handleScroll();
             }
-        };
+        }
 
-        gotoDir = function gotoDirFn(dy, dx, rollover) {
+        function gotoDir(dy, dx, rollover) {
             if (!currentCellNode || !options.enableCellNavigation) { return; }
             if (!options.editorLock.commitCurrentEdit()) { return; }
 
@@ -1603,7 +1591,6 @@ if (!jQuery.fn.drag) {
                 }
             }
 
-
             if (nextRow && nextCell && nextCell.length) {
                 setSelectedCellAndRow(nextCell[0],true);
 
@@ -1615,7 +1602,7 @@ if (!jQuery.fn.drag) {
             else {
                 currentCellNode.focus();
             }
-        };
+        }
 
         function gotoCell(row,cell) {
             if (row > data.length || row < 0 || cell >= columns.length || cell < 0) { return; }
