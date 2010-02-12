@@ -8,7 +8,7 @@
  * (c) 2009-2010 Michael Leibman (michael.leibman@gmail.com)
  * All rights reserved.
  *
- * SlickGrid v1.1.0
+ * SlickGrid v1.2.0
  *
  * TODO:
  * - frozen columns
@@ -804,7 +804,7 @@ if (!jQuery.fn.drag) {
         function getEditController() {
             return editController;
         }
-        
+
         function getColumnIndex(id) {
             return columnsById[id];
         }
@@ -1271,78 +1271,79 @@ if (!jQuery.fn.drag) {
         // Interactivity
 
         function handleKeyDown(e) {
-            // do we have any registered handlers?
-            if (self.onKeyDown && data[currentRow]) {
-                // grid must not be in edit mode
-                if (!currentEditor) {
-                    // handler will return true if the event was handled
-                    if (self.onKeyDown(e, currentRow, currentCell)) {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        return false;
+            // give registered handler chance to process the keyboard event
+            var handled = (self.onKeyDown && // a handler must be registered
+                data[currentRow] && // grid must be non-empty, have cell navigation enabled and have valid row selected as current
+                !options.editorLock.isActive() && // grid must not be in edit mode;
+                self.onKeyDown(e, currentRow, currentCell)); // handler must return truthy-value to indicate it handled the event
+
+            if (!handled) {
+                switch (e.which) {
+                case 27:  // esc
+                    if (!options.editorLock.isActive()) {
+                        return; // no editing mode to cancel, allow bubbling and default processing (exit without cancelling the event)
                     }
-                }
-            }
+                    options.editorLock.cancelCurrentEdit();
+                    if (currentCellNode) {
+                        currentCellNode.focus();
+                    }
+                    break;
 
-            switch (e.which) {
-            case 27:  // esc
-                options.editorLock.cancelCurrentEdit(); // noop if lock is inactive
-                if (currentCellNode) {
-                    currentCellNode.focus();
-                }
-                break;
+                case 9:  // tab
+                    gotoDir(0, (e.shiftKey) ? -1 : 1, true);
+                    break;
 
-            case 9:  // tab
-                gotoDir(0, (e.shiftKey) ? -1 : 1, true);
-                break;
+                case 37:  // left
+                    gotoDir(0, -1, false);
+                    break;
 
-            case 37:  // left
-                gotoDir(0, -1, false);
-                break;
+                case 39:  // right
+                    gotoDir(0, 1, false);
+                    break;
 
-            case 39:  // right
-                gotoDir(0, 1, false);
-                break;
+                case 38:  // up
+                    gotoDir(-1, 0, false);
+                    break;
 
-            case 38:  // up
-                gotoDir(-1, 0, false);
-                break;
-
-            case 40:  // down
-                gotoDir(1, 0, false);
-                break;
-
-            case 13:  // enter
-                if (options.autoEdit) {
+                case 40:  // down
                     gotoDir(1, 0, false);
-                }
-                else if (options.editable) {
-                    if (currentEditor) {
-                        // adding new row 
-                        if (currentRow == data.length) {
-                            gotoDir(1, 0, false);
-                        }
-                        else {
-                            options.editorLock.commitCurrentEdit();
-                            currentCellNode.focus();
-                        }
-                    } else {
-                        if (options.editorLock.commitCurrentEdit()) {
-                            makeSelectedCellEditable();
-                        }
+                    break;
+
+                case 13:  // enter
+                    if (options.autoEdit) {
+                        gotoDir(1, 0, false);
                     }
+                    else if (options.editable) {
+                        if (currentEditor) {
+                            // adding new row
+                            if (currentRow == data.length) {
+                                gotoDir(1, 0, false);
+                            }
+                            else {
+                                options.editorLock.commitCurrentEdit();
+                                currentCellNode.focus();
+                            }
+                        } else {
+                            if (options.editorLock.commitCurrentEdit()) {
+                                makeSelectedCellEditable();
+                            }
+                        }
 
+                    }
+                    break;
+
+                default:
+                    return; // allow bubbling and default processing (exit without cancelling the event)
                 }
-                break;
-
-            default:
-                // exit without cancelling the event
-                return;
             }
 
+            // the event has been handled so don't let parent element (bubbling/propagation) or browser (default) handle it
             e.stopPropagation();
             e.preventDefault();
-            return false;
+            try {
+                event.originalEvent.keyCode = 0; // prevent default behaviour for special keys in IE browsers (F3, F5, etc.)
+            }
+            catch (error) {} // ignore exceptions - setting the original event's keycode throws access denied exception for "Ctrl" (hitting control key only, nothing else), "Shift" (maybe others)
         }
 
         function handleClick(e) {
@@ -1817,7 +1818,7 @@ if (!jQuery.fn.drag) {
         // Public API
 
         $.extend(this, {
-            "slickGridVersion": "1.1.0",
+            "slickGridVersion": "1.2.0",
 
             // Events
             "onSort":                null,
