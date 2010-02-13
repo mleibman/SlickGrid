@@ -353,7 +353,7 @@ var PercentCompleteCellEditor = function($container, columnDef, value, dataConte
             $input.val(defaultValue);
         }
 
-        $input.width($container.innerWidth() - 20);
+        $input.width($container.innerWidth() - 25);
         $input.appendTo($container);
 
         $picker = $("<div class='editor-percentcomplete-picker' />").appendTo($container);

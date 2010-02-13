@@ -27,6 +27,11 @@
     background: #DFE8F6;
 }
 
+.slick-cell {
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
 .slick-cell.selected {
     border-color: gray;
     border-style: solid;
