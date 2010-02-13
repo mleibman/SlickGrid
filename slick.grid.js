@@ -54,6 +54,7 @@
  *     cssClass            - A CSS class to add to the cell.
  *     rerenderOnResize    - Rerender the column when it is resized (useful for columns relying on cell width or adaptive formatters).
  *     asyncPostRender     - Function responsible for manipulating the cell DOM node after it has been rendered (called in the background).
+ *     behavior            - Configures the column with one of several available predefined behaviors:  "select", "move", "selectAndMove".
  *
  *
  * EVENTS:
@@ -670,7 +671,7 @@ if (!jQuery.fn.drag) {
                     if ($cell.length === 0) { return false; }
                     if (parseInt($cell.parent().attr("row"), 10) >= data.length) { return false; }
                     var colDef = columns[$cell.attr("cell")];
-                    if (colDef.behavior !== "move") { return false; }
+                    if (colDef.behavior !== "move" && colDef.behavior !== "selectAndMove") { return false; }
                 })
                 .bind("dragstart", function(e) {
                     if (!options.editorLock.commitCurrentEdit()) { return false; }
@@ -879,7 +880,7 @@ if (!jQuery.fn.drag) {
 
         function setSelectedRows(rows) {
             var i, row;
-            if (options.editorLock.isActive() && !options.editorLock.isActive(self)) { // there are 3 possible states: a) editor lock is inactive: OK, b) editor lock is active and this SlickGrid is the controller: OK, c) editor lock is active but some other controller locked it: throw
+            if (options.editorLock.isActive() && !options.editorLock.isActive(editController)) { // there are 3 possible states: a) editor lock is inactive: OK, b) editor lock is active and this SlickGrid is the controller: OK, c) editor lock is active but some other controller locked it: throw
                 throw "Grid : setSelectedRows : cannot set selected rows when somebody else has an edit lock";
             }
 
@@ -1312,6 +1313,34 @@ if (!jQuery.fn.drag) {
             var row = parseInt($cell.parent().attr("row"), 10);
             var cell = parseInt($cell.attr("cell"), 10);
             var validated = null;
+            var c = columns[cell];
+
+            // is this a 'select' column?
+            if (data[row] && (c.behavior === "selectAndMove" || c.behavior === "select")) {
+                // grid must not be in edit mode
+                validated = options.editorLock.commitCurrentEdit();
+                if (validated) {
+                    var selection = getSelectedRows();
+                    var idx = $.inArray(row, selection);
+
+                    if (!e.ctrlKey && !e.shiftKey)
+                        selection = [row];
+                    else if (idx == -1 && e.ctrlKey)
+                        selection.push(row);
+                    else if (idx != -1 && e.ctrlKey)
+                        selection = $.grep(selection, function(o, i) { return (o != row); });
+                    else if (idx == -1 && selection.length == 1 && e.shiftKey) {
+                        var from = Math.min(row, selection[0]);
+                        var to = Math.max(row, selection[0]);
+                        selection = [];
+                        for (var i = from; i <= to; i++)
+                            selection.push(i);
+                    }
+
+                    setSelectedRows(selection);
+                    return false;
+                }
+            }
 
             // do we have any registered handlers?
             if (data[row] && self.onClick) {
