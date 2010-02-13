@@ -960,7 +960,7 @@ if (!jQuery.fn.drag) {
             for (var i=0, cols=columns.length; i<cols; i++) {
                 var m = columns[i];
 
-                stringArray.push("<div " + (m.unselectable ? "" : "hideFocus tabIndex=0 ") + "class='slick-cell c" + i + (m.cssClass ? " " + m.cssClass : "") + "' cell=" + i + ">");
+                stringArray.push("<div " + (m.unselectable ? "tabIndex=-1 " : "hideFocus tabIndex=0 ") + "class='slick-cell c" + i + (m.cssClass ? " " + m.cssClass : "") + "' cell=" + i + ">");
 
                 // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
                 if (d && row < data.length) {
