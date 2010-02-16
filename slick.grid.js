@@ -20,7 +20,7 @@
  *     enableAddRow             - (default false) If true, a blank row will be displayed at the bottom - typing values in that row will add a new one.
  *     leaveSpaceForNewRows     - (default false)
  *     editable                 - (default false) If false, no cells will be switched into edit mode.
- *     editOnDoubleClick        - (default false) Cell will not automatically go into edit mode without being double-clicked.
+ *     autoEdit                 - (default true) Cell will not automatically go into edit mode when selected.
  *     enableCellNavigation     - (default true) If false, no cells will be selectable.
  *     defaultColumnWidth       - (default 80px) Default column width in pixels (if columns[cell].width is not specified).
  *     enableColumnReorder      - (default true) Allows the user to reorder columns.
@@ -217,7 +217,7 @@ if (!jQuery.fn.drag) {
             enableAddRow: false,
             leaveSpaceForNewRows: false,
             editable: false,
-            editOnDoubleClick: false,
+            autoEdit: true,
             enableCellNavigation: true,
             enableColumnReorder: true,
             asyncEditorLoading: false,
@@ -1289,8 +1289,30 @@ if (!jQuery.fn.drag) {
                 break;
 
             case 40:  // down
-            case 13:  // enter
                 gotoDir(1, 0, false);
+                break;
+
+            case 13:  // enter
+                if (options.autoEdit) {
+                    gotoDir(1, 0, false);
+                }
+                else if (options.editable) {
+                    if (currentEditor) {
+                        // adding new row 
+                        if (currentRow == data.length) {
+                            gotoDir(1, 0, false);
+                        }
+                        else {
+                            options.editorLock.commitCurrentEdit();
+                            currentCellNode.focus();
+                        }
+                    } else {
+                        if (options.editorLock.commitCurrentEdit()) {
+                            makeSelectedCellEditable();
+                        }
+                    }
+
+                }
                 break;
 
             default:
@@ -1359,7 +1381,7 @@ if (!jQuery.fn.drag) {
             if (options.enableCellNavigation && !columns[cell].unselectable) {
                 // commit current edit before proceeding
                 if (validated === true || (validated === null && options.editorLock.commitCurrentEdit())) {
-                    setSelectedCellAndRow($cell[0],!options.editOnDoubleClick);
+                    setSelectedCellAndRow($cell[0], (row == data.length) || options.autoEdit);
                 }
             }
         }
@@ -1415,8 +1437,8 @@ if (!jQuery.fn.drag) {
                 }
             }
 
-            if (options.editOnDoubleClick) {
-                makeSelectedCellEditable();
+            if (options.editable) {
+                gotoCell(row, cell, true);
             }
         }
 
@@ -1624,7 +1646,9 @@ if (!jQuery.fn.drag) {
             }
 
             if (nextRow && nextCell && nextCell.length) {
-                setSelectedCellAndRow(nextCell[0],true);
+                // if selecting the 'add new' row, start editing right away
+                var row = parseInt($(nextRow).attr("row"), 10);
+                setSelectedCellAndRow(nextCell[0], (row == data.length) || options.autoEdit);
 
                 // if no editor was created, set the focus back on the cell
                 if (!currentEditor) {
@@ -1636,7 +1660,7 @@ if (!jQuery.fn.drag) {
             }
         }
 
-        function gotoCell(row,cell) {
+        function gotoCell(row, cell, forceEdit) {
             if (row > data.length || row < 0 || cell >= columns.length || cell < 0) { return; }
             if (!options.enableCellNavigation || columns[cell].unselectable) { return; }
 
@@ -1648,7 +1672,8 @@ if (!jQuery.fn.drag) {
 
             cell = $(rowsCache[row]).find(".slick-cell[cell=" + cell + "][tabIndex=0]:visible")[0];
 
-            setSelectedCellAndRow(cell,!options.editOnDoubleClick);
+            // if selecting the 'add new' row, start editing right away
+            setSelectedCellAndRow(cell, forceEdit || (row == data.length) || options.autoEdit);
 
             // if no editor was created, set the focus back on the cell
             if (!currentEditor) {
