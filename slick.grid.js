@@ -497,6 +497,7 @@ if (!jQuery.fn.drag) {
                     }
 
                     for (i=0; i<newOrder.length; i++) {
+                        $divHeaders.children()[i].setAttribute('cell', i);
                         columnsById[newOrder[i]] = i;
                         columns[i] = lookup[newOrder[i]];
                     }
@@ -518,11 +519,11 @@ if (!jQuery.fn.drag) {
         }
 
         function setupColumnResize() {
-            var $col, j, c, width, pageX, columnElements, minPageX, maxPageX, firstResizable, lastResizable;
+            var $col, j, c, pageX, columnElements, minPageX, maxPageX, firstResizable, lastResizable;
             columnElements = $divHeaders.find(".slick-header-column:visible");
             columnElements.find('.slick-resizable-handle').remove();
-            columnElements.each(function(i) {
-                c = columns[i];
+            columnElements.each(function(i,e) {
+                c = columns[e.getAttribute('cell')];
                 if (c.resizable) {
                     if (firstResizable === undefined) { firstResizable = i; }
                     lastResizable = i;
@@ -535,18 +536,16 @@ if (!jQuery.fn.drag) {
                     .appendTo(e)
                     .bind("dragstart", function(e) {
                         if (!options.editorLock.commitCurrentEdit()) { return false; }
-                        width = $col.width();
                         pageX = e.pageX;
                         $col.addClass("slick-header-column-active");
-                        columnElements = $col.parent().find('.slick-header-column').get();
                         var shrinkLeewayOnRight = null, stretchLeewayOnRight = null;
                         if (options.forceFitColumns) {
                             shrinkLeewayOnRight = 0;
                             stretchLeewayOnRight = 0;
                             // colums on right affect maxPageX/minPageX
-                            for (j = i + 1; j < columns.length; j++) {
-                                c = columns[j];
-                                if (c.resizable && !c.hidden) {
+                            for (j = i + 1; j < columnElements.length; j++) {
+                                c = columns[columnElements[j].getAttribute('cell')];
+                                if (c.resizable) {
                                     if (stretchLeewayOnRight !== null) {
                                         if (c.maxWidth) {
                                             stretchLeewayOnRight += c.maxWidth - c.width;
@@ -562,8 +561,8 @@ if (!jQuery.fn.drag) {
                         var shrinkLeewayOnLeft = 0, stretchLeewayOnLeft = 0;
                         for (j = 0; j <= i; j++) {
                             // columns on left only affect minPageX
-                            c = columns[j];
-                            if (c.resizable && !c.hidden) {
+                            c = columns[columnElements[j].getAttribute('cell')];
+                            if (c.resizable) {
                                 if (stretchLeewayOnLeft !== null) {
                                     if (c.maxWidth) {
                                         stretchLeewayOnLeft += c.maxWidth - c.width;
@@ -587,8 +586,8 @@ if (!jQuery.fn.drag) {
                         if (d < 0) { // shrink column
                             x = d;
                             for (j = i; j >= 0; j--) {
-                                c = columns[j];
-                                if (c.resizable && !c.hidden) {
+                                c = columns[columnElements[j].getAttribute('cell')];
+                                if (c.resizable) {
                                     actualMinWidth = Math.max(c.minWidth || 0, absoluteColumnMinWidth);
                                     if (x && c.width + x < actualMinWidth) {
                                         x += c.width - actualMinWidth;
@@ -602,9 +601,9 @@ if (!jQuery.fn.drag) {
 
                             if (options.forceFitColumns) {
                                 x = -d;
-                                for (j = i + 1; j < columns.length; j++) {
-                                    c = columns[j];
-                                    if (c.resizable && !c.hidden) {
+                                for (j = i + 1; j < columnElements.length; j++) {
+                                    c = columns[columnElements[j].getAttribute('cell')];
+                                    if (c.resizable) {
                                         if (x && c.maxWidth && (c.maxWidth - c.width < x)) {
                                             x -= c.maxWidth - c.width;
                                             $(columnElements[j]).css({width: c.maxWidth - headerColumnWidthDiff});
@@ -618,8 +617,8 @@ if (!jQuery.fn.drag) {
                         } else { // stretch column
                             x = d;
                             for (j = i; j >= 0; j--) {
-                                c = columns[j];
-                                if (c.resizable && !c.hidden) {
+                                c = columns[columnElements[j].getAttribute('cell')];
+                                if (c.resizable) {
                                     if (x && c.maxWidth && (c.maxWidth - c.width < x)) {
                                         x -= c.maxWidth - c.width;
                                         $(columnElements[j]).css({width: c.maxWidth - headerColumnWidthDiff});
@@ -632,9 +631,9 @@ if (!jQuery.fn.drag) {
 
                             if (options.forceFitColumns) {
                                 x = -d;
-                                for (j = i + 1; j < columns.length; j++) {
-                                    c = columns[j];
-                                    if (c.resizable && !c.hidden) {
+                                for (j = i + 1; j < columnElements.length; j++) {
+                                    c = columns[columnElements[j].getAttribute('cell')];
+                                    if (c.resizable) {
                                         actualMinWidth = Math.max(c.minWidth || 0, absoluteColumnMinWidth);
                                         if (x && c.width + x < actualMinWidth) {
                                             x += c.width - actualMinWidth;
@@ -651,13 +650,14 @@ if (!jQuery.fn.drag) {
                     .bind("dragend", function(e) {
                         var newWidth;
                         $col.removeClass("slick-header-column-active");
-                        for (j = 0; j < columns.length; j++) {
-                            c = columns[j];
+                        for (j = 0; j < columnElements.length; j++) {
+                            var columnIndex = columnElements[j].getAttribute('cell');
+                            c = columns[columnIndex];
                             newWidth = $(columnElements[j]).outerWidth();
                             if (c.width !== newWidth && c.rerenderOnResize) {
                                 removeAllRows();
                             }
-                            updateColumnWidth(j, newWidth);
+                            updateColumnWidth(columnIndex, newWidth);
                         }
                         resizeCanvas();
                     });
