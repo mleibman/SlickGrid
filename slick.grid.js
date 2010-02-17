@@ -397,7 +397,7 @@ if (!jQuery.fn.drag) {
             createCssRules();
             resizeCanvas();
             if (options.forceFitColumns) {
-                autosizeColumns(null);
+                autosizeColumns();
             }
             render();
 
@@ -786,15 +786,20 @@ if (!jQuery.fn.drag) {
             return columnsById[id];
         }
 
-        function autosizeColumns(columnToHold) {
+        function autosizeColumns() {
             var i, c,
+                visibleColumns = [],
+                shrinkLeeway = 0,
                 availWidth = (options.autoHeight ? viewportW : viewportW - scrollbarDimensions.width), // with AutoHeight, we do not need to accomodate the vertical scroll bar
                 total = 0,
                 existingTotal = 0;
 
             for (i = 0; i < columns.length; i++) {
                 if (!columns[i].hidden) {
-                    existingTotal += columns[i].width;
+                    c = columns[i];
+                    visibleColumns.push(c);
+                    existingTotal += c.width;
+                    shrinkLeeway += c.width - Math.max(c.minWidth || 0, absoluteColumnMinWidth);
                 }
             }
 
@@ -803,46 +808,25 @@ if (!jQuery.fn.drag) {
             removeAllRows();
 
             // shrink
-            var workdone = true;
-            while (total > availWidth && workdone) {
-                workdone = false;
-                for (i = 0; i < columns.length && total > availWidth; i++) {
-                    c = columns[i];
-                    if (c.hidden || !c.resizable || c.minWidth === c.width || c.width === absoluteColumnMinWidth || (columnToHold && columnToHold.id === c.id)) { continue; }
-                    total -= 1;
-                    c.width -= 1;
-                    workdone = true;
-                }
-            }
-
-            // shrink the column being "held" as a last resort
-            if (total > availWidth && columnToHold && columnToHold.resizable && !columnToHold.hidden) {
-                while (total > availWidth) {
-                    if (columnToHold.minWidth === columnToHold.width || columnToHold.width === absoluteColumnMinWidth) { break; }
-                    total -= 1;
-                    columnToHold.width -= 1;
+            while (total > availWidth) {
+                if (!shrinkLeeway) return;
+                var shrinkProportion = (total - availWidth) / shrinkLeeway;
+                for (i = 0; i < visibleColumns.length && total > availWidth; i++) {
+                    c = visibleColumns[i];
+                    if (!c.resizable || c.minWidth === c.width || c.width === absoluteColumnMinWidth) { continue; }
+                    var shrinkSize = Math.floor(shrinkProportion * (c.width - Math.max(c.minWidth || 0, absoluteColumnMinWidth))) || 1;
+                    total -= shrinkSize;
+                    c.width -= shrinkSize;
                 }
             }
 
             // grow
-            workdone = true;
-            while (total < availWidth && workdone) {
-                workdone = false;
-                for (i = 0; i < columns.length && total < availWidth; i++) {
-                    c = columns[i];
-                    if (c.hidden || !c.resizable || c.maxWidth === c.width || (columnToHold && columnToHold.id === c.id)) { continue; }
+            while (total < availWidth) {
+                for (i = 0; i < visibleColumns.length && total < availWidth; i++) {
+                    c = visibleColumns[i];
+                    if (!c.resizable || c.maxWidth === c.width) { continue; }
                     total += 1;
                     c.width += 1;
-                    workdone = true;
-                }
-            }
-
-            // grow the column being "held" as a last resort
-            if (total < availWidth && columnToHold && columnToHold.resizable && !columnToHold.hidden) {
-                while (total < availWidth) {
-                    if (columnToHold.maxWidth === columnToHold.width) { break; }
-                    total += 1;
-                    columnToHold.width += 1;
                 }
             }
 
@@ -868,7 +852,7 @@ if (!jQuery.fn.drag) {
             $.rule("." + uid + " .c" + index, "style[lib=slickgrid" + uid + "]").css("display", visible?"block":"none");
 
             if (options.forceFitColumns) {
-                autosizeColumns(columns[index]);
+                autosizeColumns();
             }
 
             setupColumnResize();
