@@ -1,5 +1,6 @@
 /*jslint white: false, onevar: false, undef: true, nomen: true, eqeqeq: true, plusplus: false, bitwise: true, regexp: true, strict: true, newcap: true, immed: true */// Force JSLinq (http://jslint.com/) "Good Parts" flags - (strict whitespace, one var per function, disallow ++/--)
 /*global $: false, jQuery: false, window: false, console: false, document: false, alert: false, setTimeout: false, clearTimeout: false, Slick: false */// Define recognized globals for JSLint
+/*global commitCurrentEdit: true, cancelCurrentEdit: false, measureCellPaddingAndBorder: false, createColumnHeaders: false, setupRowReordering: false, createCssRules: false, resizeCanvas: false, autosizeColumns: false, render: false, handleScroll: false, handleKeyDown: false, handleClick: false, handleDblClick: false, handleContextMenu: false, handleHeaderContextMenu: false, setupColumnSort: false, setupColumnResize: false, setupColumnReorder: false, removeAllRows: false, removeCssRules: false, setupColumnResize: false, removeAllRows: false, updateColumnWidth: false, setSelectedRows: false, getSelectedRows: false, makeSelectedCellNormal: false, removeRow: false, removeRowFromCache: false, invalidatePostProcessingResults: false, asyncPostProcessRows: false, gotoDir: false, makeSelectedCellEditable: false, setSelectedCellAndRow: false, gotoCell: false, scrollSelectedCellIntoView: false, isCellPotentiallyEditable: false */
 "use strict";
 
 
@@ -339,9 +340,9 @@ if (!jQuery.fn.drag) {
             }
 
             editController = {
-                "commitCurrentEdit":    commitCurrentEdit,
-                "cancelCurrentEdit":    cancelCurrentEdit
-            }
+                "commitCurrentEdit": commitCurrentEdit,
+                "cancelCurrentEdit": cancelCurrentEdit
+            };
 
             $container
                 .empty()
@@ -412,6 +413,14 @@ if (!jQuery.fn.drag) {
             $headerScroller.bind("contextmenu", handleHeaderContextMenu);
         }
 
+        function hoverBegin() {
+            $(this).addClass('ui-state-hover');
+        }
+
+        function hoverEnd() {
+            $(this).removeClass('ui-state-hover');
+        }
+
         function createColumnHeaders() {
             var i;
             for (i = 0; i < columns.length; i++) {
@@ -429,9 +438,7 @@ if (!jQuery.fn.drag) {
                 }
 
                 if (options.enableColumnReorder || m.sortable) {
-                    header.hover(
-                        function() { $(this).addClass('ui-state-hover'); },
-                        function() { $(this).removeClass('ui-state-hover'); });
+                    header.hover(hoverBegin, hoverEnd);
                 }
 
                 if (m.sortable) {
@@ -1316,7 +1323,7 @@ if (!jQuery.fn.drag) {
                     else if (options.editable) {
                         if (currentEditor) {
                             // adding new row
-                            if (currentRow == data.length) {
+                            if (currentRow === data.length) {
                                 gotoDir(1, 0, false);
                             }
                             else {
@@ -1341,7 +1348,7 @@ if (!jQuery.fn.drag) {
             e.stopPropagation();
             e.preventDefault();
             try {
-                event.originalEvent.keyCode = 0; // prevent default behaviour for special keys in IE browsers (F3, F5, etc.)
+                e.originalEvent.keyCode = 0; // prevent default behaviour for special keys in IE browsers (F3, F5, etc.)
             }
             catch (error) {} // ignore exceptions - setting the original event's keycode throws access denied exception for "Ctrl" (hitting control key only, nothing else), "Shift" (maybe others)
         }
@@ -1366,18 +1373,22 @@ if (!jQuery.fn.drag) {
                     var selection = getSelectedRows();
                     var idx = $.inArray(row, selection);
 
-                    if (!e.ctrlKey && !e.shiftKey)
+                    if (!e.ctrlKey && !e.shiftKey) {
                         selection = [row];
-                    else if (idx == -1 && e.ctrlKey)
+                    }
+                    else if (idx === -1 && e.ctrlKey) {
                         selection.push(row);
-                    else if (idx != -1 && e.ctrlKey)
-                        selection = $.grep(selection, function(o, i) { return (o != row); });
-                    else if (idx == -1 && selection.length == 1 && e.shiftKey) {
+                    }
+                    else if (idx !== -1 && e.ctrlKey) {
+                        selection = $.grep(selection, function(o, i) { return (o !== row); });
+                    }
+                    else if (idx === -1 && selection.length === 1 && e.shiftKey) {
                         var from = Math.min(row, selection[0]);
                         var to = Math.max(row, selection[0]);
                         selection = [];
-                        for (var i = from; i <= to; i++)
+                        for (var i = from; i <= to; i++) {
                             selection.push(i);
+                        }
                     }
 
                     setSelectedRows(selection);
@@ -1402,7 +1413,7 @@ if (!jQuery.fn.drag) {
             if (options.enableCellNavigation && !columns[cell].unselectable) {
                 // commit current edit before proceeding
                 if (validated === true || (validated === null && options.editorLock.commitCurrentEdit())) {
-                    setSelectedCellAndRow($cell[0], (row == data.length) || options.autoEdit);
+                    setSelectedCellAndRow($cell[0], (row === data.length) || options.autoEdit);
                 }
             }
         }
@@ -1669,7 +1680,7 @@ if (!jQuery.fn.drag) {
             if (nextRow && nextCell && nextCell.length) {
                 // if selecting the 'add new' row, start editing right away
                 var row = parseInt($(nextRow).attr("row"), 10);
-                setSelectedCellAndRow(nextCell[0], (row == data.length) || options.autoEdit);
+                setSelectedCellAndRow(nextCell[0], (row === data.length) || options.autoEdit);
 
                 // if no editor was created, set the focus back on the cell
                 if (!currentEditor) {
@@ -1694,7 +1705,7 @@ if (!jQuery.fn.drag) {
             cell = $(rowsCache[row]).find(".slick-cell[cell=" + cell + "][tabIndex=0]:visible")[0];
 
             // if selecting the 'add new' row, start editing right away
-            setSelectedCellAndRow(cell, forceEdit || (row == data.length) || options.autoEdit);
+            setSelectedCellAndRow(cell, forceEdit || (row === data.length) || options.autoEdit);
 
             // if no editor was created, set the focus back on the cell
             if (!currentEditor) {
