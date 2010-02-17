@@ -417,7 +417,7 @@ if (!jQuery.fn.drag) {
                 columnsById[m.id] = i;
 
                 var header = $("<div class='ui-state-default slick-header-column' cell=" + i + " id='" + m.id + "' />")
-                    .html(m.name)
+                    .html("<span class='slick-column-name'>" + m.name + "</span>")
                     .width(m.width - headerColumnWidthDiff)
                     .appendTo($divHeaders);
 
