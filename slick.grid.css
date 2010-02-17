@@ -51,7 +51,7 @@
 	position: absolute;
 	font-size: 0.1px;
 	display: block;
-	cursor: e-resize;
+	cursor: col-resize;
 	width: 4px;
 	right: -2px;
 	top: 0;
