@@ -834,11 +834,13 @@ if (!jQuery.fn.drag) {
 
             // grow
             while (total < availWidth) {
+                var growProportion = availWidth / total;
                 for (i = 0; i < visibleColumns.length && total < availWidth; i++) {
                     c = visibleColumns[i];
                     if (!c.resizable || c.maxWidth === c.width) { continue; }
-                    total += 1;
-                    widths[i] += 1;
+                    var growSize = Math.min(Math.floor(growProportion * c.width) - c.width, (c.maxWidth - c.width) || 1000000) || 1;
+                    total += growSize;
+                    widths[i] += growSize;
                 }
             }
 
@@ -860,10 +862,10 @@ if (!jQuery.fn.drag) {
         function setColumnVisibility(column,visible) {
             var index = columnsById[column.id];
             columns[index].hidden = !visible;
-            resizeCanvas();
             var header = $divHeaders.find("[id=" + columns[index].id + "]");
             header.css("display", visible?"block":"none");
             $.rule("." + uid + " .c" + index, "style[lib=slickgrid" + uid + "]").css("display", visible?"block":"none");
+            resizeCanvas();
 
             if (options.forceFitColumns) {
                 autosizeColumns();
