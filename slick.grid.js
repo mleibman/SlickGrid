@@ -540,6 +540,10 @@ if (!jQuery.fn.drag) {
                         pageX = e.pageX;
                         $col.addClass("slick-header-column-active");
                         var shrinkLeewayOnRight = null, stretchLeewayOnRight = null;
+                        // lock each column's width option to current width
+                        columnElements.each(function(i,e) {
+                            columns[e.getAttribute('cell')].width = $(e).outerWidth();
+                        });
                         if (options.forceFitColumns) {
                             shrinkLeewayOnRight = 0;
                             stretchLeewayOnRight = 0;
@@ -658,7 +662,8 @@ if (!jQuery.fn.drag) {
                             if (c.width !== newWidth && c.rerenderOnResize) {
                                 removeAllRows();
                             }
-                            updateColumnWidth(columnIndex, newWidth);
+                            c.width = newWidth;
+                            styleColumnWidth(columnIndex, newWidth);
                         }
                         resizeCanvas();
                     });
@@ -789,6 +794,7 @@ if (!jQuery.fn.drag) {
 
         function autosizeColumns() {
             var i, c,
+                widths = [],
                 visibleColumns = [],
                 shrinkLeeway = 0,
                 availWidth = (options.autoHeight ? viewportW : viewportW - scrollbarDimensions.width), // with AutoHeight, we do not need to accomodate the vertical scroll bar
@@ -799,6 +805,7 @@ if (!jQuery.fn.drag) {
                 if (!columns[i].hidden) {
                     c = columns[i];
                     visibleColumns.push(c);
+                    widths.push(c.width);
                     existingTotal += c.width;
                     shrinkLeeway += c.width - Math.max(c.minWidth || 0, absoluteColumnMinWidth);
                 }
@@ -817,7 +824,7 @@ if (!jQuery.fn.drag) {
                     if (!c.resizable || c.minWidth === c.width || c.width === absoluteColumnMinWidth) { continue; }
                     var shrinkSize = Math.floor(shrinkProportion * (c.width - Math.max(c.minWidth || 0, absoluteColumnMinWidth))) || 1;
                     total -= shrinkSize;
-                    c.width -= shrinkSize;
+                    widths[i] -= shrinkSize;
                 }
             }
 
@@ -827,21 +834,23 @@ if (!jQuery.fn.drag) {
                     c = visibleColumns[i];
                     if (!c.resizable || c.maxWidth === c.width) { continue; }
                     total += 1;
-                    c.width += 1;
+                    widths[i] += 1;
                 }
             }
 
             for (i=0; i<columns.length; i++) {
-                updateColumnWidth(i, columns[i].width);
+                if (columns[i] == visibleColumns[0]) {
+                    visibleColumns.shift();
+                    styleColumnWidth(i, widths.shift());
+                }
             }
 
             resizeCanvas();
         }
 
-        function updateColumnWidth(index,width) {
-            columns[index].width = width;
-            $divHeaders.find(".slick-header-column[id=" + columns[index].id + "]").css("width",width - headerColumnWidthDiff);
-            $.rule("." + uid + " .c" + index, "style[lib=slickgrid" + uid + "]").css("width", (columns[index].width - cellWidthDiff) + "px");
+        function styleColumnWidth(index,width) {
+            $divHeaders.find(".slick-header-column[id=" + columns[index].id + "]").css("width", width - headerColumnWidthDiff);
+            $.rule("." + uid + " .c" + index, "style[lib=slickgrid" + uid + "]").css("width", width - cellWidthDiff);
         }
 
         function setColumnVisibility(column,visible) {
@@ -1065,11 +1074,9 @@ if (!jQuery.fn.drag) {
             CAPACITY = Math.max(50, numVisibleRows + 2*BUFFER);
 
             var totalWidth = 0;
-            for (var i=0; i<columns.length; i++) {
-                if (!columns[i].hidden) {
-                    totalWidth += columns[i].width;
-                }
-            }
+            $divHeaders.find('.slick-header-column:visible').each(function () {
+                totalWidth += $(this).outerWidth();
+            });
             $divMain.width(totalWidth);
 
             // browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
