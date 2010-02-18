@@ -542,7 +542,7 @@ if (!jQuery.fn.drag) {
                         var shrinkLeewayOnRight = null, stretchLeewayOnRight = null;
                         // lock each column's width option to current width
                         columnElements.each(function(i,e) {
-                            columns[e.getAttribute('cell')].width = $(e).outerWidth();
+                            columns[e.getAttribute('cell')].actualWidth = $(e).outerWidth();
                         });
                         if (options.forceFitColumns) {
                             shrinkLeewayOnRight = 0;
@@ -553,13 +553,13 @@ if (!jQuery.fn.drag) {
                                 if (c.resizable) {
                                     if (stretchLeewayOnRight !== null) {
                                         if (c.maxWidth) {
-                                            stretchLeewayOnRight += c.maxWidth - c.width;
+                                            stretchLeewayOnRight += c.maxWidth - c.actualWidth;
                                         }
                                         else {
                                             stretchLeewayOnRight = null;
                                         }
                                     }
-                                    shrinkLeewayOnRight += c.width - Math.max(c.minWidth || 0, absoluteColumnMinWidth);
+                                    shrinkLeewayOnRight += c.actualWidth - Math.max(c.minWidth || 0, absoluteColumnMinWidth);
                                 }
                             }
                         }
@@ -570,13 +570,13 @@ if (!jQuery.fn.drag) {
                             if (c.resizable) {
                                 if (stretchLeewayOnLeft !== null) {
                                     if (c.maxWidth) {
-                                        stretchLeewayOnLeft += c.maxWidth - c.width;
+                                        stretchLeewayOnLeft += c.maxWidth - c.actualWidth;
                                     }
                                     else {
                                         stretchLeewayOnLeft = null;
                                     }
                                 }
-                                shrinkLeewayOnLeft += c.width - Math.max(c.minWidth || 0, absoluteColumnMinWidth);
+                                shrinkLeewayOnLeft += c.actualWidth - Math.max(c.minWidth || 0, absoluteColumnMinWidth);
                             }
                         }
                         if (shrinkLeewayOnRight === null) { shrinkLeewayOnRight = 100000; }
@@ -594,11 +594,11 @@ if (!jQuery.fn.drag) {
                                 c = columns[columnElements[j].getAttribute('cell')];
                                 if (c.resizable) {
                                     actualMinWidth = Math.max(c.minWidth || 0, absoluteColumnMinWidth);
-                                    if (x && c.width + x < actualMinWidth) {
-                                        x += c.width - actualMinWidth;
+                                    if (x && c.actualWidth + x < actualMinWidth) {
+                                        x += c.actualWidth - actualMinWidth;
                                         $(columnElements[j]).css({width: actualMinWidth - headerColumnWidthDiff});
                                     } else {
-                                        $(columnElements[j]).css({width: c.width + x - headerColumnWidthDiff});
+                                        $(columnElements[j]).css({width: c.actualWidth + x - headerColumnWidthDiff});
                                         x = 0;
                                     }
                                 }
@@ -609,11 +609,11 @@ if (!jQuery.fn.drag) {
                                 for (j = i + 1; j < columnElements.length; j++) {
                                     c = columns[columnElements[j].getAttribute('cell')];
                                     if (c.resizable) {
-                                        if (x && c.maxWidth && (c.maxWidth - c.width < x)) {
-                                            x -= c.maxWidth - c.width;
+                                        if (x && c.maxWidth && (c.maxWidth - c.actualWidth < x)) {
+                                            x -= c.maxWidth - c.actualWidth;
                                             $(columnElements[j]).css({width: c.maxWidth - headerColumnWidthDiff});
                                         } else {
-                                            $(columnElements[j]).css({width: c.width + x - headerColumnWidthDiff});
+                                            $(columnElements[j]).css({width: c.actualWidth + x - headerColumnWidthDiff});
                                             x = 0;
                                         }
                                     }
@@ -624,11 +624,11 @@ if (!jQuery.fn.drag) {
                             for (j = i; j >= 0; j--) {
                                 c = columns[columnElements[j].getAttribute('cell')];
                                 if (c.resizable) {
-                                    if (x && c.maxWidth && (c.maxWidth - c.width < x)) {
-                                        x -= c.maxWidth - c.width;
+                                    if (x && c.maxWidth && (c.maxWidth - c.actualWidth < x)) {
+                                        x -= c.maxWidth - c.actualWidth;
                                         $(columnElements[j]).css({width: c.maxWidth - headerColumnWidthDiff});
                                     } else {
-                                        $(columnElements[j]).css({width: c.width + x - headerColumnWidthDiff});
+                                        $(columnElements[j]).css({width: c.actualWidth + x - headerColumnWidthDiff});
                                         x = 0;
                                     }
                                 }
@@ -640,11 +640,11 @@ if (!jQuery.fn.drag) {
                                     c = columns[columnElements[j].getAttribute('cell')];
                                     if (c.resizable) {
                                         actualMinWidth = Math.max(c.minWidth || 0, absoluteColumnMinWidth);
-                                        if (x && c.width + x < actualMinWidth) {
-                                            x += c.width - actualMinWidth;
+                                        if (x && c.actualWidth + x < actualMinWidth) {
+                                            x += c.actualWidth - actualMinWidth;
                                             $(columnElements[j]).css({width: actualMinWidth - headerColumnWidthDiff});
                                         } else {
-                                            $(columnElements[j]).css({width: c.width + x - headerColumnWidthDiff});
+                                            $(columnElements[j]).css({width: c.actualWidth + x - headerColumnWidthDiff});
                                             x = 0;
                                         }
                                     }
@@ -659,10 +659,14 @@ if (!jQuery.fn.drag) {
                             var columnIndex = columnElements[j].getAttribute('cell');
                             c = columns[columnIndex];
                             newWidth = $(columnElements[j]).outerWidth();
-                            if (c.width !== newWidth && c.rerenderOnResize) {
+                            if (c.actualWidth !== newWidth && c.rerenderOnResize) {
                                 removeAllRows();
                             }
-                            c.width = newWidth;
+                            if (options.forceFitColumns) {
+                                c.width = Math.floor(c.width * (newWidth - c.actualWidth) / c.actualWidth) + c.width;
+                            } else {
+                                c.width = newWidth;
+                            }
                             styleColumnWidth(columnIndex, newWidth);
                         }
                         resizeCanvas();
