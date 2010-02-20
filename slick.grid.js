@@ -667,6 +667,7 @@ if (!jQuery.fn.drag) {
                             } else {
                                 c.width = newWidth;
                             }
+                            c.actualWidth = newWidth;
                             styleColumnWidth(columnIndex, newWidth);
                         }
                         resizeCanvas();
@@ -763,7 +764,7 @@ if (!jQuery.fn.drag) {
             for (var i = 0; i < columns.length; i++) {
                 $.rule(
                     "." + uid + " .c" + i + " { " +
-                    "width:" + (columns[i].width - cellWidthDiff) + "px; " +
+                    "width:" + ((columns[i].actualWidth || columns[i].width) - cellWidthDiff) + "px; " +
                     "display: " + (columns[i].hidden ? "none" : "block") +
                     " }").appendTo($style);
             }
@@ -846,8 +847,9 @@ if (!jQuery.fn.drag) {
 
             for (i=0; i<columns.length; i++) {
                 if (columns[i] == visibleColumns[0]) {
-                    visibleColumns.shift();
-                    styleColumnWidth(i, widths.shift());
+                    var newWidth = widths.shift();
+                    visibleColumns.shift().actualWidth = newWidth;
+                    styleColumnWidth(i, newWidth);
                 }
             }
 
