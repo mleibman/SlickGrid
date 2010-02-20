@@ -591,14 +591,15 @@ if (!jQuery.fn.drag) {
                         if (d < 0) { // shrink column
                             x = d;
                             for (j = i; j >= 0; j--) {
-                                c = columns[columnElements[j].getAttribute('cell')];
+                                var ci = columnElements[j].getAttribute('cell');
+                                c = columns[ci];
                                 if (c.resizable) {
                                     actualMinWidth = Math.max(c.minWidth || 0, absoluteColumnMinWidth);
                                     if (x && c.actualWidth + x < actualMinWidth) {
                                         x += c.actualWidth - actualMinWidth;
-                                        $(columnElements[j]).css({width: actualMinWidth - headerColumnWidthDiff});
+                                        styleColumnWidth(ci, actualMinWidth);
                                     } else {
-                                        $(columnElements[j]).css({width: c.actualWidth + x - headerColumnWidthDiff});
+                                        styleColumnWidth(ci, c.actualWidth + x);
                                         x = 0;
                                     }
                                 }
@@ -607,13 +608,14 @@ if (!jQuery.fn.drag) {
                             if (options.forceFitColumns) {
                                 x = -d;
                                 for (j = i + 1; j < columnElements.length; j++) {
-                                    c = columns[columnElements[j].getAttribute('cell')];
+                                    var ci = columnElements[j].getAttribute('cell');
+                                    c = columns[ci];
                                     if (c.resizable) {
                                         if (x && c.maxWidth && (c.maxWidth - c.actualWidth < x)) {
                                             x -= c.maxWidth - c.actualWidth;
-                                            $(columnElements[j]).css({width: c.maxWidth - headerColumnWidthDiff});
+                                            styleColumnWidth(ci, c.maxWidth);
                                         } else {
-                                            $(columnElements[j]).css({width: c.actualWidth + x - headerColumnWidthDiff});
+                                            styleColumnWidth(ci, c.actualWidth + x);
                                             x = 0;
                                         }
                                     }
@@ -622,13 +624,14 @@ if (!jQuery.fn.drag) {
                         } else { // stretch column
                             x = d;
                             for (j = i; j >= 0; j--) {
-                                c = columns[columnElements[j].getAttribute('cell')];
+                                var ci = columnElements[j].getAttribute('cell');
+                                c = columns[ci];
                                 if (c.resizable) {
                                     if (x && c.maxWidth && (c.maxWidth - c.actualWidth < x)) {
                                         x -= c.maxWidth - c.actualWidth;
-                                        $(columnElements[j]).css({width: c.maxWidth - headerColumnWidthDiff});
+                                        styleColumnWidth(ci, c.maxWidth);
                                     } else {
-                                        $(columnElements[j]).css({width: c.actualWidth + x - headerColumnWidthDiff});
+                                        styleColumnWidth(ci, c.actualWidth + x);
                                         x = 0;
                                     }
                                 }
@@ -637,14 +640,15 @@ if (!jQuery.fn.drag) {
                             if (options.forceFitColumns) {
                                 x = -d;
                                 for (j = i + 1; j < columnElements.length; j++) {
-                                    c = columns[columnElements[j].getAttribute('cell')];
+                                    var ci = columnElements[j].getAttribute('cell');
+                                    c = columns[ci];
                                     if (c.resizable) {
                                         actualMinWidth = Math.max(c.minWidth || 0, absoluteColumnMinWidth);
                                         if (x && c.actualWidth + x < actualMinWidth) {
                                             x += c.actualWidth - actualMinWidth;
-                                            $(columnElements[j]).css({width: actualMinWidth - headerColumnWidthDiff});
+                                            styleColumnWidth(ci, actualMinWidth);
                                         } else {
-                                            $(columnElements[j]).css({width: c.actualWidth + x - headerColumnWidthDiff});
+                                            styleColumnWidth(ci, c.actualWidth + x);
                                             x = 0;
                                         }
                                     }
@@ -668,7 +672,6 @@ if (!jQuery.fn.drag) {
                                 c.width = newWidth;
                             }
                             c.actualWidth = newWidth;
-                            styleColumnWidth(columnIndex, newWidth);
                         }
                         resizeCanvas();
                     });
