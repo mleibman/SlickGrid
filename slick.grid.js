@@ -927,6 +927,10 @@ if (!jQuery.fn.drag) {
             selectedRowsLookup = lookup;
         }
 
+        function getOptions(args) {
+            return options;
+        }
+
         function setOptions(args) {
             if (!options.editorLock.commitCurrentEdit()) {
                 return;
@@ -1834,6 +1838,7 @@ if (!jQuery.fn.drag) {
             "onBeforeDestroy":       null,
 
             // Methods
+            "getOptions":          getOptions,
             "setOptions":          setOptions,
             "setData":             setData,
             "destroy":             destroy,

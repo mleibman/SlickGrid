@@ -199,7 +199,7 @@
 			dataView = new Slick.Data.DataView();
 			grid = new Slick.Grid($("#myGrid"), dataView.rows, columns, options);
 			var pager = new Slick.Controls.Pager(dataView, grid, $("#pager"));
-			var columnpicker = new Slick.Controls.ColumnPicker(columns, grid);
+			var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
 
 
             // move the filter panel defined in a hidden div into an inline secondary grid header row

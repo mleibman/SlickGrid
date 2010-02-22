@@ -17,10 +17,11 @@
 		{
 			$menu.empty();
 
+			var $li, $input;
 			for (var i=0; i<columns.length; i++) {
-				var $li = $("<li />").appendTo($menu);
+				$li = $("<li />").appendTo($menu);
 
-				var $input = $("<input type='checkbox' />")
+				$input = $("<input type='checkbox' />")
                         .attr("id", "columnpicker_" + i)
                         .data("id", columns[i].id)
                         .appendTo($li);
@@ -33,7 +34,18 @@
 					.appendTo($li);
 			}
 
-			$("<hr/><li><a id='autoresize'>Autosize</a></li>").appendTo($menu);
+			$("<hr/>").appendTo($menu);
+			$li = $("<li />").appendTo($menu);
+			$input = $("<input type='checkbox' id='autoresize' />").appendTo($li);
+			$("<label for='autoresize'>Force Fit Columns</label>").appendTo($li);
+			if (grid.getOptions().forceFitColumns)
+				$input.attr("checked", "checked");
+
+			$li = $("<li />").appendTo($menu);
+			$input = $("<input type='checkbox' id='syncresize' />").appendTo($li);
+			$("<label for='syncresize'>Synchronous Resizing</label>").appendTo($li);
+			if (grid.getOptions().syncColumnCellResize)
+				$input.attr("checked", "checked");
 
 			$menu
 				.css("top", e.pageY - 10)
@@ -43,9 +55,22 @@
 
 		function updateColumn(e)
 		{
-			if ($(e.target).is("a")) {
-				grid.autosizeColumns();
-				$menu.fadeOut();
+			if (e.target.id == 'autoresize') {
+				if (e.target.checked) {
+					grid.setOptions({forceFitColumns: true});
+					grid.autosizeColumns();
+				} else {
+					grid.setOptions({forceFitColumns: false});
+				}
+				return;
+			}
+
+			if (e.target.id == 'syncresize') {
+				if (e.target.checked) {
+					grid.setOptions({syncColumnCellResize: true});
+				} else {
+					grid.setOptions({syncColumnCellResize: false});
+				}
 				return;
 			}
 
