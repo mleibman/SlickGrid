@@ -34,6 +34,7 @@
  *     editorLock               - (default Slick.GlobalEditorLock) A Slick.EditorLock instance to use for controlling concurrent data edits.
  *     showSecondaryHeaderRow   - (default false) If true, an extra blank (to be populated externally) row will be displayed just below the header columns.
  *     secondaryHeaderRowHeight - (default 25px) The height of the secondary header row.
+ *     syncColumnCellResize     - (default false) Synchronously resize column cells when column headers are resized
  *
  *
  * COLUMN DEFINITION (columns) OPTIONS:
@@ -228,7 +229,8 @@ if (!jQuery.fn.drag) {
             autoHeight: false,
             editorLock: Slick.GlobalEditorLock,
             showSecondaryHeaderRow: false,
-            secondaryHeaderRowHeight: 25
+            secondaryHeaderRowHeight: 25,
+            syncColumnCellResize: false
         };
 
         var columnDefaults = {
@@ -520,7 +522,7 @@ if (!jQuery.fn.drag) {
         }
 
         function setupColumnResize() {
-            var $col, j, c, pageX, columnElements, minPageX, maxPageX, firstResizable, lastResizable;
+            var $col, j, c, pageX, columnElements, minPageX, maxPageX, firstResizable, lastResizable, originalCanvasWidth;
             columnElements = $divHeaders.find(".slick-header-column:visible");
             columnElements.find('.slick-resizable-handle').remove();
             columnElements.each(function(i,e) {
@@ -542,7 +544,7 @@ if (!jQuery.fn.drag) {
                         var shrinkLeewayOnRight = null, stretchLeewayOnRight = null;
                         // lock each column's width option to current width
                         columnElements.each(function(i,e) {
-                            columns[e.getAttribute('cell')].actualWidth = $(e).outerWidth();
+                            columns[e.getAttribute('cell')].previousWidth = $(e).outerWidth();
                         });
                         if (options.forceFitColumns) {
                             shrinkLeewayOnRight = 0;
@@ -553,13 +555,13 @@ if (!jQuery.fn.drag) {
                                 if (c.resizable) {
                                     if (stretchLeewayOnRight !== null) {
                                         if (c.maxWidth) {
-                                            stretchLeewayOnRight += c.maxWidth - c.actualWidth;
+                                            stretchLeewayOnRight += c.maxWidth - c.previousWidth;
                                         }
                                         else {
                                             stretchLeewayOnRight = null;
                                         }
                                     }
-                                    shrinkLeewayOnRight += c.actualWidth - Math.max(c.minWidth || 0, absoluteColumnMinWidth);
+                                    shrinkLeewayOnRight += c.previousWidth - Math.max(c.minWidth || 0, absoluteColumnMinWidth);
                                 }
                             }
                         }
@@ -570,13 +572,13 @@ if (!jQuery.fn.drag) {
                             if (c.resizable) {
                                 if (stretchLeewayOnLeft !== null) {
                                     if (c.maxWidth) {
-                                        stretchLeewayOnLeft += c.maxWidth - c.actualWidth;
+                                        stretchLeewayOnLeft += c.maxWidth - c.previousWidth;
                                     }
                                     else {
                                         stretchLeewayOnLeft = null;
                                     }
                                 }
-                                shrinkLeewayOnLeft += c.actualWidth - Math.max(c.minWidth || 0, absoluteColumnMinWidth);
+                                shrinkLeewayOnLeft += c.previousWidth - Math.max(c.minWidth || 0, absoluteColumnMinWidth);
                             }
                         }
                         if (shrinkLeewayOnRight === null) { shrinkLeewayOnRight = 100000; }
@@ -585,6 +587,7 @@ if (!jQuery.fn.drag) {
                         if (stretchLeewayOnLeft === null) { stretchLeewayOnLeft = 100000; }
                         maxPageX = pageX + Math.min(shrinkLeewayOnRight, stretchLeewayOnLeft);
                         minPageX = pageX - Math.min(shrinkLeewayOnLeft, stretchLeewayOnRight);
+			originalCanvasWidth = $divMain.width();
                     })
                     .bind("drag", function(e) {
                         var actualMinWidth, d = Math.min(maxPageX, Math.max(minPageX, e.pageX)) - pageX, x;
@@ -595,11 +598,11 @@ if (!jQuery.fn.drag) {
                                 c = columns[ci];
                                 if (c.resizable) {
                                     actualMinWidth = Math.max(c.minWidth || 0, absoluteColumnMinWidth);
-                                    if (x && c.actualWidth + x < actualMinWidth) {
-                                        x += c.actualWidth - actualMinWidth;
-                                        styleColumnWidth(ci, actualMinWidth);
+                                    if (x && c.previousWidth + x < actualMinWidth) {
+                                        x += c.previousWidth - actualMinWidth;
+                                        styleColumnWidth(ci, actualMinWidth, options.syncColumnCellResize);
                                     } else {
-                                        styleColumnWidth(ci, c.actualWidth + x);
+                                        styleColumnWidth(ci, c.previousWidth + x, options.syncColumnCellResize);
                                         x = 0;
                                     }
                                 }
@@ -611,15 +614,17 @@ if (!jQuery.fn.drag) {
                                     var ci = columnElements[j].getAttribute('cell');
                                     c = columns[ci];
                                     if (c.resizable) {
-                                        if (x && c.maxWidth && (c.maxWidth - c.actualWidth < x)) {
-                                            x -= c.maxWidth - c.actualWidth;
-                                            styleColumnWidth(ci, c.maxWidth);
+                                        if (x && c.maxWidth && (c.maxWidth - c.previousWidth < x)) {
+                                            x -= c.maxWidth - c.previousWidth;
+                                            styleColumnWidth(ci, c.maxWidth, options.syncColumnCellResize);
                                         } else {
-                                            styleColumnWidth(ci, c.actualWidth + x);
+                                            styleColumnWidth(ci, c.previousWidth + x, options.syncColumnCellResize);
                                             x = 0;
                                         }
                                     }
                                 }
+                            } else if (options.syncColumnCellResize) {
+                                $divMain.width(originalCanvasWidth + d);
                             }
                         } else { // stretch column
                             x = d;
@@ -627,11 +632,11 @@ if (!jQuery.fn.drag) {
                                 var ci = columnElements[j].getAttribute('cell');
                                 c = columns[ci];
                                 if (c.resizable) {
-                                    if (x && c.maxWidth && (c.maxWidth - c.actualWidth < x)) {
-                                        x -= c.maxWidth - c.actualWidth;
-                                        styleColumnWidth(ci, c.maxWidth);
+                                    if (x && c.maxWidth && (c.maxWidth - c.previousWidth < x)) {
+                                        x -= c.maxWidth - c.previousWidth;
+                                        styleColumnWidth(ci, c.maxWidth, options.syncColumnCellResize);
                                     } else {
-                                        styleColumnWidth(ci, c.actualWidth + x);
+                                        styleColumnWidth(ci, c.previousWidth + x, options.syncColumnCellResize);
                                         x = 0;
                                     }
                                 }
@@ -644,15 +649,17 @@ if (!jQuery.fn.drag) {
                                     c = columns[ci];
                                     if (c.resizable) {
                                         actualMinWidth = Math.max(c.minWidth || 0, absoluteColumnMinWidth);
-                                        if (x && c.actualWidth + x < actualMinWidth) {
-                                            x += c.actualWidth - actualMinWidth;
-                                            styleColumnWidth(ci, actualMinWidth);
+                                        if (x && c.previousWidth + x < actualMinWidth) {
+                                            x += c.previousWidth - actualMinWidth;
+                                            styleColumnWidth(ci, actualMinWidth, options.syncColumnCellResize);
                                         } else {
-                                            styleColumnWidth(ci, c.actualWidth + x);
+                                            styleColumnWidth(ci, c.previousWidth + x, options.syncColumnCellResize);
                                             x = 0;
                                         }
                                     }
                                 }
+                            } else if (options.syncColumnCellResize) {
+                                $divMain.width(originalCanvasWidth + d);
                             }
                         }
                     })
@@ -663,15 +670,17 @@ if (!jQuery.fn.drag) {
                             var columnIndex = columnElements[j].getAttribute('cell');
                             c = columns[columnIndex];
                             newWidth = $(columnElements[j]).outerWidth();
-                            if (c.actualWidth !== newWidth && c.rerenderOnResize) {
+                            if (c.previousWidth !== newWidth && c.rerenderOnResize) {
                                 removeAllRows();
                             }
                             if (options.forceFitColumns) {
-                                c.width = Math.floor(c.width * (newWidth - c.actualWidth) / c.actualWidth) + c.width;
+                                c.width = Math.floor(c.width * (newWidth - c.previousWidth) / c.previousWidth) + c.width;
                             } else {
                                 c.width = newWidth;
                             }
-                            c.actualWidth = newWidth;
+                            if (!options.syncColumnCellResize) {
+                                styleColumnWidth(columnIndex, newWidth, true);
+                            }
                         }
                         resizeCanvas();
                     });
@@ -767,7 +776,7 @@ if (!jQuery.fn.drag) {
             for (var i = 0; i < columns.length; i++) {
                 $.rule(
                     "." + uid + " .c" + i + " { " +
-                    "width:" + ((columns[i].actualWidth || columns[i].width) - cellWidthDiff) + "px; " +
+                    "width:" + ((columns[i].currentWidth || columns[i].width) - cellWidthDiff) + "px; " +
                     "display: " + (columns[i].hidden ? "none" : "block") +
                     " }").appendTo($style);
             }
@@ -851,17 +860,21 @@ if (!jQuery.fn.drag) {
             for (i=0; i<columns.length; i++) {
                 if (columns[i] == visibleColumns[0]) {
                     var newWidth = widths.shift();
-                    visibleColumns.shift().actualWidth = newWidth;
-                    styleColumnWidth(i, newWidth);
+                    visibleColumns.shift().currentWidth = newWidth;
+                    styleColumnWidth(i, newWidth, true);
                 }
             }
 
             resizeCanvas();
         }
 
-        function styleColumnWidth(index,width) {
-            $divHeaders.find(".slick-header-column[id=" + columns[index].id + "]").css("width", width - headerColumnWidthDiff);
-            $.rule("." + uid + " .c" + index, "style[lib=slickgrid" + uid + "]").css("width", width - cellWidthDiff);
+        function styleColumnWidth(index,width,styleCells) {
+            var c = columns[index];
+            c.currentWidth = width;
+            $divHeaders.find(".slick-header-column[id=" + c.id + "]").css("width", width - headerColumnWidthDiff);
+            if (styleCells) {
+                $.rule("." + uid + " .c" + index, "style[lib=slickgrid" + uid + "]").css("width", width - cellWidthDiff);
+            }
         }
 
         function setColumnVisibility(column,visible) {
