@@ -1,6 +1,6 @@
 /*jslint white: false, onevar: false, undef: true, nomen: true, eqeqeq: true, plusplus: false, bitwise: true, regexp: true, strict: true, newcap: true, immed: true */// Force JSLinq (http://jslint.com/) "Good Parts" flags - (strict whitespace, one var per function, disallow ++/--)
 /*global $: false, jQuery: false, window: false, console: false, document: false, alert: false, setTimeout: false, clearTimeout: false, Slick: false */// Define recognized globals for JSLint
-/*global commitCurrentEdit: true, cancelCurrentEdit: false, measureCellPaddingAndBorder: false, createColumnHeaders: false, setupRowReordering: false, createCssRules: false, resizeCanvas: false, autosizeColumns: false, render: false, handleScroll: false, handleKeyDown: false, handleClick: false, handleDblClick: false, handleContextMenu: false, handleHeaderContextMenu: false, setupColumnSort: false, setupColumnResize: false, setupColumnReorder: false, removeAllRows: false, removeCssRules: false, setupColumnResize: false, removeAllRows: false, updateColumnWidth: false, setSelectedRows: false, getSelectedRows: false, makeSelectedCellNormal: false, removeRow: false, removeRowFromCache: false, invalidatePostProcessingResults: false, asyncPostProcessRows: false, gotoDir: false, makeSelectedCellEditable: false, setSelectedCellAndRow: false, gotoCell: false, scrollSelectedCellIntoView: false, isCellPotentiallyEditable: false */
+/*global commitCurrentEdit: true, cancelCurrentEdit: false, measureCellPaddingAndBorder: false, createColumnHeaders: false, setupRowReordering: false, createCssRules: false, resizeCanvas: false, autosizeColumns: false, render: false, handleScroll: false, handleKeyDown: false, handleClick: false, handleDblClick: false, handleContextMenu: false, handleHeaderContextMenu: false, setupColumnSort: false, setupColumnResize: false, setupColumnReorder: false, removeAllRows: false, removeCssRules: false, setupColumnResize: false, removeAllRows: false, updateColumnWidth: false, setSelectedRows: false, getSelectedRows: false, makeSelectedCellNormal: false, removeRow: false, removeRowFromCache: false, invalidatePostProcessingResults: false, asyncPostProcessRows: false, gotoDir: false, makeSelectedCellEditable: false, setSelectedCellAndRow: false, gotoCell: false, scrollSelectedCellIntoView: false, isCellPotentiallyEditable: false, styleColumnWidth: false */
 "use strict";
 
 
@@ -619,11 +619,11 @@ if (!jQuery.fn.drag) {
 			originalCanvasWidth = $canvas.width();
                     })
                     .bind("drag", function(e) {
-                        var actualMinWidth, d = Math.min(maxPageX, Math.max(minPageX, e.pageX)) - pageX, x;
+                        var actualMinWidth, d = Math.min(maxPageX, Math.max(minPageX, e.pageX)) - pageX, x, ci;
                         if (d < 0) { // shrink column
                             x = d;
                             for (j = i; j >= 0; j--) {
-                                var ci = columnElements[j].getAttribute('cell');
+                                ci = columnElements[j].getAttribute('cell');
                                 c = columns[ci];
                                 if (c.resizable) {
                                     actualMinWidth = Math.max(c.minWidth || 0, absoluteColumnMinWidth);
@@ -640,7 +640,7 @@ if (!jQuery.fn.drag) {
                             if (options.forceFitColumns) {
                                 x = -d;
                                 for (j = i + 1; j < columnElements.length; j++) {
-                                    var ci = columnElements[j].getAttribute('cell');
+                                    ci = columnElements[j].getAttribute('cell');
                                     c = columns[ci];
                                     if (c.resizable) {
                                         if (x && c.maxWidth && (c.maxWidth - c.previousWidth < x)) {
@@ -658,7 +658,7 @@ if (!jQuery.fn.drag) {
                         } else { // stretch column
                             x = d;
                             for (j = i; j >= 0; j--) {
-                                var ci = columnElements[j].getAttribute('cell');
+                                ci = columnElements[j].getAttribute('cell');
                                 c = columns[ci];
                                 if (c.resizable) {
                                     if (x && c.maxWidth && (c.maxWidth - c.previousWidth < x)) {
@@ -674,7 +674,7 @@ if (!jQuery.fn.drag) {
                             if (options.forceFitColumns) {
                                 x = -d;
                                 for (j = i + 1; j < columnElements.length; j++) {
-                                    var ci = columnElements[j].getAttribute('cell');
+                                    ci = columnElements[j].getAttribute('cell');
                                     c = columns[ci];
                                     if (c.resizable) {
                                         actualMinWidth = Math.max(c.minWidth || 0, absoluteColumnMinWidth);
@@ -863,7 +863,7 @@ if (!jQuery.fn.drag) {
 
             // shrink
             while (total > availWidth) {
-                if (!shrinkLeeway) return;
+                if (!shrinkLeeway) { return; }
                 var shrinkProportion = (total - availWidth) / shrinkLeeway;
                 for (i = 0; i < visibleColumns.length && total > availWidth; i++) {
                     c = visibleColumns[i];
@@ -887,7 +887,7 @@ if (!jQuery.fn.drag) {
             }
 
             for (i=0; i<columns.length; i++) {
-                if (columns[i] == visibleColumns[0]) {
+                if (columns[i] === visibleColumns[0]) {
                     var newWidth = widths.shift();
                     visibleColumns.shift().currentWidth = newWidth;
                     styleColumnWidth(i, newWidth, true);
