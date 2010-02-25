@@ -9,7 +9,7 @@
  * (c) 2009-2010 Michael Leibman (michael.leibman@gmail.com)
  * All rights reserved.
  *
- * SlickGrid v1.3.0
+ * SlickGrid v1.3.1
  *
  * TODO:
  * - frozen columns
@@ -232,7 +232,8 @@ if (!jQuery.fn.drag) {
             showSecondaryHeaderRow: false,
             secondaryHeaderRowHeight: 25,
             syncColumnCellResize: false
-        }, gridData;
+        },
+        gridData, gridDataGetLength, gridDataGetItem;
 
         var columnDefaults = {
             resizable: true,
@@ -330,7 +331,7 @@ if (!jQuery.fn.drag) {
             /// Default implementation of getLength method
             /// returns the length of the array.
             /// </summary
-            return data.length;
+            return gridData.length;
         }
 
         function defaultGetItem(i) {
@@ -339,7 +340,7 @@ if (!jQuery.fn.drag) {
             /// returns the item at specified position in
             /// the array.
             /// </summary
-            return data[i];
+            return gridData[i];
         }
 
         function init() {
@@ -349,8 +350,8 @@ if (!jQuery.fn.drag) {
             /// </summary>
 
             gridData = data;
-            gridData.getLength = gridData.getLength || defaultGetLength;
-            gridData.getItem = gridData.getItem || defaultGetItem;
+            gridDataGetLength = gridData.getLength || defaultGetLength;
+            gridDataGetItem = gridData.getItem || defaultGetItem;
 
             scrollbarDimensions = scrollbarDimensions || measureScrollbar(); // skip measurement if already have dimensions
             options = $.extend({},defaults,options);
@@ -721,7 +722,7 @@ if (!jQuery.fn.drag) {
                 .bind("beforedragstart", function(e) {
                     var $cell = $(e.target).closest(".slick-cell");
                     if ($cell.length === 0) { return false; }
-                    if (parseInt($cell.parent().attr("row"), 10) >= gridData.getLength()) { return false; }
+                    if (parseInt($cell.parent().attr("row"), 10) >= gridDataGetLength()) { return false; }
                     var colDef = columns[$cell.attr("cell")];
                     if (colDef.behavior !== "move" && colDef.behavior !== "selectAndMove") { return false; }
                 })
@@ -760,7 +761,7 @@ if (!jQuery.fn.drag) {
                     var top = e.clientY - $(this).offset().top;
                     $(this).data("selectionProxy").css("top",top-5);
 
-                    var insertBefore = Math.max(0,Math.min(Math.round(top/options.rowHeight),gridData.getLength()));
+                    var insertBefore = Math.max(0,Math.min(Math.round(top/options.rowHeight),gridDataGetLength()));
                     if (insertBefore !== $(this).data("insertBefore")) {
                         if (self.onBeforeMoveRows && self.onBeforeMoveRows(getSelectedRows(),insertBefore) === false) {
                             $(e.dragProxy).css("top", -1000).data("canMove",false);
@@ -968,7 +969,7 @@ if (!jQuery.fn.drag) {
             makeSelectedCellNormal();
 
             if (options.enableAddRow !== args.enableAddRow) {
-                removeRow(gridData.getLength());
+                removeRow(gridDataGetLength());
             }
 
             options = $.extend(options,args);
@@ -980,8 +981,8 @@ if (!jQuery.fn.drag) {
             removeAllRows();
             data = newData;
             gridData = data;
-            gridData.getLength = gridData.getLength || defaultGetLength;
-            gridData.getItem = gridData.getItem || defaultGetItem;
+            gridDataGetLength = gridData.getLength || defaultGetLength;
+            gridDataGetItem = gridData.getItem || defaultGetItem;
             if (scrollToTop) {
                 $viewport.scrollTop(0);
             }
@@ -1005,8 +1006,8 @@ if (!jQuery.fn.drag) {
         // Rendering / Scrolling
 
         function appendRowHtml(stringArray,row) {
-            var d = gridData.getItem(row);
-            var dataLoading = row < gridData.getLength() && !d;
+            var d = gridDataGetItem(row);
+            var dataLoading = row < gridDataGetLength() && !d;
             var css = "slick-row " + (dataLoading ? " loading" : "") + (selectedRowsLookup[row] ? " selected ui-state-active" : "");
 
             stringArray.push("<div class='ui-widget-content " + css + "' row='" + row + "' style='top:" + (options.rowHeight*row) + "px'>");
@@ -1017,7 +1018,7 @@ if (!jQuery.fn.drag) {
                 stringArray.push("<div " + (m.unselectable ? "tabIndex=-1 " : "hideFocus tabIndex=0 ") + "class='slick-cell c" + i + (m.cssClass ? " " + m.cssClass : "") + "' cell=" + i + ">");
 
                 // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
-                if (d && row < gridData.getLength()) {
+                if (d && row < gridDataGetLength()) {
                     stringArray.push(m.formatter(row, i, d[m.field], m, d));
                 }
 
@@ -1087,7 +1088,7 @@ if (!jQuery.fn.drag) {
             var $cell = $(rowsCache[row]).find(".c[cell=" + cell + "]");
             if ($cell.length === 0) { return; }
 
-            var m = columns[cell], d = gridData.getItem(row);
+            var m = columns[cell], d = gridDataGetItem(row);
             if (currentEditor && currentRow === row && currentCell === cell) {
                 currentEditor.setValue(d[m.field]);
             }
@@ -1104,10 +1105,10 @@ if (!jQuery.fn.drag) {
             $(rowsCache[row]).find(".slick-cell").each(function(i) {
                 var m = columns[i];
                 if (row === currentRow && i === currentCell && currentEditor) {
-                    currentEditor.setValue(gridData.getItem(currentRow)[m.field]);
+                    currentEditor.setValue(gridDataGetItem(currentRow)[m.field]);
                 }
-                else if (gridData.getItem(row)) {
-                    this.innerHTML = m.formatter(row, i, gridData.getItem(row)[m.field], m, gridData.getItem(row));
+                else if (gridDataGetItem(row)) {
+                    this.innerHTML = m.formatter(row, i, gridDataGetItem(row)[m.field], m, gridDataGetItem(row));
                 }
                 else {
                     this.innerHTML = "";
@@ -1118,7 +1119,7 @@ if (!jQuery.fn.drag) {
         }
 
         function resizeCanvas() {
-            var newHeight = options.rowHeight * (gridData.getLength() + (options.enableAddRow ? 1 : 0) + (options.leaveSpaceForNewRows? numVisibleRows - 1 : 0));
+            var newHeight = options.rowHeight * (gridDataGetLength() + (options.enableAddRow ? 1 : 0) + (options.leaveSpaceForNewRows? numVisibleRows - 1 : 0));
             if (options.autoHeight) { // use computed height to set both canvas _and_ divMainScroller, effectively hiding scroll bars.
                 $viewport.height(newHeight);
             }
@@ -1153,14 +1154,14 @@ if (!jQuery.fn.drag) {
             // remove the rows that are now outside of the data range
             // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
             // var parentNode = $canvas[0];
-            var l = options.enableAddRow ? gridData.getLength() : gridData.getLength() - 1;
+            var l = options.enableAddRow ? gridDataGetLength() : gridDataGetLength() - 1;
             for (var i in rowsCache) {
                 if (i >= l) {
                     removeRowFromCache(i);
                 }
             }
 
-            var newHeight = Math.max(options.rowHeight * (gridData.getLength() + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0)), viewportH - scrollbarDimensions.height);
+            var newHeight = Math.max(options.rowHeight * (gridDataGetLength() + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0)), viewportH - scrollbarDimensions.height);
 
             // browsers sometimes do not adjust scrollTop/scrollHeight when the height of contained objects changes
             if ($viewport.scrollTop() > newHeight - $viewport.height() + scrollbarDimensions.height) {
@@ -1220,7 +1221,7 @@ if (!jQuery.fn.drag) {
         function render() {
             var vp = getViewport();
             var from = Math.max(0, vp.top - (scrollDir >= 0 ? MIN_BUFFER : BUFFER));
-            var to = Math.min(options.enableAddRow ? gridData.getLength() : gridData.getLength() - 1, vp.bottom + (scrollDir > 0 ? BUFFER : MIN_BUFFER));
+            var to = Math.min(options.enableAddRow ? gridDataGetLength() : gridDataGetLength() - 1, vp.bottom + (scrollDir > 0 ? BUFFER : MIN_BUFFER));
 
             if (renderedRows > 10 && Math.abs(lastRenderedScrollTop - currentScrollTop) > options.rowHeight*CAPACITY) {
                 removeAllRows();
@@ -1232,7 +1233,7 @@ if (!jQuery.fn.drag) {
             renderRows(from,to);
 
             postProcessFromRow = Math.max(0,vp.top-MIN_BUFFER);
-            postProcessToRow = Math.min(options.enableAddRow ? gridData.getLength() : gridData.getLength() - 1, vp.bottom+MIN_BUFFER);
+            postProcessToRow = Math.min(options.enableAddRow ? gridDataGetLength() : gridDataGetLength() - 1, vp.bottom+MIN_BUFFER);
             startPostProcessing();
 
             lastRenderedScrollTop = currentScrollTop;
@@ -1282,9 +1283,9 @@ if (!jQuery.fn.drag) {
             while (postProcessFromRow <= postProcessToRow) {
                 var row = (scrollDir >= 0) ? postProcessFromRow++ : postProcessToRow--;
                 var rowNode = rowsCache[row];
-                if (!rowNode || postProcessedRows[row] || row>=gridData.getLength()) { continue; }
+                if (!rowNode || postProcessedRows[row] || row>=gridDataGetLength()) { continue; }
 
-                var d = gridData.getItem(row), cellNodes = rowNode.childNodes;
+                var d = gridDataGetItem(row), cellNodes = rowNode.childNodes;
                 for (var i=0, l=columns.length; i<l; i++) {
                     var m = columns[i];
                     if (m.asyncPostRender && !m.hidden) {
@@ -1305,7 +1306,7 @@ if (!jQuery.fn.drag) {
         function handleKeyDown(e) {
             // give registered handler chance to process the keyboard event
             var handled = (self.onKeyDown && // a handler must be registered
-                gridData.getItem(currentRow) && // grid must be non-empty, have cell navigation enabled and have valid row selected as current
+                gridDataGetItem(currentRow) && // grid must be non-empty, have cell navigation enabled and have valid row selected as current
                 !options.editorLock.isActive() && // grid must not be in edit mode;
                 self.onKeyDown(e, currentRow, currentCell)); // handler must return truthy-value to indicate it handled the event
 
@@ -1391,7 +1392,7 @@ if (!jQuery.fn.drag) {
             var c = columns[cell];
 
             // is this a 'select' column?
-            if (gridData.getItem(row) && (c.behavior === "selectAndMove" || c.behavior === "select")) {
+            if (gridDataGetItem(row) && (c.behavior === "selectAndMove" || c.behavior === "select")) {
                 // grid must not be in edit mode
                 validated = options.editorLock.commitCurrentEdit();
                 if (validated) {
@@ -1422,7 +1423,7 @@ if (!jQuery.fn.drag) {
             }
 
             // do we have any registered handlers?
-            if (gridData.getItem(row) && self.onClick) {
+            if (gridDataGetItem(row) && self.onClick) {
                 // grid must not be in edit mode
                 validated = options.editorLock.commitCurrentEdit();
                 if (validated) {
@@ -1455,7 +1456,7 @@ if (!jQuery.fn.drag) {
             var validated = null;
 
             // do we have any registered handlers?
-            if (gridData.getItem(row) && self.onContextMenu) {
+            if (gridDataGetItem(row) && self.onContextMenu) {
                 // grid must not be in edit mode
                 validated = options.editorLock.commitCurrentEdit();
                 if (validated) {
@@ -1481,7 +1482,7 @@ if (!jQuery.fn.drag) {
             var validated = null;
 
             // do we have any registered handlers?
-            if (gridData.getItem(row) && self.onDblClick) {
+            if (gridDataGetItem(row) && self.onDblClick) {
                 // grid must not be in edit mode
                 validated = options.editorLock.commitCurrentEdit();
                 if (validated) {
@@ -1589,12 +1590,12 @@ if (!jQuery.fn.drag) {
 
         function isCellPotentiallyEditable(row,cell) {
             // is the data for this row loaded?
-            if (row < gridData.getLength() && !gridData.getItem(row)) {
+            if (row < gridDataGetLength() && !gridDataGetItem(row)) {
                 return false;
             }
 
             // are we in the Add New row?  can we create new from this cell?
-            if (columns[cell].cannotTriggerInsert && row >= gridData.getLength()) {
+            if (columns[cell].cannotTriggerInsert && row >= gridDataGetLength()) {
                 return false;
             }
 
@@ -1612,8 +1613,8 @@ if (!jQuery.fn.drag) {
             currentEditor.destroy();
             $(currentCellNode).removeClass("editable invalid");
 
-            if (gridData.getItem(currentRow)) {
-                currentCellNode.innerHTML = columns[currentCell].formatter(currentRow, currentCell, gridData.getItem(currentRow)[columns[currentCell].field], columns[currentCell], gridData.getItem(currentRow));
+            if (gridDataGetItem(currentRow)) {
+                currentCellNode.innerHTML = columns[currentCell].formatter(currentRow, currentCell, gridDataGetItem(currentRow)[columns[currentCell].field], columns[currentCell], gridDataGetItem(currentRow));
                 invalidatePostProcessingResults(currentRow);
             }
 
@@ -1639,7 +1640,7 @@ if (!jQuery.fn.drag) {
                 return;
             }
 
-            if (self.onBeforeEditCell && self.onBeforeEditCell(currentRow,currentCell,gridData.getItem(currentRow)) === false) {
+            if (self.onBeforeEditCell && self.onBeforeEditCell(currentRow,currentCell,gridDataGetItem(currentRow)) === false) {
                 currentCellNode.focus();
                 return;
             }
@@ -1651,13 +1652,13 @@ if (!jQuery.fn.drag) {
             var value = null;
 
             // if there is a corresponding row
-            if (gridData.getItem(currentRow)) {
-                value = gridData.getItem(currentRow)[columns[currentCell].field];
+            if (gridDataGetItem(currentRow)) {
+                value = gridDataGetItem(currentRow)[columns[currentCell].field];
             }
 
             currentCellNode.innerHTML = "";
 
-            currentEditor = new columns[currentCell].editor($(currentCellNode), columns[currentCell], value, gridData.getItem(currentRow));
+            currentEditor = new columns[currentCell].editor($(currentCellNode), columns[currentCell], value, gridDataGetItem(currentRow));
         }
 
         function scrollSelectedCellIntoView() {
@@ -1718,7 +1719,7 @@ if (!jQuery.fn.drag) {
         }
 
         function gotoCell(row, cell, forceEdit) {
-            if (row > gridData.getLength() || row < 0 || cell >= columns.length || cell < 0) { return; }
+            if (row > gridDataGetLength() || row < 0 || cell >= columns.length || cell < 0) { return; }
             if (!options.enableCellNavigation || columns[cell].unselectable) { return; }
 
             if (!options.editorLock.commitCurrentEdit()) { return; }
@@ -1750,18 +1751,18 @@ if (!jQuery.fn.drag) {
                     if (validationResults.valid) {
                         var value = currentEditor.getValue();
 
-                        if (currentRow < gridData.getLength()) {
+                        if (currentRow < gridDataGetLength()) {
                             if (columns[currentCell].setValueHandler) {
                                 makeSelectedCellNormal();
-                                columns[currentCell].setValueHandler(value, columns[currentCell], gridData.getItem(currentRow));
+                                columns[currentCell].setValueHandler(value, columns[currentCell], gridDataGetItem(currentRow));
                             }
                             else {
-                                gridData.getItem(currentRow)[columns[currentCell].field] = value;
+                                gridDataGetItem(currentRow)[columns[currentCell].field] = value;
                                 makeSelectedCellNormal();
                             }
 
                             if (self.onCellChange) {
-                                self.onCellChange(currentRow,currentCell,gridData.getItem(currentRow));
+                                self.onCellChange(currentRow,currentCell,gridDataGetItem(currentRow));
                             }
                         }
                         else if (self.onAddNewRow) {
@@ -1854,7 +1855,7 @@ if (!jQuery.fn.drag) {
         // Public API
 
         $.extend(this, {
-            "slickGridVersion": "1.3.0",
+            "slickGridVersion": "1.3.1",
 
             // Events
             "onSort":                null,
