@@ -407,7 +407,7 @@ if (!jQuery.fn.drag) {
             }
 
             $headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-            $headers = $("<div class='slick-header-columns' style='width:100000px' />").appendTo($headerScroller);
+            $headers = $("<div class='slick-header-columns' style='width:100000px; left:-10000px' />").appendTo($headerScroller);
 
             $secondaryHeaderScroller = $("<div class='slick-header-secondary ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
             $secondaryHeaders = $("<div class='slick-header-columns-secondary' style='width:100000px' />").appendTo($secondaryHeaderScroller);
@@ -527,7 +527,6 @@ if (!jQuery.fn.drag) {
                 containment: 'parent',
                 axis: "x",
                 cursor: "default",
-                cursorAt: "left",
                 tolerance: "intersection",
                 helper: "clone",
                 placeholder: "slick-sortable-placeholder ui-state-default slick-header-column",
@@ -821,6 +820,7 @@ if (!jQuery.fn.drag) {
         function createCssRules() {
             var $style = $("<style type='text/css' rel='stylesheet' lib='slickgrid" + uid + "' />").appendTo($("head"));
             var rowHeight = (options.rowHeight - cellHeightDiff);
+            $.rule("." + uid + " .slick-header-column { left: 10000px; }").appendTo($style);
             $.rule("." + uid + " .slick-header-columns-secondary {  height:" + options.secondaryHeaderRowHeight + "px; }").appendTo($style);
             $.rule("." + uid + " .slick-cell { height:" + rowHeight + "px; line-height:" + rowHeight + "px; }").appendTo($style);
 
