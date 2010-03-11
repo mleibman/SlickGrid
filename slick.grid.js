@@ -1043,6 +1043,7 @@ if (!jQuery.fn.drag) {
 
             for (var i=0, cols=columns.length; i<cols; i++) {
                 var m = columns[i];
+		if (m.hidden) continue;
 
                 stringArray.push("<div " + (m.unselectable ? "tabIndex=-1 " : "hideFocus tabIndex=0 ") + "class='slick-cell c" + i + (m.cssClass ? " " + m.cssClass : "") + "' cell=" + i + ">");
 
@@ -1337,11 +1338,11 @@ if (!jQuery.fn.drag) {
                 if (!rowNode || postProcessedRows[row] || row>=gridDataGetLength()) { continue; }
 
                 var d = gridDataGetItem(row), cellNodes = rowNode.childNodes;
-                for (var i=0, l=columns.length; i<l; i++) {
+                for (var i=0, j=0, l=columns.length; i<l; ++i) {
                     var m = columns[i];
-                    if (m.asyncPostRender && !m.hidden) {
-                        m.asyncPostRender(cellNodes[i], postProcessFromRow, d, m);
-                    }
+                    if (m.hidden) { continue; }
+                    if (m.asyncPostRender) { m.asyncPostRender(cellNodes[j], postProcessFromRow, d, m); }
+                    ++j;
                 }
 
                 postProcessedRows[row] = true;
