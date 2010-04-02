@@ -41,6 +41,7 @@
  * COLUMN DEFINITION (columns) OPTIONS:
  *     id                  - Column ID.
  *     name                - Column name to put in the header.
+ *     toolTip             - Tooltip (if different from name).
  *     field               - Property of the data context to bind to.
  *     formatter           - (default 'return value || ""') Function responsible for rendering the contents of a cell. Signature: function formatter(row, cell, value, columnDef, dataContext) { ... return "..."; }
  *     editor              - An Editor class.
@@ -71,6 +72,7 @@
  *     onViewportChanged     -
  *     onSelectedRowsChanged -
  *     onColumnsReordered    -
+ *     onColumnsResized      -
  *     onBeforeMoveRows      -
  *     onMoveRows            -
  *     onCellChange          -  Raised when cell has been edited.   Args: row,cell,dataContext.
@@ -231,7 +233,8 @@ if (!jQuery.fn.drag) {
             editorLock: Slick.GlobalEditorLock,
             showSecondaryHeaderRow: false,
             secondaryHeaderRowHeight: 25,
-            syncColumnCellResize: false
+            syncColumnCellResize: false,
+            enableAutoTooltips: true
         },
         gridData, gridDataGetLength, gridDataGetItem;
 
@@ -433,6 +436,7 @@ if (!jQuery.fn.drag) {
             $canvas.bind("click", handleClick);
             $canvas.bind("dblclick", handleDblClick);
             $canvas.bind("contextmenu", handleContextMenu);
+            $canvas.bind("mouseover", handleHover);
             $headerScroller.bind("contextmenu", handleHeaderContextMenu);
         }
 
@@ -453,7 +457,7 @@ if (!jQuery.fn.drag) {
                 var header = $("<div class='ui-state-default slick-header-column' cell=" + i + " id='" + m.id + "' />")
                     .html("<span class='slick-column-name'>" + m.name + "</span>")
                     .width(m.width - headerColumnWidthDiff)
-                    .attr('title', m.name)
+                    .attr('title', m.toolTip || m.name)
                     .appendTo($headers);
 
                 if (m.hidden) {
@@ -552,7 +556,7 @@ if (!jQuery.fn.drag) {
         }
 
         function setupColumnResize() {
-            var $col, j, c, pageX, columnElements, minPageX, maxPageX, firstResizable, lastResizable, originalCanvasWidth;
+            var j, c, pageX, columnElements, minPageX, maxPageX, firstResizable, lastResizable, originalCanvasWidth;
             columnElements = $headers.find(".slick-header-column:visible");
             columnElements.find('.slick-resizable-handle').remove();
             columnElements.each(function(i,e) {
@@ -564,7 +568,7 @@ if (!jQuery.fn.drag) {
             });
             columnElements.each(function(i,e) {
                 if ((firstResizable !== undefined && i < firstResizable) || (options.forceFitColumns && i >= lastResizable)) { return; }
-                $col = $(e);
+                var $col = $(this);
                 $("<div class='slick-resizable-handle' />")
                     .appendTo(e)
                     .bind("dragstart", function(e) {
@@ -617,14 +621,14 @@ if (!jQuery.fn.drag) {
                         if (stretchLeewayOnLeft === null) { stretchLeewayOnLeft = 100000; }
                         maxPageX = pageX + Math.min(shrinkLeewayOnRight, stretchLeewayOnLeft);
                         minPageX = pageX - Math.min(shrinkLeewayOnLeft, stretchLeewayOnRight);
-			originalCanvasWidth = $canvas.width();
+			            originalCanvasWidth = $canvas.width();
                     })
                     .bind("drag", function(e) {
                         var actualMinWidth, d = Math.min(maxPageX, Math.max(minPageX, e.pageX)) - pageX, x, ci;
                         if (d < 0) { // shrink column
                             x = d;
                             for (j = i; j >= 0; j--) {
-                                ci = columnElements[j].getAttribute('cell');
+                                ci = j;
                                 c = columns[ci];
                                 if (c.resizable) {
                                     actualMinWidth = Math.max(c.minWidth || 0, absoluteColumnMinWidth);
@@ -713,6 +717,9 @@ if (!jQuery.fn.drag) {
                             }
                         }
                         resizeCanvas();
+                        if (self.onColumnsResized) {
+                            self.onColumnsResized();
+                        }
                     });
                 });
         }
@@ -901,7 +908,7 @@ if (!jQuery.fn.drag) {
         function styleColumnWidth(index,width,styleCells) {
             var c = columns[index];
             c.currentWidth = width;
-            $headers.find(".slick-header-column[id=" + c.id + "]").css("width", width - headerColumnWidthDiff);
+            $headers.children().eq(index).css("width", width - headerColumnWidthDiff);
             if (styleCells) {
                 $.rule("." + uid + " .c" + index, "style[lib=slickgrid" + uid + "]").css("width", width - cellWidthDiff);
             }
@@ -1153,7 +1160,6 @@ if (!jQuery.fn.drag) {
         function updateRowCount() {
             // remove the rows that are now outside of the data range
             // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
-            // var parentNode = $canvas[0];
             var l = options.enableAddRow ? gridDataGetLength() : gridDataGetLength() - 1;
             for (var i in rowsCache) {
                 if (i >= l) {
@@ -1418,6 +1424,9 @@ if (!jQuery.fn.drag) {
                     }
 
                     setSelectedRows(selection);
+                    if (self.onSelectedRowsChanged) {
+                        self.onSelectedRowsChanged();
+                    }
                     return false;
                 }
             }
@@ -1508,6 +1517,21 @@ if (!jQuery.fn.drag) {
             }
         }
 
+        // TODO: PERF: throttle event
+        function handleHover(e) {
+            if (!options.enableAutoTooltips) return;
+
+            var $cell = $(e.target).closest(".slick-cell",$canvas);
+            if ($cell && $cell.length) {
+                if ($cell.innerWidth() < $cell[0].scrollWidth) {
+                    $cell.attr("title", $.trim($cell.text()));
+                }
+                else {
+                    $cell.attr("title","");
+                }
+            }
+        }
+        
         function getCellFromPoint(x,y) {
             var row = Math.floor(y/options.rowHeight);
             var cell = 0;
