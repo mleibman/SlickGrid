@@ -29,7 +29,7 @@ function EventHelper() {
         var self = this;
 
         // private
-        var idPropery = "id";   // property holding a unique row id
+        var idProperty = "id";   // property holding a unique row id
         var items = [];			// data by index
         var rows = [];			// data by row
         var idxById = {};		// indexes by id
@@ -60,7 +60,7 @@ function EventHelper() {
         function refreshIdxById() {
             idxById = {};
             for (var i = 0,l = items.length; i < l; i++) {
-                var id = items[i][idPropery];
+                var id = items[i][idProperty];
                 if (id == undefined || idxById[id] != undefined)
                     throw "Each data element must implement a unique 'id' property";
                 idxById[id] = i;
