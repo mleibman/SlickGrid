@@ -57,9 +57,7 @@ function EventHelper() {
             refresh();
         }
 
-        function setItems(data, objectIdProperty) {
-            if (objectIdProperty !== undefined) idPropery = objectIdProperty;
-            items = data.concat();
+        function refreshIdxById() {
             idxById = {};
             for (var i = 0,l = items.length; i < l; i++) {
                 var id = items[i][idPropery];
@@ -67,6 +65,13 @@ function EventHelper() {
                     throw "Each data element must implement a unique 'id' property";
                 idxById[id] = i;
             }
+        }
+
+
+        function setItems(data, objectIdProperty) {
+            if (objectIdProperty !== undefined) idProperty = objectIdProperty;
+            items = data;
+            refreshIdxById();
             refresh();
         }
 
@@ -90,6 +95,7 @@ function EventHelper() {
             if (ascending === false) items.reverse();
             items.sort(comparer);
             if (ascending === false) items.reverse();
+            refreshIdxById();
             refresh();
         }
 
@@ -107,6 +113,7 @@ function EventHelper() {
             items.sort();
             Object.prototype.toString = oldToString;
             if (!ascending) items.reverse();
+            refreshIdxById();
             refresh();
         }
 
@@ -128,7 +135,7 @@ function EventHelper() {
             if (!rowsById) {
                 rowsById = {};
                 for (var i = 0, l = rows.length; i < l; ++i) {
-                    rowsById[rows[i][idPropery]] = i;
+                    rowsById[rows[i][idProperty]] = i;
                 }
             }
 
@@ -148,16 +155,19 @@ function EventHelper() {
 
         function insertItem(insertBefore, item) {
             items.splice(insertBefore, 0, item);
+            refreshIdxById();  // TODO:  optimize
             refresh();
         }
 
         function addItem(item) {
             items.push(item);
+            refreshIdxById();  // TODO:  optimize
             refresh();
         }
 
         function deleteItem(id) {
             items.splice(idxById[id], 1);
+            refreshIdxById();  // TODO:  optimize
             refresh();
         }
 
@@ -176,11 +186,11 @@ function EventHelper() {
 
             for (var i = 0, il = items.length; i < il; ++i) {
                 item = items[i];
-                id = item[idPropery];
+                id = item[idProperty];
 
                 if (!filter || filter(item)) {
                     if (!pagesize || (currentRowIndex >= pagesize * pagenum && currentRowIndex < pagesize * (pagenum + 1))) {
-                        if (currentPageIndex >= rl || id != rows[currentPageIndex][idPropery] || (updated && updated[id]))
+                        if (currentPageIndex >= rl || id != rows[currentPageIndex][idProperty] || (updated && updated[id]))
                             diff[diff.length] = currentPageIndex;
 
                         rows[currentPageIndex] = item;
