@@ -67,6 +67,9 @@ function EventHelper() {
             }
         }
 
+        function getItems() {
+            return items;
+        }
 
         function setItems(data, objectIdProperty) {
             if (objectIdProperty !== undefined) idProperty = objectIdProperty;
@@ -234,13 +237,14 @@ function EventHelper() {
 
         return {
             // properties
-            "rows":            rows,            // note: neither the array or the data in it should be modified directly
+            "rows":             rows,  // note: neither the array or the data in it should be modified directly
 
             // methods
             "beginUpdate":      beginUpdate,
             "endUpdate":        endUpdate,
             "setPagingOptions": setPagingOptions,
             "getPagingInfo":    getPagingInfo,
+            "getItems":         getItems,
             "setItems":         setItems,
             "setFilter":        setFilter,
             "sort":             sort,
