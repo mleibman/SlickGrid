@@ -929,7 +929,7 @@ if (!jQuery.fn.drag) {
         }
 
         function getSelectedRows() {
-            return selectedRows.sort().concat();
+            return selectedRows.concat();
         }
 
         function setSelectedRows(rows) {
@@ -1413,13 +1413,17 @@ if (!jQuery.fn.drag) {
                     else if (idx !== -1 && e.ctrlKey) {
                         selection = $.grep(selection, function(o, i) { return (o !== row); });
                     }
-                    else if (idx === -1 && selection.length === 1 && e.shiftKey) {
-                        var from = Math.min(row, selection[0]);
-                        var to = Math.max(row, selection[0]);
+                    else if (selection.length && e.shiftKey) {
+                        var last = selection.pop();
+                        var from = Math.min(row, last);
+                        var to = Math.max(row, last);
                         selection = [];
                         for (var i = from; i <= to; i++) {
-                            selection.push(i);
+                            if (i !== last) {
+                                selection.push(i);
+                            }
                         }
+                        selection.push(last);
                     }
 
                     setSelectedRows(selection);
@@ -1530,7 +1534,7 @@ if (!jQuery.fn.drag) {
                 }
             }
         }
-        
+
         function getCellFromPoint(x,y) {
             var row = Math.floor(y/options.rowHeight);
             var cell = 0;
@@ -1892,6 +1896,7 @@ if (!jQuery.fn.drag) {
             "onViewportChanged":     null,
             "onSelectedRowsChanged": null,
             "onColumnsReordered":    null,
+            "onColumnsResized":      null,
             "onBeforeMoveRows":      null,
             "onMoveRows":            null,
             "onCellChange":          null,
