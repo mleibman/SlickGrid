@@ -270,7 +270,6 @@ if (!jQuery.fn.drag) {
         var currentEditor = null;
         var editController;
 
-
         var rowsCache = {};
         var renderedRows = 0;
         var numVisibleRows;

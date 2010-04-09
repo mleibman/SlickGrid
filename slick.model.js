@@ -29,7 +29,7 @@ function EventHelper() {
         var self = this;
 
         // private
-        var idProperty = "id";   // property holding a unique row id
+        var idProperty = "id";  // property holding a unique row id
         var items = [];			// data by index
         var rows = [];			// data by row
         var idxById = {};		// indexes by id
@@ -112,10 +112,10 @@ function EventHelper() {
             Object.prototype.toString = (typeof field == "function")?field:function() { return this[field] };
             // an extra reversal for descending sort keeps the sort stable
             // (assuming a stable native sort implementation, which isn't true in some cases)
-            if (!ascending) items.reverse();
+            if (ascending === false) items.reverse();
             items.sort();
             Object.prototype.toString = oldToString;
-            if (!ascending) items.reverse();
+            if (ascending === false) items.reverse();
             refreshIdxById();
             refresh();
         }
@@ -150,6 +150,8 @@ function EventHelper() {
         }
 
         function updateItem(id, item) {
+            if (idxById[id] === undefined || id !== item[idProperty])
+                throw "Invalid or non-matching id";
             items[idxById[id]] = item;
             if (!updated) updated = {};
             updated[id] = true;
@@ -169,6 +171,8 @@ function EventHelper() {
         }
 
         function deleteItem(id) {
+            if (idxById[id] === undefined)
+                throw "Invalid id";
             items.splice(idxById[id], 1);
             refreshIdxById();  // TODO:  optimize
             refresh();
@@ -231,7 +235,7 @@ function EventHelper() {
 
             if (totalRowsBefore != totalRows) onPagingInfoChanged.notify(getPagingInfo());
             if (countBefore != rows.length) onRowCountChanged.notify({previous:countBefore, current:rows.length});
-            if (diff.length > 0 || countBefore != rows.length) onRowsChanged.notify(diff);
+            if (diff.length > 0) onRowsChanged.notify(diff);
         }
 
 
