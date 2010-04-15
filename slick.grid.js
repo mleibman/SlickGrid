@@ -826,7 +826,7 @@ if (!jQuery.fn.drag) {
             options.editorLock.cancelCurrentEdit();
 
             if (self.onBeforeDestroy) { self.onBeforeDestroy(); }
-            $headers.sortable("destroy");
+            if ($headers.sortable) { $headers.sortable("destroy"); }
             $container.unbind("resize", resizeCanvas);
             removeCssRules();
 
