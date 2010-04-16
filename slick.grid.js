@@ -440,15 +440,11 @@ if (!jQuery.fn.drag) {
             createColumnHeaders();
             setupRowReordering();
             createCssRules();
-            resizeCanvas();
-            if (options.forceFitColumns) {
-                autosizeColumns();
-            } else {
-            	render();
-			}
+            
+			resizeAndRender();
 
             $viewport.bind("scroll", handleScroll);
-            $container.bind("resize", resizeCanvas);
+            $container.bind("resize", resizeAndRender);
             $canvas.bind("keydown", handleKeyDown);
             $canvas.bind("click", handleClick);
             $canvas.bind("dblclick", handleDblClick);
@@ -1174,6 +1170,14 @@ if (!jQuery.fn.drag) {
             render();
         }
 
+		function resizeAndRender() {
+	        if (options.forceFitColumns) {
+	            autosizeColumns();
+	        } else {
+				resizeCanvas();
+			}
+		}
+		
         function updateRowCount() {
             // remove the rows that are now outside of the data range
             // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
