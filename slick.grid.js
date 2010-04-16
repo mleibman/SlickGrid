@@ -443,8 +443,9 @@ if (!jQuery.fn.drag) {
             resizeCanvas();
             if (options.forceFitColumns) {
                 autosizeColumns();
-            }
-            render();
+            } else {
+            	render();
+			}
 
             $viewport.bind("scroll", handleScroll);
             $container.bind("resize", resizeCanvas);
