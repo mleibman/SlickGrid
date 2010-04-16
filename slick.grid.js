@@ -417,7 +417,7 @@ if (!jQuery.fn.drag) {
 
             // with autoHeight, we can set the mainscroller's y-overflow to auto, since the scroll bar will not appear
             var msStyle = "width:100%;overflow-x:auto;outline:0;position:relative;overflow-y:" + (options.autoHeight ? "auto;" : "scroll;");
-            $viewport = $("<div tabIndex='0' hideFocus style='" + msStyle + "'>").appendTo($container);
+            $viewport = $("<div class='slick-viewport' tabIndex='0' hideFocus style='" + msStyle + "'>").appendTo($container);
             $canvas = $("<div class='grid-canvas' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($viewport);
 
             // header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
