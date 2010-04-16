@@ -1034,7 +1034,7 @@ if (!jQuery.fn.drag) {
             var dataLoading = row < gridDataGetLength() && !d;
             var css = "slick-row " + (dataLoading ? " loading" : "") + (selectedRowsLookup[row] ? " selected ui-state-active" : "");
 
-            stringArray.push("<div class='ui-widget-content " + css + "' row='" + row + "' style='top:" + (options.rowHeight*row) + "px'>");
+            stringArray.push("<div class='ui-widget-content " + (row % 2 == 1 ? 'odd ' : 'even ') + css + "' row='" + row + "' style='top:" + (options.rowHeight*row) + "px'>");
 
             for (var i=0, cols=columns.length; i<cols; i++) {
                 var m = columns[i];
