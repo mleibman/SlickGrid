@@ -9,7 +9,7 @@
  * (c) 2009-2010 Michael Leibman (michael.leibman@gmail.com)
  * All rights reserved.
  *
- * SlickGrid v1.3.1
+ * SlickGrid v1.3.2
  *
  * TODO:
  * - frozen columns
@@ -324,6 +324,23 @@ if (!jQuery.fn.drag) {
                 }
                 else { // otherwise, use "stolen" implementation :)
                     $target.attr('unselectable', 'on').css('MozUserSelect', 'none').bind('selectstart.ui', function() { return false; }); // from jquery:ui.core.js 1.7.2
+                }
+            }
+        }
+
+        // TODO: PERF: throttle event
+        function handleHover(e) {
+            if (!options.enableAutoTooltips) {
+                return;
+            }
+
+            var $cell = $(e.target).closest(".slick-cell",$canvas);
+            if ($cell && $cell.length) {
+                if ($cell.innerWidth() < $cell[0].scrollWidth) {
+                    $cell.attr("title", $.trim($cell.text()));
+                }
+                else {
+                    $cell.attr("title","");
                 }
             }
         }
@@ -1245,6 +1262,13 @@ if (!jQuery.fn.drag) {
             h_render = null;
         }
 
+        //--------------------------------------------------
+        function invalidate() {
+            updateRowCount(gridDataGetLength());
+            removeAllRows();
+            render();
+        }
+
         function handleScroll() {
             currentScrollTop = $viewport[0].scrollTop;
             var scrollDistance = Math.abs(lastRenderedScrollTop - currentScrollTop);
@@ -1517,21 +1541,6 @@ if (!jQuery.fn.drag) {
                 e.preventDefault();
                 // TODO:  figure out which column was acted on and pass it as a param to the handler
                 self.onHeaderContextMenu(e);
-            }
-        }
-
-        // TODO: PERF: throttle event
-        function handleHover(e) {
-            if (!options.enableAutoTooltips) return;
-
-            var $cell = $(e.target).closest(".slick-cell",$canvas);
-            if ($cell && $cell.length) {
-                if ($cell.innerWidth() < $cell[0].scrollWidth) {
-                    $cell.attr("title", $.trim($cell.text()));
-                }
-                else {
-                    $cell.attr("title","");
-                }
             }
         }
 
@@ -1882,7 +1891,7 @@ if (!jQuery.fn.drag) {
         // Public API
 
         $.extend(this, {
-            "slickGridVersion": "1.3.1",
+            "slickGridVersion": "1.3.2",
 
             // Events
             "onSort":                null,
@@ -1917,6 +1926,7 @@ if (!jQuery.fn.drag) {
             "removeRows":          removeRows,
             "removeAllRows":       removeAllRows,
             "render":              render,
+            "invalidate":          invalidate,
             "getViewport":         getViewport,
             "resizeCanvas":        resizeCanvas,
             "updateRowCount":      updateRowCount,
