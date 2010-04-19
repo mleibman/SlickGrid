@@ -36,6 +36,7 @@
  *     showSecondaryHeaderRow   - (default false) If true, an extra blank (to be populated externally) row will be displayed just below the header columns.
  *     secondaryHeaderRowHeight - (default 25px) The height of the secondary header row.
  *     syncColumnCellResize     - (default false) Synchronously resize column cells when column headers are resized
+ *     rowClasses               - (default null) A space-delimited string of classes to place on each row or, alternatively, a function taking a row's data item and returning such a string.
  *
  *
  * COLUMN DEFINITION (columns) OPTIONS:
