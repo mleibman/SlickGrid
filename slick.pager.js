@@ -87,33 +87,32 @@
                 }
             });
 
-            $("<span class='ui-icon ui-icon-lightbulb' />")
+            var icon_prefix = "<span class='ui-state-default ui-corner-all ui-icon-container'><span class='ui-icon ";
+            var icon_suffix = "' /></span>";
+
+            $(icon_prefix + "ui-icon-lightbulb" + icon_suffix)
                     .click(function() { $(".slick-pager-settings-expanded").toggle() })
                     .appendTo($settings);
 
-            $("<span class='ui-icon ui-icon-seek-first' />")
+            $(icon_prefix + "ui-icon-seek-first" + icon_suffix)
                     .click(gotoFirst)
                     .appendTo($nav);
 
-            $("<span class='ui-icon ui-icon-seek-prev' />")
+            $(icon_prefix + "ui-icon-seek-prev" + icon_suffix)
                     .click(gotoPrev)
                     .appendTo($nav);
 
-            $("<span class='ui-icon ui-icon-seek-next' />")
+            $(icon_prefix + "ui-icon-seek-next" + icon_suffix)
                     .click(gotoNext)
                     .appendTo($nav);
 
-            $("<span class='ui-icon ui-icon-seek-end' />")
+            $(icon_prefix + "ui-icon-seek-end" + icon_suffix)
                     .click(gotoLast)
                     .appendTo($nav);
 
-            $container.find(".ui-icon")
-                    .addClass("ui-state-default ui-corner-all")
-                    .mouseover(function(e) {
-                        $(e.target).addClass("ui-state-hover")
-                    })
-                    .mouseout(function(e) {
-                        $(e.target).removeClass("ui-state-hover")
+            $container.find(".ui-icon-container")
+                    .hover(function() {
+                        $(this).toggleClass("ui-state-hover");
                     });
 
             $container.children().wrapAll("<div class='slick-pager' />");
