@@ -27,6 +27,7 @@
 				<ul>
 					<li>width, minWidth, maxWidth, resizable, cssClass column attributes</li>
 					<li>custom column formatters</li>
+					<li>rowCssClasses option</li>
 				</ul>
 			</td>
 		</tr>
@@ -59,7 +60,11 @@
 		var options = {
 			editable: false,
 			enableAddRow: false,
-			enableCellNavigation: true
+			enableCellNavigation: true,
+			rowCssClasses: function(item) {
+				// if a task is 100% done then its row gets an additional CSS class
+				return (item.percentComplete == 100) ? 'complete' : '';
+			}
 		};
 
 
@@ -70,7 +75,7 @@
 
 				d["title"] = "Task " + i;
 				d["duration"] = "5 days";
-				d["percentComplete"] = Math.round(Math.random() * 100);
+				d["percentComplete"] = Math.min(100, Math.round(Math.random() * 110));
 				d["start"] = "01/01/2009";
 				d["finish"] = "01/05/2009";
 				d["effortDriven"] = (i % 5 == 0);

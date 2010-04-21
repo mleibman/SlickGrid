@@ -112,6 +112,11 @@ li {
 	text-align: left;
 }
 
+.slick-row.complete {
+	background-color: #DFD;
+	color: #555;
+}
+
 .percent-complete-bar {
 	display: inline-block;
 	height: 6px;
