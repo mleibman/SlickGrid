@@ -36,7 +36,7 @@
  *     showSecondaryHeaderRow   - (default false) If true, an extra blank (to be populated externally) row will be displayed just below the header columns.
  *     secondaryHeaderRowHeight - (default 25px) The height of the secondary header row.
  *     syncColumnCellResize     - (default false) Synchronously resize column cells when column headers are resized
- *     rowClasses               - (default null) A space-delimited string of classes to place on each row or, alternatively, a function taking a row's data item and returning such a string.
+ *     rowCssClasses            - (default null) A function which (given a row's data item as an argument) returns a space-delimited string of CSS classes that will be applied to the slick-row element. Note that this should be fast, as it is called every time a row is displayed.
  *
  *
  * COLUMN DEFINITION (columns) OPTIONS:
@@ -1032,9 +1032,12 @@ if (!jQuery.fn.drag) {
             var css = "slick-row " + 
 					(dataLoading ? " loading" : "") + 
 					(selectedRowsLookup[row] ? " selected ui-state-active" : "") +
-					(row % 2 == 1 ? ' odd' : ' even') +
-					(typeof options.rowClasses == 'string' ? ' ' + options.rowClasses : '') +
-					(typeof options.rowClasses == 'function' ? ' ' + options.rowClasses(d) : '');
+					(row % 2 == 1 ? ' odd' : ' even');
+
+			// if the user has specified a function to provide additional per-row css classes, call it here
+			if (options.rowCssClasses) {
+				css += ' ' + options.rowCssClasses(d);
+			}
 					 
             stringArray.push("<div class='ui-widget-content " + css + "' row='" + row + "' style='top:" + (options.rowHeight*row) + "px'>");
 
