@@ -897,15 +897,18 @@ if (!jQuery.fn.drag) {
             }
 
             // grow
+            var previousTotal = total;
             while (total < availWidth) {
                 var growProportion = availWidth / total;
                 for (i = 0; i < visibleColumns.length && total < availWidth; i++) {
                     c = visibleColumns[i];
-                    if (!c.resizable || c.maxWidth === c.width) { continue; }
+                    if (!c.resizable || c.maxWidth <= c.width) { continue; }
                     var growSize = Math.min(Math.floor(growProportion * c.width) - c.width, (c.maxWidth - c.width) || 1000000) || 1;
                     total += growSize;
                     widths[i] += growSize;
                 }
+                if (previousTotal == total) break; // if total is not changing, will result in infinite loop
+                previousTotal = total;
             }
 
             for (i=0; i<columns.length; i++) {
