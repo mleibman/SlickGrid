@@ -18,7 +18,7 @@ function EventHelper() {
 }
 
 
-(function() {
+(function($) {
 	/***
 	 * A sample AJAX data store implementation.
 	 * Right now, it's hooked up to load all Apple-related Digg stories, but can
@@ -183,4 +183,4 @@ function EventHelper() {
 
 	// Slick.Data.RemoteModel
 	$.extend(true, window, { Slick: { Data: { RemoteModel: RemoteModel }}});
-})();
+})(jQuery);

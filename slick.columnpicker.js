@@ -1,4 +1,4 @@
-(function() {
+(function($) {
 	function SlickColumnPicker(columns,grid)
 	{
 		var $menu;
@@ -97,4 +97,4 @@
 
 	// Slick.Controls.ColumnPicker
 	$.extend(true, window, { Slick: { Controls: { ColumnPicker: SlickColumnPicker }}});
-})();
+})(jQuery);

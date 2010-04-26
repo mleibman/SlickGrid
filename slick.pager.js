@@ -1,4 +1,4 @@
-(function() {
+(function($) {
     function SlickGridPager(dataView, grid, $container)
     {
         var $status, $contextMenu;
@@ -143,5 +143,4 @@
 
     // Slick.Controls.Pager
     $.extend(true, window, { Slick: { Controls: { Pager: SlickGridPager }}});
-})();
-
+})(jQuery);

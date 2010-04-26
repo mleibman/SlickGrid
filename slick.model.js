@@ -18,7 +18,7 @@ function EventHelper() {
 }
 
 
-(function() {
+(function($) {
     /***
      * A sample Model implementation.
      * Provides a filtered view of the underlying data.
@@ -272,4 +272,4 @@ function EventHelper() {
 
     // Slick.Data.DataView
     $.extend(true, window, { Slick: { Data: { DataView: DataView }}});
-})();
+})(jQuery);
