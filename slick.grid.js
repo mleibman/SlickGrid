@@ -1219,13 +1219,16 @@ if (!jQuery.fn.drag) {
                 rowsBefore = renderedRows,
                 stringArray = [],
                 rows =[],
-                startTimestamp = new Date();
+                startTimestamp = new Date(),
+                needToReselectCell = false;
 
             for (i = from; i <= to; i++) {
                 if (rowsCache[i]) { continue; }
                 renderedRows++;
                 rows.push(i);
                 appendRowHtml(stringArray,i);
+                if (currentCellNode && currentRow === i)
+                    needToReselectCell = true;
                 counter_rows_rendered++;
             }
 
@@ -1234,6 +1237,11 @@ if (!jQuery.fn.drag) {
 
             for (i = 0, l = x.childNodes.length; i < l; i++) {
                 rowsCache[rows[i]] = parentNode.appendChild(x.firstChild);
+            }
+
+            if (needToReselectCell) {
+                currentCellNode = $(rowsCache[currentRow]).find(".slick-cell[cell=" + currentCell + "]")[0];
+                setSelectedCell(currentCellNode,false);
             }
 
             if (renderedRows - rowsBefore > MIN_BUFFER) {
@@ -1396,8 +1404,11 @@ if (!jQuery.fn.drag) {
                                 gotoDir(1, 0, false);
                             }
                             else {
-                                options.editorLock.commitCurrentEdit();
-                                currentCellNode.focus();
+                                // if the commit fails, it would do so due to a validation error
+                                // if so, do not steal the focus from the editor
+                                if (options.editorLock.commitCurrentEdit()) {
+                                    currentCellNode.focus();
+                                }
                             }
                         } else {
                             if (options.editorLock.commitCurrentEdit()) {
@@ -1711,6 +1722,10 @@ if (!jQuery.fn.drag) {
             currentEditor = new columns[currentCell].editor($(currentCellNode), columns[currentCell], value, gridDataGetItem(currentRow));
         }
 
+        function getCellEditor() {
+            return currentEditor;
+        }
+        
         function scrollSelectedCellIntoView() {
             if (!currentCellNode) { return; }
             var scrollTop = $viewport[0].scrollTop;
@@ -1947,6 +1962,7 @@ if (!jQuery.fn.drag) {
             "getCellFromPoint":    getCellFromPoint,
             "gotoCell":            gotoCell,
             "editCurrentCell":     makeSelectedCellEditable,
+            "getCellEditor":       getCellEditor,
             "getSelectedRows":     getSelectedRows,
             "setSelectedRows":     setSelectedRows,
             "getSecondaryHeaderRow":    getSecondaryHeaderRow,
