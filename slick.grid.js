@@ -1701,12 +1701,15 @@ if (!jQuery.fn.drag) {
                 return;
             }
 
+            if (options.editorLock.isActive())
+                return;
+
+            options.editorLock.activate(editController);
+
             if (self.onBeforeEditCell && self.onBeforeEditCell(currentRow,currentCell,gridDataGetItem(currentRow)) === false) {
                 currentCellNode.focus();
                 return;
             }
-
-            options.editorLock.activate(editController);
 
             $(currentCellNode).addClass("editable");
 

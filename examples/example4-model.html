@@ -232,7 +232,7 @@
                 selectedRowIds = [];
                 var rows = grid.getSelectedRows();
                 for (var i = 0, l = rows.length; i < l; i++) {
-                    selectedRowIds.push(rows[i].id);
+                    selectedRowIds.push(dataView.rows[rows[i]].id);
                 }
             };
 
@@ -274,15 +274,15 @@
 				{
 					// since how the original data maps onto rows has changed,
 					// the selected rows in the grid need to be updated
-					var rows = [];
+					var selRows = [];
 					for (var i = 0; i < selectedRowIds.length; i++)
 					{
 						var idx = dataView.getRowById(selectedRowIds[i]);
 						if (idx != undefined)
-							rows.push(idx);
+							selRows.push(idx);
 					}
 
-					grid.setSelectedRows(rows);
+					grid.setSelectedRows(selRows);
 				}
 			});
 
