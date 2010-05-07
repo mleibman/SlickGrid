@@ -378,7 +378,7 @@ if (!jQuery.fn.drag) {
             columnDefaults.width = options.defaultColumnWidth;
 
             // validate loaded JavaScript modules against requested options
-            if (options.enableColumnReorder && !jQuery.fn.sortable) {
+            if (options.enableColumnReorder && !$.fn.sortable) {
                 throw new Error("SlickGrid's \"enableColumnReorder = true\" option requires jquery-ui.sortable module to be loaded");
             }
 

@@ -1,17 +1,19 @@
-var SelectorCellFormatter = function(row, cell, value, columnDef, dataContext) {
+(function($) {
+  var SlickEditor =  {
+    SelectorCellFormatter : function(row, cell, value, columnDef, dataContext) {
     return (!dataContext ? "" : row);
-};
+},
 
-var PercentCompleteCellFormatter = function(row, cell, value, columnDef, dataContext) {
+    PercentCompleteCellFormatter : function(row, cell, value, columnDef, dataContext) {
     if (value == null || value === "")
         return "-";
     else if (value < 50)
         return "<span style='color:red;font-weight:bold;'>" + value + "%</span>";
     else
         return "<span style='color:green'>" + value + "%</span>";
-};
+},
 
-var GraphicalPercentCompleteCellFormatter = function(row, cell, value, columnDef, dataContext) {
+    GraphicalPercentCompleteCellFormatter : function(row, cell, value, columnDef, dataContext) {
     if (value == null || value === "")
         return "";
 
@@ -25,23 +27,23 @@ var GraphicalPercentCompleteCellFormatter = function(row, cell, value, columnDef
 		color = "green";
 
     return "<span class='percent-complete-bar' style='background:" + color + ";width:" + value + "%'></span>";
-};
+},
 
-var YesNoCellFormatter = function(row, cell, value, columnDef, dataContext) {
+    YesNoCellFormatter : function(row, cell, value, columnDef, dataContext) {
     return value ? "Yes" : "No";
-};
+},
 
-var BoolCellFormatter = function(row, cell, value, columnDef, dataContext) {
+    BoolCellFormatter : function(row, cell, value, columnDef, dataContext) {
     return value ? "<img src='../images/tick.png'>" : "";
-};
+},
 
-var TaskNameFormatter = function(row, cell, value, columnDef, dataContext) {
+    TaskNameFormatter : function(row, cell, value, columnDef, dataContext) {
     // todo:  html encode
     var spacer = "<span style='display:inline-block;height:1px;width:" + (2 + 15 * dataContext["indent"]) + "px'></span>";
     return spacer + " <img src='../images/expand.gif'>&nbsp;" + value;
-};
+},
 
-var ResourcesFormatter = function(row, cell, value, columnDef, dataContext) {
+    ResourcesFormatter : function(row, cell, value, columnDef, dataContext) {
     var resources = dataContext["resources"];
 
     if (!resources || resources.length == 0)
@@ -52,18 +54,18 @@ var ResourcesFormatter = function(row, cell, value, columnDef, dataContext) {
 				" title='" + resources.join(", ") + "'></center>";
 	else
 		return resources.join(", ");
-};
+},
 
-var StarFormatter = function(row, cell, value, columnDef, dataContext) {
+    StarFormatter : function(row, cell, value, columnDef, dataContext) {
     return (value) ? "<img src='../images/bullet_star.png' align='absmiddle'>" : "";
-};
+},
 
 
 
 
 
 
-var TextCellEditor = function($container, columnDef, value, dataContext) {
+    TextCellEditor : function($container, columnDef, value, dataContext) {
     var $input;
     var defaultValue = value;
     var scope = this;
@@ -117,9 +119,9 @@ var TextCellEditor = function($container, columnDef, value, dataContext) {
     };
 
     this.init();
-};
+},
 
-var IntegerCellEditor = function($container, columnDef, value, dataContext) {
+    IntegerCellEditor : function($container, columnDef, value, dataContext) {
     var $input;
     var defaultValue = value;
     var scope = this;
@@ -174,10 +176,10 @@ var IntegerCellEditor = function($container, columnDef, value, dataContext) {
     };
 
     this.init();
-};
+},
 
 
-var DateCellEditor = function($container, columnDef, value, dataContext) {
+    DateCellEditor : function($container, columnDef, value, dataContext) {
     var $input;
     var defaultValue = value;
     var scope = this;
@@ -234,9 +236,9 @@ var DateCellEditor = function($container, columnDef, value, dataContext) {
     };
 
     this.init();
-};
+},
 
-var YesNoSelectCellEditor = function($container, columnDef, value, dataContext) {
+    YesNoSelectCellEditor : function($container, columnDef, value, dataContext) {
     var $select;
     var defaultValue = value;
     var scope = this;
@@ -285,9 +287,9 @@ var YesNoSelectCellEditor = function($container, columnDef, value, dataContext) 
     };
 
     this.init();
-};
+},
 
-var YesNoCheckboxCellEditor = function($container, columnDef, value, dataContext) {
+    YesNoCheckboxCellEditor : function($container, columnDef, value, dataContext) {
     var $select;
     var defaultValue = value;
     var scope = this;
@@ -337,9 +339,9 @@ var YesNoCheckboxCellEditor = function($container, columnDef, value, dataContext
     };
 
     this.init();
-};
+},
 
-var PercentCompleteCellEditor = function($container, columnDef, value, dataContext) {
+    PercentCompleteCellEditor : function($container, columnDef, value, dataContext) {
     var $input, $picker;
     var defaultValue = value;
     var scope = this;
@@ -418,9 +420,9 @@ var PercentCompleteCellEditor = function($container, columnDef, value, dataConte
     };
 
     this.init();
-};
+},
 
-var TaskNameCellEditor = function($container, columnDef, value, dataContext) {
+    TaskNameCellEditor : function($container, columnDef, value, dataContext) {
     var $input;
     var defaultValue = value;
     var scope = this;
@@ -480,9 +482,9 @@ var TaskNameCellEditor = function($container, columnDef, value, dataContext) {
     };
 
     this.init();
-};
+},
 
-var ResourcesCellEditor = function($container, columnDef, value, dataContext) {
+    ResourcesCellEditor : function($container, columnDef, value, dataContext) {
     var $input;
     var defaultValue = [];
     var scope = this;
@@ -551,9 +553,9 @@ var ResourcesCellEditor = function($container, columnDef, value, dataContext) {
     };
 
     this.init();
-};
+},
 
-var StarCellEditor = function($container, columnDef, value, dataContext) {
+    StarCellEditor : function($container, columnDef, value, dataContext) {
     var $input;
     var defaultValue = value;
     var scope = this;
@@ -619,4 +621,10 @@ var StarCellEditor = function($container, columnDef, value, dataContext) {
     };
 
     this.init();
-};
+      }
+  }
+
+  for (var x in SlickEditor) {
+		window[x] = SlickEditor[x];
+  };
+})(jQuery);
