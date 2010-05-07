@@ -71,7 +71,7 @@
     var scope = this;
 
     this.init = function() {
-        $input = $("<INPUT type=text class='editor-text' />");
+        $input = jQuery("<INPUT type=text class='editor-text' />");
 
         if (value != null)
         {
@@ -127,7 +127,7 @@
     var scope = this;
 
     this.init = function() {
-        $input = $("<INPUT type=text class='editor-text' />");
+        $input = jQuery("<INPUT type=text class='editor-text' />");
 
         if (value != null)
         {
@@ -185,7 +185,7 @@
     var scope = this;
 
     this.init = function() {
-        $input = $("<INPUT type=text class='editor-text' />");
+        $input = jQuery("<INPUT type=text class='editor-text' />");
 
         if (value != null)
         {
@@ -244,7 +244,7 @@
     var scope = this;
 
     this.init = function() {
-        $select = $("<SELECT tabIndex='0' class='editor-yesno'><OPTION value='yes'>Yes</OPTION><OPTION value='no'>No</OPTION></SELECT>");
+        $select = jQuery("<SELECT tabIndex='0' class='editor-yesno'><OPTION value='yes'>Yes</OPTION><OPTION value='no'>No</OPTION></SELECT>");
 
         if (defaultValue)
             $select.val('yes');
@@ -295,7 +295,7 @@
     var scope = this;
 
     this.init = function() {
-        $select = $("<INPUT type=checkbox value='true' class='editor-checkbox' hideFocus>");
+        $select = jQuery("<INPUT type=checkbox value='true' class='editor-checkbox' hideFocus>");
 
         if (defaultValue)
             $select.attr("checked", "checked");
@@ -347,7 +347,7 @@
     var scope = this;
 
     this.init = function() {
-        $input = $("<INPUT type=text class='editor-percentcomplete' />");
+        $input = jQuery("<INPUT type=text class='editor-percentcomplete' />");
 
         if (value != null)
         {
@@ -358,7 +358,7 @@
         $input.width($container.innerWidth() - 25);
         $input.appendTo($container);
 
-        $picker = $("<div class='editor-percentcomplete-picker' />").appendTo($container);
+        $picker = jQuery("<div class='editor-percentcomplete-picker' />").appendTo($container);
 
         $picker.append("<div class='editor-percentcomplete-helper'><div class='editor-percentcomplete-wrapper'><div class='editor-percentcomplete-slider' /><div class='editor-percentcomplete-buttons' /></div></div>");
 
@@ -376,8 +376,8 @@
         });
 
         $picker.find(".editor-percentcomplete-buttons button").bind("click", function(e) {
-            $input.val($(this).attr("val"));
-            $picker.find(".editor-percentcomplete-slider").slider("value", $(this).attr("val"));
+            $input.val(jQuery(this).attr("val"));
+            $picker.find(".editor-percentcomplete-slider").slider("value", jQuery(this).attr("val"));
         })
     };
 
@@ -398,7 +398,7 @@
     };
 
     this.getValue = function() {
-        var val = $.trim($input.val());
+        var val = jQuery.trim($input.val());
         return (val == "") ? 0 : parseInt($input.val(), 10);
     };
 
@@ -428,7 +428,7 @@
     var scope = this;
 
     this.init = function() {
-        $input = $("<INPUT type=text class='editor-text' />");
+        $input = jQuery("<INPUT type=text class='editor-text' />");
 
         if (value != null)
         {
@@ -490,7 +490,7 @@
     var scope = this;
 
     this.init = function() {
-        $input = $("<INPUT type=text class='editor-text' />");
+        $input = jQuery("<INPUT type=text class='editor-text' />");
 
         var resources = dataContext ? dataContext["resources"] : null;
 
@@ -526,7 +526,7 @@
         var names = $input.val().split(",");
 
         for (var i = 0; i < names.length; i++)
-            names[i] = $.trim(names[i]);
+            names[i] = jQuery.trim(names[i]);
 
         return names;
     };
@@ -574,7 +574,7 @@
     }
 
     this.init = function() {
-        $input = $("<IMG src='../images/bullet_star.png' align=absmiddle tabIndex=0 title='Click or press Space to toggle' />");
+        $input = jQuery("<IMG src='../images/bullet_star.png' align=absmiddle tabIndex=0 title='Click or press Space to toggle' />");
 
         if (defaultValue)
             $input.css("opacity", 1);
