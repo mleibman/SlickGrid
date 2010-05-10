@@ -1,3 +1,5 @@
+(function($) {
+
 var grid;
 var el, offsetBefore, offsetAfter, dragged;
 
@@ -65,3 +67,4 @@ test("onColumnsResized is fired on column resize", function() {
 
 });
 
+})(jQuery);

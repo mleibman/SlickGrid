@@ -1,3 +1,4 @@
+(function($) {
 
 module("basic");
 
@@ -884,3 +885,6 @@ test("delete at the end", function() {
 
 // TODO: paging
 // TODO: combination
+
+
+})(jQuery);
