@@ -1161,7 +1161,7 @@ if (!jQuery.fn.drag) {
 
         function updateCell(row,cell) {
             if (!rowsCache[row]) { return; }
-            var $cell = $(rowsCache[row]).find(".c[cell=" + cell + "]");
+            var $cell = $(rowsCache[row]).find(".slick-cell[cell=" + cell + "]");
             if ($cell.length === 0) { return; }
 
             var m = columns[cell], d = gridDataGetItem(row);
