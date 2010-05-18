@@ -78,6 +78,7 @@
  *     onMoveRows            -
  *     onCellChange          -  Raised when cell has been edited.   Args: row,cell,dataContext.
  *     onBeforeEditCell      -  Raised before a cell goes into edit mode.  Return false to cancel.  Args: row,cell,dataContext.
+ *     onBeforeCellEditorDestroy    - Raised before a cell editor is destroyed.  Args: current cell editor.
  *     onBeforeDestroy       -  Raised just before the grid control is destroyed (part of the destroy() method).
  *
  *
@@ -194,10 +195,9 @@ if (!jQuery.fn.drag) {
             /// Invoke the "cancelCurrentEdit" method on the
             /// editController that is active in this lock
             /// instance (if no controller is active, do nothing).
+            /// Returns true if the edit was succesfully cancelled.
             /// </summary>
-            if (currentEditController) {
-                currentEditController.cancelCurrentEdit();
-            }
+            return (currentEditController ? currentEditController.cancelCurrentEdit() : true);
         };
     } // end of EditorLock function (class)
 
@@ -329,22 +329,7 @@ if (!jQuery.fn.drag) {
             }
         }
 
-        // TODO: PERF: throttle event
-        function handleHover(e) {
-            if (!options.enableAutoTooltips) {
-                return;
-            }
 
-            var $cell = $(e.target).closest(".slick-cell",$canvas);
-            if ($cell && $cell.length) {
-                if ($cell.innerWidth() < $cell[0].scrollWidth) {
-                    $cell.attr("title", $.trim($cell.text()));
-                }
-                else {
-                    $cell.attr("title","");
-                }
-            }
-        }
 
         function defaultGetLength() {
             /// <summary>
@@ -426,9 +411,9 @@ if (!jQuery.fn.drag) {
             measureCellPaddingAndBorder();
 
             $viewport.height(
-                    $container.innerHeight() -
-                    $headerScroller.outerHeight() -
-                    (options.showSecondaryHeaderRow ? $secondaryHeaderScroller.outerHeight() : 0));
+                $container.innerHeight() -
+                $headerScroller.outerHeight() -
+                (options.showSecondaryHeaderRow ? $secondaryHeaderScroller.outerHeight() : 0));
 
             // for usability reasons, all text selection in SlickGrid is disabled
             // with the exception of input and textarea elements (selection must
@@ -441,8 +426,8 @@ if (!jQuery.fn.drag) {
             createColumnHeaders();
             setupRowReordering();
             createCssRules();
-            
-			resizeAndRender();
+
+            resizeAndRender();
 
             $viewport.bind("scroll", handleScroll);
             $container.bind("resize", resizeAndRender);
@@ -495,11 +480,8 @@ if (!jQuery.fn.drag) {
         }
 
         // Set .slick-header-column cell to indicate sort state
-        //
         //      $col - jQuery selector for header DOM object, or null to clear all sort styles
-        //
         //      ascending  - true for ascending style, else false.
-        //
         function setSortHeaderStyle($col, ascending) {
             $headers.children().removeClass("slick-header-column-sorted");
             $headers.find(".slick-sort-indicator").removeClass("slick-sort-indicator-asc slick-sort-indicator-desc");
@@ -534,11 +516,7 @@ if (!jQuery.fn.drag) {
         }
 
         // Rebuild and re-render columns in newly established order.
-        //   Extracted from inline 'stop' function in setupColumnReorder() below, for use by
-        //   new API method: "reorderColumns"
-        //
         function rebuildColumns() {
-
             var newOrder = $headers.sortable("toArray"), lookup = {};
             for (i=0; i<columns.length; i++) {
                 lookup[columns[i].id] = columns[i];
@@ -651,7 +629,7 @@ if (!jQuery.fn.drag) {
                         if (stretchLeewayOnLeft === null) { stretchLeewayOnLeft = 100000; }
                         maxPageX = pageX + Math.min(shrinkLeewayOnRight, stretchLeewayOnLeft);
                         minPageX = pageX - Math.min(shrinkLeewayOnLeft, stretchLeewayOnRight);
-			originalCanvasWidth = $canvas.width();
+                        originalCanvasWidth = $canvas.width();
                     })
                     .bind("drag", function(e) {
                         var actualMinWidth, d = Math.min(maxPageX, Math.max(minPageX, e.pageX)) - pageX, x, ci;
@@ -964,14 +942,10 @@ if (!jQuery.fn.drag) {
         }
 
         // Rearrange columns in specified order.
-        //
         //  columnIDs = (partial) array of existing columns IDs, in desired order.
-        ///
         //      Specified columns are moved to the front of the column list.  Any
         //      remainder is shifted toward the end.
-        //
         //  todo: Refactor. This logic relies on IDs in the DOM, which is something we're trying to move away from.
-        //
         function reorderColumns(columnIds) {
             for (var i = columnIds.length-1; i >=0; i--) {
                 if ($headers.children().first().attr("id") == columnIds[i]) {   // already in correct place?
@@ -983,7 +957,6 @@ if (!jQuery.fn.drag) {
         }
 
         // Set specified column to indicate the sort style.  Does NOT trigger the onSort message.
-        //
         function setSortColumn(columnId, ascending) {
             $sortcol = columnId ? $headers.find("#" + columnId) : null;
             setSortHeaderStyle($sortcol, ascending);
@@ -995,9 +968,10 @@ if (!jQuery.fn.drag) {
 
         function setSelectedRows(rows) {
             var i, row;
-            if (options.editorLock.isActive() && !options.editorLock.isActive(editController)) { // there are 3 possible states: a) editor lock is inactive: OK, b) editor lock is active and this SlickGrid is the controller: OK, c) editor lock is active but some other controller locked it: throw
-                throw "Grid : setSelectedRows : cannot set selected rows when somebody else has an edit lock";
-            }
+            // there are 3 possible states: a) editor lock is inactive: OK, b) editor lock is active and this SlickGrid is the controller: OK, c) editor lock is active but some other controller locked it: throw
+            //if (options.editorLock.isActive() && !options.editorLock.isActive(editController)) {
+            //    throw "Grid : setSelectedRows : cannot set selected rows when somebody else has an edit lock";
+            //}
 
             var lookup = {};
             for (i=0; i<rows.length; i++) {
@@ -1075,21 +1049,21 @@ if (!jQuery.fn.drag) {
         function appendRowHtml(stringArray,row) {
             var d = gridDataGetItem(row);
             var dataLoading = row < gridDataGetLength() && !d;
-            var css = "slick-row " + 
-					(dataLoading ? " loading" : "") + 
-					(selectedRowsLookup[row] ? " selected ui-state-active" : "") +
-					(row % 2 == 1 ? ' odd' : ' even');
+            var css = "slick-row " +
+                (dataLoading ? " loading" : "") +
+                (selectedRowsLookup[row] ? " selected ui-state-active" : "") +
+                (row % 2 == 1 ? ' odd' : ' even');
 
-			// if the user has specified a function to provide additional per-row css classes, call it here
-			if (options.rowCssClasses) {
-				css += ' ' + options.rowCssClasses(d);
-			}
-					 
+            // if the user has specified a function to provide additional per-row css classes, call it here
+            if (options.rowCssClasses) {
+                css += ' ' + options.rowCssClasses(d);
+            }
+
             stringArray.push("<div class='ui-widget-content " + css + "' row='" + row + "' style='top:" + (options.rowHeight*row) + "px'>");
 
             for (var i=0, cols=columns.length; i<cols; i++) {
                 var m = columns[i];
-		        if (m.hidden) continue;
+                if (m.hidden) continue;
 
                 stringArray.push("<div " + (m.unselectable ? "tabIndex=-1 " : "hideFocus tabIndex=0 ") + "class='slick-cell c" + i + (m.cssClass ? " " + m.cssClass : "") + "' cell=" + i + ">");
 
@@ -1226,20 +1200,20 @@ if (!jQuery.fn.drag) {
             render();
         }
 
-		function resizeAndRender() {
-	        if (options.forceFitColumns) {
-	            autosizeColumns();
-	        } else {
-				resizeCanvas();
-			}
-		}
-		
+        function resizeAndRender() {
+            if (options.forceFitColumns) {
+                autosizeColumns();
+            } else {
+                resizeCanvas();
+            }
+        }
+
         function updateRowCount() {
             // remove the rows that are now outside of the data range
             // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
             var l = options.enableAddRow ? gridDataGetLength() : gridDataGetLength() - 1;
             for (var i in rowsCache) {
-                if (i >= l) {
+                if (i > l) {
                     removeRowFromCache(i);
                 }
             }
@@ -1292,7 +1266,7 @@ if (!jQuery.fn.drag) {
 
             if (needToReselectCell) {
                 currentCellNode = $(rowsCache[currentRow]).find(".slick-cell[cell=" + currentCell + "]")[0];
-                setSelectedCell(currentCellNode,false);
+                setSelectedCell(currentCellNode,false,false);
             }
 
             if (renderedRows - rowsBefore > MIN_BUFFER) {
@@ -1335,7 +1309,6 @@ if (!jQuery.fn.drag) {
             h_render = null;
         }
 
-        //--------------------------------------------------
         function invalidate() {
             updateRowCount(gridDataGetLength());
             removeAllRows();
@@ -1551,7 +1524,7 @@ if (!jQuery.fn.drag) {
             if (options.enableCellNavigation && !columns[cell].unselectable) {
                 // commit current edit before proceeding
                 if (validated === true || (validated === null && options.editorLock.commitCurrentEdit())) {
-                    setSelectedCellAndRow($cell[0], (row === data.length) || options.autoEdit);
+                    setSelectedCellAndRow($cell[0], (row === data.length) || options.autoEdit, false);
                 }
             }
         }
@@ -1620,6 +1593,20 @@ if (!jQuery.fn.drag) {
             }
         }
 
+        // TODO: PERF: throttle event
+        function handleHover(e) {
+            if (!options.enableAutoTooltips) return;
+            var $cell = $(e.target).closest(".slick-cell",$canvas);
+            if ($cell && $cell.length) {
+                if ($cell.innerWidth() < $cell[0].scrollWidth) {
+                    $cell.attr("title", $.trim($cell.text()));
+                }
+                else {
+                    $cell.attr("title","");
+                }
+            }
+        }
+
         function getCellFromPoint(x,y) {
             var row = Math.floor(y/options.rowHeight);
             var cell = 0;
@@ -1636,8 +1623,11 @@ if (!jQuery.fn.drag) {
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Cell switching
+        function resetCurrentCell() {
+            setSelectedCell(null,false,false);
+        }
 
-        function setSelectedCell(newCell,editMode) {
+        function setSelectedCell(newCell,editMode,doPaging) {
             if (currentCellNode !== null) {
                 makeSelectedCellNormal();
                 $(currentCellNode).removeClass("selected");
@@ -1651,7 +1641,7 @@ if (!jQuery.fn.drag) {
 
                 $(currentCellNode).addClass("selected");
 
-                scrollSelectedCellIntoView();
+                scrollSelectedCellIntoView(doPaging);
 
                 if (options.editable && editMode && isCellPotentiallyEditable(currentRow,currentCell)) {
                     clearTimeout(h_editorLoader);
@@ -1673,8 +1663,8 @@ if (!jQuery.fn.drag) {
             }
         }
 
-        function setSelectedCellAndRow(newCell,editMode) {
-            setSelectedCell(newCell,editMode);
+        function setSelectedCellAndRow(newCell,editMode,doPaging) {
+            setSelectedCell(newCell,editMode,doPaging);
 
             if (newCell) {
                 setSelectedRows([currentRow]);
@@ -1722,6 +1712,9 @@ if (!jQuery.fn.drag) {
         function makeSelectedCellNormal() {
             if (!currentEditor) { return; }
 
+            if (self.onBeforeCellEditorDestroy) {
+                self.onBeforeCellEditorDestroy(currentEditor);
+            }
             currentEditor.destroy();
             $(currentCellNode).removeClass("editable invalid");
 
@@ -1752,16 +1745,14 @@ if (!jQuery.fn.drag) {
                 return;
             }
 
-            if (options.editorLock.isActive())
-                return;
 
-            options.editorLock.activate(editController);
 
             if (self.onBeforeEditCell && self.onBeforeEditCell(currentRow,currentCell,gridDataGetItem(currentRow)) === false) {
                 currentCellNode.focus();
                 return;
             }
 
+            options.editorLock.activate(editController);
             $(currentCellNode).addClass("editable");
 
             var value = null;
@@ -1773,27 +1764,53 @@ if (!jQuery.fn.drag) {
 
             currentCellNode.innerHTML = "";
 
-            currentEditor = new columns[currentCell].editor($(currentCellNode), columns[currentCell], value, gridDataGetItem(currentRow));
+            currentEditor = new columns[currentCell].editor($(currentCellNode), columns[currentCell], value, gridDataGetItem(currentRow), function() {
+                // if the commit fails, it would do so due to a validation error
+                // if so, do not steal the focus from the editor
+                if (options.editorLock.commitCurrentEdit()) {
+                    currentCellNode.focus();
+                }
+            });
         }
 
         function getCellEditor() {
             return currentEditor;
         }
-        
-        function scrollSelectedCellIntoView() {
-            if (!currentCellNode) { return; }
+
+        function getCurrentCell() {
+            if (!currentCellNode)
+                return null;
+            else
+                return {row: currentRow, cell: currentCell};
+        }
+
+        function getCurrentCellNode() {
+            return currentCellNode;
+        }
+
+        function scrollRowIntoView(row, doPaging) {
             var scrollTop = $viewport[0].scrollTop;
 
             // need to page down?
-            if ((currentRow + 2) * options.rowHeight > scrollTop + viewportH) {
-                $viewport[0].scrollTop = (currentRow ) * options.rowHeight;
+            if ((row + 1) * options.rowHeight > scrollTop + viewportH) {
+                $viewport[0].scrollTop = doPaging
+                                            ? row * options.rowHeight
+                                            : (row + 1) * options.rowHeight - viewportH;
                 handleScroll();
             }
+
             // or page up?
-            else if (currentRow * options.rowHeight < scrollTop) {
-                $viewport[0].scrollTop = (currentRow + 2) * options.rowHeight - viewportH;
+            else if (row * options.rowHeight < scrollTop) {
+                $viewport[0].scrollTop = doPaging
+                                            ? (row + 1) * options.rowHeight - viewportH
+                                            : row * options.rowHeight;
                 handleScroll();
             }
+        }
+
+        function scrollSelectedCellIntoView(doPaging) {
+            if (!currentCellNode) { return; }
+            scrollRowIntoView(currentRow,doPaging);
         }
 
         function gotoDir(dy, dx, rollover) {
@@ -1825,7 +1842,7 @@ if (!jQuery.fn.drag) {
             if (nextRow && nextCell && nextCell.length) {
                 // if selecting the 'add new' row, start editing right away
                 var row = parseInt($(nextRow).attr("row"), 10);
-                setSelectedCellAndRow(nextCell[0], (row === data.length) || options.autoEdit);
+                setSelectedCellAndRow(nextCell[0], (row === data.length) || options.autoEdit, true);
 
                 // if no editor was created, set the focus back on the cell
                 if (!currentEditor) {
@@ -1850,7 +1867,7 @@ if (!jQuery.fn.drag) {
             cell = $(rowsCache[row]).find(".slick-cell[cell=" + cell + "][tabIndex=0]:visible")[0];
 
             // if selecting the 'add new' row, start editing right away
-            setSelectedCellAndRow(cell, forceEdit || (row === data.length) || options.autoEdit);
+            setSelectedCellAndRow(cell, forceEdit || (row === data.length) || options.autoEdit, false);
 
             // if no editor was created, set the focus back on the cell
             if (!currentEditor) {
@@ -1889,7 +1906,8 @@ if (!jQuery.fn.drag) {
                             self.onAddNewRow(columns[currentCell], value);
                         }
 
-                        return true;
+                        // check whether the lock has been re-acquired by event handlers
+                        return !options.editorLock.isActive();
                     }
                     else {
                         $(currentCellNode).addClass("invalid");
@@ -1911,7 +1929,9 @@ if (!jQuery.fn.drag) {
 
         function cancelCurrentEdit() {
             makeSelectedCellNormal();
+            return true;
         }
+
 
 
 
@@ -1993,6 +2013,7 @@ if (!jQuery.fn.drag) {
             "onMoveRows":            null,
             "onCellChange":          null,
             "onBeforeEditCell":      null,
+            "onBeforeCellEditorDestroy":    null,
             "onBeforeDestroy":       null,
 
             // Methods
@@ -2014,9 +2035,13 @@ if (!jQuery.fn.drag) {
             "resizeCanvas":        resizeCanvas,
             "updateRowCount":      updateRowCount,
             "getCellFromPoint":    getCellFromPoint,
+            "getCurrentCell":      getCurrentCell,
+            "getCurrentCellNode":  getCurrentCellNode,
+            "resetCurrentCell":    resetCurrentCell,
             "gotoCell":            gotoCell,
             "editCurrentCell":     makeSelectedCellEditable,
             "getCellEditor":       getCellEditor,
+            "scrollRowIntoView":   scrollRowIntoView,
             "getSelectedRows":     getSelectedRows,
             "setSelectedRows":     setSelectedRows,
             "getSecondaryHeaderRow":    getSecondaryHeaderRow,
