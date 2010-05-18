@@ -78,6 +78,13 @@ var SlickEditor =  {
             }
 
             $input.appendTo($container);
+
+            $input.bind("keydown.nav", function(e) {
+                if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
+                    e.stopImmediatePropagation();
+                }
+            });
+            
             $input.focus().select();
         };
 
@@ -133,6 +140,12 @@ var SlickEditor =  {
                 $input.val(defaultValue);
             }
 
+            $input.bind("keydown.nav", function(e) {
+                if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
+                    e.stopImmediatePropagation();
+                }
+            });
+
             $input.appendTo($container);
             $input.focus().select();
         };
@@ -175,7 +188,6 @@ var SlickEditor =  {
 
         this.init();
     },
-
 
     DateCellEditor : function($container, columnDef, value, dataContext) {
         var $input;
@@ -434,6 +446,11 @@ var SlickEditor =  {
                 $input.val(defaultValue);
             }
 
+            $input.bind("keydown.nav", function(e) {
+                if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
+                    e.stopImmediatePropagation();
+                }
+            });
             $input.appendTo($container);
             $input.focus().select();
         };
@@ -500,6 +517,11 @@ var SlickEditor =  {
                 $input.val(defaultValue.join(", "));
             }
 
+            $input.bind("keydown.nav", function(e) {
+                if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
+                    e.stopImmediatePropagation();
+                }
+            });
             $input.appendTo($container);
             $input.focus().select();
         };
