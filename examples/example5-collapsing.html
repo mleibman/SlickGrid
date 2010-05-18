@@ -227,6 +227,7 @@
 			// wire up model events to drive the grid
 			dataView.onRowCountChanged.subscribe(function(args) {
 				grid.updateRowCount();
+                grid.render();
 			});
 
 			dataView.onRowsChanged.subscribe(function(rows) {
