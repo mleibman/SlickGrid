@@ -9,7 +9,7 @@
  * (c) 2009-2010 Michael Leibman (michael.leibman@gmail.com)
  * All rights reserved.
  *
- * SlickGrid v1.3.2
+ * SlickGrid v1.4
  *
  * TODO:
  * - frozen columns
@@ -2096,7 +2096,7 @@ if (!jQuery.fn.drag) {
         // Public API
 
         $.extend(this, {
-            "slickGridVersion": "1.3.2",
+            "slickGridVersion": "1.4",
 
             // Events
             "onSort":                null,
