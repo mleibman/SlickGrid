@@ -232,7 +232,8 @@
                 selectedRowIds = [];
                 var rows = grid.getSelectedRows();
                 for (var i = 0, l = rows.length; i < l; i++) {
-                    selectedRowIds.push(dataView.rows[rows[i]].id);
+                    var item = dataView.rows[rows[i]];
+                    if (item) selectedRowIds.push(item.id);
                 }
             };
 

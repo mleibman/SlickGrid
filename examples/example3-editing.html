@@ -17,20 +17,25 @@
 	</style>
 	</head>
 	<body>
-		<table width="100%">
-		<tr>
-			<td valign="top" width="50%">
-				<div id="myGrid" style="width:600px;height:500px;"></div>
-			</td>
-			<td valign="top">
-				<h2>Demonstrates:</h2>
-				<ul>
-					<li>adding basic keyboard navigation and editing</li>
-					<li>custom editors and validators</li>
-				</ul>
-			</td>
-		</tr>
-		</table>
+
+
+		<div style="width:600px;float:left;">
+			<div id="myGrid" style="width:100%;height:500px;"></div>
+		</div>
+
+		<div class="options-panel" style="width:320px;margin-left:650px;">
+            <h2>Demonstrates:</h2>
+            <ul>
+                <li>adding basic keyboard navigation and editing</li>
+                <li>custom editors and validators</li>
+                <li>auto-edit settings</li>
+            </ul>
+
+            <h2>Options:</h2>
+            <button onclick="grid.setOptions({autoEdit:true})">Auto-edit ON</button> 
+            &nbsp;
+            <button onclick="grid.setOptions({autoEdit:false})">Auto-edit OFF</button>
+		</div>
 
 		<script language="JavaScript" src="../lib/firebugx.js"></script>
 
@@ -58,7 +63,8 @@
 
 		var columns = [
 			{id:"title", name:"Title", field:"title", width:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator},
-			{id:"duration", name:"Duration", field:"duration", editor:TextCellEditor},
+            {id:"desc", name:"Description", field:"description", width:100, editor:LongTextCellEditor},
+            {id:"duration", name:"Duration", field:"duration", editor:TextCellEditor},
 			{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter, editor:PercentCompleteCellEditor},
 			{id:"start", name:"Start", field:"start", minWidth:60, editor:DateCellEditor},
 			{id:"finish", name:"Finish", field:"finish", minWidth:60, editor:DateCellEditor},
@@ -80,6 +86,7 @@
 				var d = (data[i] = {});
 
 				d["title"] = "Task " + i;
+                d["description"] = "This is a sample task description.\n  It can be multiline";
 				d["duration"] = "5 days";
 				d["percentComplete"] = Math.round(Math.random() * 100);
 				d["start"] = "01/01/2009";
