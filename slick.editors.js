@@ -95,7 +95,7 @@
             };
 
             this.loadValue = function(item) {
-                defaultValue = item[args.column.field];
+                defaultValue = item[args.column.field] || "";
                 $input.val(defaultValue);
                 $input[0].defaultValue = defaultValue;
             };
