@@ -73,7 +73,6 @@
                             .appendTo(args.container)
                             .bind("keydown", scope.handleKeyDown);
 
-                scope.loadValue(args.item);
                 scope.focus();
             };
 
@@ -91,14 +90,18 @@
                 $from.focus();
             };
 
+            this.serializeValue = function() {
+                return {from:parseInt($from.val(),10), to:parseInt($to.val(),10)};
+            };
+
+            this.applyValue = function(item,state) {
+                item.from = state.from;
+                item.to = state.to;
+            };
+
             this.loadValue = function(item) {
                 $from.val(item.from);
                 $to.val(item.to);
-            };
-
-            this.saveValue = function(item) {
-                item.from = parseInt($from.val(),10);
-                item.to = parseInt($to.val(),10);
             };
 
             this.isValueChanged = function() {

@@ -71,19 +71,15 @@
             var scope = this;
 
             this.init = function() {
-                $input = $("<INPUT type=text class='editor-text' />");
-
-                scope.loadValue(args.item);
-
-                $input.appendTo(args.container);
-
-                $input.bind("keydown.nav", function(e) {
-                    if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
-                        e.stopImmediatePropagation();
-                    }
-                });
-
-                $input.focus().select();
+                $input = $("<INPUT type=text class='editor-text' />")
+                    .appendTo(args.container)
+                    .bind("keydown.nav", function(e) {
+                        if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
+                            e.stopImmediatePropagation();
+                        }
+                    })
+                    .focus()
+                    .select();
             };
 
             this.destroy = function() {
@@ -98,10 +94,15 @@
                 defaultValue = item[args.column.field] || "";
                 $input.val(defaultValue);
                 $input[0].defaultValue = defaultValue;
+                $input.select();
             };
 
-            this.saveValue = function(item) {
-                item[args.column.field] = $input.val();
+            this.serializeValue = function() {
+                return $input.val();
+            };
+
+            this.applyValue = function(item,state) {
+                item[args.column.field] = state;
             };
 
             this.isValueChanged = function() {
@@ -132,8 +133,6 @@
             this.init = function() {
                 $input = $("<INPUT type=text class='editor-text' />");
 
-                scope.loadValue(args.item);
-
                 $input.bind("keydown.nav", function(e) {
                     if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
                         e.stopImmediatePropagation();
@@ -156,10 +155,15 @@
                 defaultValue = item[args.column.field];
                 $input.val(defaultValue);
                 $input[0].defaultValue = defaultValue;
+                $input.select();
             };
 
-            this.saveValue = function(item) {
-                item[args.column.field] = parseInt($input.val() || "0", 10);
+            this.serializeValue = function() {
+                return parseInt($input.val(),10) || 0;
+            };
+
+            this.applyValue = function(item,state) {
+                item[args.column.field] = state;
             };
 
             this.isValueChanged = function() {
@@ -190,9 +194,6 @@
 
             this.init = function() {
                 $input = $("<INPUT type=text class='editor-text' />");
-
-                scope.loadValue(args.item);
-
                 $input.appendTo(args.container);
                 $input.focus().select();
                 $input.datepicker({
@@ -236,13 +237,18 @@
             };
 
             this.loadValue = function(item) {
-                $input.val(defaultValue = item[args.column.field]);
-            };
-
-            this.saveValue = function(item) {
                 defaultValue = item[args.column.field];
                 $input.val(defaultValue);
                 $input[0].defaultValue = defaultValue;
+                $input.select();
+            };
+
+            this.serializeValue = function() {
+                return $input.val();
+            };
+
+            this.applyValue = function(item,state) {
+                item[args.column.field] = state;
             };
 
             this.isValueChanged = function() {
@@ -266,7 +272,6 @@
 
             this.init = function() {
                 $select = $("<SELECT tabIndex='0' class='editor-yesno'><OPTION value='yes'>Yes</OPTION><OPTION value='no'>No</OPTION></SELECT>");
-                scope.loadValue(args.item);
                 $select.appendTo(args.container);
                 $select.focus();
             };
@@ -281,12 +286,17 @@
 
             this.loadValue = function(item) {
                 $input.val((defaultValue = item[args.column.field]) ? "yes" : "no");
+                $input.select();
             };
 
-            this.saveValue = function(item) {
-                item[args.column.field] = ($input.val() == "yes");
+            this.serializeValue = function() {
+                return ($input.val() == "yes");
             };
-            
+
+            this.applyValue = function(item,state) {
+                item[args.column.field] = state;
+            };
+           
             this.isValueChanged = function() {
                 return ($select.val() != defaultValue);
             };
@@ -308,16 +318,13 @@
 
             this.init = function() {
                 $select = $("<INPUT type=checkbox value='true' class='editor-checkbox' hideFocus>");
-                scope.loadValue(args.item);
                 $select.appendTo(args.container);
                 $select.focus();
             };
 
-
             this.destroy = function() {
                 $select.remove();
             };
-
 
             this.focus = function() {
                 $select.focus();
@@ -331,8 +338,12 @@
                     $select.removeAttr("checked");
             };
 
-            this.saveValue = function(item) {
-                item[args.column.field] = $select.attr("checked");
+            this.serializeValue = function() {
+                return $select.attr("checked");
+            };
+
+            this.applyValue = function(item,state) {
+                item[args.column.field] = state;
             };
 
             this.isValueChanged = function() {
@@ -356,14 +367,10 @@
 
             this.init = function() {
                 $input = $("<INPUT type=text class='editor-percentcomplete' />");
-
-                scope.loadValue(args.item);
-
                 $input.width($(args.container).innerWidth() - 25);
                 $input.appendTo(args.container);
 
                 $picker = $("<div class='editor-percentcomplete-picker' />").appendTo(args.container);
-
                 $picker.append("<div class='editor-percentcomplete-helper'><div class='editor-percentcomplete-wrapper'><div class='editor-percentcomplete-slider' /><div class='editor-percentcomplete-buttons' /></div></div>");
 
                 $picker.find(".editor-percentcomplete-buttons").append("<button val=0>Not started</button><br/><button val=50>In Progress</button><br/><button val=100>Complete</button>");
@@ -385,12 +392,10 @@
                 })
             };
 
-
             this.destroy = function() {
                 $input.remove();
                 $picker.remove();
             };
-
 
             this.focus = function() {
                 $input.focus();
@@ -398,10 +403,15 @@
 
             this.loadValue = function(item) {
                 $input.val(defaultValue = item[args.column.field]);
+                $input.select();
             };
 
-            this.saveValue = function(item) {
-                item[args.column.field] = parseInt($input.val(),10) || 0;
+            this.serializeValue = function() {
+                return parseInt($input.val(),10) || 0;
+            };
+
+            this.applyValue = function(item,state) {
+                item[args.column.field] = state;
             };
 
             this.isValueChanged = function() {
@@ -443,14 +453,10 @@
             }
 
             this.init = function() {
-                $input = $("<IMG src='../images/bullet_star.png' align=absmiddle tabIndex=0 title='Click or press Space to toggle' />");
-
-                scope.loadValue(args.item);
-
-                $input.bind("click keydown", toggle);
-
-                $input.appendTo(args.container);
-                $input.focus();
+                $input = $("<IMG src='../images/bullet_star.png' align=absmiddle tabIndex=0 title='Click or press Space to toggle' />")
+                    .bind("click keydown", toggle)
+                    .appendTo(args.container)
+                    .focus();
             };
 
             this.destroy = function() {
@@ -467,8 +473,12 @@
                 $input.css("opacity", defaultValue ? 1 : 0.2);
             };
 
-            this.saveValue = function(item) {
-                item[args.column.field] = ($input.css("opacity") == "1");
+            this.serializeValue = function() {
+                return ($input.css("opacity") == "1");
+            };
+
+            this.applyValue = function(item,state) {
+                item[args.column.field] = state;
             };
 
             this.isValueChanged = function() {
@@ -511,8 +521,6 @@
                 $wrapper.find("button:last").bind("click", this.cancel);
                 $input.bind("keydown", this.handleKeyDown);
 
-                scope.loadValue(args.item);
-                
                 scope.position(args.position);
                 $input.focus().select();
             };
@@ -568,10 +576,15 @@
 
             this.loadValue = function(item) {
                 $input.val(defaultValue = item[args.column.field]);
+                $input.select();
             };
 
-            this.saveValue = function(item) {
-                item[args.column.field] = $input.val();
+            this.serializeValue = function() {
+                return $input.val();
+            };
+
+            this.applyValue = function(item,state) {
+                item[args.column.field] = state;
             };
 
             this.isValueChanged = function() {

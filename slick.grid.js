@@ -268,6 +268,7 @@ if (!jQuery.fn.drag) {
         var currentRow, currentCell;
         var currentCellNode = null;
         var currentEditor = null;
+        var serializedEditorValue;
         var editController;
 
         var rowsCache = {};
@@ -1765,16 +1766,10 @@ if (!jQuery.fn.drag) {
             options.editorLock.activate(editController);
             $(currentCellNode).addClass("editable");
 
-            var value = null;
-
-            // if there is a corresponding row
-            if (gridDataGetItem(currentRow)) {
-                value = gridDataGetItem(currentRow)[columns[currentCell].field];
-            }
-
             currentCellNode.innerHTML = "";
 
             var columnDef = columns[currentCell];
+            var item = gridDataGetItem(currentRow);
 
             currentEditor = new columnDef.editor({
                 grid: self,
@@ -1782,11 +1777,16 @@ if (!jQuery.fn.drag) {
                 position: absBox(currentCellNode),
                 container: currentCellNode,
                 column: columnDef,
-                item: gridDataGetItem(currentRow) || {},
+                item: item || {},
                 commitChanges: commitEditAndSetFocus,
                 cancelChanges: cancelEditAndSetFocus
             });
 
+            if (item)
+                currentEditor.loadValue(item);
+
+            serializedEditorValue = currentEditor.serializeValue();
+            
             if (currentEditor.position)
                 repositionCurrentCellEditor();
         }
@@ -1989,8 +1989,31 @@ if (!jQuery.fn.drag) {
 
                     if (validationResults.valid) {
                         if (currentRow < gridDataGetLength()) {
-                            currentEditor.saveValue(item);
-                            makeSelectedCellNormal();
+                            var editCommand = {
+                                row: currentRow,
+                                cell: currentCell,
+                                editor: currentEditor,
+                                serializedValue: currentEditor.serializeValue(),
+                                prevSerializedValue: serializedEditorValue,
+                                execute: function() {
+                                    this.editor.applyValue(item,this.serializedValue);
+                                    updateRow(this.row);
+                                },
+                                undo: function() {
+                                    this.editor.applyValue(item,this.prevSerializedValue);
+                                    updateRow(this.row);
+                                }
+                            };
+                            
+                            if (options.editCommandHandler) {
+                                makeSelectedCellNormal();
+                                options.editCommandHandler(item,column,editCommand);
+
+                            }
+                            else {
+                                editCommand.execute();
+                                makeSelectedCellNormal();
+                            }
 
                             if (self.onCellChange) {
                                 self.onCellChange(currentRow,currentCell,item);
