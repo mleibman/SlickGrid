@@ -68,7 +68,8 @@
 					The grid holds <b>50'000</b> rows, yet you are able to sort, filter, scroll, navigate and edit as if it had 50 rows.
 				</li>
 				<li>adding new rows, bidirectional sorting</li>
-				<li>column options:  setValueHandler, cannotTriggerInsert</li>
+				<li>column options:  cannotTriggerInsert</li>
+                <li>events: onCellChange, onAddNewRow, onKeyDown, onSelectedRowsChanged, onSort</li>
 				<li><font color=red>NOTE:</font>  all filters are immediately applied to new/edited rows</li>
 				<li>Handling row selection against model changes.</li>
 				<li>Paging.</li>
@@ -102,12 +103,12 @@
 
 		var columns = [
 			{id:"sel", name:"#", field:"num", behavior:"select", cssClass:"cell-selection", width:40, cannotTriggerInsert:true, resizable:false, unselectable:true },
-			{id:"title", name:"Title", field:"title", width:120, minWidth:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, setValueHandler:updateItem, sortable:true},
-			{id:"duration", name:"Duration", field:"duration", editor:TextCellEditor, setValueHandler:updateItem, sortable:true},
-			{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter, editor:PercentCompleteCellEditor, setValueHandler:updateItem, sortable:true},
-			{id:"start", name:"Start", field:"start", minWidth:60, editor:DateCellEditor, setValueHandler:updateItem, sortable:true},
-			{id:"finish", name:"Finish", field:"finish", minWidth:60, editor:DateCellEditor, setValueHandler:updateItem, sortable:true},
-			{id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter, editor:YesNoCheckboxCellEditor, setValueHandler:updateItem, cannotTriggerInsert:true, sortable:true}
+			{id:"title", name:"Title", field:"title", width:120, minWidth:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, sortable:true},
+			{id:"duration", name:"Duration", field:"duration", editor:TextCellEditor, sortable:true},
+			{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter, editor:PercentCompleteCellEditor, sortable:true},
+			{id:"start", name:"Start", field:"start", minWidth:60, editor:DateCellEditor, sortable:true},
+			{id:"finish", name:"Finish", field:"finish", minWidth:60, editor:DateCellEditor, sortable:true},
+			{id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter, editor:YesNoCheckboxCellEditor, cannotTriggerInsert:true, sortable:true}
 		];
 
 		var options = {
@@ -150,14 +151,9 @@
 			return (x == y ? 0 : (x > y ? 1 : -1));
 		}
 
-		function updateItem(value,columnDef,item) {
-			item[columnDef.field] = value;
-			dataView.updateItem(item.id,item);
-		}
-
-		function addItem(columnDef,value) {
-			var item = {"id": "new_" + (Math.round(Math.random()*10000)), "title":"New task", "duration":"1 day", "percentComplete":0, "start":"01/01/2009", "finish":"01/01/2009", "effortDriven":false};
-			item[columnDef.field] = value;
+		function addItem(newItem,columnDef) {
+			var item = {"num": data.length, "id": "new_" + (Math.round(Math.random()*10000)), "title":"New task", "duration":"1 day", "percentComplete":0, "start":"01/01/2009", "finish":"01/01/2009", "effortDriven":false};
+			$.extend(item,newItem);
 			dataView.addItem(item);
 		}
 
@@ -207,6 +203,9 @@
                 .appendTo(grid.getSecondaryHeaderRow())
                 .show();
 
+            grid.onCellChange = function(row,col,item) {
+                dataView.updateItem(item.id,item);    
+            };
 
 			grid.onAddNewRow = addItem;
 
@@ -256,7 +255,7 @@
                         return "0" + val;
                     else
                         return val;
-                }
+                };
 
                 // use numeric sort of % and lexicographic for everything else
                 dataView.fastSort((sortcol=="percentComplete")?percentCompleteValueFn:sortcol,sortAsc);
@@ -344,7 +343,6 @@
 			dataView.beginUpdate();
 			dataView.setItems(data);
 			dataView.setFilter(myFilter);
-			//dataView.setPagingOptions({pageSize:25});
 			dataView.endUpdate();
 
 			$("#gridContainer").resizable();

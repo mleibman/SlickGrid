@@ -108,9 +108,9 @@
 
 			grid = new Slick.Grid($("#myGrid"), data, columns, options);
 
-			grid.onAddNewRow = function addItem(columnDef, value) {
+			grid.onAddNewRow = function addItem(newItem,columnDef) {
                 var item = {name:"New task", complete: false};
-                item[columnDef.field] = value;
+                $.extend(item,newItem);
                 data.push(item);
                 grid.removeRows([data.length - 1]);
                 grid.updateRowCount();

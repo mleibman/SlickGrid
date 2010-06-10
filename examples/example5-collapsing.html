@@ -95,12 +95,12 @@
 		var data = [];
 
 		var columns = [
-			{id:"title", name:"Title", field:"title", width:220, cssClass:"cell-title", formatter:TaskNameFormatter, editor:TextCellEditor, validator:requiredFieldValidator, setValueHandler:updateItem},
-			{id:"duration", name:"Duration", field:"duration", editor:TextCellEditor, setValueHandler:updateItem},
-			{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter, editor:PercentCompleteCellEditor, setValueHandler:updateItem},
-			{id:"start", name:"Start", field:"start", minWidth:60, editor:DateCellEditor, setValueHandler:updateItem},
-			{id:"finish", name:"Finish", field:"finish", minWidth:60, editor:DateCellEditor, setValueHandler:updateItem},
-			{id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter, editor:YesNoCheckboxCellEditor, setValueHandler:updateItem, cannotTriggerInsert:true}
+			{id:"title", name:"Title", field:"title", width:220, cssClass:"cell-title", formatter:TaskNameFormatter, editor:TextCellEditor, validator:requiredFieldValidator},
+			{id:"duration", name:"Duration", field:"duration", editor:TextCellEditor},
+			{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter, editor:PercentCompleteCellEditor},
+			{id:"start", name:"Start", field:"start", minWidth:60, editor:DateCellEditor},
+			{id:"finish", name:"Finish", field:"finish", minWidth:60, editor:DateCellEditor},
+			{id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter, editor:YesNoCheckboxCellEditor, cannotTriggerInsert:true}
 		];
 
 		var options = {
@@ -141,15 +141,9 @@
 			return a["percentComplete"] - b["percentComplete"];
 		}
 
-
-		function updateItem(value,columnDef,item) {
-			item[columnDef.field] = value;
-			dataView.updateItem(item.id,item);
-		}
-
-		function addItem(columnDef,value) {
+		function addItem(newItem,columnDef) {
 			var item = {"id": "new_" + (Math.round(Math.random()*10000)), "indent":0, "title":"New task", "duration":"1 day", "percentComplete":0, "start":"01/01/2009", "finish":"01/01/2009", "effortDriven":false};
-			item[columnDef.field] = value;
+			$.extend(item,newItem);
 			dataView.addItem(item);
 		}
 
@@ -202,6 +196,10 @@
 			// initialize the grid
 			grid = new Slick.Grid($("#myGrid"), dataView.rows, columns, options);
 
+            grid.onCellChange = function(row,col,item) {
+                dataView.updateItem(item.id,item);
+            };
+            
 			grid.onAddNewRow = addItem;
 
 			grid.onClick = function(e, row, cell) {

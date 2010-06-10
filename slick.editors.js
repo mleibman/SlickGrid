@@ -67,16 +67,13 @@
 
         TextCellEditor : function(args) {
             var $input;
-            var defaultValue = args.value;
+            var defaultValue;
             var scope = this;
 
             this.init = function() {
                 $input = $("<INPUT type=text class='editor-text' />");
 
-                if (args.value != null) {
-                    $input[0].defaultValue = args.value;
-                    $input.val(defaultValue);
-                }
+                scope.loadValue(args.item);
 
                 $input.appendTo(args.container);
 
@@ -97,13 +94,14 @@
                 $input.focus();
             };
 
-            this.setValue = function(value) {
-                $input.val(value);
-                defaultValue = value;
+            this.loadValue = function(item) {
+                defaultValue = item[args.column.field];
+                $input.val(defaultValue);
+                $input[0].defaultValue = defaultValue;
             };
 
-            this.getValue = function() {
-                return $input.val();
+            this.saveValue = function(item) {
+                item[args.column.field] = $input.val();
             };
 
             this.isValueChanged = function() {
@@ -112,7 +110,7 @@
 
             this.validate = function() {
                 if (args.column.validator) {
-                    var validationResults = args.column.validator(scope.getValue());
+                    var validationResults = args.column.validator($input.val());
                     if (!validationResults.valid)
                         return validationResults;
                 }
@@ -128,16 +126,13 @@
 
         IntegerCellEditor : function(args) {
             var $input;
-            var defaultValue = args.value;
+            var defaultValue;
             var scope = this;
 
             this.init = function() {
                 $input = $("<INPUT type=text class='editor-text' />");
 
-                if (args.value != null) {
-                    $input[0].defaultValue = args.value;
-                    $input.val(defaultValue);
-                }
+                scope.loadValue(args.item);
 
                 $input.bind("keydown.nav", function(e) {
                     if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
@@ -157,14 +152,14 @@
                 $input.focus();
             };
 
-            this.setValue = function(value) {
-                $input.val(value);
-                defaultValue = value;
+            this.loadValue = function(item) {
+                defaultValue = item[args.column.field];
+                $input.val(defaultValue);
+                $input[0].defaultValue = defaultValue;
             };
 
-            this.getValue = function() {
-                var val = $.trim($input.val());
-                return (val == "") ? 0 : parseInt($input.val(), 10);
+            this.saveValue = function(item) {
+                item[args.column.field] = parseInt($input.val() || "0", 10);
             };
 
             this.isValueChanged = function() {
@@ -189,17 +184,14 @@
 
         DateCellEditor : function(args) {
             var $input;
-            var defaultValue = args.value;
+            var defaultValue;
             var scope = this;
             var calendarOpen = false;
 
             this.init = function() {
                 $input = $("<INPUT type=text class='editor-text' />");
 
-                if (args.value != null) {
-                    $input[0].defaultValue = args.value;
-                    $input.val(defaultValue);
-                }
+                scope.loadValue(args.item);
 
                 $input.appendTo(args.container);
                 $input.focus().select();
@@ -243,13 +235,14 @@
                 $input.focus();
             };
 
-            this.setValue = function(value) {
-                $input.val(value);
-                defaultValue = value;
+            this.loadValue = function(item) {
+                $input.val(defaultValue = item[args.column.field]);
             };
 
-            this.getValue = function() {
-                return $input.val();
+            this.saveValue = function(item) {
+                defaultValue = item[args.column.field];
+                $input.val(defaultValue);
+                $input[0].defaultValue = defaultValue;
             };
 
             this.isValueChanged = function() {
@@ -268,19 +261,13 @@
 
         YesNoSelectCellEditor : function(args) {
             var $select;
-            var defaultValue = args.value;
+            var defaultValue;
             var scope = this;
 
             this.init = function() {
                 $select = $("<SELECT tabIndex='0' class='editor-yesno'><OPTION value='yes'>Yes</OPTION><OPTION value='no'>No</OPTION></SELECT>");
-
-                if (defaultValue)
-                    $select.val('yes');
-                else
-                    $select.val('no');
-
+                scope.loadValue(args.item);
                 $select.appendTo(args.container);
-
                 $select.focus();
             };
 
@@ -292,15 +279,14 @@
                 $select.focus();
             };
 
-            this.setValue = function(value) {
-                $select.val(value);
-                defaultValue = value;
+            this.loadValue = function(item) {
+                $input.val((defaultValue = item[args.column.field]) ? "yes" : "no");
             };
 
-            this.getValue = function() {
-                return ($select.val() == 'yes');
+            this.saveValue = function(item) {
+                item[args.column.field] = ($input.val() == "yes");
             };
-
+            
             this.isValueChanged = function() {
                 return ($select.val() != defaultValue);
             };
@@ -317,15 +303,12 @@
 
         YesNoCheckboxCellEditor : function(args) {
             var $select;
-            var defaultValue = args.value;
+            var defaultValue;
             var scope = this;
 
             this.init = function() {
                 $select = $("<INPUT type=checkbox value='true' class='editor-checkbox' hideFocus>");
-
-                if (defaultValue)
-                    $select.attr("checked", "checked");
-
+                scope.loadValue(args.item);
                 $select.appendTo(args.container);
                 $select.focus();
             };
@@ -340,21 +323,20 @@
                 $select.focus();
             };
 
-            this.setValue = function(value) {
-                if (value)
+            this.loadValue = function(item) {
+                defaultValue = item[args.column.field];
+                if (defaultValue)
                     $select.attr("checked", "checked");
                 else
                     $select.removeAttr("checked");
-
-                defaultValue = value;
             };
 
-            this.getValue = function() {
-                return $select.attr("checked");
+            this.saveValue = function(item) {
+                item[args.column.field] = $select.attr("checked");
             };
 
             this.isValueChanged = function() {
-                return (scope.getValue() != defaultValue);
+                return ($select.attr("checked") != defaultValue);
             };
 
             this.validate = function() {
@@ -369,16 +351,13 @@
 
         PercentCompleteCellEditor : function(args) {
             var $input, $picker;
-            var defaultValue = args.value;
+            var defaultValue;
             var scope = this;
 
             this.init = function() {
                 $input = $("<INPUT type=text class='editor-percentcomplete' />");
 
-                if (args.value != null) {
-                    $input[0].defaultValue = args.value;
-                    $input.val(defaultValue);
-                }
+                scope.loadValue(args.item);
 
                 $input.width($(args.container).innerWidth() - 25);
                 $input.appendTo(args.container);
@@ -417,22 +396,20 @@
                 $input.focus();
             };
 
-            this.setValue = function(value) {
-                $input.val(value);
-                defaultValue = value;
+            this.loadValue = function(item) {
+                $input.val(defaultValue = item[args.column.field]);
             };
 
-            this.getValue = function() {
-                var val = $.trim($input.val());
-                return (val == "") ? 0 : parseInt($input.val(), 10);
+            this.saveValue = function(item) {
+                item[args.column.field] = parseInt($input.val(),10) || 0;
             };
 
             this.isValueChanged = function() {
-                return (!($input.val() == "" && defaultValue == null)) && ($input.val() != defaultValue);
+                return (!($input.val() == "" && defaultValue == null)) && ((parseInt($input.val(),10) || 0) != defaultValue);
             };
 
             this.validate = function() {
-                if (isNaN($input.val()))
+                if (isNaN(parseInt($input.val(),10)))
                     return {
                         valid: false,
                         msg: "Please enter a valid positive number"
@@ -447,74 +424,9 @@
             this.init();
         },
 
-        TaskNameCellEditor : function(args) {
-            var $input;
-            var defaultValue = args.value;
-            var scope = this;
-
-            this.init = function() {
-                $input = $("<INPUT type=text class='editor-text' />");
-
-                if (args.value != null) {
-                    $input[0].defaultValue = args.value;
-                    $input.val(defaultValue);
-                }
-
-                $input.bind("keydown.nav", function(e) {
-                    if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
-                        e.stopImmediatePropagation();
-                    }
-                });
-                $input.appendTo(args.container);
-                $input.focus().select();
-            };
-
-            this.destroy = function() {
-                $input.remove();
-            };
-
-            this.focus = function() {
-                $input.focus();
-            };
-
-            this.setValue = function(value) {
-                $input.val(value);
-                defaultValue = value;
-            };
-
-            this.getValue = function() {
-                return $input.val();
-            };
-
-            this.isValueChanged = function() {
-                return (!($input.val() == "" && defaultValue == null)) && ($input.val() != defaultValue);
-            };
-
-            this.validate = function() {
-                if (columnDef.validator) {
-                    var validationResults = columnDef.validator(scope.getValue());
-                    if (!validationResults.valid)
-                        return validationResults;
-                }
-
-                if ($input.val() == "")
-                    return {
-                        valid: false,
-                        msg: "This field cannot be empty"
-                    };
-
-                return {
-                    valid: true,
-                    msg: null
-                };
-            };
-
-            this.init();
-        },
-
         StarCellEditor : function(args) {
             var $input;
-            var defaultValue = args.value;
+            var defaultValue;
             var scope = this;
 
             function toggle(e) {
@@ -533,10 +445,7 @@
             this.init = function() {
                 $input = $("<IMG src='../images/bullet_star.png' align=absmiddle tabIndex=0 title='Click or press Space to toggle' />");
 
-                if (defaultValue)
-                    $input.css("opacity", 1);
-                else
-                    $input.css("opacity", 0.5);
+                scope.loadValue(args.item);
 
                 $input.bind("click keydown", toggle);
 
@@ -553,21 +462,17 @@
                 $input.focus();
             };
 
-            this.setValue = function(value) {
-                defaultValue = value;
-
-                if (defaultValue)
-                    $input.css("opacity", 1);
-                else
-                    $input.css("opacity", 0.2);
+            this.loadValue = function(item) {
+                defaultValue = item[args.column.field];
+                $input.css("opacity", defaultValue ? 1 : 0.2);
             };
 
-            this.getValue = function() {
-                return $input.css("opacity") == "1";
+            this.saveValue = function(item) {
+                item[args.column.field] = ($input.css("opacity") == "1");
             };
 
             this.isValueChanged = function() {
-                return defaultValue != scope.getValue();
+                return defaultValue != ($input.css("opacity") == "1");
             };
 
             this.validate = function() {
@@ -587,7 +492,7 @@
          */
         LongTextCellEditor : function (args) {
             var $input, $wrapper;
-            var defaultValue = args.value;
+            var defaultValue;
             var scope = this;
 
             this.init = function() {
@@ -606,11 +511,8 @@
                 $wrapper.find("button:last").bind("click", this.cancel);
                 $input.bind("keydown", this.handleKeyDown);
 
-                if (args.value != null) {
-                    $input[0].defaultValue = args.value;
-                    $input.val(defaultValue);
-                }
-
+                scope.loadValue(args.item);
+                
                 scope.position(args.position);
                 $input.focus().select();
             };
@@ -664,13 +566,12 @@
                 $input.focus();
             };
 
-            this.setValue = function(value) {
-                $input.val(value);
-                defaultValue = value;
+            this.loadValue = function(item) {
+                $input.val(defaultValue = item[args.column.field]);
             };
 
-            this.getValue = function() {
-                return $input.val();
+            this.saveValue = function(item) {
+                item[args.column.field] = $input.val();
             };
 
             this.isValueChanged = function() {

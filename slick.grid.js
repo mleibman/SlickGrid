@@ -49,7 +49,6 @@
  *     validator           - An extra validation function to be passed to the editor.
  *     unselectable        - If true, the cell cannot be selected (and therefore edited).
  *     cannotTriggerInsert - If true, a new row cannot be created from just the value of this cell.
- *     setValueHandler     - If true, this handler will be called to set field value instead of context[field].
  *     width               - Width of the column in pixels.
  *     resizable           - (default true) If false, the column cannot be resized.
  *     sortable            - (default false) If true, the column can be sorted (onSort will be called).
@@ -1159,7 +1158,7 @@ if (!jQuery.fn.drag) {
 
             var m = columns[cell], d = gridDataGetItem(row);
             if (currentEditor && currentRow === row && currentCell === cell) {
-                currentEditor.setValue(d[m.field]);
+                currentEditor.loadValue(d);
             }
             else {
                 $cell[0].innerHTML = d ? m.formatter(row, cell, d[m.field], m, d) : "";
@@ -1174,7 +1173,7 @@ if (!jQuery.fn.drag) {
             $(rowsCache[row]).find(".slick-cell").each(function(i) {
                 var m = columns[i];
                 if (row === currentRow && i === currentCell && currentEditor) {
-                    currentEditor.setValue(gridDataGetItem(currentRow)[m.field]);
+                    currentEditor.loadValue(gridDataGetItem(currentRow));
                 }
                 else if (gridDataGetItem(row)) {
                     this.innerHTML = m.formatter(row, i, gridDataGetItem(row)[m.field], m, gridDataGetItem(row));
@@ -1783,8 +1782,7 @@ if (!jQuery.fn.drag) {
                 position: absBox(currentCellNode),
                 container: currentCellNode,
                 column: columnDef,
-                value: value,
-                item: gridDataGetItem(currentRow),
+                item: gridDataGetItem(currentRow) || {},
                 commitChanges: commitEditAndSetFocus,
                 cancelChanges: cancelEditAndSetFocus
             });
@@ -1798,10 +1796,10 @@ if (!jQuery.fn.drag) {
             // if so, do not steal the focus from the editor
             if (options.editorLock.commitCurrentEdit()) {
                 currentCellNode.focus();
-            }
 
-            if (options.autoEdit) {
-                navigateDown();
+                if (options.autoEdit) {
+                    navigateDown();
+                }
             }
         }
 
@@ -1982,41 +1980,39 @@ if (!jQuery.fn.drag) {
         // IEditor implementation for the editor lock
 
         function commitCurrentEdit() {
+            var item = gridDataGetItem(currentRow);
+            var column = columns[currentCell];
+            
             if (currentEditor) {
                 if (currentEditor.isValueChanged()) {
                     var validationResults = currentEditor.validate();
 
                     if (validationResults.valid) {
-                        var value = currentEditor.getValue();
-
                         if (currentRow < gridDataGetLength()) {
-                            if (columns[currentCell].setValueHandler) {
-                                makeSelectedCellNormal();
-                                columns[currentCell].setValueHandler(value, columns[currentCell], gridDataGetItem(currentRow));
-                            }
-                            else {
-                                gridDataGetItem(currentRow)[columns[currentCell].field] = value;
-                                makeSelectedCellNormal();
-                            }
+                            currentEditor.saveValue(item);
+                            makeSelectedCellNormal();
 
                             if (self.onCellChange) {
-                                self.onCellChange(currentRow,currentCell,gridDataGetItem(currentRow));
+                                self.onCellChange(currentRow,currentCell,item);
                             }
                         }
                         else if (self.onAddNewRow) {
+                            var newItem = {};
+                            currentEditor.saveValue(newItem);
                             makeSelectedCellNormal();
-                            self.onAddNewRow(columns[currentCell], value);
+                            self.onAddNewRow(newItem,column);
                         }
 
                         // check whether the lock has been re-acquired by event handlers
                         return !options.editorLock.isActive();
                     }
                     else {
+                        // TODO: remove and put in onValidationError handlers in examples
                         $(currentCellNode).addClass("invalid");
                         $(currentCellNode).stop(true,true).effect("highlight", {color:"red"}, 300);
 
                         if (self.onValidationError) {
-                            self.onValidationError(currentCellNode, validationResults, currentRow, currentCell, columns[currentCell]);
+                            self.onValidationError(currentCellNode, validationResults, currentRow, currentCell, column);
                         }
 
                         currentEditor.focus();
