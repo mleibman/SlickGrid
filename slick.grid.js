@@ -234,17 +234,16 @@ if (!jQuery.fn.drag) {
             showSecondaryHeaderRow: false,
             secondaryHeaderRowHeight: 25,
             syncColumnCellResize: false,
-            enableAutoTooltips: true
+            enableAutoTooltips: true,
+            formatterFactory: null,
+            editorFactory: null
         },
         gridData, gridDataGetLength, gridDataGetItem;
 
         var columnDefaults = {
             resizable: true,
             sortable: false,
-            minWidth: 30,
-            formatter: function defaultFormatter(row, cell, value, columnDef, dataContext) {
-                return (value === null || value === undefined) ? "" : value;
-            }
+            minWidth: 30
         };
 
         // consts
@@ -1062,6 +1061,20 @@ if (!jQuery.fn.drag) {
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Rendering / Scrolling
 
+        function defaultFormatter(row, cell, value, columnDef, dataContext) {
+            return (value === null || value === undefined) ? "" : value;
+        }
+
+        function getFormatter(column) {
+            return column.formatter ||
+                    (options.formatterFactory && options.formatterFactory.getFormatter(column)) ||
+                    defaultFormatter;
+        }
+
+        function getEditor(column) {
+            return column.editor || (options.editorFactory && options.editorFactory.getEditor(column));
+        }
+
         function appendRowHtml(stringArray,row) {
             var d = gridDataGetItem(row);
             var dataLoading = row < gridDataGetLength() && !d;
@@ -1085,7 +1098,7 @@ if (!jQuery.fn.drag) {
 
                 // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
                 if (d && row < gridDataGetLength()) {
-                    stringArray.push(m.formatter(row, i, d[m.field], m, d));
+                    stringArray.push(getFormatter(m)(row, i, d[m.field], m, d));
                 }
 
                 stringArray.push("</div>");
@@ -1162,7 +1175,7 @@ if (!jQuery.fn.drag) {
                 currentEditor.loadValue(d);
             }
             else {
-                $cell[0].innerHTML = d ? m.formatter(row, cell, d[m.field], m, d) : "";
+                $cell[0].innerHTML = d ? getFormatter(m)(row, cell, d[m.field], m, d) : "";
                 invalidatePostProcessingResults(row);
             }
         }
@@ -1177,7 +1190,7 @@ if (!jQuery.fn.drag) {
                     currentEditor.loadValue(gridDataGetItem(currentRow));
                 }
                 else if (gridDataGetItem(row)) {
-                    this.innerHTML = m.formatter(row, i, gridDataGetItem(row)[m.field], m, gridDataGetItem(row));
+                    this.innerHTML = getFormatter(m)(row, i, gridDataGetItem(row)[m.field], m, gridDataGetItem(row));
                 }
                 else {
                     this.innerHTML = "";
@@ -1713,7 +1726,7 @@ if (!jQuery.fn.drag) {
             }
 
             // does this cell have an editor?
-            if (!columns[cell].editor) {
+            if (!getEditor(columns[cell])) {
                 return false;
             }
 
@@ -1733,7 +1746,8 @@ if (!jQuery.fn.drag) {
                 $(currentCellNode).removeClass("editable invalid");
 
                 if (gridDataGetItem(currentRow)) {
-                    currentCellNode.innerHTML = columns[currentCell].formatter(currentRow, currentCell, gridDataGetItem(currentRow)[columns[currentCell].field], columns[currentCell], gridDataGetItem(currentRow));
+                    var column = columns[currentCell];
+                    currentCellNode.innerHTML = getFormatter(column)(currentRow, currentCell, gridDataGetItem(currentRow)[column.field], column, gridDataGetItem(currentRow));
                     invalidatePostProcessingResults(currentRow);
                 }
             }
@@ -1771,7 +1785,7 @@ if (!jQuery.fn.drag) {
             var columnDef = columns[currentCell];
             var item = gridDataGetItem(currentRow);
 
-            currentEditor = new columnDef.editor({
+            currentEditor = new (getEditor(columnDef))({
                 grid: self,
                 gridPosition: absBox($container[0]),
                 position: absBox(currentCellNode),
@@ -2021,7 +2035,7 @@ if (!jQuery.fn.drag) {
                         }
                         else if (self.onAddNewRow) {
                             var newItem = {};
-                            currentEditor.saveValue(newItem);
+                            currentEditor.applyValue(newItem,currentEditor.serializeValue());
                             makeSelectedCellNormal();
                             self.onAddNewRow(newItem,column);
                         }
