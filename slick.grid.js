@@ -1823,7 +1823,6 @@ if (!jQuery.fn.drag) {
             }
         }
 
-        // TODO:  may be some issues with floats.  investigate.
         function absBox(elem) {
             var box = {top:elem.offsetTop, left:elem.offsetLeft, bottom:0, right:0, width:$(elem).outerWidth(), height:$(elem).outerHeight(), visible:true};
             box.bottom = box.top + box.height;
@@ -1832,9 +1831,11 @@ if (!jQuery.fn.drag) {
             // walk up the tree
             var offsetParent = elem.offsetParent;
             while ((elem = elem.parentNode) != document.body) {
-                box.visible = box.visible
-                    && !(box.bottom <= elem.scrollTop || box.top >= elem.offsetTop + elem.scrollTop + elem.clientHeight)
-                    && !(box.right <= elem.scrollLeft || box.left >= elem.offsetLeft + elem.scrollLeft + elem.clientWidth);
+                if (box.visible && elem.scrollHeight != elem.offsetHeight)
+                    box.visible = !(box.bottom <= elem.scrollTop || box.top >= elem.scrollTop + elem.clientHeight);
+
+                if (box.visible && elem.scrollWidth != elem.offsetWidth)
+                    box.visible = !(box.right <= elem.scrollLeft || box.left >= elem.scrollLeft + elem.clientWidth);
 
                 box.left -= elem.scrollLeft;
                 box.top -= elem.scrollTop;
