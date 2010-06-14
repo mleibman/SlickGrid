@@ -1434,7 +1434,7 @@ if (!jQuery.fn.drag) {
                     break;
 
                 case 37:  // left
-                    navigatePrev();
+                    navigateLeft();
                     break;
 
                 case 39:  // right
@@ -1832,10 +1832,10 @@ if (!jQuery.fn.drag) {
             var offsetParent = elem.offsetParent;
             while ((elem = elem.parentNode) != document.body) {
                 if (box.visible && elem.scrollHeight != elem.offsetHeight)
-                    box.visible = !(box.bottom <= elem.scrollTop || box.top >= elem.scrollTop + elem.clientHeight);
+                    box.visible = box.bottom > elem.scrollTop && box.top < elem.scrollTop + elem.clientHeight;
 
                 if (box.visible && elem.scrollWidth != elem.offsetWidth)
-                    box.visible = !(box.right <= elem.scrollLeft || box.left >= elem.scrollLeft + elem.clientWidth);
+                    box.visible = box.right > elem.scrollLeft && box.left < elem.scrollLeft + elem.clientWidth;
 
                 box.left -= elem.scrollLeft;
                 box.top -= elem.scrollTop;
