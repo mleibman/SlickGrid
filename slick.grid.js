@@ -1831,10 +1831,10 @@ if (!jQuery.fn.drag) {
             // walk up the tree
             var offsetParent = elem.offsetParent;
             while ((elem = elem.parentNode) != document.body) {
-                if (box.visible && elem.scrollHeight != elem.offsetHeight)
+                if (box.visible && elem.scrollHeight != elem.offsetHeight && $(elem).css("overflowY") != "visible")
                     box.visible = box.bottom > elem.scrollTop && box.top < elem.scrollTop + elem.clientHeight;
 
-                if (box.visible && elem.scrollWidth != elem.offsetWidth)
+                if (box.visible && elem.scrollWidth != elem.offsetWidth && $(elem).css("overflowX") != "visible")
                     box.visible = box.right > elem.scrollLeft && box.left < elem.scrollLeft + elem.clientWidth;
 
                 box.left -= elem.scrollLeft;
