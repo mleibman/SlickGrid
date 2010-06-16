@@ -1651,6 +1651,24 @@ if (!jQuery.fn.drag) {
             setSelectedCell(null,false,false);
         }
 
+        function focusOnCurrentCell() {
+            if ($.browser.msie && parseInt($.browser.version) < 8) {
+                // IE7 tries to scroll the viewport so that the item being focused is aligned to the left border
+                // IE-specific .setActive() sets the focus, but doesn't scroll
+                currentCellNode.setActive();
+                var left = $(currentCellNode).position().left,
+                    right = left + $(currentCellNode).outerWidth(),
+                    scrollLeft = $viewport.scrollLeft(),
+                    scrollRight = scrollLeft + $viewport.width();
+                if (left < scrollLeft)
+                    $viewport.scrollLeft(left);
+                else if (right > scrollRight)
+                    $viewport.scrollLeft(Math.min(left,right - $viewport[0].clientWidth));
+            }
+            else
+                currentCellNode.focus();
+        }
+        
         function setSelectedCell(newCell,editMode,doPaging) {
             if (currentCellNode !== null) {
                 makeSelectedCellNormal();
@@ -1678,7 +1696,7 @@ if (!jQuery.fn.drag) {
                     }
                 }
                 else {
-                    currentCellNode.focus();
+                    focusOnCurrentCell()
                 }
             }
             else {
@@ -1773,7 +1791,7 @@ if (!jQuery.fn.drag) {
             }
 
             if (self.onBeforeEditCell && self.onBeforeEditCell(currentRow,currentCell,gridDataGetItem(currentRow)) === false) {
-                currentCellNode.focus();
+                focusOnCurrentCell();
                 return;
             }
 
@@ -1819,7 +1837,7 @@ if (!jQuery.fn.drag) {
 
         function cancelEditAndSetFocus() {
             if (options.editorLock.cancelCurrentEdit()) {
-                currentCellNode.focus();
+                focusOnCurrentCell();
             }
         }
 
@@ -1938,11 +1956,11 @@ if (!jQuery.fn.drag) {
 
                 // if no editor was created, set the focus back on the cell
                 if (!currentEditor) {
-                    currentCellNode.focus();
+                    focusOnCurrentCell();
                 }
             }
             else {
-                currentCellNode.focus();
+                focusOnCurrentCell();
             }
         }
 
@@ -1963,7 +1981,7 @@ if (!jQuery.fn.drag) {
 
             // if no editor was created, set the focus back on the cell
             if (!currentEditor) {
-                currentCellNode.focus();
+                focusOnCurrentCell();
             }
         }
 
