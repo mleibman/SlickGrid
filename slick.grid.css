@@ -95,6 +95,14 @@
 	cursor: default;
 }
 
+.slick-cell.highlighted {
+    background: lightskyblue;
+    background: rgba(0,0,255,0.2);
+    -webkit-transition: all 0.5s;
+    -moz-transition: all 0.5s;
+    transition: all 0.5s;
+}
+
 .slick-cell.editable {
 	z-index: 11;
 	overflow: visible;

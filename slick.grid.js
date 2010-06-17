@@ -236,7 +236,8 @@ if (!jQuery.fn.drag) {
             syncColumnCellResize: false,
             enableAutoTooltips: true,
             formatterFactory: null,
-            editorFactory: null
+            editorFactory: null,
+            cellHighlightCssClass: "highlighted"
         },
         gridData, gridDataGetLength, gridDataGetItem;
 
@@ -282,6 +283,7 @@ if (!jQuery.fn.drag) {
         var selectedRows = [];
         var selectedRowsLookup = {};
         var columnsById = {};
+        var highlightedCells;
 
         // async call handles
         var h_editorLoader = null;
@@ -1078,6 +1080,7 @@ if (!jQuery.fn.drag) {
         function appendRowHtml(stringArray,row) {
             var d = gridDataGetItem(row);
             var dataLoading = row < gridDataGetLength() && !d;
+            var cellCss;
             var css = "slick-row " +
                 (dataLoading ? " loading" : "") +
                 (selectedRowsLookup[row] ? " selected ui-state-active" : "") +
@@ -1094,7 +1097,11 @@ if (!jQuery.fn.drag) {
                 var m = columns[i];
                 if (m.hidden) continue;
 
-                stringArray.push("<div " + (m.unselectable ? "tabIndex=-1 " : "hideFocus tabIndex=0 ") + "class='slick-cell c" + i + (m.cssClass ? " " + m.cssClass : "") + "' cell=" + i + ">");
+                cellCss = "slick-cell c" + i + (m.cssClass ? " " + m.cssClass : "");
+                if (highlightedCells && highlightedCells[row] && highlightedCells[row][m.id])
+                    cellCss += (" " + options.cellHighlightCssClass);
+
+                stringArray.push("<div " + (m.unselectable ? "tabIndex=-1 " : "hideFocus tabIndex=0 ") + "class='" + cellCss + "' cell=" + i + ">");
 
                 // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
                 if (d && row < gridDataGetLength()) {
@@ -1406,6 +1413,33 @@ if (!jQuery.fn.drag) {
             }
         }
 
+        function setHighlightedCells(cellsToHighlight) {
+            var i, $cell, hasHighlight, hadHighlight;
+
+            // TODO: move this upstream and reuse
+            var idx = 0, nodeIndices = [];
+            for (i=0; i<columns.length; i++) {
+                if (!columns[i].hidden) {
+                    nodeIndices[i] = idx++;
+                }
+            }
+
+            for (var row in rowsCache) {
+                for (i=0; i<columns.length; i++) {
+                    hadHighlight = highlightedCells && highlightedCells[row] && highlightedCells[row][columns[i].id];
+                    hasHighlight = cellsToHighlight && cellsToHighlight[row] && cellsToHighlight[row][columns[i].id];
+
+                    if (hadHighlight != hasHighlight) {
+                        $cell = $(rowsCache[row]).children().eq(nodeIndices[i]);
+                        if ($cell.length) {
+                            $cell.toggleClass(options.cellHighlightCssClass);
+                        }
+                    }
+                }
+            }
+
+            highlightedCells = cellsToHighlight;
+        }
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Interactivity
@@ -2185,6 +2219,7 @@ if (!jQuery.fn.drag) {
             "removeAllRows":       removeAllRows,
             "render":              render,
             "invalidate":          invalidate,
+            "setHighlightedCells": setHighlightedCells,
             "getViewport":         getViewport,
             "resizeCanvas":        resizeCanvas,
             "updateRowCount":      updateRowCount,
