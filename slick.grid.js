@@ -37,7 +37,12 @@
  *     secondaryHeaderRowHeight - (default 25px) The height of the secondary header row.
  *     syncColumnCellResize     - (default false) Synchronously resize column cells when column headers are resized
  *     rowCssClasses            - (default null) A function which (given a row's data item as an argument) returns a space-delimited string of CSS classes that will be applied to the slick-row element. Note that this should be fast, as it is called every time a row is displayed.
- *
+ *     cellHighlightCssClass    - (default "highlighted") A CSS class to apply to cells highlighted via setHighlightedCells().
+ *     cellFlashingCssClass     - (default "flashing") A CSS class to apply to flashing cells (flashCell()).
+ *     formatterFactory         - (default null) A factory object responsible to creating a formatter for a given cell.
+ *                                Must implement getFormatter(column).
+ *     editorFactory            - (default null) A factory object responsible to creating an editor for a given cell.
+ *                                Must implement getEditor(column).
  *
  * COLUMN DEFINITION (columns) OPTIONS:
  *     id                  - Column ID.
@@ -237,7 +242,8 @@ if (!jQuery.fn.drag) {
             enableAutoTooltips: true,
             formatterFactory: null,
             editorFactory: null,
-            cellHighlightCssClass: "highlighted"
+            cellHighlightCssClass: "highlighted",
+            cellFlashingCssClass: "flashing"
         },
         gridData, gridDataGetLength, gridDataGetItem;
 
@@ -329,8 +335,6 @@ if (!jQuery.fn.drag) {
                 }
             }
         }
-
-
 
         function defaultGetLength() {
             /// <summary>
@@ -447,7 +451,7 @@ if (!jQuery.fn.drag) {
             while ((elem = elem.parentNode) != document.body) {
                 // bind to scroll containers only
                 if (elem == $viewport[0] || elem.scrollWidth != elem.clientWidth || elem.scrollHeight != elem.clientHeight)
-                    $(elem).bind("scroll.slickgrid", repositionCurrentCellEditor);
+                    $(elem).bind("scroll.slickgrid", handleCurrentCellPositionChange);
             }
         }
 
@@ -1441,6 +1445,26 @@ if (!jQuery.fn.drag) {
             highlightedCells = cellsToHighlight;
         }
 
+        function flashCell(row, cell, speed) {
+            speed = speed || 100;
+            if (rowsCache[row]) {
+                var $cell = $(rowsCache[row]).find(".slick-cell[cell=" + cell + "]");
+
+                function toggleCellClass(times) {
+                    if (!times) return;
+                    setTimeout(function() {
+                        $cell.queue(function() {
+                            $cell.toggleClass(options.cellFlashingCssClass).dequeue();
+                            toggleCellClass(times-1);
+                        });
+                    },
+                    speed);
+                }
+
+                toggleCellClass(4);
+            }
+        }        
+
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Interactivity
 
@@ -1854,14 +1878,14 @@ if (!jQuery.fn.drag) {
             serializedEditorValue = currentEditor.serializeValue();
             
             if (currentEditor.position)
-                repositionCurrentCellEditor();
+                handleCurrentCellPositionChange();
         }
 
         function commitEditAndSetFocus() {
             // if the commit fails, it would do so due to a validation error
             // if so, do not steal the focus from the editor
             if (options.editorLock.commitCurrentEdit()) {
-                currentCellNode.focus();
+                focusOnCurrentCell();
 
                 if (options.autoEdit) {
                     navigateDown();
@@ -1905,16 +1929,31 @@ if (!jQuery.fn.drag) {
             return box;
         }
 
-        function repositionCurrentCellEditor() {
-            if (!currentEditor || !currentCellNode || !currentEditor.position) return;
-            var cellBox = absBox(currentCellNode);
-            if (currentEditor.show && currentEditor.hide) {
-                if (!cellBox.visible)
-                    currentEditor.hide();
-                else
-                    currentEditor.show();
+        function getCurrentCellPosition(){
+            return absBox(currentCellNode);
+        }
+
+        function handleCurrentCellPositionChange() {
+            if (!currentCellNode) return;
+            var cellBox;
+
+            if (self.onCurrentCellPositionChanged){
+                cellBox = getCurrentCellPosition();
+                self.onCurrentCellPositionChanged(cellBox);
             }
-            currentEditor.position(cellBox);
+
+            if (currentEditor) {
+                cellBox = cellBox || getCurrentCellPosition();
+                if (currentEditor.show && currentEditor.hide) {
+                    if (!cellBox.visible)
+                        currentEditor.hide();
+                    else
+                        currentEditor.show();
+                }
+
+                if (currentEditor.position)
+                    currentEditor.position(cellBox);
+            }
         }
 
         function getCellEditor() {
@@ -2203,6 +2242,7 @@ if (!jQuery.fn.drag) {
             "onBeforeEditCell":      null,
             "onBeforeCellEditorDestroy":    null,
             "onBeforeDestroy":       null,
+            "onCurrentCellPositionChanged":  null,
 
             // Methods
             "getOptions":          getOptions,
@@ -2220,6 +2260,7 @@ if (!jQuery.fn.drag) {
             "render":              render,
             "invalidate":          invalidate,
             "setHighlightedCells": setHighlightedCells,
+            "flashCell":           flashCell,
             "getViewport":         getViewport,
             "resizeCanvas":        resizeCanvas,
             "updateRowCount":      updateRowCount,
@@ -2244,6 +2285,7 @@ if (!jQuery.fn.drag) {
             "hideSecondaryHeaderRow":   hideSecondaryHeaderRow,
             "reorderColumns":      reorderColumns,
             "setSortColumn":       setSortColumn,
+            "getCurrentCellPosition" : getCurrentCellPosition,
 
             // IEditor implementation
             "getEditController":    getEditController

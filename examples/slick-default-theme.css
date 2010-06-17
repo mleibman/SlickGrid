@@ -1,3 +1,10 @@
+/*
+IMPORTANT:
+In order to preserve the uniform grid appearance, all cell styles need to have padding, margin and border sizes.
+No built-in (selected, editable, highlight, flashing, invalid, loading, :focus) or user-specified CSS
+classes should alter those!
+*/
+
 .slick-header-columns {
     background: url('../images/header-columns-bg.gif') repeat-x center bottom;
     border-bottom: 1px solid silver;
