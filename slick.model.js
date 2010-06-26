@@ -37,6 +37,9 @@ function EventHelper() {
         var filter = null;		// filter function
         var updated = null; 	// updated item ids
         var suspend = false;	// suspends the recalculation
+        var sortAsc = true;
+        var sortComparer = null;
+        var fastSortField = null;
 
         var pagesize = 0;
         var pagenum = 0;
@@ -95,6 +98,9 @@ function EventHelper() {
         }
 
         function sort(comparer, ascending) {
+            sortAsc = ascending;
+            sortComparer = comparer;
+            fastSortField = null;
             if (ascending === false) items.reverse();
             items.sort(comparer);
             if (ascending === false) items.reverse();
@@ -108,6 +114,9 @@ function EventHelper() {
          * to return the value of that field and then doing a native Array.sort().
          */
         function fastSort(field, ascending) {
+            sortAsc = ascending;
+            fastSortField = field;
+            sortComparer = null;
             var oldToString = Object.prototype.toString;
             Object.prototype.toString = (typeof field == "function")?field:function() { return this[field] };
             // an extra reversal for descending sort keeps the sort stable
@@ -118,6 +127,13 @@ function EventHelper() {
             if (ascending === false) items.reverse();
             refreshIdxById();
             refresh();
+        }
+
+        function reSort() {
+            if (sortComparer)
+                sort(sortComparer,sortAsc);
+            else if (fastSortField)
+                fastSort(fastSortField,sortAsc);
         }
 
         function setFilter(filterFn) {
@@ -253,6 +269,7 @@ function EventHelper() {
             "setFilter":        setFilter,
             "sort":             sort,
             "fastSort":         fastSort,
+            "reSort":           reSort,
             "getIdxById":       getIdxById,
             "getRowById":       getRowById,
             "getItemById":      getItemById,

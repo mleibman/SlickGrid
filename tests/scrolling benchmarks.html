@@ -4,7 +4,7 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 		<title>SlickGrid Scrolling Benchmark</title>
 		<link rel="stylesheet" href="../slick.grid.css" type="text/css" media="screen" charset="utf-8" />
-		<link rel="stylesheet" href="../css/custom-theme/jquery-ui-1.7.2.custom.css" type="text/css" media="screen" charset="utf-8" />
+		<link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.2.custom.css" type="text/css" media="screen" charset="utf-8" />
 		<link rel="stylesheet" href="../examples/examples.css" type="text/css" media="screen" charset="utf-8" />
 		<style>
 		.cell-title {
@@ -19,8 +19,7 @@
 	<body>
 		<script language="JavaScript" src="../lib/firebugx.js"></script>
 		<script language="JavaScript" src="../lib/jquery-1.4.2.min.js"></script>
-		<script language="JavaScript" src="../lib/jquery-ui-1.7.2.custom.min.js"></script>
-		<script language="JavaScript" src="../lib/jquery.rule-1.0.1.1-min.js"></script>
+		<script language="JavaScript" src="../lib/jquery-ui-1.8.2.custom.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.event.drag.custom.js"></script>
 
 		<script language="JavaScript" src="../slick.grid.js"></script>
@@ -39,6 +38,7 @@
 		<script>
 		var grid;
 		var data = [];
+        var extraColumns = 0;
 
 		function testPostRender(cellNode, row, dataContext, colDef) {
 			cellNode.style.backgroundColor = 'yellow';
@@ -46,12 +46,16 @@
 
 		var columns = [
 			{id:"title", name:"Title", field:"title", width:120, cssClass:"cell-title"},
-			{id:"duration", name:"Duration", field:"duration"},
+			{id:"duration", name:"Duration", field:"duration", unselectable:true},
 			{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter},
 			{id:"start", name:"Start", field:"start", minWidth:60},
-			{id:"finish", name:"Finish", field:"finish", minWidth:60},
+			{id:"finish", name:"Finish", field:"finish", minWidth:60,hidden:true},
 			{id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter, asyncPostRender:testPostRender}
 		];
+
+        for (var i=0; i<extraColumns; i++) {
+            columns.push({id:"col" + i, name:"col" + i, field:"title"});
+        }
 
 		var options = {
 			editable: false,
