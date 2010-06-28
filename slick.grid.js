@@ -450,7 +450,8 @@ if (!jQuery.fn.drag) {
         function getMaxSupportedCssHeight() {
             var increment = 1000000;
             var supportedHeight = 0;
-            var testUpTo = 1000000000;
+            // FF reports the height back but still renders blank after ~6M px
+            var testUpTo = ($.browser.mozilla) ? 5000000 : 1000000000;  
             var div = $("<div style='display:none' />").appendTo(document.body);
 
             while (supportedHeight <= testUpTo) {
