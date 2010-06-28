@@ -252,11 +252,11 @@ if (!jQuery.fn.drag) {
 
         // scroller
         var maxSupportedCssHeight;      // browser's breaking point
-        var th = 1000000000;            // virtual height
-        var h =  1000000;               // real scrollable height
-        var ph = h / 100;               // page height
-        var n = Math.floor(th / ph);    // number of pages
-        var cj = (th - h) / (n - 1);    // "jumpiness" coefficient
+        var th; // virtual height
+        var h;  // real scrollable height
+        var ph; // page height
+        var n;  // number of pages
+        var cj; // "jumpiness" coefficient
 
         var page = 0;                   // current page
         var offset=0;                   // current page offset
@@ -463,7 +463,7 @@ if (!jQuery.fn.drag) {
 
             div.remove();
             return supportedHeight;
-        }        
+        }
 
         // TODO:  this is static.  need to handle page mutation.
         function bindAncestorScrollEvents() {
@@ -874,7 +874,7 @@ if (!jQuery.fn.drag) {
             if ($style[0].styleSheet) { // IE
                 $style[0].styleSheet.cssText = rules.join("");
             }
-            else { 
+            else {
                 $style[0].appendChild(document.createTextNode(rules.join(" ")));
             }
 
@@ -1114,7 +1114,7 @@ if (!jQuery.fn.drag) {
 
         function onNearScroll() {
             prevScrollTop = scrollTop;
-            scrollTo(scrollTop + offset);            
+            scrollTo(scrollTop + offset);
         }
 
         function onJump() {
@@ -1306,7 +1306,7 @@ if (!jQuery.fn.drag) {
                 $viewport.height(
                         $container.innerHeight() -
                         $headerScroller.outerHeight() -
-                        (options.showSecondaryHeaderRow ? $secondaryHeaderScroller.outerHeight() : 0));            
+                        (options.showSecondaryHeaderRow ? $secondaryHeaderScroller.outerHeight() : 0));
             }
 
             viewportW = $viewport.innerWidth();
@@ -1335,7 +1335,6 @@ if (!jQuery.fn.drag) {
 
         function updateRowCount() {
             var newRowCount = gridDataGetLength() + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0);
-
             var oldH = h;
 
             th = Math.max(options.rowHeight * newRowCount, viewportH - scrollbarDimensions.height);
@@ -1353,7 +1352,7 @@ if (!jQuery.fn.drag) {
                 cj = (th - h) / (n - 1);
             }
 
-            if (h != oldH) {
+            if (h !== oldH) {
                 $canvas.css("height",h);
                 scrollTop = $viewport[0].scrollTop;
             }
@@ -1387,11 +1386,20 @@ if (!jQuery.fn.drag) {
         function getRenderedRange() {
             var range = getVisibleRange();
             var buffer = Math.round(viewportH/options.rowHeight);
+            var minBuffer = 3;
 
-            if (scrollDir == -1)
+            if (scrollDir == -1) {
                 range.top -= buffer;
-            else if (scrollDir == 1)
+                range.bottom += minBuffer;
+            }
+            else if (scrollDir == 1) {
+                range.top -= minBuffer;
                 range.bottom += buffer;
+            }
+            else {
+                range.top -= minBuffer;
+                range.bottom += minBuffer;
+            }
 
             range.top = Math.max(0,range.top);
             range.bottom = Math.min(options.enableAddRow ? gridDataGetLength() : gridDataGetLength() - 1,range.bottom);
@@ -1450,7 +1458,7 @@ if (!jQuery.fn.drag) {
 
         function updateRowPositions() {
             for (var row in rowsCache) {
-                rowsCache[row].style.top = (row*options.rowHeight-offset) + "px"; 
+                rowsCache[row].style.top = (row*options.rowHeight-offset) + "px";
             }
         }
 
@@ -1575,7 +1583,7 @@ if (!jQuery.fn.drag) {
 
                 toggleCellClass(4);
             }
-        }        
+        }
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Interactivity
@@ -1826,7 +1834,7 @@ if (!jQuery.fn.drag) {
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Cell switching
-        
+
         function resetCurrentCell() {
             setSelectedCell(null,false,false);
         }
@@ -1853,7 +1861,7 @@ if (!jQuery.fn.drag) {
             else
                 currentCellNode.focus();
         }
-        
+
         function setSelectedCell(newCell,editMode,doPaging) {
             if (currentCellNode !== null) {
                 makeSelectedCellNormal();
@@ -2003,7 +2011,7 @@ if (!jQuery.fn.drag) {
                 currentEditor.loadValue(item);
 
             serializedEditorValue = currentEditor.serializeValue();
-            
+
             if (currentEditor.position)
                 handleCurrentCellPositionChange();
         }
@@ -2195,7 +2203,7 @@ if (!jQuery.fn.drag) {
             if (!columns[cell].unselectable && !columns[cell].hidden) {
                 newCell = $(rowsCache[row]).children().eq(cell)[0];
             }
-            
+
             // if selecting the 'add new' row, start editing right away
             setSelectedCellAndRow(newCell, forceEdit || (row === data.length) || options.autoEdit, false);
 
@@ -2235,7 +2243,7 @@ if (!jQuery.fn.drag) {
         function commitCurrentEdit() {
             var item = gridDataGetItem(currentRow);
             var column = columns[currentCell];
-            
+
             if (currentEditor) {
                 if (currentEditor.isValueChanged()) {
                     var validationResults = currentEditor.validate();
@@ -2257,7 +2265,7 @@ if (!jQuery.fn.drag) {
                                     updateRow(this.row);
                                 }
                             };
-                            
+
                             if (options.editCommandHandler) {
                                 makeSelectedCellNormal();
                                 options.editCommandHandler(item,column,editCommand);
