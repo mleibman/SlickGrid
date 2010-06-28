@@ -1000,10 +1000,10 @@ if (!jQuery.fn.drag) {
         //  todo: Refactor. This logic relies on IDs in the DOM, which is something we're trying to move away from.
         function reorderColumns(columnIds) {
             for (var i = columnIds.length-1; i >=0; i--) {
-                if ($headers.children().first().attr("id") == columnIds[i]) {   // already in correct place?
+                if ($headers.children().eq(0).attr("id") == columnIds[i]) {   // already in correct place?
                     continue;
                 }
-                $headers.children().first().before($headers.find("#" + $.escapeSelectorMetachars(columnIds[i])));
+                $headers.children().eq(0).before($headers.find("#" + $.escapeSelectorMetachars(columnIds[i])));
             }
             rebuildColumns();
         }
@@ -1252,7 +1252,8 @@ if (!jQuery.fn.drag) {
             $viewport.height(
                     $container.innerHeight() -
                     $headerScroller.outerHeight() -
-                    (options.showSecondaryHeaderRow ? $secondaryHeaderScroller.outerHeight() : 0));            }
+                    (options.showSecondaryHeaderRow ? $secondaryHeaderScroller.outerHeight() : 0));
+            }
 
             viewportW = $viewport.innerWidth();
             viewportH = $viewport.innerHeight();
@@ -1260,7 +1261,7 @@ if (!jQuery.fn.drag) {
             CAPACITY = Math.max(50, numVisibleRows + 2*BUFFER);
 
             var totalWidth = 0;
-            $headers.find('.slick-header-column:visible').each(function () {
+            $headers.find('.slick-header-column:visible').each(function() {
                 totalWidth += $(this).outerWidth();
             });
             $canvas.width(totalWidth);
@@ -1272,6 +1273,7 @@ if (!jQuery.fn.drag) {
             }
 
             $canvas.height(newHeight);
+            handleScroll();
             render();
         }
 
@@ -1318,7 +1320,7 @@ if (!jQuery.fn.drag) {
                 parentNode = $canvas[0],
                 rowsBefore = renderedRows,
                 stringArray = [],
-                rows =[],
+                rows = [],
                 startTimestamp = new Date(),
                 needToReselectCell = false;
 
@@ -1512,63 +1514,57 @@ if (!jQuery.fn.drag) {
         function handleKeyDown(e) {
             // give registered handler chance to process the keyboard event
             var handled = (self.onKeyDown && // a handler must be registered
-                gridDataGetItem(currentRow) && // grid must be non-empty, have cell navigation enabled and have valid row selected as current
                 !options.editorLock.isActive() && // grid must not be in edit mode;
                 self.onKeyDown(e, currentRow, currentCell)); // handler must return truthy-value to indicate it handled the event
 
             if (!handled) {
-                switch (e.which) {
-                case 27:  // esc
-                    if (!options.editorLock.isActive()) {
-                        return; // no editing mode to cancel, allow bubbling and default processing (exit without cancelling the event)
+                if (!e.shiftKey && !e.altKey && !e.ctrlKey) {
+                    if (e.which == 27) {
+                        if (!options.editorLock.isActive()) {
+                            return; // no editing mode to cancel, allow bubbling and default processing (exit without cancelling the event)
+                        }
+                        cancelEditAndSetFocus();
                     }
-                    cancelEditAndSetFocus();
-                    break;
-
-                case 9:  // tab
-                    if (e.shiftKey)
-                        navigatePrev();
-                    else
+                    else if (e.which == 37) {
+                        navigateLeft();
+                    }
+                    else if (e.which == 39) {
+                        navigateRight();
+                    }
+                    else if (e.which == 38) {
+                        navigateUp();
+                    }
+                    else if (e.which == 40) {
+                        navigateDown();
+                    }
+                    else if (e.which == 9) {
                         navigateNext();
-                    break;
-
-                case 37:  // left
-                    navigateLeft();
-                    break;
-
-                case 39:  // right
-                    navigateRight();
-                    break;
-
-                case 38:  // up
-                    navigateUp();
-                    break;
-
-                case 40:  // down
-                    navigateDown();
-                    break;
-
-                case 13:  // enter
-                    if (options.editable) {
-                        if (currentEditor) {
-                            // adding new row
-                            if (currentRow === data.length) {
-                                navigateDown();
-                            }
-                            else {
-                                commitEditAndSetFocus();
-                            }
-                        } else {
-                            if (options.editorLock.commitCurrentEdit()) {
-                                makeSelectedCellEditable();
+                    }
+                    else if (e.which == 13) {
+                        if (options.editable) {
+                            if (currentEditor) {
+                                // adding new row
+                                if (currentRow === data.length) {
+                                    navigateDown();
+                                }
+                                else {
+                                    commitEditAndSetFocus();
+                                }
+                            } else {
+                                if (options.editorLock.commitCurrentEdit()) {
+                                    makeSelectedCellEditable();
+                                }
                             }
                         }
                     }
-                    break;
-
-                default:
-                    return; // allow bubbling and default processing (exit without cancelling the event)
+                    else
+                        return;
                 }
+                else if (e.which == 9 && e.shiftKey && !e.ctrlKey && !e.altKey) {
+                        navigatePrev();
+                }
+                else
+                    return;
             }
 
             // the event has been handled so don't let parent element (bubbling/propagation) or browser (default) handle it
@@ -1623,10 +1619,16 @@ if (!jQuery.fn.drag) {
                         selection.push(last);
                     }
 
+                    resetCurrentCell();
                     setSelectedRows(selection);
                     if (self.onSelectedRowsChanged) {
                         self.onSelectedRowsChanged();
                     }
+
+                    if (!$.browser.msie) {
+                        $canvas[0].focus();
+                    }
+
                     return false;
                 }
             }
@@ -1648,7 +1650,7 @@ if (!jQuery.fn.drag) {
             if (options.enableCellNavigation && !columns[cell].unselectable) {
                 // commit current edit before proceeding
                 if (validated === true || (validated === null && options.editorLock.commitCurrentEdit())) {
-                    setSelectedCellAndRow($cell[0], (row === data.length) || options.autoEdit, false);
+                    setSelectedCellAndRow($cell[0], (row === gridDataGetLength()) || options.autoEdit, false);
                 }
             }
         }
@@ -1761,14 +1763,16 @@ if (!jQuery.fn.drag) {
                 // IE7 tries to scroll the viewport so that the item being focused is aligned to the left border
                 // IE-specific .setActive() sets the focus, but doesn't scroll
                 currentCellNode.setActive();
+
                 var left = $(currentCellNode).position().left,
                     right = left + $(currentCellNode).outerWidth(),
                     scrollLeft = $viewport.scrollLeft(),
                     scrollRight = scrollLeft + $viewport.width();
+
                 if (left < scrollLeft)
                     $viewport.scrollLeft(left);
                 else if (right > scrollRight)
-                    $viewport.scrollLeft(Math.min(left,right - $viewport[0].clientWidth));
+                    $viewport.scrollLeft(Math.min(left, right - $viewport[0].clientWidth));
             }
             else
                 currentCellNode.focus();
@@ -2062,23 +2066,25 @@ if (!jQuery.fn.drag) {
                         .filter(":visible")
                         .filter(selectableCellFilter);
 
+                if (nodes && nodes.length) {
                 nextCell = (dx>0)
-                        ? nodes.first()
-                        : nodes.last();
+                            ? nodes.eq(0)
+                            : nodes.eq(nodes.length-1);
+                }
             }
 
             if (rollover && dy === 0 && !(nextRow && nextCell && nextCell.length)) {
                 if (!nextCell || !nextCell.length) {
+                    nextRow = rowsCache[currentRow + dy + ((dx>0)?1:-1)];
+                    var nodes = $(nextRow).children().filter(":visible").filter(selectableCellFilter);
                     if (dx > 0) {
-                        nextRow = rowsCache[currentRow + dy + 1];
                         nextCell = nextRow
-                                ? $(nextRow).children().filter(":visible").filter(selectableCellFilter).first()
+                                ? nodes.eq(0)
                                 : null;
                     }
                     else {
-                        nextRow = rowsCache[currentRow + dy - 1];
                         nextCell = nextRow
-                                ? $(nextRow).children().filter(":visible").filter(selectableCellFilter).last()
+                                ? nodes.eq(nodes.length-1)
                                 : null;
                     }
                 }
@@ -2087,7 +2093,7 @@ if (!jQuery.fn.drag) {
             if (nextRow && nextCell && nextCell.length) {
                 // if selecting the 'add new' row, start editing right away
                 var row = parseInt($(nextRow).attr("row"), 10);
-                setSelectedCellAndRow(nextCell[0], (row === data.length) || options.autoEdit, true);
+                setSelectedCellAndRow(nextCell[0], (row === gridDataGetLength()) || options.autoEdit, true);
 
                 // if no editor was created, set the focus back on the cell
                 if (!currentEditor) {
@@ -2116,7 +2122,7 @@ if (!jQuery.fn.drag) {
             }
 
             // if selecting the 'add new' row, start editing right away
-            setSelectedCellAndRow(newCell, forceEdit || (row === data.length) || options.autoEdit, false);
+            setSelectedCellAndRow(newCell, forceEdit || (row === gridDataGetLength()) || options.autoEdit, false);
 
             // if no editor was created, set the focus back on the cell
             if (!currentEditor) {
