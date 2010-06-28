@@ -128,7 +128,7 @@ function EventHelper() {
 
 		function onSuccess(resp) {
 			var from = resp.offset, to = resp.offset + resp.count;
-			data.length = Math.min(131000, parseInt(resp.total));
+			data.length = parseInt(resp.total);
 
 			for (var i = 0; i < resp.stories.length; i++) {
 				data[from + i] = resp.stories[i];
