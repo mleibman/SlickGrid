@@ -84,7 +84,7 @@
  *     onBeforeEditCell      -  Raised before a cell goes into edit mode.  Return false to cancel.  Args: row,cell,dataContext.
  *     onBeforeCellEditorDestroy    - Raised before a cell editor is destroyed.  Args: current cell editor.
  *     onBeforeDestroy       -  Raised just before the grid control is destroyed (part of the destroy() method).
- *
+ *     onCurrentCellChanged  -  Raised when the selected (active) cell changed.  Args: {row:currentRow, cell:currentCell}.
  *
  * NOTES:
  *     Cell/row DOM manipulations are done directly bypassing jQuery's DOM manipulation methods.
@@ -1050,7 +1050,10 @@ if (!jQuery.fn.drag) {
             selectedRowsLookup = lookup;
         }
 
-        function getOptions(args) {
+        function getColumns() {
+            return columns;
+        }
+        function getOptions() {
             return options;
         }
 
@@ -1807,6 +1810,8 @@ if (!jQuery.fn.drag) {
                 else {
                     focusOnCurrentCell()
                 }
+                if (self.onCurrentCellChanged)
+                    self.onCurrentCellChanged(getCurrentCell());
             }
             else {
                 currentRow = null;
@@ -2314,9 +2319,11 @@ if (!jQuery.fn.drag) {
             "onBeforeEditCell":      null,
             "onBeforeCellEditorDestroy":    null,
             "onBeforeDestroy":       null,
+            "onCurrentCellChanged":  null,
             "onCurrentCellPositionChanged":  null,
 
             // Methods
+            "getColumns":          getColumns,
             "getOptions":          getOptions,
             "setOptions":          setOptions,
             "setData":             setData,
