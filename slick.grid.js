@@ -274,6 +274,7 @@ if (!jQuery.fn.drag) {
         var $style;
         var stylesheet;
         var viewportH, viewportW;
+        var viewportHasHScroll;
         var headerColumnWidthDiff, headerColumnHeightDiff, cellWidthDiff, cellHeightDiff;  // padding+border
         var absoluteColumnMinWidth;
 
@@ -418,6 +419,10 @@ if (!jQuery.fn.drag) {
             var dim = { width: $c.width() - $c[0].clientWidth, height: $c.height() - $c[0].clientHeight };
             $c.remove();
             return dim;
+        }
+
+        function handleCanvasResize() {
+            viewportHasHScroll = ($canvas.width() > viewportW - scrollbarDimensions.width);
         }
 
         function disableSelection($target) {
@@ -708,6 +713,7 @@ if (!jQuery.fn.drag) {
                                 }
                             } else if (options.syncColumnCellResize) {
                                 $canvas.width(originalCanvasWidth + d);
+                                handleCanvasResize();
                             }
                         } else { // stretch column
                             x = d;
@@ -743,6 +749,7 @@ if (!jQuery.fn.drag) {
                                 }
                             } else if (options.syncColumnCellResize) {
                                 $canvas.width(originalCanvasWidth + d);
+                                handleCanvasResize();
                             }
                         }
                     })
@@ -1113,18 +1120,6 @@ if (!jQuery.fn.drag) {
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Rendering / Scrolling
 
-        function onNearScroll() {
-            prevScrollTop = scrollTop;
-            scrollTo(scrollTop + offset);
-        }
-
-        function onJump() {
-            page = Math.min(n-1, Math.floor(scrollTop * ((th-viewportH) / (h-viewportH)) * (1/ph)));
-            offset = Math.round(page * cj);
-            prevScrollTop = scrollTop;
-            removeAllRows();
-        }
-
         function scrollTo(y) {
             var oldOffset = offset;
 
@@ -1133,18 +1128,15 @@ if (!jQuery.fn.drag) {
             var newScrollTop = y - offset;
 
             if (offset != oldOffset) {
-                scrollTop = newScrollTop;
-                var range = getVisibleRange();
+                var range = getVisibleRange(newScrollTop);
                 cleanupRows(range.top,range.bottom);
                 updateRowPositions();
             }
 
             if (prevScrollTop != newScrollTop) {
-                prevScrollTop = newScrollTop;
-                $viewport.scrollTop(newScrollTop);
+                scrollDir = (prevScrollTop + oldOffset < newScrollTop + offset) ? 1 : -1;
+                $viewport[0].scrollTop = (scrollTop = prevScrollTop = newScrollTop);
             }
-
-            prevScrollTop = newScrollTop;
         }
 
         function defaultFormatter(row, cell, value, columnDef, dataContext) {
@@ -1319,9 +1311,8 @@ if (!jQuery.fn.drag) {
                 totalWidth += $(this).outerWidth();
             });
             $canvas.width(totalWidth);
+            handleCanvasResize();
 
-            //h = Math.max(newViewportH, viewportH - scrollbarDimensions.height);
-            //$canvas.height(h);
             updateRowCount();
             render();
         }
@@ -1377,15 +1368,18 @@ if (!jQuery.fn.drag) {
             }
         }
 
-        function getVisibleRange() {
+        function getVisibleRange(viewportTop) {
+            if (viewportTop == null)
+                viewportTop = scrollTop;
+            
             return {
                 top: Math.floor((scrollTop+offset)/options.rowHeight),
                 bottom: Math.ceil((scrollTop+offset+viewportH)/options.rowHeight)
             };
         }
 
-        function getRenderedRange() {
-            var range = getVisibleRange();
+        function getRenderedRange(viewportTop) {
+            var range = getVisibleRange(viewportTop);
             var buffer = Math.round(viewportH/options.rowHeight);
             var minBuffer = 3;
 
@@ -1491,25 +1485,27 @@ if (!jQuery.fn.drag) {
                 $secondaryHeaderScroller[0].scrollLeft = scrollLeft;
             }
 
-            if (!scrollDist) {
-                scrollDir = 0;
+            if (!scrollDist)
                 return;
-            }
-            else if (prevScrollTop < scrollTop)
-                scrollDir = 1;
-            else
-                scrollDir = -1;
+
+            scrollDir = prevScrollTop < scrollTop ? 1 : -1;
+
+            prevScrollTop = scrollTop;
 
             if (h_render)
                 clearTimeout(h_render);
 
             if (scrollDist < viewportH) {
-                onNearScroll();
+                scrollTo(scrollTop + offset);
                 render();
             }
             else {
-                onJump();
-                h_render = setTimeout(render,50);
+                var oldOffset = offset;
+                page = Math.min(n - 1, Math.floor(scrollTop * ((th - viewportH) / (h - viewportH)) * (1 / ph)));
+                offset = Math.round(page * cj);
+                if (oldOffset != offset)
+                    removeAllRows();
+                h_render = setTimeout(render, 50);
             }
 
             // TODO: make sure this is not getting missed
@@ -1737,6 +1733,7 @@ if (!jQuery.fn.drag) {
             if (options.enableCellNavigation && !columns[cell].unselectable) {
                 // commit current edit before proceeding
                 if (validated === true || (validated === null && options.editorLock.commitCurrentEdit())) {
+                    scrollRowIntoView(row,false);
                     setSelectedCellAndRow($cell[0], (row === data.length) || options.autoEdit, false);
                 }
             }
@@ -1876,8 +1873,6 @@ if (!jQuery.fn.drag) {
                 currentCell = getSiblingIndex(currentCellNode);
 
                 $(currentCellNode).addClass("selected");
-
-                scrollSelectedCellIntoView(doPaging);
 
                 if (options.editable && editMode && isCellPotentiallyEditable(currentRow,currentCell)) {
                     clearTimeout(h_editorLoader);
@@ -2108,20 +2103,19 @@ if (!jQuery.fn.drag) {
         }
 
         function scrollRowIntoView(row, doPaging) {
+            var rowAtTop = row * options.rowHeight;
+            var rowAtBottom = (row + 1) * options.rowHeight - viewportH + (viewportHasHScroll?scrollbarDimensions.height:0);
+
             // need to page down?
             if ((row + 1) * options.rowHeight > scrollTop + viewportH + offset) {
-                $viewport[0].scrollTop = doPaging
-                                            ? row * options.rowHeight - offset
-                                            : (row + 1) * options.rowHeight - offset - viewportH;
-                handleScroll();
+                scrollTo(doPaging ? rowAtTop : rowAtBottom);
+                render();
             }
 
             // or page up?
             else if (row * options.rowHeight < scrollTop + offset) {
-                $viewport[0].scrollTop = doPaging
-                                            ? (row + 1) * options.rowHeight - offset - viewportH
-                                            : row * options.rowHeight - offset;
-                handleScroll();
+                scrollTo(doPaging ? rowAtBottom : rowAtTop);
+                render();
             }
         }
 
@@ -2174,8 +2168,9 @@ if (!jQuery.fn.drag) {
             if (nextRow && nextCell && nextCell.length) {
                 // if selecting the 'add new' row, start editing right away
                 var row = parseInt($(nextRow).attr("row"), 10);
-                scrollRowIntoView(row,true);
-                setSelectedCellAndRow(nextCell[0], (row === data.length) || options.autoEdit, true);
+                var isAddNewRow = (row == data.length);
+                scrollRowIntoView(row,!isAddNewRow);
+                setSelectedCellAndRow(nextCell[0], isAddNewRow || options.autoEdit, true);
 
                 // if no editor was created, set the focus back on the cell
                 if (!currentEditor) {
@@ -2194,10 +2189,6 @@ if (!jQuery.fn.drag) {
             if (!options.editorLock.commitCurrentEdit()) { return; }
 
             scrollRowIntoView(row,false);
-
-            //if (!rowsCache[row]) {
-            //    renderRows(row,row);
-            //}
 
             var newCell = null;
 
@@ -2329,6 +2320,8 @@ if (!jQuery.fn.drag) {
             s += ("\n" + "maxSupportedCssHeight:  " + maxSupportedCssHeight);
             s += ("\n" + "n(umber of pages):  " + n);
             s += ("\n" + "(current) page:  " + page);
+            s += ("\n" + "page height (ph):  " + ph);
+            s += ("\n" + "scrollDir:  " + scrollDir);
 
             alert(s);
         };
