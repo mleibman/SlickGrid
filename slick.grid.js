@@ -289,6 +289,7 @@ if (!jQuery.fn.drag) {
         var numVisibleRows;
         var prevScrollTop = 0;
         var scrollTop = 0;
+        var lastRenderedScrollTop = 0;
         var prevScrollLeft = 0;
         var avgRowRenderTime = 10;
 
@@ -1139,7 +1140,7 @@ if (!jQuery.fn.drag) {
 
             if (prevScrollTop != newScrollTop) {
                 scrollDir = (prevScrollTop + oldOffset < newScrollTop + offset) ? 1 : -1;
-                $viewport[0].scrollTop = (scrollTop = prevScrollTop = newScrollTop);
+                $viewport[0].scrollTop = (lastRenderedScrollTop = scrollTop = prevScrollTop = newScrollTop);
             }
         }
 
@@ -1474,6 +1475,7 @@ if (!jQuery.fn.drag) {
             postProcessToRow = Math.min(options.enableAddRow ? gridDataGetLength() : gridDataGetLength() - 1, visible.bottom);
             startPostProcessing();
 
+            lastRenderedScrollTop = scrollTop;
             h_render = null;
         }
 
@@ -1488,19 +1490,14 @@ if (!jQuery.fn.drag) {
                 $secondaryHeaderScroller[0].scrollLeft = scrollLeft;
             }
 
-            if (!scrollDist)
-                return;
+            if (!scrollDist) return;
 
             scrollDir = prevScrollTop < scrollTop ? 1 : -1;
-
             prevScrollTop = scrollTop;
 
-            if (h_render)
-                clearTimeout(h_render);
-
+            // switch virtual pages if needed
             if (scrollDist < viewportH) {
                 scrollTo(scrollTop + offset);
-                render();
             }
             else {
                 var oldOffset = offset;
@@ -1508,8 +1505,17 @@ if (!jQuery.fn.drag) {
                 offset = Math.round(page * cj);
                 if (oldOffset != offset)
                     removeAllRows();
-                h_render = setTimeout(render, 50);
             }
+
+            
+            if (h_render)
+                clearTimeout(h_render);
+
+            if (Math.abs(lastRenderedScrollTop - scrollTop) < viewportH)
+                render();
+            else
+                h_render = setTimeout(render, 50);
+
 
             // TODO: make sure this is not getting missed
             if (self.onViewportChanged) {
