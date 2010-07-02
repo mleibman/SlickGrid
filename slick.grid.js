@@ -252,11 +252,11 @@ if (!jQuery.fn.drag) {
 
         // scroller
         var maxSupportedCssHeight;      // browser's breaking point
-        var th; // virtual height
-        var h;  // real scrollable height
-        var ph; // page height
-        var n;  // number of pages
-        var cj; // "jumpiness" coefficient
+        var th;                         // virtual height
+        var h;                          // real scrollable height
+        var ph;                         // page height
+        var n;                          // number of pages
+        var cj;                         // "jumpiness" coefficient
 
         var page = 0;                   // current page
         var offset=0;                   // current page offset
@@ -853,7 +853,7 @@ if (!jQuery.fn.drag) {
             tmp.remove();
 
             var r = $("<div class='slick-row' />").appendTo($canvas);
-            tmp = $("<div class='slick-cell' cell='' id='' style='visibility:hidden'>-</div>").appendTo(r);
+            tmp = $("<div class='slick-cell' id='' style='visibility:hidden'>-</div>").appendTo(r);
             cellWidthDiff = tmp.outerWidth() - tmp.width();
             cellHeightDiff = tmp.outerHeight() - tmp.height();
             r.remove();
@@ -1206,7 +1206,7 @@ if (!jQuery.fn.drag) {
            updateRowCount();
            removeAllRows();
            render();
-       }
+        }
 
         function removeAllRows() {
             if (currentEditor) {
@@ -1277,8 +1277,7 @@ if (!jQuery.fn.drag) {
         function updateRow(row) {
             if (!rowsCache[row]) { return; }
 
-            // todo:  perf:  iterate over direct children?
-            $(rowsCache[row]).find(".slick-cell").each(function(i) {
+            $(rowsCache[row]).children().each(function(i) {
                 var m = columns[i];
                 if (row === currentRow && i === currentCell && currentEditor) {
                     currentEditor.loadValue(gridDataGetItem(currentRow));
@@ -1434,7 +1433,7 @@ if (!jQuery.fn.drag) {
 
             if (needToReselectCell) {
                 currentCellNode = $(rowsCache[currentRow]).children().eq(currentCell)[0];
-                setSelectedCell(currentCellNode,false,false);
+                setSelectedCell(currentCellNode,false);
             }
 
             if (renderedRows - rowsBefore > 5) {
@@ -1738,7 +1737,7 @@ if (!jQuery.fn.drag) {
                 // commit current edit before proceeding
                 if (validated === true || (validated === null && options.editorLock.commitCurrentEdit())) {
                     scrollRowIntoView(row,false);
-                    setSelectedCellAndRow($cell[0], (row === defaultGetLength()) || options.autoEdit, false);
+                    setSelectedCellAndRow($cell[0], (row === defaultGetLength()) || options.autoEdit);
                 }
             }
         }
@@ -1838,7 +1837,7 @@ if (!jQuery.fn.drag) {
         // Cell switching
 
         function resetCurrentCell() {
-            setSelectedCell(null,false,false);
+            setSelectedCell(null,false);
         }
 
         function focusOnCurrentCell() {
@@ -1866,7 +1865,7 @@ if (!jQuery.fn.drag) {
                 currentCellNode.focus();
         }
 
-        function setSelectedCell(newCell,editMode,doPaging) {
+        function setSelectedCell(newCell,editMode) {
             if (currentCellNode !== null) {
                 makeSelectedCellNormal();
                 $(currentCellNode).removeClass("selected");
@@ -1884,7 +1883,7 @@ if (!jQuery.fn.drag) {
                     clearTimeout(h_editorLoader);
 
                     if (options.asyncEditorLoading) {
-                        h_editorLoader = setTimeout(makeSelectedCellEditable, options.asyncEditorLoadDelay, "JavaScript");
+                        h_editorLoader = setTimeout(makeSelectedCellEditable, options.asyncEditorLoadDelay);
                     }
                     else {
                         makeSelectedCellEditable();
@@ -1902,8 +1901,8 @@ if (!jQuery.fn.drag) {
             }
         }
 
-        function setSelectedCellAndRow(newCell,editMode,doPaging) {
-            setSelectedCell(newCell,editMode,doPaging);
+        function setSelectedCellAndRow(newCell,editMode) {
+            setSelectedCell(newCell,editMode);
 
             if (newCell) {
                 setSelectedRows([currentRow]);
@@ -2127,11 +2126,6 @@ if (!jQuery.fn.drag) {
             }
         }
 
-        function scrollSelectedCellIntoView(doPaging) {
-            if (!currentCellNode) { return; }
-            scrollRowIntoView(currentRow,doPaging);
-        }
-
         function gotoDir(dy, dx, rollover) {
             if (!currentCellNode || !options.enableCellNavigation) { return; }
             if (!options.editorLock.commitCurrentEdit()) { return; }
@@ -2180,7 +2174,7 @@ if (!jQuery.fn.drag) {
                 var row = parseInt($(nextRow).attr("row"), 10);
                 var isAddNewRow = (row == defaultGetLength());
                 scrollRowIntoView(row,!isAddNewRow);
-                setSelectedCellAndRow(nextCell[0], isAddNewRow || options.autoEdit, true);
+                setSelectedCellAndRow(nextCell[0], isAddNewRow || options.autoEdit);
 
                 // if no editor was created, set the focus back on the cell
                 if (!currentEditor) {
@@ -2207,7 +2201,7 @@ if (!jQuery.fn.drag) {
             }
 
             // if selecting the 'add new' row, start editing right away
-            setSelectedCellAndRow(newCell, forceEdit || (row === gridDataGetLength()) || options.autoEdit, false);
+            setSelectedCellAndRow(newCell, forceEdit || (row === gridDataGetLength()) || options.autoEdit);
 
             // if no editor was created, set the focus back on the cell
             if (!currentEditor) {
