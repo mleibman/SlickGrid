@@ -500,7 +500,7 @@ if (!jQuery.fn.drag) {
                 var m = columns[i] = $.extend({},columnDefaults,columns[i]);
                 columnsById[m.id] = i;
 
-                var header = $("<div class='ui-state-default slick-header-column' id='" + m.id + "' />")
+                var header = $("<div class='ui-state-default slick-header-column' id='" + uid + m.id + "' />")
                     .html("<span class='slick-column-name'>" + m.name + "</span>")
                     .width(m.width - headerColumnWidthDiff)
                     .attr("title", m.toolTip || m.name || "")
@@ -573,7 +573,7 @@ if (!jQuery.fn.drag) {
                     var reorderedIds = $headers.sortable("toArray");
                     var reorderedColumns = [];
                     for (var i=0; i<reorderedIds.length; i++) {
-                        reorderedColumns.push(columns[getColumnIndex(reorderedIds[i])]);
+                        reorderedColumns.push(columns[getColumnIndex(reorderedIds[i].replace(uid,""))]);
                     }
                     setColumns(reorderedColumns);
 
