@@ -17,6 +17,7 @@
 		{
 			$menu.empty();
 
+            var visibleColumns = grid.getColumns();
 			var $li, $input;
 			for (var i=0; i<columns.length; i++) {
 				$li = $("<li />").appendTo($menu);
@@ -26,8 +27,8 @@
                         .data("id", columns[i].id)
                         .appendTo($li);
 
-				if (!columns[i].hidden)
-					$input.attr("checked","checked");
+                if (grid.getColumnIndex(columns[i].id) != null)
+                    $input.attr("checked","checked");
 
 				$("<label for='columnpicker_" + i + "' />")
 					.text(columns[i].name)
@@ -80,14 +81,13 @@
 					return;
 				}
 
-				var id =$(e.target).data("id");
-				for (var i=0; i<columns.length; i++) {
-					if (columns[i].id == id) {
-						columns[i].hidden = !$(e.target).is(":checked");
-						grid.setColumnVisibility(columns[i], $(e.target).is(":checked"));
-						return;
-					}
-				}
+                var visibleColumns = [];
+                $menu.find(":checkbox[id^=columnpicker]").each(function(i,e) {
+                    if ($(this).is(":checked")) {
+                        visibleColumns.push(columns[i]);
+                    }
+                });
+                grid.setColumns(visibleColumns);
 			}
 		}
 

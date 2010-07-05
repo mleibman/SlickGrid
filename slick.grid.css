@@ -61,13 +61,9 @@ classes should alter those!
 	display: block;
 	cursor: col-resize;
 	width: 4px;
-	right: -2px;
+	right: 0px;
 	top: 0;
 	height: 100%;
-}
-
-.slick-resizable-handle:hover {
-	background: gray;
 }
 
 .slick-sortable-placeholder {

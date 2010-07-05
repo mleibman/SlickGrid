@@ -1,12 +1,8 @@
-/*jslint white: false, onevar: false, undef: true, nomen: true, eqeqeq: true, plusplus: false, bitwise: true, regexp: true, strict: true, newcap: true, immed: true */// Force JSLinq (http://jslint.com/) "Good Parts" flags - (strict whitespace, one var per function, disallow ++/--)
-/*global $: false, jQuery: false, window: false, console: false, document: false, alert: false, setTimeout: false, clearTimeout: false, Slick: false */// Define recognized globals for JSLint
-/*global commitCurrentEdit: true, cancelCurrentEdit: false, measureCellPaddingAndBorder: false, createColumnHeaders: false, setupRowReordering: false, createCssRules: false, resizeCanvas: false, autosizeColumns: false, render: false, handleScroll: false, handleKeyDown: false, handleClick: false, handleDblClick: false, handleContextMenu: false, handleHeaderContextMenu: false, setupColumnSort: false, setupColumnResize: false, setupColumnReorder: false, removeAllRows: false, removeCssRules: false, setupColumnResize: false, removeAllRows: false, updateColumnWidth: false, setSelectedRows: false, getSelectedRows: false, makeSelectedCellNormal: false, removeRow: false, removeRowFromCache: false, invalidatePostProcessingResults: false, asyncPostProcessRows: false, gotoDir: false, makeSelectedCellEditable: false, setSelectedCellAndRow: false, gotoCell: false, scrollSelectedCellIntoView: false, isCellPotentiallyEditable: false, styleColumnWidth: false */
-"use strict";
-
-
 /**
  * @license
  * (c) 2009-2010 Michael Leibman (michael.leibman@gmail.com)
+ * http://github.com/mleibman/slickgrid
+ * Distributed under MIT license.
  * All rights reserved.
  *
  * SlickGrid v1.4
@@ -297,6 +293,8 @@ if (!jQuery.fn.drag) {
         var selectedRowsLookup = {};
         var columnsById = {};
         var highlightedCells;
+        var sortColumnId;
+        var sortAsc = true;
 
         // async call handles
         var h_editorLoader = null;
@@ -369,9 +367,7 @@ if (!jQuery.fn.drag) {
                 $secondaryHeaderScroller.hide();
             }
 
-            // with autoHeight, we can set the mainscroller's y-overflow to auto, since the scroll bar will not appear
-            var msStyle = "width:100%;overflow-x:auto;outline:0;position:relative;overflow-y:auto;";
-            $viewport = $("<div class='slick-viewport' tabIndex='0' hideFocus style='" + msStyle + "'>").appendTo($container);
+            $viewport = $("<div class='slick-viewport' tabIndex='0' hideFocus style='width:100%;overflow-x:auto;outline:0;position:relative;overflow-y:auto;'>").appendTo($container);
             $canvas = $("<div class='grid-canvas' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($viewport);
 
             // header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
@@ -392,6 +388,7 @@ if (!jQuery.fn.drag) {
             $viewport.bind("selectstart.ui", function (event) { return $(event.target).is("input,textarea"); }); // disable text selection in grid cells except in input and textarea elements (this is IE-specific, because selectstart event will only fire in IE)
 
             createColumnHeaders();
+            setupColumnSort();            
             setupRowReordering();
             createCssRules();
 
@@ -490,25 +487,24 @@ if (!jQuery.fn.drag) {
             var i;
 
             function hoverBegin() {
-                $(this).addClass('ui-state-hover');
+                $(this).addClass("ui-state-hover");
             }
             function hoverEnd() {
-                $(this).removeClass('ui-state-hover');
+                $(this).removeClass("ui-state-hover");
             }
+
+            $headers.empty();
+            columnsById = {};
 
             for (i = 0; i < columns.length; i++) {
                 var m = columns[i] = $.extend({},columnDefaults,columns[i]);
                 columnsById[m.id] = i;
 
-                var header = $("<div class='ui-state-default slick-header-column' cell=" + i + " id='" + m.id + "' />")
+                var header = $("<div class='ui-state-default slick-header-column' id='" + m.id + "' />")
                     .html("<span class='slick-column-name'>" + m.name + "</span>")
                     .width(m.width - headerColumnWidthDiff)
-                    .attr('title', m.toolTip || m.name)
+                    .attr("title", m.toolTip || m.name || "")
                     .appendTo($headers);
-
-                if (m.hidden) {
-                    header.css("display","none");
-                }
 
                 if (options.enableColumnReorder || m.sortable) {
                     header.hover(hoverBegin, hoverEnd);
@@ -519,22 +515,10 @@ if (!jQuery.fn.drag) {
                 }
             }
 
-            setupColumnSort();
+            setSortColumn(sortColumnId,sortAsc);
             setupColumnResize();
             if (options.enableColumnReorder) {
                 setupColumnReorder();
-            }
-        }
-
-        // Set .slick-header-column cell to indicate sort state
-        //      $col - jQuery selector for header DOM object, or null to clear all sort styles
-        //      ascending  - true for ascending style, else false.
-        function setSortHeaderStyle($col, ascending) {
-            $headers.children().removeClass("slick-header-column-sorted");
-            $headers.find(".slick-sort-indicator").removeClass("slick-sort-indicator-asc slick-sort-indicator-desc");
-            if ($col) {
-                $col.addClass("slick-header-column-sorted");
-                $col.find(".slick-sort-indicator").addClass(ascending ? "slick-sort-indicator-asc" : "slick-sort-indicator-desc");
             }
         }
 
@@ -543,46 +527,35 @@ if (!jQuery.fn.drag) {
                 if ($(e.target).hasClass("slick-resizable-handle")) {
                     return;
                 }
-                var $col = $(e.target).closest(".slick-header-column");
-
-                if (!$col.length || !columns[columnsById[$col.attr("id")]].sortable) {
-                    return;
-                }
-                if (!options.editorLock.commitCurrentEdit()) { return; }
-
-                if ($col.is(".slick-header-column-sorted")) {
-                    $col.find(".slick-sort-indicator").toggleClass("slick-sort-indicator-asc").toggleClass("slick-sort-indicator-desc");
-                } else {
-                    setSortHeaderStyle($col, true);
-                }
-
+                
                 if (self.onSort) {
-                    self.onSort(columns[columnsById[$col.attr("id")]], $col.find(".slick-sort-indicator").hasClass("slick-sort-indicator-asc"));
+                    var $col = $(e.target).closest(".slick-header-column");
+                    if (!$col.length)
+                        return;
+
+                    var column = columns[getSiblingIndex($col[0])];
+                    if (column.sortable) {
+                        if (!options.editorLock.commitCurrentEdit())
+                            return;
+    
+                        if (column.id === sortColumnId) {
+                            sortAsc = !sortAsc;
+                        }
+                        else {
+                            sortColumnId = column.id;
+                            sortAsc = true;
+                        }
+
+                        setSortColumn(sortColumnId,sortAsc);
+                        self.onSort(column,sortAsc);
+                    }
                 }
             });
         }
 
-        // Rebuild and re-render columns in newly established order.
-        function rebuildColumns() {
-            var newOrder = $headers.sortable("toArray"), lookup = {};
-            for (i=0; i<columns.length; i++) {
-                lookup[columns[i].id] = columns[i];
-            }
-
-            for (i=0; i<newOrder.length; i++) {
-                $headers.children()[i].setAttribute('cell', i);
-                columnsById[newOrder[i]] = i;
-                columns[i] = lookup[newOrder[i]];
-            }
-            removeAllRows();
-            removeCssRules();
-            createCssRules();
-            render();
-        }
-
         function setupColumnReorder() {
             $headers.sortable({
-                containment: 'parent',
+                containment: "parent",
                 axis: "x",
                 cursor: "default",
                 tolerance: "intersection",
@@ -592,14 +565,17 @@ if (!jQuery.fn.drag) {
                 start: function(e, ui) { $(ui.helper).addClass("slick-header-column-active"); },
                 beforeStop: function(e, ui) { $(ui.helper).removeClass("slick-header-column-active"); },
                 stop: function(e) {
-                    var i;
-
                     if (!options.editorLock.commitCurrentEdit()) {
                         $(this).sortable("cancel");
                         return;
                     }
 
-                    rebuildColumns();
+                    var reorderedIds = $headers.sortable("toArray");
+                    var reorderedColumns = [];
+                    for (var i=0; i<reorderedIds.length; i++) {
+                        reorderedColumns.push(columns[getColumnIndex(reorderedIds[i])]);
+                    }
+                    setColumns(reorderedColumns);
 
                     if (self.onColumnsReordered) {
                         self.onColumnsReordered();
@@ -612,11 +588,10 @@ if (!jQuery.fn.drag) {
 
         function setupColumnResize() {
             var $col, j, c, pageX, columnElements, minPageX, maxPageX, firstResizable, lastResizable, originalCanvasWidth;
-            columnElements = $headers.find(".slick-header-column:visible");
-            columnElements.find('.slick-resizable-handle').remove();
+            columnElements = $headers.children();
+            columnElements.find(".slick-resizable-handle").remove();
             columnElements.each(function(i,e) {
-                c = columns[e.getAttribute('cell')];
-                if (c.resizable) {
+                if (columns[i].resizable) {
                     if (firstResizable === undefined) { firstResizable = i; }
                     lastResizable = i;
                 }
@@ -632,15 +607,13 @@ if (!jQuery.fn.drag) {
                         $(this).parent().addClass("slick-header-column-active");
                         var shrinkLeewayOnRight = null, stretchLeewayOnRight = null;
                         // lock each column's width option to current width
-                        columnElements.each(function(i,e) {
-                            columns[e.getAttribute('cell')].previousWidth = $(e).outerWidth();
-                        });
+                        columnElements.each(function(i,e) { columns[i].previousWidth = $(e).outerWidth(); });
                         if (options.forceFitColumns) {
                             shrinkLeewayOnRight = 0;
                             stretchLeewayOnRight = 0;
                             // colums on right affect maxPageX/minPageX
                             for (j = i + 1; j < columnElements.length; j++) {
-                                c = columns[columnElements[j].getAttribute('cell')];
+                                c = columns[j];
                                 if (c.resizable) {
                                     if (stretchLeewayOnRight !== null) {
                                         if (c.maxWidth) {
@@ -657,7 +630,7 @@ if (!jQuery.fn.drag) {
                         var shrinkLeewayOnLeft = 0, stretchLeewayOnLeft = 0;
                         for (j = 0; j <= i; j++) {
                             // columns on left only affect minPageX
-                            c = columns[columnElements[j].getAttribute('cell')];
+                            c = columns[j];
                             if (c.resizable) {
                                 if (stretchLeewayOnLeft !== null) {
                                     if (c.maxWidth) {
@@ -683,15 +656,14 @@ if (!jQuery.fn.drag) {
                         if (d < 0) { // shrink column
                             x = d;
                             for (j = i; j >= 0; j--) {
-                                ci = columnElements[j].getAttribute('cell');
-                                c = columns[ci];
+                                c = columns[j];
                                 if (c.resizable) {
                                     actualMinWidth = Math.max(c.minWidth || 0, absoluteColumnMinWidth);
                                     if (x && c.previousWidth + x < actualMinWidth) {
                                         x += c.previousWidth - actualMinWidth;
-                                        styleColumnWidth(ci, actualMinWidth, options.syncColumnCellResize);
+                                        styleColumnWidth(j, actualMinWidth, options.syncColumnCellResize);
                                     } else {
-                                        styleColumnWidth(ci, c.previousWidth + x, options.syncColumnCellResize);
+                                        styleColumnWidth(j, c.previousWidth + x, options.syncColumnCellResize);
                                         x = 0;
                                     }
                                 }
@@ -700,14 +672,13 @@ if (!jQuery.fn.drag) {
                             if (options.forceFitColumns) {
                                 x = -d;
                                 for (j = i + 1; j < columnElements.length; j++) {
-                                    ci = columnElements[j].getAttribute('cell');
-                                    c = columns[ci];
+                                    c = columns[j];
                                     if (c.resizable) {
                                         if (x && c.maxWidth && (c.maxWidth - c.previousWidth < x)) {
                                             x -= c.maxWidth - c.previousWidth;
-                                            styleColumnWidth(ci, c.maxWidth, options.syncColumnCellResize);
+                                            styleColumnWidth(j, c.maxWidth, options.syncColumnCellResize);
                                         } else {
-                                            styleColumnWidth(ci, c.previousWidth + x, options.syncColumnCellResize);
+                                            styleColumnWidth(j, c.previousWidth + x, options.syncColumnCellResize);
                                             x = 0;
                                         }
                                     }
@@ -719,14 +690,13 @@ if (!jQuery.fn.drag) {
                         } else { // stretch column
                             x = d;
                             for (j = i; j >= 0; j--) {
-                                ci = columnElements[j].getAttribute('cell');
-                                c = columns[ci];
+                                c = columns[j];
                                 if (c.resizable) {
                                     if (x && c.maxWidth && (c.maxWidth - c.previousWidth < x)) {
                                         x -= c.maxWidth - c.previousWidth;
-                                        styleColumnWidth(ci, c.maxWidth, options.syncColumnCellResize);
+                                        styleColumnWidth(j, c.maxWidth, options.syncColumnCellResize);
                                     } else {
-                                        styleColumnWidth(ci, c.previousWidth + x, options.syncColumnCellResize);
+                                        styleColumnWidth(j, c.previousWidth + x, options.syncColumnCellResize);
                                         x = 0;
                                     }
                                 }
@@ -735,15 +705,14 @@ if (!jQuery.fn.drag) {
                             if (options.forceFitColumns) {
                                 x = -d;
                                 for (j = i + 1; j < columnElements.length; j++) {
-                                    ci = columnElements[j].getAttribute('cell');
-                                    c = columns[ci];
+                                    c = columns[j];
                                     if (c.resizable) {
                                         actualMinWidth = Math.max(c.minWidth || 0, absoluteColumnMinWidth);
                                         if (x && c.previousWidth + x < actualMinWidth) {
                                             x += c.previousWidth - actualMinWidth;
-                                            styleColumnWidth(ci, actualMinWidth, options.syncColumnCellResize);
+                                            styleColumnWidth(j, actualMinWidth, options.syncColumnCellResize);
                                         } else {
-                                            styleColumnWidth(ci, c.previousWidth + x, options.syncColumnCellResize);
+                                            styleColumnWidth(j, c.previousWidth + x, options.syncColumnCellResize);
                                             x = 0;
                                         }
                                     }
@@ -758,8 +727,7 @@ if (!jQuery.fn.drag) {
                         var newWidth;
                         $(this).parent().removeClass("slick-header-column-active");
                         for (j = 0; j < columnElements.length; j++) {
-                            var columnIndex = columnElements[j].getAttribute('cell');
-                            c = columns[columnIndex];
+                            c = columns[j];
                             newWidth = $(columnElements[j]).outerWidth();
 
                             if (c.previousWidth !== newWidth && c.rerenderOnResize) {
@@ -771,7 +739,7 @@ if (!jQuery.fn.drag) {
                                 c.width = newWidth;
                             }
                             if (!options.syncColumnCellResize && c.previousWidth !== newWidth) {
-                                styleColumnWidth(columnIndex, newWidth, true);
+                                styleColumnWidth(j, newWidth, true);
                             }
                         }
                         resizeCanvas();
@@ -848,7 +816,7 @@ if (!jQuery.fn.drag) {
         }
 
         function measureCellPaddingAndBorder() {
-            var tmp = $("<div class='ui-state-default slick-header-column' cell='' id='' style='visibility:hidden'>-</div>").appendTo($headers);
+            var tmp = $("<div class='ui-state-default slick-header-column' style='visibility:hidden'>-</div>").appendTo($headers);
             headerColumnWidthDiff = tmp.outerWidth() - tmp.width();
             headerColumnHeightDiff = tmp.outerHeight() - tmp.height();
             tmp.remove();
@@ -876,7 +844,6 @@ if (!jQuery.fn.drag) {
                 rules.push(
                     "." + uid + " .c" + i + " { " +
                     "width:" + ((columns[i].currentWidth || columns[i].width) - cellWidthDiff) + "px; " +
-                    "display: " + (columns[i].hidden ? "none" : "block") +
                     " } ");
             }
 
@@ -896,8 +863,7 @@ if (!jQuery.fn.drag) {
             }
         }
 
-        function findCssRuleForCell(index) {
-            var selector = "." + uid + " .c" + index;
+        function findCssRule(selector) {
             var rules = (stylesheet.cssRules || stylesheet.rules);
 
             for (var i=0; i<rules.length; i++) {
@@ -905,7 +871,11 @@ if (!jQuery.fn.drag) {
                     return rules[i];
             }
 
-            throw "CSS rule for cell " + index + " not found";
+            return null;
+        }
+
+        function findCssRuleForCell(index) {
+            return findCssRule("." + uid + " .c" + index);
         }
 
         function removeCssRules() {
@@ -939,20 +909,16 @@ if (!jQuery.fn.drag) {
         function autosizeColumns() {
             var i, c,
                 widths = [],
-                visibleColumns = [],
                 shrinkLeeway = 0,
                 availWidth = (options.autoHeight ? viewportW : viewportW - scrollbarDimensions.width), // with AutoHeight, we do not need to accomodate the vertical scroll bar
                 total = 0,
                 existingTotal = 0;
 
             for (i = 0; i < columns.length; i++) {
-                if (!columns[i].hidden) {
-                    c = columns[i];
-                    visibleColumns.push(c);
-                    widths.push(c.width);
-                    existingTotal += c.width;
-                    shrinkLeeway += c.width - Math.max(c.minWidth || 0, absoluteColumnMinWidth);
-                }
+                c = columns[i];
+                widths.push(c.width);
+                existingTotal += c.width;
+                shrinkLeeway += c.width - Math.max(c.minWidth || 0, absoluteColumnMinWidth);
             }
 
             total = existingTotal;
@@ -963,8 +929,8 @@ if (!jQuery.fn.drag) {
             while (total > availWidth) {
                 if (!shrinkLeeway) { return; }
                 var shrinkProportion = (total - availWidth) / shrinkLeeway;
-                for (i = 0; i < visibleColumns.length && total > availWidth; i++) {
-                    c = visibleColumns[i];
+                for (i = 0; i < columns.length && total > availWidth; i++) {
+                    c = columns[i];
                     if (!c.resizable || c.minWidth === c.width || c.width === absoluteColumnMinWidth) { continue; }
                     var shrinkSize = Math.floor(shrinkProportion * (c.width - Math.max(c.minWidth || 0, absoluteColumnMinWidth))) || 1;
                     total -= shrinkSize;
@@ -976,8 +942,8 @@ if (!jQuery.fn.drag) {
             var previousTotal = total;
             while (total < availWidth) {
                 var growProportion = availWidth / total;
-                for (i = 0; i < visibleColumns.length && total < availWidth; i++) {
-                    c = visibleColumns[i];
+                for (i = 0; i < columns.length && total < availWidth; i++) {
+                    c = columns[i];
                     if (!c.resizable || c.maxWidth <= c.width) { continue; }
                     var growSize = Math.min(Math.floor(growProportion * c.width) - c.width, (c.maxWidth - c.width) || 1000000) || 1;
                     total += growSize;
@@ -988,60 +954,34 @@ if (!jQuery.fn.drag) {
             }
 
             for (i=0; i<columns.length; i++) {
-                if (columns[i] === visibleColumns[0]) {
-                    var newWidth = widths.shift();
-                    visibleColumns.shift().currentWidth = newWidth;
-                    styleColumnWidth(i, newWidth, true);
-                }
+                styleColumnWidth(i, columns[i].currentWidth = widths[i], true);
             }
 
             resizeCanvas();
         }
 
         function styleColumnWidth(index,width,styleCells) {
-            var c = columns[index];
-            c.currentWidth = width;
-            $headers.find(".slick-header-column[id=" + c.id + "]").css("width", width - headerColumnWidthDiff);
+            columns[index].currentWidth = width;
+            $headers.children().eq(index).css("width", width - headerColumnWidthDiff);
             if (styleCells) {
                 findCssRuleForCell(index).style.width = (width - cellWidthDiff) + "px";
             }
         }
 
-        function setColumnVisibility(column,visible) {
-            var index = columnsById[column.id];
-            columns[index].hidden = !visible;
-            var header = $headers.find("[id=" + columns[index].id + "]");
-            header.css("display", visible?"block":"none");
-            findCssRuleForCell(index).style.display = visible?"block":"none";
-
-            resizeCanvas();
-
-            if (options.forceFitColumns) {
-                autosizeColumns();
-            }
-
-            setupColumnResize();
-        }
-
-        // Rearrange columns in specified order.
-        //  columnIDs = (partial) array of existing columns IDs, in desired order.
-        //      Specified columns are moved to the front of the column list.  Any
-        //      remainder is shifted toward the end.
-        //  todo: Refactor. This logic relies on IDs in the DOM, which is something we're trying to move away from.
-        function reorderColumns(columnIds) {
-            for (var i = columnIds.length-1; i >=0; i--) {
-                if ($headers.children().eq(0).attr("id") == columnIds[i]) {   // already in correct place?
-                    continue;
-                }
-                $headers.children().eq(0).before($headers.find("#" + $.escapeSelectorMetachars(columnIds[i])));
-            }
-            rebuildColumns();
-        }
-
-        // Set specified column to indicate the sort style.  Does NOT trigger the onSort message.
         function setSortColumn(columnId, ascending) {
-            $sortcol = columnId ? $headers.find("#" + columnId) : null;
-            setSortHeaderStyle($sortcol, ascending);
+            sortColumnId = columnId;
+            sortAsc = ascending;
+            var columnIndex = getColumnIndex(sortColumnId);
+
+            $headers.children().removeClass("slick-header-column-sorted");
+            $headers.find(".slick-sort-indicator").removeClass("slick-sort-indicator-asc slick-sort-indicator-desc");
+
+            if (columnIndex != null) {
+                $headers.children().eq(columnIndex)
+                    .addClass("slick-header-column-sorted")
+                    .find(".slick-sort-indicator")
+                        .addClass(sortAsc ? "slick-sort-indicator-asc" : "slick-sort-indicator-desc");
+            }
         }
 
         function getSelectedRows() {
@@ -1078,6 +1018,16 @@ if (!jQuery.fn.drag) {
         function getColumns() {
             return columns;
         }
+
+        function setColumns(columnDefinitions) {
+            columns = columnDefinitions;
+            removeAllRows();
+            createColumnHeaders();
+            removeCssRules();
+            createCssRules();
+            resizeAndRender();
+        }
+
         function getOptions() {
             return options;
         }
@@ -1176,7 +1126,6 @@ if (!jQuery.fn.drag) {
 
             for (var i=0, cols=columns.length; i<cols; i++) {
                 var m = columns[i];
-                if (m.hidden) continue;
 
                 cellCss = "slick-cell c" + i + (m.cssClass ? " " + m.cssClass : "");
                 if (highlightedCells && highlightedCells[row] && highlightedCells[row][m.id])
@@ -1311,7 +1260,7 @@ if (!jQuery.fn.drag) {
             numVisibleRows = Math.ceil(viewportH / options.rowHeight);
 
             var totalWidth = 0;
-            $headers.find('.slick-header-column:visible').each(function() {
+            $headers.find(".slick-header-column").each(function() {
                 totalWidth += $(this).outerWidth();
             });
             $canvas.width(totalWidth);
@@ -1506,7 +1455,6 @@ if (!jQuery.fn.drag) {
                 if (oldOffset != offset)
                     removeAllRows();
             }
-
             
             if (h_render)
                 clearTimeout(h_render);
@@ -1532,7 +1480,6 @@ if (!jQuery.fn.drag) {
                 var d = gridDataGetItem(row), cellNodes = rowNode.childNodes;
                 for (var i=0, j=0, l=columns.length; i<l; ++i) {
                     var m = columns[i];
-                    if (m.hidden) { continue; }
                     if (m.asyncPostRender) { m.asyncPostRender(cellNodes[j], postProcessFromRow, d, m); }
                     ++j;
                 }
@@ -1546,21 +1493,13 @@ if (!jQuery.fn.drag) {
         function setHighlightedCells(cellsToHighlight) {
             var i, $cell, hasHighlight, hadHighlight;
 
-            // TODO: move this upstream and reuse
-            var idx = 0, nodeIndices = [];
-            for (i=0; i<columns.length; i++) {
-                if (!columns[i].hidden) {
-                    nodeIndices[i] = idx++;
-                }
-            }
-
             for (var row in rowsCache) {
                 for (i=0; i<columns.length; i++) {
                     hadHighlight = highlightedCells && highlightedCells[row] && highlightedCells[row][columns[i].id];
                     hasHighlight = cellsToHighlight && cellsToHighlight[row] && cellsToHighlight[row][columns[i].id];
 
                     if (hadHighlight != hasHighlight) {
-                        $cell = $(rowsCache[row]).children().eq(nodeIndices[i]);
+                        $cell = $(rowsCache[row]).children().eq(i);
                         if ($cell.length) {
                             $cell.toggleClass(options.cellHighlightCssClass);
                         }
@@ -2142,13 +2081,12 @@ if (!jQuery.fn.drag) {
 
             var nextRow = rowsCache[currentRow + dy];
             var nextCell = (nextRow && currentCell + dx >= 0)
-                    ? $(nextRow).children().eq(currentCell+dx).filter(":visible").filter(selectableCellFilter)
+                    ? $(nextRow).children().eq(currentCell+dx).filter(selectableCellFilter)
                     : null;
 
             if (nextCell && !nextCell.length) {
                 var nodes = $(nextRow).children()
                         .filter(function(index) { return (dx>0) ? index > currentCell + dx : index < currentCell + dx })
-                        .filter(":visible")
                         .filter(selectableCellFilter);
 
                 if (nodes && nodes.length) {
@@ -2161,7 +2099,7 @@ if (!jQuery.fn.drag) {
             if (rollover && dy === 0 && !(nextRow && nextCell && nextCell.length)) {
                 if (!nextCell || !nextCell.length) {
                     nextRow = rowsCache[currentRow + dy + ((dx>0)?1:-1)];
-                    var nodes = $(nextRow).children().filter(":visible").filter(selectableCellFilter);
+                    var nodes = $(nextRow).children().filter(selectableCellFilter);
                     if (dx > 0) {
                         nextCell = nextRow
                                 ? nodes.eq(0)
@@ -2201,8 +2139,7 @@ if (!jQuery.fn.drag) {
             scrollRowIntoView(row,false);
 
             var newCell = null;
-
-            if (!columns[cell].unselectable && !columns[cell].hidden) {
+            if (!columns[cell].unselectable) {
                 newCell = $(rowsCache[row]).children().eq(cell)[0];
             }
 
@@ -2369,12 +2306,12 @@ if (!jQuery.fn.drag) {
 
             // Methods
             "getColumns":          getColumns,
+            "setColumns":          setColumns,
             "getOptions":          getOptions,
             "setOptions":          setOptions,
             "setData":             setData,
             "destroy":             destroy,
             "getColumnIndex":      getColumnIndex,
-            "setColumnVisibility": setColumnVisibility,
             "autosizeColumns":     autosizeColumns,
             "updateCell":          updateCell,
             "updateRow":           updateRow,
@@ -2407,7 +2344,6 @@ if (!jQuery.fn.drag) {
             "getSecondaryHeaderRow":    getSecondaryHeaderRow,
             "showSecondaryHeaderRow":   showSecondaryHeaderRow,
             "hideSecondaryHeaderRow":   hideSecondaryHeaderRow,
-            "reorderColumns":      reorderColumns,
             "setSortColumn":       setSortColumn,
             "getCurrentCellPosition" : getCurrentCellPosition,
 
