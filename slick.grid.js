@@ -419,8 +419,9 @@ if (!jQuery.fn.drag) {
             return dim;
         }
 
-        function handleCanvasResize() {
-            viewportHasHScroll = ($canvas.width() > viewportW - scrollbarDimensions.width);
+        function setCanvasWidth(width) {
+            $canvas.width(width);
+            viewportHasHScroll = (width > viewportW - scrollbarDimensions.width);
         }
 
         function disableSelection($target) {
@@ -684,8 +685,7 @@ if (!jQuery.fn.drag) {
                                     }
                                 }
                             } else if (options.syncColumnCellResize) {
-                                $canvas.width(originalCanvasWidth + d);
-                                handleCanvasResize();
+                                setCanvasWidth(originalCanvasWidth + d);
                             }
                         } else { // stretch column
                             x = d;
@@ -718,8 +718,7 @@ if (!jQuery.fn.drag) {
                                     }
                                 }
                             } else if (options.syncColumnCellResize) {
-                                $canvas.width(originalCanvasWidth + d);
-                                handleCanvasResize();
+                                setCanvasWidth(originalCanvasWidth + d);
                             }
                         }
                     })
@@ -1263,8 +1262,7 @@ if (!jQuery.fn.drag) {
             $headers.find(".slick-header-column").each(function() {
                 totalWidth += $(this).outerWidth();
             });
-            $canvas.width(totalWidth);
-            handleCanvasResize();
+            setCanvasWidth(totalWidth);
 
             updateRowCount();
             render();
