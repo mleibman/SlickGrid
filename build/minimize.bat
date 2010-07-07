@@ -13,7 +13,7 @@ echo Minimizing
 echo ~~~~~~~~~~
 call minimize.exe ../dist/slick.grid-{0}.min.js "\"slickGridVersion\"\s*:\s*\"(.*?)\"" ../slick.grid.js
 echo ~~~~~~~~~~
-call minimize.exe ../dist/slick.grid-{0}.merged.min.js "\"slickGridVersion\"\s*:\s*\"(.*?)\"" ../lib/jquery.rule-1.0.1.1.js ../lib/jquery.event.drag.custom.js ../slick.grid.js
+call minimize.exe ../dist/slick.grid-{0}.merged.min.js "\"slickGridVersion\"\s*:\s*\"(.*?)\""  ../lib/jquery.event.drag-2.0.min.js ../slick.grid.js
 echo ~~~~~~~~~~
 
 echo Cleaning up

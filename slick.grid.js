@@ -601,7 +601,7 @@ if (!jQuery.fn.drag) {
                 $col = $(e);
                 $("<div class='slick-resizable-handle' />")
                     .appendTo(e)
-                    .bind("dragstart", function(e) {
+                    .bind("dragstart", function(e,dd) {
                         if (!options.editorLock.commitCurrentEdit()) { return false; }
                         pageX = e.pageX;
                         $(this).parent().addClass("slick-header-column-active");
@@ -651,7 +651,7 @@ if (!jQuery.fn.drag) {
                         minPageX = pageX - Math.min(shrinkLeewayOnLeft, stretchLeewayOnRight);
                         originalCanvasWidth = $canvas.width();
                     })
-                    .bind("drag", function(e) {
+                    .bind("drag", function(e,dd) {
                         var actualMinWidth, d = Math.min(maxPageX, Math.max(minPageX, e.pageX)) - pageX, x, ci;
                         if (d < 0) { // shrink column
                             x = d;
@@ -723,7 +723,7 @@ if (!jQuery.fn.drag) {
                             }
                         }
                     })
-                    .bind("dragend", function(e) {
+                    .bind("dragend", function(e,dd) {
                         var newWidth;
                         $(this).parent().removeClass("slick-header-column-active");
                         for (j = 0; j < columnElements.length; j++) {
@@ -752,66 +752,60 @@ if (!jQuery.fn.drag) {
 
         function setupRowReordering() {
             $canvas
-                .bind("beforedragstart", function(e) {
+                .bind("draginit", function(e,dd) {
                     var $cell = $(e.target).closest(".slick-cell");
                     if ($cell.length === 0) { return false; }
                     if (parseInt($cell.parent().attr("row"), 10) >= gridDataGetLength()) { return false; }
                     var colDef = columns[getSiblingIndex($cell[0])];
                     if (colDef.behavior !== "move" && colDef.behavior !== "selectAndMove") { return false; }
                 })
-                .bind("dragstart", function(e) {
+                .bind("dragstart", function(e,dd) {
                     if (!options.editorLock.commitCurrentEdit()) { return false; }
-
                     var row = parseInt($(e.target).closest(".slick-row").attr("row"), 10);
 
                     if (!selectedRowsLookup[row]) {
                         setSelectedRows([row]);
                     }
 
-                    var $selectionProxy = $("<div class='slick-reorder-proxy'/>");
-                    $selectionProxy
+                    dd.selectionProxy = $("<div class='slick-reorder-proxy'/>")
                         .css("position", "absolute")
                         .css("zIndex", "99999")
                         .css("width", $(this).innerWidth())
                         .css("height", options.rowHeight*selectedRows.length)
                         .appendTo($viewport);
 
-                    $(this)
-                        .data("selectionProxy", $selectionProxy)
-                        .data("insertBefore", -1);
-
-                    var $guide = $("<div class='slick-reorder-guide'/>");
-                    $guide
+                    dd.guide = $("<div class='slick-reorder-guide'/>")
                         .css("position", "absolute")
                         .css("zIndex", "99998")
                         .css("width", $(this).innerWidth())
                         .css("top", -1000)
                         .appendTo($viewport);
 
-                    return $guide;
+                    dd.insertBefore = -1;
                 })
-                .bind("drag", function(e) {
+                .bind("drag", function(e,dd) {
                     var top = e.clientY - $(this).offset().top;
-                    $(this).data("selectionProxy").css("top",top-5);
+                    dd.selectionProxy.css("top",top-5);
 
                     var insertBefore = Math.max(0,Math.min(Math.round(top/options.rowHeight),gridDataGetLength()));
-                    if (insertBefore !== $(this).data("insertBefore")) {
+                    if (insertBefore !== dd.insertBefore) {
                         if (self.onBeforeMoveRows && self.onBeforeMoveRows(getSelectedRows(),insertBefore) === false) {
-                            $(e.dragProxy).css("top", -1000).data("canMove",false);
+                            dd.guide.css("top", -1000);
+                            dd.canMove = false;
                         }
                         else {
-                            $(e.dragProxy).css("top",insertBefore*options.rowHeight).data("canMove",true);
+                            dd.guide.css("top",insertBefore*options.rowHeight);
+                            dd.canMove = true;
                         }
-                        $(this).data("insertBefore", insertBefore);
+                        dd.insertBefore = insertBefore;
                     }
                 })
-                .bind("dragend", function(e) {
-                    var canMove = $(e.dragProxy).data("canMove");
-                    $(e.dragProxy).remove();
-                    $(this).data("selectionProxy").remove();
-                    var insertBefore = $(this).data("insertBefore");
-                    $(this).removeData("selectionProxy").removeData("insertBefore");
-                    if (self.onMoveRows && canMove) { self.onMoveRows(getSelectedRows(),insertBefore); }
+                .bind("dragend", function(e,dd) {
+                    dd.guide.remove();
+                    dd.selectionProxy.remove();
+                    if (self.onMoveRows && dd.canMove) {
+                        self.onMoveRows(getSelectedRows(),dd.insertBefore);
+                    }
                 });
         }
 
