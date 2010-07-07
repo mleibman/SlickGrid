@@ -1091,6 +1091,10 @@ if (!jQuery.fn.drag) {
             if (prevScrollTop != newScrollTop) {
                 scrollDir = (prevScrollTop + oldOffset < newScrollTop + offset) ? 1 : -1;
                 $viewport[0].scrollTop = (lastRenderedScrollTop = scrollTop = prevScrollTop = newScrollTop);
+
+                if (self.onViewportChanged) {
+                    self.onViewportChanged();
+                }                
             }
         }
 
@@ -1464,8 +1468,6 @@ if (!jQuery.fn.drag) {
             else
                 h_render = setTimeout(render, 50);
 
-
-            // TODO: make sure this is not getting missed
             if (self.onViewportChanged) {
                 self.onViewportChanged();
             }
