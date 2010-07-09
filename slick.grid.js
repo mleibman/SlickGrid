@@ -19,6 +19,7 @@
  *     editable                 - (default false) If false, no cells will be switched into edit mode.
  *     autoEdit                 - (default true) Cell will not automatically go into edit mode when selected.
  *     enableCellNavigation     - (default true) If false, no cells will be selectable.
+ *     enableCellRangeSelection - (default false) If true, user will be able to select a cell range.  onCellRangeSelected event will be fired.
  *     defaultColumnWidth       - (default 80px) Default column width in pixels (if columns[cell].width is not specified).
  *     enableColumnReorder      - (default true) Allows the user to reorder columns.
  *     asyncEditorLoading       - (default false) Makes cell editors load asynchronously after a small delay.
@@ -81,6 +82,7 @@
  *     onBeforeCellEditorDestroy    - Raised before a cell editor is destroyed.  Args: current cell editor.
  *     onBeforeDestroy       -  Raised just before the grid control is destroyed (part of the destroy() method).
  *     onCurrentCellChanged  -  Raised when the selected (active) cell changed.  Args: {row:currentRow, cell:currentCell}.
+ *     onCellRangeSelected   -  Raised when a user selects a range of cells.  Args: {from:{row,cell}, to:{row,cell}}.
  *
  * NOTES:
  *     Cell/row DOM manipulations are done directly bypassing jQuery's DOM manipulation methods.
@@ -221,6 +223,7 @@ if (!jQuery.fn.drag) {
             editable: false,
             autoEdit: true,
             enableCellNavigation: true,
+            enableCellRangeSelection: false,
             enableColumnReorder: true,
             asyncEditorLoading: false,
             asyncEditorLoadDelay: 100,
@@ -255,7 +258,7 @@ if (!jQuery.fn.drag) {
         var cj;                         // "jumpiness" coefficient
 
         var page = 0;                   // current page
-        var offset=0;                   // current page offset
+        var offset = 0;                 // current page offset
         var scrollDir = 1;
 
         // private
@@ -389,7 +392,7 @@ if (!jQuery.fn.drag) {
 
             createColumnHeaders();
             setupColumnSort();            
-            setupRowReordering();
+            setupDragEvents();
             createCssRules();
 
             resizeAndRender();
@@ -749,61 +752,123 @@ if (!jQuery.fn.drag) {
                 });
         }
 
-        function setupRowReordering() {
+        function setupDragEvents() {
+            var MOVE_ROWS = 1;
+            var SELECT_CELLS = 2;
+
+            function fixUpRange(range) {
+                var r1 = Math.min(range.start.row,range.end.row);
+                var c1 = Math.min(range.start.cell,range.end.cell);
+                var r2 = Math.max(range.start.row,range.end.row);
+                var c2 = Math.max(range.start.cell,range.end.cell);
+                return {
+                    start: {row:r1, cell:c1},
+                    end: {row:r2, cell:c2}
+                };
+            }
+
             $canvas
                 .bind("draginit", function(e,dd) {
                     var $cell = $(e.target).closest(".slick-cell");
                     if ($cell.length === 0) { return false; }
-                    if (parseInt($cell.parent().attr("row"), 10) >= gridDataGetLength()) { return false; }
+                    if (parseInt($cell.parent().attr("row"), 10) >= gridDataGetLength())
+                        return false;
+                
                     var colDef = columns[getSiblingIndex($cell[0])];
-                    if (colDef.behavior !== "move" && colDef.behavior !== "selectAndMove") { return false; }
+                    if (colDef.behavior == "move" || colDef.behavior == "selectAndMove") {
+                        dd.mode = MOVE_ROWS;
+                    }
+                    else if (options.enableCellRangeSelection) {
+                        dd.mode = SELECT_CELLS;
+                    }
+                    else
+                        return false;
                 })
                 .bind("dragstart", function(e,dd) {
                     if (!options.editorLock.commitCurrentEdit()) { return false; }
                     var row = parseInt($(e.target).closest(".slick-row").attr("row"), 10);
 
-                    if (!selectedRowsLookup[row]) {
-                        setSelectedRows([row]);
+                    if (dd.mode == MOVE_ROWS) {
+                        if (!selectedRowsLookup[row]) {
+                            setSelectedRows([row]);
+                        }
+
+                        dd.selectionProxy = $("<div class='slick-reorder-proxy'/>")
+                            .css("position", "absolute")
+                            .css("zIndex", "99999")
+                            .css("width", $(this).innerWidth())
+                            .css("height", options.rowHeight*selectedRows.length)
+                            .appendTo($viewport);
+
+                        dd.guide = $("<div class='slick-reorder-guide'/>")
+                            .css("position", "absolute")
+                            .css("zIndex", "99998")
+                            .css("width", $(this).innerWidth())
+                            .css("top", -1000)
+                            .appendTo($viewport);
+
+                        dd.insertBefore = -1;
                     }
 
-                    dd.selectionProxy = $("<div class='slick-reorder-proxy'/>")
-                        .css("position", "absolute")
-                        .css("zIndex", "99999")
-                        .css("width", $(this).innerWidth())
-                        .css("height", options.rowHeight*selectedRows.length)
-                        .appendTo($viewport);
+                    if (dd.mode == SELECT_CELLS) {
+                        var start = getCellFromPoint(dd.startX - $canvas.offset().left, dd.startY - $canvas.offset().top);
+                        if (!cellExists(start.row,start.cell))
+                            return false;
 
-                    dd.guide = $("<div class='slick-reorder-guide'/>")
-                        .css("position", "absolute")
-                        .css("zIndex", "99998")
-                        .css("width", $(this).innerWidth())
-                        .css("top", -1000)
-                        .appendTo($viewport);
-
-                    dd.insertBefore = -1;
+                        dd.range = {start:start,end:{}};
+                        return $("<div class='slick-selection'></div>").appendTo($canvas);
+                    }
                 })
                 .bind("drag", function(e,dd) {
-                    var top = e.clientY - $(this).offset().top;
-                    dd.selectionProxy.css("top",top-5);
+                    if (dd.mode == MOVE_ROWS) {
+                        var top = e.clientY - $(this).offset().top;
+                        dd.selectionProxy.css("top",top-5);
 
-                    var insertBefore = Math.max(0,Math.min(Math.round(top/options.rowHeight),gridDataGetLength()));
-                    if (insertBefore !== dd.insertBefore) {
-                        if (self.onBeforeMoveRows && self.onBeforeMoveRows(getSelectedRows(),insertBefore) === false) {
-                            dd.guide.css("top", -1000);
-                            dd.canMove = false;
+                        var insertBefore = Math.max(0,Math.min(Math.round(top/options.rowHeight),gridDataGetLength()));
+                        if (insertBefore !== dd.insertBefore) {
+                            if (self.onBeforeMoveRows && self.onBeforeMoveRows(getSelectedRows(),insertBefore) === false) {
+                                dd.guide.css("top", -1000);
+                                dd.canMove = false;
+                            }
+                            else {
+                                dd.guide.css("top",insertBefore*options.rowHeight);
+                                dd.canMove = true;
+                            }
+                            dd.insertBefore = insertBefore;
                         }
-                        else {
-                            dd.guide.css("top",insertBefore*options.rowHeight);
-                            dd.canMove = true;
-                        }
-                        dd.insertBefore = insertBefore;
+                    }
+
+                    if (dd.mode == SELECT_CELLS) {
+                        var end = getCellFromPoint(e.clientX - $canvas.offset().left, e.clientY - $canvas.offset().top);
+                        if (!cellExists(end.row,end.cell))
+                            return;
+
+                        dd.range.end = end;
+                        var r = fixUpRange(dd.range);
+                        var from = getCellNodeBox(r.start.row,r.start.cell);
+                        var to = getCellNodeBox(r.end.row,r.end.cell);
+                        $(dd.proxy).css({
+                            top: from.top,
+                            left: from.left,
+                            height: to.bottom - from.top - 2,
+                            width: to.right - from.left - 2
+                        });
                     }
                 })
                 .bind("dragend", function(e,dd) {
-                    dd.guide.remove();
-                    dd.selectionProxy.remove();
-                    if (self.onMoveRows && dd.canMove) {
-                        self.onMoveRows(getSelectedRows(),dd.insertBefore);
+                    if (dd.mode == MOVE_ROWS) {
+                        dd.guide.remove();
+                        dd.selectionProxy.remove();
+                        if (self.onMoveRows && dd.canMove) {
+                            self.onMoveRows(getSelectedRows(),dd.insertBefore);
+                        }
+                    }
+
+                    if (dd.mode == SELECT_CELLS) {
+                        $(dd.proxy).remove();
+
+                        if (self.onCellRangeSelected)
+                            self.onCellRangeSelected(fixUpRange(dd.range));                        
                     }
                 });
         }
@@ -1758,12 +1823,16 @@ if (!jQuery.fn.drag) {
             }
         }
 
+        function cellExists(row,cell) {
+            return !(row < 0 || row >= gridDataGetLength() || cell < 0 || cell >= columns.length);
+        }
+
         function getCellFromPoint(x,y) {
-            var row = Math.floor(y/options.rowHeight);
+            var row = Math.floor((y+offset)/options.rowHeight);
             var cell = 0;
 
             var w = 0;
-            for (var i=0; i<columns.length && w<y; i++) {
+            for (var i=0; i<columns.length && w<x; i++) {
                 w += columns[i].width;
                 cell++;
             }
@@ -1771,6 +1840,26 @@ if (!jQuery.fn.drag) {
             return {row:row,cell:cell-1};
         }
 
+        function getCellNodeBox(row,cell) {
+             if (!cellExists(row,cell))
+                 return null;
+
+             var y1 = row * options.rowHeight - offset;
+             var y2 = y1 + options.rowHeight - 1;
+             var x1 = 0;
+             for (var i=0; i<cell; i++) {
+                 x1 += columns[i].width;
+             }
+             var x2 = x1 + columns[cell].width;
+
+             return {
+                 top: y1,
+                 left: x1,
+                 bottom: y2,
+                 right: x2
+             };
+         }
+        
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Cell switching
@@ -2270,7 +2359,7 @@ if (!jQuery.fn.drag) {
         // a debug helper to be able to access private members
         this.eval = function(expr) {
             return eval(expr);
-        }
+        };
 
         init();
 
@@ -2302,6 +2391,7 @@ if (!jQuery.fn.drag) {
             "onBeforeDestroy":       null,
             "onCurrentCellChanged":  null,
             "onCurrentCellPositionChanged":  null,
+            "onCellRangeSelected":   null,
 
             // Methods
             "getColumns":          getColumns,

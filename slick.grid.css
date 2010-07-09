@@ -139,3 +139,15 @@ classes should alter those!
 	opacity: 0.7;
 	filter: alpha(opacity=70);
 }
+
+.slick-selection {
+    z-index: 10;
+    position: absolute;
+    background: gray;
+    border: 1px solid black;
+    opacity: 0.3;
+    filter: alpha(opacity=30);
+    -webkit-box-shadow: 0px 0px 10px black;
+    -moz-box-shadow: 0px 0px 10px black;
+    box-shadow: 0px 0px 10px black;
+}
