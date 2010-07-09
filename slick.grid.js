@@ -368,7 +368,7 @@ if (!jQuery.fn.drag) {
             }
 
             $viewport = $("<div class='slick-viewport' tabIndex='0' hideFocus style='width:100%;overflow-x:auto;outline:0;position:relative;overflow-y:auto;'>").appendTo($container);
-            $canvas = $("<div class='grid-canvas' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($viewport);
+            $canvas = $("<div class='grid-canvas' tabIndex='0' hideFocus />").appendTo($viewport);
 
             // header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
             // calculate the diff so we can set consistent sizes
@@ -2266,6 +2266,11 @@ if (!jQuery.fn.drag) {
 
             alert(s);
         };
+
+        // a debug helper to be able to access private members
+        this.eval = function(expr) {
+            return eval(expr);
+        }
 
         init();
 
