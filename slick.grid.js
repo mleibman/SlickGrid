@@ -65,6 +65,7 @@
  * EVENTS:
  *     onSort                -
  *     onHeaderContextMenu   -
+ *     onHeaderClick         -	Matt Baker: Added onHeaderClick for column headers
  *     onClick               -
  *     onDblClick            -
  *     onContextMenu         -
@@ -406,6 +407,7 @@ if (!jQuery.fn.drag) {
             $canvas.bind("contextmenu", handleContextMenu);
             $canvas.bind("mouseover", handleHover);
             $headerScroller.bind("contextmenu", handleHeaderContextMenu);
+            $headerScroller.bind("click", handleHeaderClick);
         }
 
         function measureScrollbar() {
@@ -1807,6 +1809,18 @@ if (!jQuery.fn.drag) {
                 e.preventDefault();
                 // TODO:  figure out which column was acted on and pass it as a param to the handler
                 self.onHeaderContextMenu(e);
+            }
+        }
+        
+        function handleHeaderClick(e) {
+        
+        	var $col = $(e.target).closest(".slick-header-column");
+        	if ($col.length ==0) { return; }
+        	var column = columns[getSiblingIndex($col[0])];
+        
+            if (self.onHeaderClick && options.editorLock.commitCurrentEdit()) {
+                e.preventDefault();
+                self.onHeaderClick(e, column);
             }
         }
 
