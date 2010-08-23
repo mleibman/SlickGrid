@@ -237,6 +237,7 @@ if (!jQuery.fn.drag) {
             secondaryHeaderRowHeight: 25,
             syncColumnCellResize: false,
             enableAutoTooltips: true,
+            toolTipMaxLength: null,
             formatterFactory: null,
             editorFactory: null,
             cellHighlightCssClass: "highlighted",
@@ -245,6 +246,7 @@ if (!jQuery.fn.drag) {
         gridData, gridDataGetLength, gridDataGetItem;
 
         var columnDefaults = {
+            name: "",
             resizable: true,
             sortable: false,
             minWidth: 30
@@ -510,6 +512,7 @@ if (!jQuery.fn.drag) {
                     .html("<span class='slick-column-name'>" + m.name + "</span>")
                     .width(m.width - headerColumnWidthDiff)
                     .attr("title", m.toolTip || m.name || "")
+                    .data("fieldId", m.id)
                     .appendTo($headers);
 
                 if (options.enableColumnReorder || m.sortable) {
@@ -951,6 +954,7 @@ if (!jQuery.fn.drag) {
             $container.unbind("resize", resizeCanvas);
             removeCssRules();
 
+            $canvas.unbind("draginit dragstart dragend drag");
             $container.empty().removeClass(uid);
         }
 
@@ -1086,6 +1090,7 @@ if (!jQuery.fn.drag) {
             removeCssRules();
             createCssRules();
             resizeAndRender();
+	    handleScroll();
         }
 
         function getOptions() {
@@ -1344,7 +1349,14 @@ if (!jQuery.fn.drag) {
         function updateRowCount() {
             var newRowCount = gridDataGetLength() + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0);
             var oldH = h;
-
+	    // remove the rows that are now outside of the data range
+	    // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
+	    var l = options.enableAddRow ? gridDataGetLength() : gridDataGetLength() - 1;
+	    for (var i in rowsCache) {
+	    	if (i >= l) {
+			removeRowFromCache(i);
+		}
+	    }
             th = Math.max(options.rowHeight * newRowCount, viewportH - scrollbarDimensions.height);
             if (th < maxSupportedCssHeight) {
                 // just one page
@@ -1669,7 +1681,7 @@ if (!jQuery.fn.drag) {
         }
 
         function handleClick(e) {
-            var $cell = $(e.target).closest(".slick-cell");
+            var $cell = $(e.target).closest(".slick-cell", $canvas);
             if ($cell.length === 0) { return; }
 
             // are we editing this cell?
@@ -1749,7 +1761,7 @@ if (!jQuery.fn.drag) {
         }
 
         function handleContextMenu(e) {
-            var $cell = $(e.target).closest(".slick-cell");
+            var $cell = $(e.target).closest(".slick-cell", $canvas);
             if ($cell.length === 0) { return; }
 
             // are we editing this cell?
@@ -1775,7 +1787,7 @@ if (!jQuery.fn.drag) {
         }
 
         function handleDblClick(e) {
-            var $cell = $(e.target).closest(".slick-cell");
+            var $cell = $(e.target).closest(".slick-cell", $canvas);
             if ($cell.length === 0) { return; }
 
             // are we editing this cell?
@@ -1807,8 +1819,8 @@ if (!jQuery.fn.drag) {
         function handleHeaderContextMenu(e) {
             if (self.onHeaderContextMenu && options.editorLock.commitCurrentEdit()) {
                 e.preventDefault();
-                // TODO:  figure out which column was acted on and pass it as a param to the handler
-                self.onHeaderContextMenu(e);
+		        var selectedElement = $(e.target).closest(".slick-header-column", ".slick-header-columns");
+                self.onHeaderContextMenu(e, columns[self.getColumnIndex(selectedElement.data("fieldId"))]);
             }
         }
         
@@ -1827,9 +1839,10 @@ if (!jQuery.fn.drag) {
         function handleHover(e) {
             if (!options.enableAutoTooltips) return;
             var $cell = $(e.target).closest(".slick-cell",$canvas);
-            if ($cell && $cell.length) {
+            if ($cell.length) {
                 if ($cell.innerWidth() < $cell[0].scrollWidth) {
-                    $cell.attr("title", $.trim($cell.text()));
+                    var text = $.trim($cell.text());
+                    $cell.attr("title", (options.toolTipMaxLength && text.length > options.toolTipMaxLength) ?  text.substr(0, options.toolTipMaxLength - 3) + "..." : text);
                 }
                 else {
                     $cell.attr("title","");
@@ -1915,7 +1928,7 @@ if (!jQuery.fn.drag) {
 
             currentCellNode = newCell;
 
-            if (currentCellNode !== null) {
+            if (currentCellNode != null) {
                 currentRow = parseInt($(currentCellNode).parent().attr("row"), 10);
                 currentCell = getSiblingIndex(currentCellNode);
 
@@ -2113,6 +2126,9 @@ if (!jQuery.fn.drag) {
             return absBox(currentCellNode);
         }
 
+        function getGridPosition(){
+            return absBox($container[0])
+        }
         function handleCurrentCellPositionChange() {
             if (!currentCellNode) return;
             var cellBox;
@@ -2449,7 +2465,7 @@ if (!jQuery.fn.drag) {
             "hideSecondaryHeaderRow":   hideSecondaryHeaderRow,
             "setSortColumn":       setSortColumn,
             "getCurrentCellPosition" : getCurrentCellPosition,
-
+            "getGridPosition": getGridPosition,
             // IEditor implementation
             "getEditController":    getEditController
         });
