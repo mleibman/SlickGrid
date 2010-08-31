@@ -5,7 +5,7 @@
  * Distributed under MIT license.
  * All rights reserved.
  *
- * SlickGrid v1.4
+ * SlickGrid v1.4.1
  *
  * TODO:
  * - frozen columns
@@ -394,7 +394,7 @@ if (!jQuery.fn.drag) {
             $viewport.bind("selectstart.ui", function (event) { return $(event.target).is("input,textarea"); }); // disable text selection in grid cells except in input and textarea elements (this is IE-specific, because selectstart event will only fire in IE)
 
             createColumnHeaders();
-            setupColumnSort();            
+            setupColumnSort();
             setupDragEvents();
             createCssRules();
 
@@ -462,7 +462,7 @@ if (!jQuery.fn.drag) {
             var increment = 1000000;
             var supportedHeight = 0;
             // FF reports the height back but still renders blank after ~6M px
-            var testUpTo = ($.browser.mozilla) ? 5000000 : 1000000000;  
+            var testUpTo = ($.browser.mozilla) ? 5000000 : 1000000000;
             var div = $("<div style='display:none' />").appendTo(document.body);
 
             while (supportedHeight <= testUpTo) {
@@ -536,7 +536,7 @@ if (!jQuery.fn.drag) {
                 if ($(e.target).hasClass("slick-resizable-handle")) {
                     return;
                 }
-                
+
                 if (self.onSort) {
                     var $col = $(e.target).closest(".slick-header-column");
                     if (!$col.length)
@@ -546,7 +546,7 @@ if (!jQuery.fn.drag) {
                     if (column.sortable) {
                         if (!options.editorLock.commitCurrentEdit())
                             return;
-    
+
                         if (column.id === sortColumnId) {
                             sortAsc = !sortAsc;
                         }
@@ -778,7 +778,7 @@ if (!jQuery.fn.drag) {
                     if ($cell.length === 0) { return false; }
                     if (parseInt($cell.parent().attr("row"), 10) >= gridDataGetLength())
                         return false;
-                
+
                     var colDef = columns[getSiblingIndex($cell[0])];
                     if (colDef.behavior == "move" || colDef.behavior == "selectAndMove") {
                         dd.mode = MOVE_ROWS;
@@ -873,7 +873,7 @@ if (!jQuery.fn.drag) {
                         $(dd.proxy).remove();
 
                         if (self.onCellRangeSelected)
-                            self.onCellRangeSelected(fixUpRange(dd.range));                        
+                            self.onCellRangeSelected(fixUpRange(dd.range));
                     }
                 });
         }
@@ -1159,7 +1159,7 @@ if (!jQuery.fn.drag) {
 
                 if (self.onViewportChanged) {
                     self.onViewportChanged();
-                }                
+                }
             }
         }
 
@@ -1399,7 +1399,7 @@ if (!jQuery.fn.drag) {
         function getVisibleRange(viewportTop) {
             if (viewportTop == null)
                 viewportTop = scrollTop;
-            
+
             return {
                 top: Math.floor((scrollTop+offset)/options.rowHeight),
                 bottom: Math.ceil((scrollTop+offset+viewportH)/options.rowHeight)
@@ -1530,7 +1530,7 @@ if (!jQuery.fn.drag) {
                 if (oldOffset != offset)
                     removeAllRows();
             }
-            
+
             if (h_render)
                 clearTimeout(h_render);
 
@@ -1823,13 +1823,13 @@ if (!jQuery.fn.drag) {
                 self.onHeaderContextMenu(e, columns[self.getColumnIndex(selectedElement.data("fieldId"))]);
             }
         }
-        
+
         function handleHeaderClick(e) {
-        
+
         	var $col = $(e.target).closest(".slick-header-column");
         	if ($col.length ==0) { return; }
         	var column = columns[getSiblingIndex($col[0])];
-        
+
             if (self.onHeaderClick && options.editorLock.commitCurrentEdit()) {
                 e.preventDefault();
                 self.onHeaderClick(e, column);
@@ -1886,7 +1886,7 @@ if (!jQuery.fn.drag) {
                  right: x2
              };
          }
-        
+
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Cell switching
@@ -2398,7 +2398,7 @@ if (!jQuery.fn.drag) {
         // Public API
 
         $.extend(this, {
-            "slickGridVersion": "1.4",
+            "slickGridVersion": "1.4.1",
 
             // Events
             "onSort":                null,
