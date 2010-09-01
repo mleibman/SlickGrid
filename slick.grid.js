@@ -93,7 +93,7 @@
  *     and do proper cleanup.
  *
  *
- * @param {jQuery}            $container  Container object to create the grid in.
+ * @param {NOde}              container   Container node to create the grid in.
  * @param {Array} or {Object} data        An array of objects for databinding.
  * @param {Array}             columns     An array of column definitions.
  * @param {Object}            options     Grid options.
@@ -208,7 +208,7 @@ if (!jQuery.fn.drag) {
     // SlickGrid class implementation (available as Slick.Grid)
 
     /** @constructor */
-    function SlickGrid($container,data,columns,options) {
+    function SlickGrid(container,data,columns,options) {
         /// <summary>
         /// Create and manage virtual grid in the specified $container,
         /// connecting it to the specified data source. Data is presented
@@ -267,6 +267,7 @@ if (!jQuery.fn.drag) {
         var scrollDir = 1;
 
         // private
+        var $container;
         var uid = "slickgrid_" + Math.round(1000000 * Math.random());
         var self = this;
         var $headerScroller;
@@ -326,6 +327,8 @@ if (!jQuery.fn.drag) {
             /// This function is called by the constructor.
             /// </summary>
 
+            $container = $(container)
+
             gridData = data;
             gridDataGetLength = gridData.getLength || defaultGetLength;
             gridDataGetItem = gridData.getItem || defaultGetItem;
@@ -355,15 +358,9 @@ if (!jQuery.fn.drag) {
                 .addClass(uid)
                 .addClass("ui-widget");
 
-            switch ($container.css("position")) {
-                case "absolute": // if the container is already positioning origin, keep it as it is
-                case "relative":
-                case "fixed":
-                    break;
-                default: // container is not a positioning origin, convert it to one
-                    $container.css("position","relative");
-                    break;
-            }
+            // set up a positioning container if needed
+            if (!/relative|absolute|fixed/.test($container.css("position")))
+                $container.css("position","relative");
 
             $headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
             $headers = $("<div class='slick-header-columns' style='width:100000px; left:-10000px' />").appendTo($headerScroller);
