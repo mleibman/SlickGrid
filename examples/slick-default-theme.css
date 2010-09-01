@@ -27,6 +27,7 @@ classes should alter those!
     position: absolute;
     background: white;
     border: 0px;
+    line-height: 20px;
 }
 
 .slick-row.selected {

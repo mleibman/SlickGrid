@@ -899,7 +899,7 @@ if (!jQuery.fn.drag) {
             var rules = [
                 "." + uid + " .slick-header-column { left: 10000px; }",
                 "." + uid + " .slick-header-columns-secondary {  height:" + options.secondaryHeaderRowHeight + "px; }",
-                "." + uid + " .slick-cell { height:" + rowHeight + "px; line-height:" + rowHeight + "px; }"
+                "." + uid + " .slick-cell { height:" + rowHeight + "px; }"
             ];
 
             for (var i=0; i<columns.length; i++) {
