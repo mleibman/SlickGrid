@@ -5,7 +5,7 @@
  * Distributed under MIT license.
  * All rights reserved.
  *
- * SlickGrid v1.4.1
+ * SlickGrid v1.4.2
  *
  * TODO:
  * - frozen columns
@@ -40,6 +40,7 @@
  *                                Must implement getFormatter(column).
  *     editorFactory            - (default null) A factory object responsible to creating an editor for a given cell.
  *                                Must implement getEditor(column).
+ *     multiSelect              - (default true) Enable multiple row selection.
  *
  * COLUMN DEFINITION (columns) OPTIONS:
  *     id                  - Column ID.
@@ -241,7 +242,8 @@ if (!jQuery.fn.drag) {
             formatterFactory: null,
             editorFactory: null,
             cellHighlightCssClass: "highlighted",
-            cellFlashingCssClass: "flashing"
+            cellFlashingCssClass: "flashing",
+            multiSelect: true
         },
         gridData, gridDataGetLength, gridDataGetItem;
 
@@ -1090,7 +1092,7 @@ if (!jQuery.fn.drag) {
             removeCssRules();
             createCssRules();
             resizeAndRender();
-	    handleScroll();
+            handleScroll();
         }
 
         function getOptions() {
@@ -1349,14 +1351,15 @@ if (!jQuery.fn.drag) {
         function updateRowCount() {
             var newRowCount = gridDataGetLength() + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0);
             var oldH = h;
-	    // remove the rows that are now outside of the data range
-	    // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
-	    var l = options.enableAddRow ? gridDataGetLength() : gridDataGetLength() - 1;
-	    for (var i in rowsCache) {
-	    	if (i >= l) {
-			removeRowFromCache(i);
-		}
-	    }
+
+            // remove the rows that are now outside of the data range
+            // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
+            var l = options.enableAddRow ? gridDataGetLength() : gridDataGetLength() - 1;
+            for (var i in rowsCache) {
+                if (i >= l) {
+                    removeRowFromCache(i);
+                }
+            }
             th = Math.max(options.rowHeight * newRowCount, viewportH - scrollbarDimensions.height);
             if (th < maxSupportedCssHeight) {
                 // just one page
@@ -1704,25 +1707,26 @@ if (!jQuery.fn.drag) {
                     if (!e.ctrlKey && !e.shiftKey) {
                         selection = [row];
                     }
-                    else if (idx === -1 && e.ctrlKey) {
-                        selection.push(row);
-                    }
-                    else if (idx !== -1 && e.ctrlKey) {
-                        selection = $.grep(selection, function(o, i) { return (o !== row); });
-                    }
-                    else if (selection.length && e.shiftKey) {
-                        var last = selection.pop();
-                        var from = Math.min(row, last);
-                        var to = Math.max(row, last);
-                        selection = [];
-                        for (var i = from; i <= to; i++) {
-                            if (i !== last) {
-                                selection.push(i);
-                            }
+                    else if (options.multiSelect) {
+                        if (idx === -1 && e.ctrlKey) {
+                            selection.push(row);
                         }
-                        selection.push(last);
+                        else if (idx !== -1 && e.ctrlKey) {
+                            selection = $.grep(selection, function(o, i) { return (o !== row); });
+                        }
+                        else if (selection.length && e.shiftKey) {
+                            var last = selection.pop();
+                            var from = Math.min(row, last);
+                            var to = Math.max(row, last);
+                            selection = [];
+                            for (var i = from; i <= to; i++) {
+                                if (i !== last) {
+                                    selection.push(i);
+                                }
+                            }
+                            selection.push(last);
+                        }
                     }
-
                     resetCurrentCell();
                     setSelectedRows(selection);
                     if (self.onSelectedRowsChanged) {
@@ -1819,7 +1823,7 @@ if (!jQuery.fn.drag) {
         function handleHeaderContextMenu(e) {
             if (self.onHeaderContextMenu && options.editorLock.commitCurrentEdit()) {
                 e.preventDefault();
-		        var selectedElement = $(e.target).closest(".slick-header-column", ".slick-header-columns");
+                var selectedElement = $(e.target).closest(".slick-header-column", ".slick-header-columns");
                 self.onHeaderContextMenu(e, columns[self.getColumnIndex(selectedElement.data("fieldId"))]);
             }
         }
@@ -2398,7 +2402,7 @@ if (!jQuery.fn.drag) {
         // Public API
 
         $.extend(this, {
-            "slickGridVersion": "1.4.1",
+            "slickGridVersion": "1.4.2",
 
             // Events
             "onSort":                null,
@@ -2466,6 +2470,7 @@ if (!jQuery.fn.drag) {
             "setSortColumn":       setSortColumn,
             "getCurrentCellPosition" : getCurrentCellPosition,
             "getGridPosition": getGridPosition,
+            
             // IEditor implementation
             "getEditController":    getEditController
         });
