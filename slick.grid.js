@@ -327,7 +327,7 @@ if (!jQuery.fn.drag) {
             /// This function is called by the constructor.
             /// </summary>
 
-            $container = $(container)
+            $container = $(container);
 
             gridData = data;
             gridDataGetLength = gridData.getLength || defaultGetLength;
@@ -825,7 +825,7 @@ if (!jQuery.fn.drag) {
                 })
                 .bind("drag", function(e,dd) {
                     if (dd.mode == MOVE_ROWS) {
-                        var top = e.clientY - $(this).offset().top;
+                        var top = e.pageY - $(this).offset().top;
                         dd.selectionProxy.css("top",top-5);
 
                         var insertBefore = Math.max(0,Math.min(Math.round(top/options.rowHeight),gridDataGetLength()));
