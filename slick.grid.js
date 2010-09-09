@@ -1868,6 +1868,17 @@ if (!jQuery.fn.drag) {
             return {row:row,cell:cell-1};
         }
 
+        function getCellFromEvent(e) {
+            var $cell = $(e.target).closest(".slick-cell", $canvas);
+            if (!$cell.length)
+                return null;
+
+            return {
+                row: $cell.parent().attr("row") | 0,
+                cell: getSiblingIndex($cell[0])
+            };
+        }
+
         function getCellNodeBox(row,cell) {
              if (!cellExists(row,cell))
                  return null;
@@ -2446,6 +2457,7 @@ if (!jQuery.fn.drag) {
             "resizeCanvas":        resizeCanvas,
             "updateRowCount":      updateRowCount,
             "getCellFromPoint":    getCellFromPoint,
+            "getCellFromEvent":    getCellFromEvent,
             "getCurrentCell":      getCurrentCell,
             "getCurrentCellNode":  getCurrentCellNode,
             "resetCurrentCell":    resetCurrentCell,
