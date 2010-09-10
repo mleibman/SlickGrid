@@ -1701,14 +1701,14 @@ if (!jQuery.fn.drag) {
                     var selection = getSelectedRows();
                     var idx = $.inArray(row, selection);
 
-                    if (!e.ctrlKey && !e.shiftKey) {
+                    if (!e.ctrlKey && !e.shiftKey && !e.metaKey) {
                         selection = [row];
                     }
                     else if (options.multiSelect) {
-                        if (idx === -1 && e.ctrlKey) {
+                        if (idx === -1 && (e.ctrlKey || e.metaKey)) {
                             selection.push(row);
                         }
-                        else if (idx !== -1 && e.ctrlKey) {
+                        else if (idx !== -1 && (e.ctrlKey || e.metaKey)) {
                             selection = $.grep(selection, function(o, i) { return (o !== row); });
                         }
                         else if (selection.length && e.shiftKey) {
