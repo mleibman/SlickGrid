@@ -5,7 +5,7 @@
  * Distributed under MIT license.
  * All rights reserved.
  *
- * SlickGrid v1.4.2
+ * SlickGrid v1.4.3
  *
  * TODO:
  * - frozen columns
@@ -1114,12 +1114,15 @@ if (!jQuery.fn.drag) {
 
         function setData(newData,scrollToTop) {
             removeAllRows();
-            data = newData;
-            gridData = data;
+            gridData = newData;
             gridDataGetLength = gridData.getLength || defaultGetLength;
             gridDataGetItem = gridData.getItem || defaultGetItem;
             if (scrollToTop)
                 scrollTo(0);
+        }
+        
+        function getData() {
+            return gridData;
         }
 
         function getSecondaryHeaderRow() {
@@ -2441,6 +2444,7 @@ if (!jQuery.fn.drag) {
             "getOptions":          getOptions,
             "setOptions":          setOptions,
             "setData":             setData,
+            "getData":             getData,
             "destroy":             destroy,
             "getColumnIndex":      getColumnIndex,
             "autosizeColumns":     autosizeColumns,
