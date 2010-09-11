@@ -824,6 +824,20 @@ if (!jQuery.fn.drag) {
                     }
                 })
                 .bind("drag", function(e,dd) {
+                    var visibleRange = getVisibleRange();
+                    
+                    // Check if the grid needs to be scrolled
+                    //
+                    if ( ( e.clientY > viewportH ) && ( visibleRange.bottom  < gridDataGetLength() ) ) {
+                        // ScroLL down
+                        //
+                        scrollRowIntoView( visibleRange.bottom, false );
+                    } else if ( ( e.clientY < $viewport.offset().top ) && ( visibleRange.top > 0 ) ) {
+                        // Scroll up
+                        //                            
+                        scrollRowIntoView( visibleRange.top - 1, false );
+                    }
+                    
                     if (dd.mode == MOVE_ROWS) {
                         var top = e.pageY - $(this).offset().top;
                         dd.selectionProxy.css("top",top-5);
@@ -851,6 +865,7 @@ if (!jQuery.fn.drag) {
                         var r = fixUpRange(dd.range);
                         var from = getCellNodeBox(r.start.row,r.start.cell);
                         var to = getCellNodeBox(r.end.row,r.end.cell);
+                        
                         $(dd.proxy).css({
                             top: from.top,
                             left: from.left,
