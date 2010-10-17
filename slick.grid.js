@@ -302,6 +302,7 @@ if (!jQuery.fn.drag) {
         var selectedRowsLookup = {};
         var columnsById = {};
         var highlightedCells;
+        var cellClasses;
         var sortColumnId;
         var sortAsc = true;
 
@@ -1196,6 +1197,10 @@ if (!jQuery.fn.drag) {
                 var m = columns[i];
 
                 cellCss = "slick-cell c" + i + (m.cssClass ? " " + m.cssClass : "");
+                
+                if (cellClasses && cellClasses[row] && cellClasses[row][m.id])
+                    cellCss += (" " + cellClasses[row][m.id]);
+
                 if (highlightedCells && highlightedCells[row] && highlightedCells[row][m.id])
                     cellCss += (" " + options.cellHighlightCssClass);
 
@@ -1603,6 +1608,56 @@ if (!jQuery.fn.drag) {
             }
         }
 
+        function addCellClass(row, col, cls) {
+            if (typeof col == 'number')
+                col = columns[col].id;
+            
+            if (!cellClasses)
+                cellClasses = {};
+            
+            if (!cellClasses[row])
+                cellClasses[row] = {};
+            
+            if (!cellClasses[row][col])
+                cellClasses[row][col] = "";
+            
+            var classNames = cellClasses[row][col];
+            classNames = classNames.replace(" "+cls, "");
+            classNames += " "+cls;
+            cellClasses[row][col] = classNames;
+
+            if (rowsCache[row]) {
+                var $cell = $(rowsCache[row]).children().eq(getColumnIndex(col));
+                if ($cell.length) {
+                    $cell.addClass(cls)
+                }
+            }
+        }
+
+        function removeCellClass(row, col, cls) {
+            if (typeof col == 'number')
+                col = columns[col].id;
+            
+            if (!cellClasses)
+                cellClasses = {};
+                
+            if (!cellClasses[row])
+                return
+            if (!cellClasses[row][col])
+                return
+                
+            var classNames = cellClasses[row][col];
+            classNames = classNames.replace(" "+cls, "");
+            cellClasses[row][col] = classNames;
+            
+            if (rowsCache[row]) {
+                var $cell = $(rowsCache[row]).children().eq(getColumnIndex(col));
+                if ($cell.length) {
+                    $cell.removeClass(cls)
+                }
+            }
+        }
+        
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Interactivity
 
@@ -2453,6 +2508,8 @@ if (!jQuery.fn.drag) {
             "invalidate":          invalidate,
             "setHighlightedCells": setHighlightedCells,
             "flashCell":           flashCell,
+            "addCellClass":        addCellClass,
+            "removeCellClass":     removeCellClass,
             "getViewport":         getVisibleRange,
             "resizeCanvas":        resizeCanvas,
             "updateRowCount":      updateRowCount,
