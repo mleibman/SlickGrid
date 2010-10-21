@@ -400,15 +400,15 @@ if (!jQuery.fn.drag) {
             resizeAndRender();
 
             bindAncestorScrollEvents();
-            $viewport.bind("scroll", handleScroll);
-            $container.bind("resize", resizeAndRender);
-            $canvas.bind("keydown", handleKeyDown);
-            $canvas.bind("click", handleClick);
-            $canvas.bind("dblclick", handleDblClick);
-            $canvas.bind("contextmenu", handleContextMenu);
-            $canvas.bind("mouseover", handleHover);
-            $headerScroller.bind("contextmenu", handleHeaderContextMenu);
-            $headerScroller.bind("click", handleHeaderClick);
+            $viewport.bind("scroll.slickgrid", handleScroll);
+            $container.bind("resize.slickgrid", resizeAndRender);
+            $canvas.bind("keydown.slickgrid", handleKeyDown);
+            $canvas.bind("click.slickgrid", handleClick);
+            $canvas.bind("dblclick.slickgrid", handleDblClick);
+            $canvas.bind("contextmenu.slickgrid", handleContextMenu);
+            $canvas.bind("mouseover.slickgrid", handleHover);
+            $headerScroller.bind("contextmenu.slickgrid", handleHeaderContextMenu);
+            $headerScroller.bind("click.slickgrid", handleHeaderClick);
         }
 
         function measureScrollbar() {
@@ -950,7 +950,7 @@ if (!jQuery.fn.drag) {
             if (self.onBeforeDestroy) { self.onBeforeDestroy(); }
             if ($headers.sortable) { $headers.sortable("destroy"); }
             unbindAncestorScrollEvents();
-            $container.unbind("resize", resizeCanvas);
+            $container.unbind(".slickgrid");
             removeCssRules();
 
             $canvas.unbind("draginit dragstart dragend drag");
