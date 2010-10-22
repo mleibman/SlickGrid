@@ -65,7 +65,7 @@
  * EVENTS:
  *     onSort                -
  *     onHeaderContextMenu   -
- *     onHeaderClick         -	Matt Baker: Added onHeaderClick for column headers
+ *     onHeaderClick         -  Matt Baker: Added onHeaderClick for column headers
  *     onClick               -
  *     onDblClick            -
  *     onContextMenu         -
@@ -394,7 +394,7 @@ if (!jQuery.fn.drag) {
             $viewport.bind("selectstart.ui", function (event) { return $(event.target).is("input,textarea"); }); // disable text selection in grid cells except in input and textarea elements (this is IE-specific, because selectstart event will only fire in IE)
 
             createColumnHeaders();
-            setupColumnSort();            
+            setupColumnSort();
             setupDragEvents();
             createCssRules();
 
@@ -462,7 +462,7 @@ if (!jQuery.fn.drag) {
             var increment = 1000000;
             var supportedHeight = 0;
             // FF reports the height back but still renders blank after ~6M px
-            var testUpTo = ($.browser.mozilla) ? 5000000 : 1000000000;  
+            var testUpTo = ($.browser.mozilla) ? 5000000 : 1000000000;
             var div = $("<div style='display:none' />").appendTo(document.body);
 
             while (supportedHeight <= testUpTo) {
@@ -536,7 +536,7 @@ if (!jQuery.fn.drag) {
                 if ($(e.target).hasClass("slick-resizable-handle")) {
                     return;
                 }
-                
+
                 if (self.onSort) {
                     var $col = $(e.target).closest(".slick-header-column");
                     if (!$col.length)
@@ -546,7 +546,7 @@ if (!jQuery.fn.drag) {
                     if (column.sortable) {
                         if (!options.editorLock.commitCurrentEdit())
                             return;
-    
+
                         if (column.id === sortColumnId) {
                             sortAsc = !sortAsc;
                         }
@@ -778,7 +778,7 @@ if (!jQuery.fn.drag) {
                     if ($cell.length === 0) { return false; }
                     if (parseInt($cell.parent().attr("row"), 10) >= gridDataGetLength())
                         return false;
-                
+
                     var colDef = columns[getSiblingIndex($cell[0])];
                     if (colDef.behavior == "move" || colDef.behavior == "selectAndMove") {
                         dd.mode = MOVE_ROWS;
@@ -873,7 +873,7 @@ if (!jQuery.fn.drag) {
                         $(dd.proxy).remove();
 
                         if (self.onCellRangeSelected)
-                            self.onCellRangeSelected(fixUpRange(dd.range));                        
+                            self.onCellRangeSelected(fixUpRange(dd.range));
                     }
                 });
         }
@@ -1090,7 +1090,7 @@ if (!jQuery.fn.drag) {
             removeCssRules();
             createCssRules();
             resizeAndRender();
-	    handleScroll();
+            handleScroll();
         }
 
         function getOptions() {
@@ -1121,6 +1121,10 @@ if (!jQuery.fn.drag) {
             gridDataGetItem = gridData.getItem || defaultGetItem;
             if (scrollToTop)
                 scrollTo(0);
+        }
+
+        function getData() {
+            return gridData;
         }
 
         function getSecondaryHeaderRow() {
@@ -1159,7 +1163,7 @@ if (!jQuery.fn.drag) {
 
                 if (self.onViewportChanged) {
                     self.onViewportChanged();
-                }                
+                }
             }
         }
 
@@ -1349,14 +1353,14 @@ if (!jQuery.fn.drag) {
         function updateRowCount() {
             var newRowCount = gridDataGetLength() + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0);
             var oldH = h;
-	    // remove the rows that are now outside of the data range
-	    // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
-	    var l = options.enableAddRow ? gridDataGetLength() : gridDataGetLength() - 1;
-	    for (var i in rowsCache) {
-	    	if (i >= l) {
-			removeRowFromCache(i);
-		}
-	    }
+            // remove the rows that are now outside of the data range
+            // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
+            var l = options.enableAddRow ? gridDataGetLength() : gridDataGetLength() - 1;
+            for (var i in rowsCache) {
+                if (i >= l) {
+                    removeRowFromCache(i);
+                }
+            }
             th = Math.max(options.rowHeight * newRowCount, viewportH - scrollbarDimensions.height);
             if (th < maxSupportedCssHeight) {
                 // just one page
@@ -1399,7 +1403,7 @@ if (!jQuery.fn.drag) {
         function getVisibleRange(viewportTop) {
             if (viewportTop == null)
                 viewportTop = scrollTop;
-            
+
             return {
                 top: Math.floor((scrollTop+offset)/options.rowHeight),
                 bottom: Math.ceil((scrollTop+offset+viewportH)/options.rowHeight)
@@ -1530,7 +1534,7 @@ if (!jQuery.fn.drag) {
                 if (oldOffset != offset)
                     removeAllRows();
             }
-            
+
             if (h_render)
                 clearTimeout(h_render);
 
@@ -1819,17 +1823,17 @@ if (!jQuery.fn.drag) {
         function handleHeaderContextMenu(e) {
             if (self.onHeaderContextMenu && options.editorLock.commitCurrentEdit()) {
                 e.preventDefault();
-		        var selectedElement = $(e.target).closest(".slick-header-column", ".slick-header-columns");
+                var selectedElement = $(e.target).closest(".slick-header-column", ".slick-header-columns");
                 self.onHeaderContextMenu(e, columns[self.getColumnIndex(selectedElement.data("fieldId"))]);
             }
         }
-        
+
         function handleHeaderClick(e) {
-        
-        	var $col = $(e.target).closest(".slick-header-column");
-        	if ($col.length ==0) { return; }
-        	var column = columns[getSiblingIndex($col[0])];
-        
+
+            var $col = $(e.target).closest(".slick-header-column");
+            if ($col.length ==0) { return; }
+            var column = columns[getSiblingIndex($col[0])];
+
             if (self.onHeaderClick && options.editorLock.commitCurrentEdit()) {
                 e.preventDefault();
                 self.onHeaderClick(e, column);
@@ -1886,7 +1890,7 @@ if (!jQuery.fn.drag) {
                  right: x2
              };
          }
-        
+
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Cell switching
@@ -2428,6 +2432,7 @@ if (!jQuery.fn.drag) {
             "setColumns":          setColumns,
             "getOptions":          getOptions,
             "setOptions":          setOptions,
+            "getData":             getData,
             "setData":             setData,
             "destroy":             destroy,
             "getColumnIndex":      getColumnIndex,
