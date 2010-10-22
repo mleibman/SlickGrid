@@ -4,20 +4,20 @@ var grid;
 var el, offsetBefore, offsetAfter, dragged;
 
 var drag = function(handle, dx, dy) {
-	offsetBefore = el.offset();
-	$(handle).simulate("drag", {
-		dx: dx || 0,
-		dy: dy || 0
-	});
-	dragged = { dx: dx, dy: dy };
-	offsetAfter = el.offset();
+    offsetBefore = el.offset();
+    $(handle).simulate("drag", {
+        dx: dx || 0,
+        dy: dy || 0
+    });
+    dragged = { dx: dx, dy: dy };
+    offsetAfter = el.offset();
 }
 
 var moved = function (dx, dy, msg) {
-	msg = msg ? msg + "." : "";
-	var actual = { left: offsetAfter.left, top: offsetAfter.top };
-	var expected = { left: offsetBefore.left + dx, top: offsetBefore.top + dy };
-	same(actual, expected, 'dragged[' + dragged.dx + ', ' + dragged.dy + '] ' + msg);
+    msg = msg ? msg + "." : "";
+    var actual = { left: offsetAfter.left, top: offsetAfter.top };
+    var expected = { left: offsetBefore.left + dx, top: offsetBefore.top + dy };
+    same(actual, expected, 'dragged[' + dragged.dx + ', ' + dragged.dy + '] ' + msg);
 }
 
 
@@ -66,5 +66,11 @@ test("onColumnsResized is fired on column resize", function() {
     equal(cols[0].width, oldWidth+100-1, "columns array is updated");
 
 });
+
+
+test("getData should return data", function() {
+    equal(grid.getData(), data);
+});
+
 
 })(jQuery);

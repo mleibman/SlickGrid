@@ -66,7 +66,7 @@
  * EVENTS:
  *     onSort                -
  *     onHeaderContextMenu   -
- *     onHeaderClick         -	Matt Baker: Added onHeaderClick for column headers
+ *     onHeaderClick         -  Matt Baker: Added onHeaderClick for column headers
  *     onClick               -
  *     onDblClick            -
  *     onContextMenu         -
@@ -1122,6 +1122,10 @@ if (!jQuery.fn.drag) {
                 scrollTo(0);
         }
 
+        function getData() {
+            return gridData;
+        }
+
         function getSecondaryHeaderRow() {
             return $secondaryHeaders[0];
         }
@@ -1826,10 +1830,9 @@ if (!jQuery.fn.drag) {
         }
 
         function handleHeaderClick(e) {
-
-        	var $col = $(e.target).closest(".slick-header-column");
-        	if ($col.length ==0) { return; }
-        	var column = columns[getSiblingIndex($col[0])];
+            var $col = $(e.target).closest(".slick-header-column");
+            if ($col.length ==0) { return; }
+            var column = columns[getSiblingIndex($col[0])];
 
             if (self.onHeaderClick && options.editorLock.commitCurrentEdit()) {
                 e.preventDefault();
@@ -2440,6 +2443,7 @@ if (!jQuery.fn.drag) {
             "setColumns":          setColumns,
             "getOptions":          getOptions,
             "setOptions":          setOptions,
+            "getData":             getData,
             "setData":             setData,
             "destroy":             destroy,
             "getColumnIndex":      getColumnIndex,
@@ -2479,7 +2483,7 @@ if (!jQuery.fn.drag) {
             "setSortColumn":       setSortColumn,
             "getCurrentCellPosition" : getCurrentCellPosition,
             "getGridPosition": getGridPosition,
-            
+
             // IEditor implementation
             "getEditController":    getEditController
         });
