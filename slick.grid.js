@@ -1122,6 +1122,10 @@ if (!jQuery.fn.drag) {
                 scrollTo(0);
         }
 
+        function getData() {
+            return gridData;
+        }
+
         function getSecondaryHeaderRow() {
             return $secondaryHeaders[0];
         }
@@ -2439,6 +2443,7 @@ if (!jQuery.fn.drag) {
             "setColumns":          setColumns,
             "getOptions":          getOptions,
             "setOptions":          setOptions,
+            "getData":             getData,
             "setData":             setData,
             "destroy":             destroy,
             "getColumnIndex":      getColumnIndex,
