@@ -5,7 +5,7 @@
  * Distributed under MIT license.
  * All rights reserved.
  *
- * SlickGrid v1.4.2
+ * SlickGrid v1.4.3
  *
  * TODO:
  * - frozen columns
@@ -66,7 +66,7 @@
  * EVENTS:
  *     onSort                -
  *     onHeaderContextMenu   -
- *     onHeaderClick         -	Matt Baker: Added onHeaderClick for column headers
+ *     onHeaderClick         -
  *     onClick               -
  *     onDblClick            -
  *     onContextMenu         -
@@ -93,7 +93,7 @@
  *     and do proper cleanup.
  *
  *
- * @param {NOde}              container   Container node to create the grid in.
+ * @param {Node}              container   Container node to create the grid in.
  * @param {Array} or {Object} data        An array of objects for databinding.
  * @param {Array}             columns     An array of column definitions.
  * @param {Object}            options     Grid options.
@@ -1826,10 +1826,9 @@ if (!jQuery.fn.drag) {
         }
 
         function handleHeaderClick(e) {
-
-        	var $col = $(e.target).closest(".slick-header-column");
-        	if ($col.length ==0) { return; }
-        	var column = columns[getSiblingIndex($col[0])];
+            var $col = $(e.target).closest(".slick-header-column");
+            if ($col.length ==0) { return; }
+            var column = columns[getSiblingIndex($col[0])];
 
             if (self.onHeaderClick && options.editorLock.commitCurrentEdit()) {
                 e.preventDefault();
@@ -1898,7 +1897,6 @@ if (!jQuery.fn.drag) {
                  right: x2
              };
          }
-
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Cell switching
@@ -2141,6 +2139,7 @@ if (!jQuery.fn.drag) {
         function getGridPosition(){
             return absBox($container[0])
         }
+
         function handleCurrentCellPositionChange() {
             if (!currentCellNode) return;
             var cellBox;
@@ -2410,7 +2409,7 @@ if (!jQuery.fn.drag) {
         // Public API
 
         $.extend(this, {
-            "slickGridVersion": "1.4.2",
+            "slickGridVersion": "1.4.3",
 
             // Events
             "onSort":                null,
@@ -2479,7 +2478,7 @@ if (!jQuery.fn.drag) {
             "setSortColumn":       setSortColumn,
             "getCurrentCellPosition" : getCurrentCellPosition,
             "getGridPosition": getGridPosition,
-            
+
             // IEditor implementation
             "getEditController":    getEditController
         });
