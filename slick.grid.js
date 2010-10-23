@@ -973,6 +973,7 @@ if (!jQuery.fn.drag) {
             var i, c,
                 widths = [],
                 shrinkLeeway = 0,
+                viewportW = $viewport.innerWidth(), // may not be initialized yet
                 availWidth = (options.autoHeight ? viewportW : viewportW - scrollbarDimensions.width), // with AutoHeight, we do not need to accomodate the vertical scroll bar
                 total = 0,
                 existingTotal = 0;
