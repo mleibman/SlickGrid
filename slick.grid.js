@@ -18,6 +18,7 @@
  *     leaveSpaceForNewRows     - (default false)
  *     editable                 - (default false) If false, no cells will be switched into edit mode.
  *     autoEdit                 - (default true) Cell will not automatically go into edit mode when selected.
+ *     alwaysNavigateDownOnCommit - (default false) Always move to the next cell down when an edit is committed; this is the normal default bahaviour when autoEdit is true, and this option can be used to force it to happen when autoEdit is false.
  *     enableCellNavigation     - (default true) If false, no cells will be selectable.
  *     enableCellRangeSelection - (default false) If true, user will be able to select a cell range.  onCellRangeSelected event will be fired.
  *     defaultColumnWidth       - (default 80px) Default column width in pixels (if columns[cell].width is not specified).
@@ -223,6 +224,7 @@ if (!jQuery.fn.drag) {
             leaveSpaceForNewRows: false,
             editable: false,
             autoEdit: true,
+            alwaysNavigateDownOnCommit: false,
             enableCellNavigation: true,
             enableCellRangeSelection: false,
             enableColumnReorder: true,
@@ -2084,7 +2086,7 @@ if (!jQuery.fn.drag) {
             if (options.editorLock.commitCurrentEdit()) {
                 focusOnCurrentCell();
 
-                if (options.autoEdit) {
+                if (options.autoEdit || options.alwaysNavigateDownOnCommit) {
                     navigateDown();
                 }
             }
