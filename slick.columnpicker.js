@@ -1,14 +1,19 @@
 (function($) {
-	function SlickColumnPicker(columns,grid)
+	function SlickColumnPicker(columns,grid,options)
 	{
 		var $menu;
 
+		var defaults = {
+			fadeSpeed: 250
+		};
+
 		function init() {
 			grid.onHeaderContextMenu = displayContextMenu;
+			options = $.extend({}, defaults, options);
 
 			$menu = $("<span class='slick-columnpicker' style='display:none;position:absolute;z-index:20;' />").appendTo(document.body);
 
-			$menu.bind("mouseleave", function(e) { $(this).fadeOut() });
+			$menu.bind("mouseleave", function(e) { $(this).fadeOut(options.fadeSpeed) });
 			$menu.bind("click", updateColumn);
 
 		}
@@ -51,7 +56,7 @@
 			$menu
 				.css("top", e.pageY - 10)
 				.css("left", e.pageX - 10)
-				.fadeIn();
+				.fadeIn(options.fadeSpeed);
 		}
 
 		function updateColumn(e)
