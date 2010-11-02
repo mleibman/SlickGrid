@@ -947,8 +947,12 @@ if (!jQuery.fn.drag) {
         function destroy() {
             options.editorLock.cancelCurrentEdit();
 
-            if (self.onBeforeDestroy) { self.onBeforeDestroy(); }
-            if ($headers.sortable) { $headers.sortable("destroy"); }
+            if (self.onBeforeDestroy)
+                self.onBeforeDestroy();
+
+            if (options.enableColumnReorder && $headers.sortable) 
+                $headers.sortable("destroy");
+
             unbindAncestorScrollEvents();
             $container.unbind(".slickgrid");
             removeCssRules();
