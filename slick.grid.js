@@ -509,7 +509,7 @@ if (!jQuery.fn.drag) {
 
                 var header = $("<div class='ui-state-default slick-header-column' id='" + uid + m.id + "' />")
                     .html("<span class='slick-column-name'>" + m.name + "</span>")
-                    .width(m.width - headerColumnWidthDiff)
+                    .width((m.currentWidth || m.width) - headerColumnWidthDiff)
                     .attr("title", m.toolTip || m.name || "")
                     .data("fieldId", m.id)
                     .appendTo($headers);
