@@ -72,7 +72,7 @@
 
 		var options = {
 			editable: true,
-			enableAddRow: false,
+			enableAddRow: true,
 			enableCellNavigation: true,
 			asyncEditorLoading: false
 		};
@@ -95,6 +95,13 @@
 
 
 			grid = new Slick.Grid($("#myGrid"), data, columns, options);
+
+            grid.onAddNewRow = function(item,colDef) {
+                grid.removeRow(data.length);
+                data.push(item);
+                grid.updateRowCount();
+                grid.render();
+            }
 		})
 
 		</script>
