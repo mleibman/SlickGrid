@@ -143,11 +143,11 @@ classes should alter those!
 .slick-selection {
     z-index: 10;
     position: absolute;
-    background: gray;
+    background: #cccccc;
     border: 1px solid black;
     opacity: 0.3;
     filter: alpha(opacity=30);
     -webkit-box-shadow: 0px 0px 10px black;
-    -moz-box-shadow: 0px 0px 10px black;
+    -moz-box-shadow: inset 0px 0px 10px black; /* FF box-shadow causes x-scroll if forceFitColumns:true, so we use an inset shadow to avoid scrollbars*/
     box-shadow: 0px 0px 10px black;
 }

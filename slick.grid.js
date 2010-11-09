@@ -1037,7 +1037,7 @@ if (!jQuery.fn.drag) {
             }
 
             for (i=0; i<columns.length; i++) {
-                styleColumnWidth(i, columns[i].currentWidth = widths[i], true);
+                styleColumnWidth(i, columns[i].width = widths[i], true);
             }
 
             resizeCanvas();
