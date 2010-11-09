@@ -755,21 +755,56 @@ if (!jQuery.fn.drag) {
                     });
                 });
         }
+        
+        function scrollDown( ignored, $slickSelection, e, range ) {            
+            var visibleRange = getVisibleRange();
+            
+            scrollRowIntoView( visibleRange.bottom, false );
+            
+            resizeSlickSelection( $slickSelection, e, range );
+        }
+        
+        function scrollUp( ignored, $slickSelection, e, range ) {
+            var visibleRange = getVisibleRange();
+            
+            scrollRowIntoView( visibleRange.top - 1, false );
+            
+            resizeSlickSelection( $slickSelection,  e, range );
+        }
+        
+        function fixUpRange(range) {
+            var r1 = Math.min(range.start.row,range.end.row);
+            var c1 = Math.min(range.start.cell,range.end.cell);
+            var r2 = Math.max(range.start.row,range.end.row);
+            var c2 = Math.max(range.start.cell,range.end.cell);
+            return {
+                start: {row:r1, cell:c1},
+                end: {row:r2, cell:c2}
+            };
+        }
+        
+        function resizeSlickSelection( $slickSelection, e, range ) {
+            var end = getCellFromPoint(e.clientX - $canvas.offset().left, e.clientY - $canvas.offset().top);
+            if (!cellExists(end.row,end.cell))
+                return;
+
+            range.end = end;
+            var r = fixUpRange(range);
+            var from = getCellNodeBox(r.start.row,r.start.cell);
+            var to = getCellNodeBox(r.end.row,r.end.cell);
+            
+            $slickSelection.css({
+                top: from.top,
+                left: from.left,
+                height: to.bottom - from.top - 2,
+                width: to.right - from.left - 2
+            });
+        }
 
         function setupDragEvents() {
             var MOVE_ROWS = 1;
             var SELECT_CELLS = 2;
-
-            function fixUpRange(range) {
-                var r1 = Math.min(range.start.row,range.end.row);
-                var c1 = Math.min(range.start.cell,range.end.cell);
-                var r2 = Math.max(range.start.row,range.end.row);
-                var c2 = Math.max(range.start.cell,range.end.cell);
-                return {
-                    start: {row:r1, cell:c1},
-                    end: {row:r2, cell:c2}
-                };
-            }
+            var scrollTimer;
 
             $canvas
                 .bind("draginit", function(e,dd) {
@@ -831,11 +866,20 @@ if (!jQuery.fn.drag) {
                     if ( ( e.clientY > viewportH ) && ( visibleRange.bottom  < gridDataGetLength() ) ) {
                         // ScroLL down
                         //
-                        scrollRowIntoView( visibleRange.bottom, false );
-                    } else if ( ( e.clientY < $viewport.offset().top ) && ( visibleRange.top > 0 ) ) {
+                        if ( !( scrollTimer ) ) {
+                            scrollTimer = setInterval( scrollDown, 100, '', $( dd.proxy ), e, dd.range );
+                        }
+                    } else if ( ( e.clientY < $viewport.offset().top ) && ( visibleRange.top > 0 ) ) {                        
                         // Scroll up
-                        //                            
-                        scrollRowIntoView( visibleRange.top - 1, false );
+                        //                                                    
+                        if ( !( scrollTimer ) ) {
+                            scrollTimer = setInterval( scrollUp, 80, '', $( dd.proxy ), e, dd.range );    
+                        }
+                    } else {
+                        if ( scrollTimer ) {
+                            clearInterval( scrollTimer );
+                            scrollTimer = null;
+                        }
                     }
                     
                     if (dd.mode == MOVE_ROWS) {
@@ -857,24 +901,15 @@ if (!jQuery.fn.drag) {
                     }
 
                     if (dd.mode == SELECT_CELLS) {
-                        var end = getCellFromPoint(e.clientX - $canvas.offset().left, e.clientY - $canvas.offset().top);
-                        if (!cellExists(end.row,end.cell))
-                            return;
-
-                        dd.range.end = end;
-                        var r = fixUpRange(dd.range);
-                        var from = getCellNodeBox(r.start.row,r.start.cell);
-                        var to = getCellNodeBox(r.end.row,r.end.cell);
-                        
-                        $(dd.proxy).css({
-                            top: from.top,
-                            left: from.left,
-                            height: to.bottom - from.top - 2,
-                            width: to.right - from.left - 2
-                        });
+                        resizeSlickSelection( $( dd.proxy ), e, dd.range );
                     }
                 })
                 .bind("dragend", function(e,dd) {
+                    if ( scrollTimer ) {
+                        clearInterval( scrollTimer );
+                        scrollTimer = null;
+                    }
+                    
                     if (dd.mode == MOVE_ROWS) {
                         dd.guide.remove();
                         dd.selectionProxy.remove();
