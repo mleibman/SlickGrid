@@ -66,7 +66,7 @@
  * EVENTS:
  *     onSort                -
  *     onHeaderContextMenu   -
- *     onHeaderClick         -	Matt Baker: Added onHeaderClick for column headers
+ *     onHeaderClick         -
  *     onClick               -
  *     onDblClick            -
  *     onContextMenu         -
@@ -93,7 +93,7 @@
  *     and do proper cleanup.
  *
  *
- * @param {NOde}              container   Container node to create the grid in.
+ * @param {Node}              container   Container node to create the grid in.
  * @param {Array} or {Object} data        An array of objects for databinding.
  * @param {Array}             columns     An array of column definitions.
  * @param {Object}            options     Grid options.
@@ -400,15 +400,15 @@ if (!jQuery.fn.drag) {
             resizeAndRender();
 
             bindAncestorScrollEvents();
-            $viewport.bind("scroll", handleScroll);
-            $container.bind("resize", resizeAndRender);
-            $canvas.bind("keydown", handleKeyDown);
-            $canvas.bind("click", handleClick);
-            $canvas.bind("dblclick", handleDblClick);
-            $canvas.bind("contextmenu", handleContextMenu);
-            $canvas.bind("mouseover", handleHover);
-            $headerScroller.bind("contextmenu", handleHeaderContextMenu);
-            $headerScroller.bind("click", handleHeaderClick);
+            $viewport.bind("scroll.slickgrid", handleScroll);
+            $container.bind("resize.slickgrid", resizeAndRender);
+            $canvas.bind("keydown.slickgrid", handleKeyDown);
+            $canvas.bind("click.slickgrid", handleClick);
+            $canvas.bind("dblclick.slickgrid", handleDblClick);
+            $canvas.bind("contextmenu.slickgrid", handleContextMenu);
+            $canvas.bind("mouseover.slickgrid", handleHover);
+            $headerScroller.bind("contextmenu.slickgrid", handleHeaderContextMenu);
+            $headerScroller.bind("click.slickgrid", handleHeaderClick);
         }
 
         function measureScrollbar() {
@@ -509,7 +509,7 @@ if (!jQuery.fn.drag) {
 
                 var header = $("<div class='ui-state-default slick-header-column' id='" + uid + m.id + "' />")
                     .html("<span class='slick-column-name'>" + m.name + "</span>")
-                    .width(m.width - headerColumnWidthDiff)
+                    .width((m.currentWidth || m.width) - headerColumnWidthDiff)
                     .attr("title", m.toolTip || m.name || "")
                     .data("fieldId", m.id)
                     .appendTo($headers);
@@ -962,10 +962,14 @@ if (!jQuery.fn.drag) {
         function destroy() {
             options.editorLock.cancelCurrentEdit();
 
-            if (self.onBeforeDestroy) { self.onBeforeDestroy(); }
-            if ($headers.sortable) { $headers.sortable("destroy"); }
+            if (self.onBeforeDestroy)
+                self.onBeforeDestroy();
+
+            if (options.enableColumnReorder && $headers.sortable) 
+                $headers.sortable("destroy");
+
             unbindAncestorScrollEvents();
-            $container.unbind("resize", resizeCanvas);
+            $container.unbind(".slickgrid");
             removeCssRules();
 
             $canvas.unbind("draginit dragstart dragend drag");
@@ -988,6 +992,7 @@ if (!jQuery.fn.drag) {
             var i, c,
                 widths = [],
                 shrinkLeeway = 0,
+                viewportW = $viewport.innerWidth(), // may not be initialized yet
                 availWidth = (options.autoHeight ? viewportW : viewportW - scrollbarDimensions.width), // with AutoHeight, we do not need to accomodate the vertical scroll bar
                 total = 0,
                 existingTotal = 0;
@@ -1136,6 +1141,10 @@ if (!jQuery.fn.drag) {
                 scrollTo(0);
         }
         
+        function getData() {
+            return gridData;
+        }
+
         function getData() {
             return gridData;
         }
@@ -1844,10 +1853,9 @@ if (!jQuery.fn.drag) {
         }
 
         function handleHeaderClick(e) {
-
-        	var $col = $(e.target).closest(".slick-header-column");
-        	if ($col.length ==0) { return; }
-        	var column = columns[getSiblingIndex($col[0])];
+            var $col = $(e.target).closest(".slick-header-column");
+            if ($col.length ==0) { return; }
+            var column = columns[getSiblingIndex($col[0])];
 
             if (self.onHeaderClick && options.editorLock.commitCurrentEdit()) {
                 e.preventDefault();
@@ -1917,7 +1925,6 @@ if (!jQuery.fn.drag) {
              };
          }
 
-
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Cell switching
 
@@ -1926,28 +1933,27 @@ if (!jQuery.fn.drag) {
         }
 
         function focusOnCurrentCell() {
-            // lazily enable the cell to recieve keyboard focus
+            // lazily enable the cell to receive keyboard focus
             $(currentCellNode)
                 .attr("tabIndex",0)
                 .attr("hideFocus",true);
 
-            if ($.browser.msie && parseInt($.browser.version) < 8) {
-                // IE7 tries to scroll the viewport so that the item being focused is aligned to the left border
-                // IE-specific .setActive() sets the focus, but doesn't scroll
+            // IE7 tries to scroll the viewport so that the item being focused is aligned to the left border
+            // IE-specific .setActive() sets the focus, but doesn't scroll
+            if ($.browser.msie && parseInt($.browser.version) < 8)
                 currentCellNode.setActive();
-
-                var left = $(currentCellNode).position().left,
-                    right = left + $(currentCellNode).outerWidth(),
-                    scrollLeft = $viewport.scrollLeft(),
-                    scrollRight = scrollLeft + $viewport.width();
-
-                if (left < scrollLeft)
-                    $viewport.scrollLeft(left);
-                else if (right > scrollRight)
-                    $viewport.scrollLeft(Math.min(left, right - $viewport[0].clientWidth));
-            }
             else
                 currentCellNode.focus();
+
+            var left = $(currentCellNode).position().left,
+                right = left + $(currentCellNode).outerWidth(),
+                scrollLeft = $viewport.scrollLeft(),
+                scrollRight = scrollLeft + $viewport.width();
+
+            if (left < scrollLeft)
+                $viewport.scrollLeft(left);
+            else if (right > scrollRight)
+                $viewport.scrollLeft(Math.min(left, right - $viewport[0].clientWidth));
         }
 
         function setSelectedCell(newCell,editMode) {
@@ -2159,6 +2165,7 @@ if (!jQuery.fn.drag) {
         function getGridPosition(){
             return absBox($container[0])
         }
+
         function handleCurrentCellPositionChange() {
             if (!currentCellNode) return;
             var cellBox;
@@ -2428,7 +2435,7 @@ if (!jQuery.fn.drag) {
         // Public API
 
         $.extend(this, {
-            "slickGridVersion": "1.4.2",
+            "slickGridVersion": "1.4.3",
 
             // Events
             "onSort":                null,
@@ -2458,6 +2465,7 @@ if (!jQuery.fn.drag) {
             "setColumns":          setColumns,
             "getOptions":          getOptions,
             "setOptions":          setOptions,
+            "getData":             getData,
             "setData":             setData,
             "getData":             getData,
             "destroy":             destroy,
@@ -2498,7 +2506,7 @@ if (!jQuery.fn.drag) {
             "setSortColumn":       setSortColumn,
             "getCurrentCellPosition" : getCurrentCellPosition,
             "getGridPosition": getGridPosition,
-            
+
             // IEditor implementation
             "getEditController":    getEditController
         });

@@ -209,14 +209,16 @@ function EventHelper() {
 
             for (var i = 0, il = items.length; i < il; ++i) {
                 item = items[i];
-                id = item[idProperty];
 
                 if (!filter || filter(item)) {
-                    if (!pagesize || (currentRowIndex >= pagesize * pagenum && currentRowIndex < pagesize * (pagenum + 1))) {
-                        if (currentPageIndex >= rl || id != rows[currentPageIndex][idProperty] || (updated && updated[id]))
-                            diff[diff.length] = currentPageIndex;
+                    id = item[idProperty];
 
-                        rows[currentPageIndex] = item;
+                    if (!pagesize || (currentRowIndex >= pagesize * pagenum && currentRowIndex < pagesize * (pagenum + 1))) {
+                        if (currentPageIndex >= rl || id != rows[currentPageIndex][idProperty] || (updated && updated[id])) {
+                            diff[diff.length] = currentPageIndex;
+                            rows[currentPageIndex] = item;
+                        }
+
                         currentPageIndex++;
                     }
 
