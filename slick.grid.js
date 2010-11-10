@@ -317,6 +317,9 @@ if (!jQuery.fn.drag) {
         var counter_rows_rendered = 0;
         var counter_rows_removed = 0;
 
+        // drag types
+        var MOVE_ROWS = 1;
+        var SELECT_CELLS = 2;
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Initialization
@@ -756,20 +759,40 @@ if (!jQuery.fn.drag) {
                 });
         }
         
-        function scrollDown( ignored, $slickSelection, e, range ) {            
+        function scrollDown( ignored, e, dd ) {            
             var visibleRange = getVisibleRange();
+            
+            if ( visibleRange.bottom > gridDataGetLength() ) {
+                return;    
+            }
             
             scrollRowIntoView( visibleRange.bottom, false );
             
-            resizeSlickSelection( $slickSelection, e, range );
+            if ( dd.mode == SELECT_CELLS ) {
+                resizeSlickSelection( e, dd );    
+            }
+            
+            if ( dd.mode ==  MOVE_ROWS ) {
+                moveRowGuideAndProxy( e, dd );
+            }
         }
         
-        function scrollUp( ignored, $slickSelection, e, range ) {
+        function scrollUp( ignored, e, dd ) {
             var visibleRange = getVisibleRange();
+            
+            if ( visibleRange.top < 0 ) {
+                return;
+            }
             
             scrollRowIntoView( visibleRange.top - 1, false );
             
-            resizeSlickSelection( $slickSelection,  e, range );
+            if ( dd.mode == SELECT_CELLS ) {
+                resizeSlickSelection( e, dd );    
+            }
+            
+            if ( dd.mode ==  MOVE_ROWS ) {
+                moveRowGuideAndProxy( e, dd );
+            }
         }
         
         function fixUpRange(range) {
@@ -783,27 +806,43 @@ if (!jQuery.fn.drag) {
             };
         }
         
-        function resizeSlickSelection( $slickSelection, e, range ) {
+        function resizeSlickSelection( e, dd ) {
             var end = getCellFromPoint(e.clientX - $canvas.offset().left, e.clientY - $canvas.offset().top);
             if (!cellExists(end.row,end.cell))
                 return;
 
-            range.end = end;
-            var r = fixUpRange(range);
+            dd.range.end = end;
+            var r = fixUpRange(dd.range);
             var from = getCellNodeBox(r.start.row,r.start.cell);
             var to = getCellNodeBox(r.end.row,r.end.cell);
             
-            $slickSelection.css({
+            $( dd.proxy ).css({
                 top: from.top,
                 left: from.left,
                 height: to.bottom - from.top - 2,
                 width: to.right - from.left - 2
             });
         }
+        
+        function moveRowGuideAndProxy( e, dd ) {
+            var top = e.pageY - $canvas.offset().top;
+            dd.selectionProxy.css("top",top-5);
+
+            var insertBefore = Math.max(0,Math.min(Math.round(top/options.rowHeight),gridDataGetLength()));
+            if (insertBefore !== dd.insertBefore) {
+                if (self.onBeforeMoveRows && self.onBeforeMoveRows(getSelectedRows(),insertBefore) === false) {
+                    dd.guide.css("top", -1000);
+                    dd.canMove = false;
+                }
+                else {
+                    dd.guide.css("top",insertBefore*options.rowHeight);
+                    dd.canMove = true;
+                }
+                dd.insertBefore = insertBefore;
+            }
+        }
 
         function setupDragEvents() {
-            var MOVE_ROWS = 1;
-            var SELECT_CELLS = 2;
             var scrollTimer;
 
             $canvas
@@ -862,18 +901,18 @@ if (!jQuery.fn.drag) {
                     var visibleRange = getVisibleRange();
                     
                     // Check if the grid needs to be scrolled
-                    //
-                    if ( ( e.clientY > viewportH ) && ( visibleRange.bottom  < gridDataGetLength() ) ) {
+                    //                    
+                    if ( ( e.clientY > ( viewportH + $viewport.offset().top - $( window ).scrollTop() ) ) && ( visibleRange.bottom  < gridDataGetLength() ) ) {
                         // ScroLL down
                         //
                         if ( !( scrollTimer ) ) {
-                            scrollTimer = setInterval( scrollDown, 100, '', $( dd.proxy ), e, dd.range );
+                            scrollTimer = setInterval( scrollDown, 100, '', e, dd );
                         }
                     } else if ( ( e.clientY < $viewport.offset().top ) && ( visibleRange.top > 0 ) ) {                        
                         // Scroll up
                         //                                                    
                         if ( !( scrollTimer ) ) {
-                            scrollTimer = setInterval( scrollUp, 80, '', $( dd.proxy ), e, dd.range );    
+                            scrollTimer = setInterval( scrollUp, 80, '', e, dd );    
                         }
                     } else {
                         if ( scrollTimer ) {
@@ -883,25 +922,11 @@ if (!jQuery.fn.drag) {
                     }
                     
                     if (dd.mode == MOVE_ROWS) {
-                        var top = e.pageY - $(this).offset().top;
-                        dd.selectionProxy.css("top",top-5);
-
-                        var insertBefore = Math.max(0,Math.min(Math.round(top/options.rowHeight),gridDataGetLength()));
-                        if (insertBefore !== dd.insertBefore) {
-                            if (self.onBeforeMoveRows && self.onBeforeMoveRows(getSelectedRows(),insertBefore) === false) {
-                                dd.guide.css("top", -1000);
-                                dd.canMove = false;
-                            }
-                            else {
-                                dd.guide.css("top",insertBefore*options.rowHeight);
-                                dd.canMove = true;
-                            }
-                            dd.insertBefore = insertBefore;
-                        }
+                        moveRowGuideAndProxy( e, dd );
                     }
 
                     if (dd.mode == SELECT_CELLS) {
-                        resizeSlickSelection( $( dd.proxy ), e, dd.range );
+                        resizeSlickSelection( e, dd );
                     }
                 })
                 .bind("dragend", function(e,dd) {
