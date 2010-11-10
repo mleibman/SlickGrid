@@ -1283,7 +1283,7 @@ if (!jQuery.fn.drag) {
                 var m = columns[i];
 
                 cellCss = "slick-cell c" + i + (m.cssClass ? " " + m.cssClass : "");
-                if (highlightedCells && highlightedCells[row] && highlightedCells[row][m.id])
+                if (highlightedCells && highlightedCells[d.id] && highlightedCells[d.id][m.id])
                     cellCss += (" " + options.cellHighlightCssClass);
 
                 stringArray.push("<div class='" + cellCss + "'>");
@@ -1654,9 +1654,11 @@ if (!jQuery.fn.drag) {
             var i, $cell, hasHighlight, hadHighlight;
 
             for (var row in rowsCache) {
+                var d = gridDataGetItem(row);
+
                 for (i=0; i<columns.length; i++) {
-                    hadHighlight = highlightedCells && highlightedCells[row] && highlightedCells[row][columns[i].id];
-                    hasHighlight = cellsToHighlight && cellsToHighlight[row] && cellsToHighlight[row][columns[i].id];
+                    hadHighlight = highlightedCells && highlightedCells[d.id] && highlightedCells[d.id][columns[i].id];
+                    hasHighlight = cellsToHighlight && cellsToHighlight[d.id] && cellsToHighlight[d.id][columns[i].id];
 
                     if (hadHighlight != hasHighlight) {
                         $cell = $(rowsCache[row]).children().eq(i);

@@ -96,6 +96,7 @@
 			for (var i=0; i<500; i++) {
 				var d = (data[i] = {});
                 d.server = "Server " + i;
+				d.id = "Server " + i;
                 for (var j=0; j<columns.length; j++) {
                     d[j] = Math.round(Math.random()*100);
                 }
@@ -121,10 +122,10 @@
 
                 data[server]["cpu" + cpu] = val;
 
-                if (!changes[server])
-                    changes[server] = {};
+                if (!changes[data[server].id])
+                    changes[data[server].id] = {};
 
-                changes[server]["cpu" + cpu] = true;
+                changes[data[server].id]["cpu" + cpu] = true;
 
                 grid.removeRow(server);
             }
