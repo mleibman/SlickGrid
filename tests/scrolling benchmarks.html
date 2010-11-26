@@ -22,6 +22,7 @@
 		<script language="JavaScript" src="../lib/jquery-ui-1.8.5.custom.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.event.drag-2.0.min.js"></script>
 
+		<script language="JavaScript" src="../slick.core.js"></script>
 		<script language="JavaScript" src="../slick.grid.js"></script>
 		<script language="JavaScript" src="../slick.editors.js"></script>
 
@@ -82,7 +83,7 @@
 
 
             // initialize the grid
-            grid = new Slick.Grid($("#myGrid"), data, columns, options);
+            grid = new Slick.Grid("#myGrid", data, columns, options);
 
             $grid = $("#myGrid div.grid-canvas").parent();
         });

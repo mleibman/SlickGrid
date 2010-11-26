@@ -1,23 +1,3 @@
-/***
- * A simple observer pattern implementation.
- */
-function EventHelper() {
-    this.handlers = [];
-
-    this.subscribe = function(fn) {
-        this.handlers.push(fn);
-    };
-
-    this.notify = function(args) {
-        for (var i = 0; i < this.handlers.length; i++) {
-            this.handlers[i].call(this, args);
-        }
-    };
-
-    return this;
-}
-
-
 (function($) {
     /***
      * A sample Model implementation.
@@ -46,9 +26,9 @@ function EventHelper() {
         var totalRows = 0;
 
         // events
-        var onRowCountChanged = new EventHelper();
-        var onRowsChanged = new EventHelper();
-        var onPagingInfoChanged = new EventHelper();
+        var onRowCountChanged = new Slick.Event();
+        var onRowsChanged = new Slick.Event();
+        var onPagingInfoChanged = new Slick.Event();
 
 
         function beginUpdate() {

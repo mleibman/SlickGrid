@@ -93,7 +93,7 @@
 
 		$(function()
 		{
-			grid = new Slick.Grid($("#myGrid"), loader.data, columns, options);
+			grid = new Slick.Grid("#myGrid", loader.data, columns, options);
 
 			grid.onViewportChanged = function() {
                 var vp = grid.getViewport();
@@ -123,7 +123,7 @@
 
 			loader.onDataLoaded.subscribe(function(args) {
 				for (var i = args.from; i <= args.to; i++) {
-					grid.removeRow(i);
+					grid.invalidateRow(i);
 				}
 
 				grid.updateRowCount();

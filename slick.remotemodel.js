@@ -1,23 +1,3 @@
-/***
- * A simple observer pattern implementation.
- */
-function EventHelper() {
-	this.handlers = [];
-
-	this.subscribe = function(fn) {
-        this.handlers.push(fn);
-    };
-
-	this.notify = function(args) {
-        for (var i = 0; i < this.handlers.length; i++) {
-            this.handlers[i].call(this, args);
-        }
-    };
-
-	return this;
-}
-
-
 (function($) {
 	/***
 	 * A sample AJAX data store implementation.
@@ -33,11 +13,10 @@ function EventHelper() {
 		var sortdir = 1;
 		var h_request = null;
 		var req = null; // ajax request
-		var req_page;
 
 		// events
-		var onDataLoading = new EventHelper();
-		var onDataLoaded = new EventHelper();
+		var onDataLoading = new Slick.Event();
+		var onDataLoaded = new Slick.Event();
 
 
 		function init() {
@@ -83,14 +62,10 @@ function EventHelper() {
 
 			if (fromPage > toPage || ((fromPage == toPage) && data[fromPage*PAGESIZE] !== undefined)) {
 				// TODO:  lookeahead
-
-				//if ()
-
 				return;
 			}
 
 			var url = "http://services.digg.com/search/stories?query=" + searchstr + "&offset=" + (fromPage * PAGESIZE) + "&count=" + (((toPage - fromPage) * PAGESIZE) + PAGESIZE) + "&appkey=http://slickgrid.googlecode.com&type=javascript";
-
 
 			switch (sortcol) {
 				case "diggs":

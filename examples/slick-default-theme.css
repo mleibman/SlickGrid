@@ -41,6 +41,10 @@ classes should alter those!
 }
 
 .slick-cell.selected {
+    background-color: beige;
+}
+
+.slick-cell.active {
     border-color: gray;
     border-style: solid;
 }

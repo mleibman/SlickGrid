@@ -34,6 +34,7 @@
 		<script language="JavaScript" src="../lib/jquery-ui-1.8.5.custom.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.event.drag-2.0.min.js"></script>
 
+		<script language="JavaScript" src="../slick.core.js"></script>
 		<script language="JavaScript" src="../slick.editors.js"></script>
 		<script language="JavaScript" src="../slick.grid.js"></script>
 
@@ -120,8 +121,6 @@
             this.init();
         }
 
-
-        
 		$(function()
 		{
 			for (var i=0; i<500; i++) {
@@ -132,14 +131,12 @@
                 d["to"] = d["from"] + Math.round(Math.random() * 100);
 			}
 
-			grid = new Slick.Grid($("#myGrid"), data, columns, options);
+			grid = new Slick.Grid("#myGrid", data, columns, options);
 
-            grid.onValidationError = function(currentCellNode, validationResults, currentRow, currentCell, column) {
-                alert(validationResults.msg);
-            }
+            grid.onValidationError.subscribe(function(e,args) {
+                alert(args.validationResults.msg);
+            });
 		})
-
 		</script>
-
 	</body>
 </html>

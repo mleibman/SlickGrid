@@ -53,6 +53,9 @@
 		<script language="JavaScript" src="../lib/jquery-ui-1.8.5.custom.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.event.drag-2.0.min.js"></script>
 
+        <script language="JavaScript" src="../slick.core.js"></script>
+        <script language="JavaScript" src="../plugins/slick.cellselectionmodel.js"></script>
+        <script language="JavaScript" src="../plugins/slick.rowmovemanager.js"></script>
 		<script language="JavaScript" src="../slick.editors.js"></script>
 		<script language="JavaScript" src="../slick.grid.js"></script>
 
@@ -101,7 +104,7 @@
                 }
 			}
 
-			grid = new Slick.Grid($("#myGrid"), data, columns, options);
+			grid = new Slick.Grid("#myGrid", data, columns, options);
 
             currentServer = Math.round(Math.random()*(data.length-1));
 		});
@@ -114,22 +117,22 @@
                 var server = Math.round(Math.random()*(data.length-1));
                 var cpu = Math.round(Math.random()*(columns.length-1));
                 var delta = Math.round(Math.random()*50)-25;
-
-                var val = data[server]["cpu" + cpu] + delta;
+                var col = grid.getColumnIndex("cpu" + cpu);
+                var val = data[server][col] + delta;
                 val = Math.max(0,val);
                 val = Math.min(100,val);
 
-                data[server]["cpu" + cpu] = val;
+                data[server][col] = val;
 
                 if (!changes[server])
                     changes[server] = {};
 
-                changes[server]["cpu" + cpu] = true;
+                changes[server]["cpu" + cpu] = "changed";
 
-                grid.removeRow(server);
+                grid.invalidateRow(server);
             }
 
-            grid.setHighlightedCells(changes);
+            grid.setCellCssStyles("highlight", changes);
             grid.render();
 
             setTimeout(simulateRealTimeUpdates, 500);

@@ -5,7 +5,7 @@
 
         function init()
         {
-            dataView.onPagingInfoChanged.subscribe(function(pagingInfo) {
+            dataView.onPagingInfoChanged.subscribe(function(e,pagingInfo) {
                 updatePager(pagingInfo);
             });
 
