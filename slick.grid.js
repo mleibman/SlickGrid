@@ -1391,8 +1391,6 @@ if (typeof Slick === "undefined") {
             if (e.isImmediatePropagationStopped()) {
                 return retval;
             }
-
-            return false;
         }
 
         function handleDragStart(e,dd) {

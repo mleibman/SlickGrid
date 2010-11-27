@@ -11,29 +11,27 @@
         var _grid;
         var _canvas;
         var _ranges = [];
-        var _dragging;
         var _self = this;
-
-        function returnFalse() {
-            return false;
-        }
+        var _selector = new Slick.CellRangeSelector({
+            "selectionCss": {
+                "border": "2px solid black"
+            }
+        });
 
         function init(grid) {
             _grid = grid;
             _canvas = _grid.getCanvasNode();
             _grid.onActiveCellChanged.subscribe(handleActiveCellChange);
-            _grid.onDragInit.subscribe(handleDragInit);
-            _grid.onDragStart.subscribe(handleDragStart);
-            _grid.onDrag.subscribe(handleDrag);
-            _grid.onDragEnd.subscribe(handleDragEnd);
+            grid.registerPlugin(_selector);
+            _selector.onCellRangeSelected.subscribe(handleCellRangeSelected);
+            _selector.onBeforeCellRangeSelected.subscribe(handleBeforeCellRangeSelected);
         }
 
         function destroy() {
             _grid.onActiveCellChanged.unsubscribe(handleActiveCellChange);
-            _grid.onDragInit.unsubscribe(handleDragInit);
-            _grid.onDragStart.unsubscribe(handleDragStart);
-            _grid.onDrag.unsubscribe(handleDrag);
-            _grid.onDragEnd.unsubscribe(handleDragEnd);
+            _selector.onCellRangeSelected.unsubscribe(handleCellRangeSelected);
+            _selector.onBeforeCellRangeSelected.unsubscribe(handleBeforeCellRangeSelected);
+            _grid.unregisterPlugin(_selector);
         }
 
         function removeInvalidRanges(ranges) {
@@ -51,99 +49,26 @@
 
         function setSelectedRanges(ranges) {
             _ranges = removeInvalidRanges(ranges);
-            _self.onSelectedRangesChanged.notify(_ranges);        }
+            _self.onSelectedRangesChanged.notify(_ranges);
+        }
 
         function getSelectedRanges() {
             return _ranges;
         }
 
-        function fixUpRange(range) {
-            var r1 = Math.min(range.start.row,range.end.row);
-            var c1 = Math.min(range.start.cell,range.end.cell);
-            var r2 = Math.max(range.start.row,range.end.row);
-            var c2 = Math.max(range.start.cell,range.end.cell);
-            return {
-                start: {row:r1, cell:c1},
-                end: {row:r2, cell:c2}
-            };
-        }
-
-        function handleDragInit(e,dd) {
-            var cell = _grid.getCellFromEvent(e);
-
-            if (!_grid.getEditorLock().isActive()) {
-                if (_grid.canCellBeSelected(cell.row,cell.cell)/* && e.ctrlKey*/) {
-                    _dragging = true;
-                    e.stopImmediatePropagation();
-                }
+        function handleBeforeCellRangeSelected(e, args) {
+            if (_grid.getEditorLock().isActive()) {
+                e.stopPropagation();
+                return false;
             }
         }
 
-        function handleDragStart(e,dd) {
-            if (!_dragging) {
-                return;
-            }
-
-            var start = _grid.getCellFromPoint(
-                    dd.startX - $(_canvas).offset().left,
-                    dd.startY - $(_canvas).offset().top);
-
-            e.stopImmediatePropagation();
-
-            dd.range = {start:start,end:{}};
-
-            return $("<div class='slick-selection'></div>").appendTo(_canvas);
+        function handleCellRangeSelected(e, args) {
+            setSelectedRanges([args.range]);
         }
 
-        function handleDrag(e,dd) {
-            if (!_dragging) {
-                return;
-            }
-
-            e.stopImmediatePropagation();
-
-            var end = _grid.getCellFromPoint(
-                    e.pageX - $(_canvas).offset().left,
-                    e.pageY - $(_canvas).offset().top);
-
-            if (!_grid.canCellBeSelected(end.row,end.cell)) {
-                return;
-            }
-
-            dd.range.end = end;
-            var r = fixUpRange(dd.range);
-            var from = _grid.getCellNodeBox(r.start.row,r.start.cell);
-            var to = _grid.getCellNodeBox(r.end.row,r.end.cell);
-
-            $(dd.proxy).css({
-                top: from.top - 1,
-                left: from.left - 1,
-                height: to.bottom - from.top - 2,
-                width: to.right - from.left - 2
-            });
-        }
-
-        function handleDragEnd(e,dd) {
-            if (!_dragging) {
-                return;
-            }
-
-            _dragging = false;
-            e.stopImmediatePropagation();
-            $(dd.proxy).remove();
-
-            setSelectedRanges([
-                new Slick.Range(
-                    dd.range.start.row,
-                    dd.range.start.cell,
-                    dd.range.end.row,
-                    dd.range.end.cell
-                    )
-            ]);
-        }
-
-        function handleActiveCellChange(e, data) {
-            setSelectedRanges([new Slick.Range(data.row,data.cell)]);
+        function handleActiveCellChange(e, args) {
+            setSelectedRanges([new Slick.Range(args.row,args.cell)]);
         }
 
         $.extend(this, {

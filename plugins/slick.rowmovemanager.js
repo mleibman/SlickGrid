@@ -15,38 +15,26 @@
         function init(grid) {
             _grid = grid;
             _canvas = _grid.getCanvasNode();
-            _grid.onDragInit.subscribe(handleDragInit);
             _grid.onDragStart.subscribe(handleDragStart);
             _grid.onDrag.subscribe(handleDrag);
             _grid.onDragEnd.subscribe(handleDragEnd);
         }
 
         function destroy() {
-            _grid.onDragInit.unsubscribe(handleDragInit);
             _grid.onDragStart.unsubscribe(handleDragStart);
             _grid.onDrag.unsubscribe(handleDrag);
             _grid.onDragEnd.unsubscribe(handleDragEnd);
         }
 
-        function handleDragInit(e,dd) {
-            var cell = _grid.getCellFromEvent(e);
-
-            if (!_grid.getEditorLock().isActive()) {
-                if (/move|selectAndMove/.test(_grid.getColumns()[cell.cell].behavior)) {
-                    _dragging = true;
-                    e.stopImmediatePropagation();
-                }
-            }
-        }
-
         function handleDragStart(e,dd) {
-            if (!_dragging) {
-                return;
+            var cell = _grid.getCellFromEvent(e);
+            if (_grid.getEditorLock().isActive() || !/move|selectAndMove/.test(_grid.getColumns()[cell.cell].behavior)) {
+                return false;
             }
 
+            _dragging = true;
             e.stopImmediatePropagation();
 
-            var cell = _grid.getCellFromEvent(e);
             var selectedRows = _grid.getSelectedRows();
 
             if (selectedRows.length == 0 || $.inArray(cell.row, selectedRows) == -1) {
