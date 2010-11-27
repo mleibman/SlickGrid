@@ -60,7 +60,7 @@
 		var columns = [
 			{id:"title", name:"Title", field:"title", width:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator},
             {id:"desc", name:"Description", field:"description", width:100, editor:LongTextCellEditor},
-            {id:"duration", name:"Duration", field:"duration", editor:FormulaEditor},
+            {id:"duration", name:"Duration", field:"duration", editor:TextCellEditor},
 			{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter, editor:PercentCompleteCellEditor},
 			{id:"start", name:"Start", field:"start", minWidth:60, editor:DateCellEditor},
 			{id:"finish", name:"Finish", field:"finish", minWidth:60, editor:DateCellEditor},
@@ -73,43 +73,6 @@
 			asyncEditorLoading: false,
             autoEdit: false
 		};
-
-
-        /***
-         * A proof-of-concept cell editor with Excel-like range selection and insertion.
-         */
-        function FormulaEditor(args) {
-            var _self = this;
-            var _editor = new TextCellEditor(args);
-            var _selector;
-
-            $.extend(this, _editor);
-
-            function init() {
-                // register a plugin to select a range and append it to the textbox
-                // since events are fired in reverse order (most recently added are executed first),
-                // this will override other plugins like moverows or selection model and will
-                // not require the grid to not be in the edit mode
-                _selector = new Slick.CellRangeSelector();
-                _selector.onCellRangeSelected.subscribe(_self.handleCellRangeSelected);
-                args.grid.registerPlugin(_selector);
-            }
-
-            this.destroy = function() {
-                _selector.onCellRangeSelected.unsubscribe(_self.handleCellRangeSelected);
-                grid.unregisterPlugin(_selector);
-                _editor.destroy();
-            };
-
-            this.handleCellRangeSelected = function(e, args) {
-                _editor.setValue(_editor.getValue() + args.range);
-            };
-
-
-            init();
-        }
-
-
 
 		$(function()
 		{

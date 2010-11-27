@@ -87,6 +87,11 @@
             return this.fromRow == this.toRow && this.fromCell == this.toCell;
         };
 
+        this.contains = function(row, cell) {
+            return row >= this.fromRow && row <= this.toRow &&
+                   cell >= this.fromCell && cell <= this.toCell;
+        }
+
         this.toString = function() {
             if (this.isSingleCell()) {
                 return "(" + this.fromRow + ":" + this.fromCell + ")";
