@@ -1,176 +1,177 @@
 <!DOCTYPE HTML>
 <html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-		<link rel="stylesheet" href="../slick.grid.css" type="text/css" media="screen" charset="utf-8" />
-		<link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.5.custom.css" type="text/css" media="screen" charset="utf-8" />
-		<link rel="stylesheet" href="examples.css" type="text/css" media="screen" charset="utf-8" />
-        <style>
-            .slick-cell-checkboxsel {
-                background: #f0f0f0;
-                border-right-color: silver;
-                border-right-style: solid;
-            }
-        </style>
-	</head>
-	<body>
-		<div style="width:600px;float:left;">
-			<div id="myGrid" style="width:100%;height:500px;"></div>
-		</div>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../slick.grid.css" type="text/css" media="screen" charset="utf-8" />
+    <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.5.custom.css" type="text/css" media="screen" charset="utf-8" />
+    <link rel="stylesheet" href="examples.css" type="text/css" media="screen" charset="utf-8" />
+    <style>
+        .slick-cell-checkboxsel {
+            background: #f0f0f0;
+            border-right-color: silver;
+            border-right-style: solid;
+        }
+    </style>
+</head>
+<body>
+<div style="width:600px;float:left;">
+    <div id="myGrid" style="width:100%;height:500px;"></div>
+</div>
 
-		<div class="options-panel" style="width:320px;margin-left:650px;">
-            <h2>Demonstrates:</h2>
-            <ul>
-            </ul>
-		</div>
+<div class="options-panel" style="width:320px;margin-left:650px;">
+    <h2>Demonstrates:</h2>
+    <ul>
+        <li>Checkbox row select column</li>
+    </ul>
+</div>
 
-		<script src="../lib/firebugx.js"></script>
+<script src="../lib/firebugx.js"></script>
 
-		<script src="../lib/jquery-1.4.3.min.js"></script>
-		<script src="../lib/jquery-ui-1.8.5.custom.min.js"></script>
-		<script src="../lib/jquery.event.drag-2.0.min.js"></script>
+<script src="../lib/jquery-1.4.3.min.js"></script>
+<script src="../lib/jquery-ui-1.8.5.custom.min.js"></script>
+<script src="../lib/jquery.event.drag-2.0.min.js"></script>
 
-        <script src="../slick.core.js"></script>
-		<script src="../plugins/slick.autotooltips.js"></script>
-		<script src="../plugins/slick.cellrangedecorator.js"></script>
-		<script src="../plugins/slick.cellrangeselector.js"></script>
-		<script src="../plugins/slick.cellcopymanager.js"></script>
-		<script src="../plugins/slick.cellselectionmodel.js"></script>
-		<script src="../plugins/slick.rowselectionmodel.js"></script>
-		<script src="../slick.editors.js"></script>
-		<script src="../slick.grid.js"></script>
+<script src="../slick.core.js"></script>
+<script src="../plugins/slick.autotooltips.js"></script>
+<script src="../plugins/slick.cellrangedecorator.js"></script>
+<script src="../plugins/slick.cellrangeselector.js"></script>
+<script src="../plugins/slick.cellcopymanager.js"></script>
+<script src="../plugins/slick.cellselectionmodel.js"></script>
+<script src="../plugins/slick.rowselectionmodel.js"></script>
+<script src="../slick.editors.js"></script>
+<script src="../slick.grid.js"></script>
 
-		<script>
-        var selectedRowsLookup = {};
-		var grid;
-		var data = [];
-        var options = {
-            editable: true,
-            enableCellNavigation: true,
-            asyncEditorLoading: false,
-            autoEdit: false
-        };
+<script>
+    var selectedRowsLookup = {};
+    var grid;
+    var data = [];
+    var options = {
+        editable: true,
+        enableCellNavigation: true,
+        asyncEditorLoading: false,
+        autoEdit: false
+    };
 
-		var columns = [{
-            id: "selector",
-            name: "<input type='checkbox'>",
-            toolTip: "Select All",
-            field: "sel",
-            width: 30,
-            unselectable: true,
-            resizable: false,
-            sortable: false,
-            cssClass: "slick-cell-checkboxsel",
-            formatter: CheckboxSelectionFormatter
-        }];
+    var columns = [{
+        id: "selector",
+        name: "<input type='checkbox'>",
+        toolTip: "Select All",
+        field: "sel",
+        width: 30,
+        unselectable: true,
+        resizable: false,
+        sortable: false,
+        cssClass: "slick-cell-checkboxsel",
+        formatter: CheckboxSelectionFormatter
+    }];
 
-        for (var i = 0; i < 5; i++) {
-            columns.push({
-                id: i,
-                name: String.fromCharCode("A".charCodeAt(0) + i),
-                field: i,
-                width: 100,
-                editor: TextCellEditor
-            });
+    for (var i = 0; i < 5; i++) {
+        columns.push({
+            id: i,
+            name: String.fromCharCode("A".charCodeAt(0) + i),
+            field: i,
+            width: 100,
+            editor: TextCellEditor
+        });
+    }
+
+    /***
+     * A simple cell formatter that uses a lookup global variable (selectedRowsLookup) to
+     * identify whether a row is selected.  The lookup is updated in an onSelectedRowsChanged handler.
+     * The onClick handler toggles row selection.
+     */
+    function CheckboxSelectionFormatter(row, cell, value, columnDef, dataContext) {
+        if (dataContext) {
+            return selectedRowsLookup[row]
+                    ? "<input type='checkbox' checked='checked'>"
+                    : "<input type='checkbox'>";
+        }
+        return null;
+    }
+
+
+    $(function()
+    {
+        for (var i=0; i<100; i++) {
+            var d = (data[i] = {});
+            d[0] = "Row " + i;
         }
 
-        /***
-         * A simple cell formatter that uses a lookup global variable (selectedRowsLookup) to
-         * identify whether a row is selected.  The lookup is updated in an onSelectedRowsChanged handler.
-         * The onClick handler toggles row selection.
-         */
-        function CheckboxSelectionFormatter(row, cell, value, columnDef, dataContext) {
-            if (dataContext) {
-                return selectedRowsLookup[row]
-                        ? "<input type='checkbox' checked='checked'>"
-                        : "<input type='checkbox'>";
+        grid = new Slick.Grid("#myGrid", data, columns, options);
+        grid.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow:false}));
+
+        grid.onSelectedRowsChanged.subscribe(function(e,args) {
+            var selectedRows = grid.getSelectedRows();
+            var lookup = {}, row, i;
+            for (i = 0; i < selectedRows.length; i++) {
+                row = selectedRows[i];
+                lookup[row] = true;
+                if (lookup[row] !== selectedRowsLookup[row]) {
+                    grid.invalidateRow(row);
+                    delete selectedRowsLookup[row];
+                }
             }
-            return null;
-        }
+            for (i in selectedRowsLookup) {
+                grid.invalidateRow(i);
+            }
+            selectedRowsLookup = lookup;
+            grid.render();
 
+            if (selectedRows.length == data.length) {
+                grid.updateColumnHeader("selector", "<input type='checkbox' checked='checked'>", "Unselect All");
+            }
+            else {
+                grid.updateColumnHeader("selector", "<input type='checkbox'>", "Select All");
+            }
+        });
 
-		$(function()
-		{
-			for (var i=0; i<100; i++) {
-				var d = (data[i] = {});
-                d[0] = "Row " + i;
-			}
-
-			grid = new Slick.Grid("#myGrid", data, columns, options);
-            grid.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow:false}));
-
-            grid.onSelectedRowsChanged.subscribe(function(e,args) {
-                var selectedRows = grid.getSelectedRows();
-                var lookup = {}, row, i;
-                for (i = 0; i < selectedRows.length; i++) {
-                    row = selectedRows[i];
-                    lookup[row] = true;
-                    if (lookup[row] !== selectedRowsLookup[row]) {
-                        grid.invalidateRow(row);
-                        delete selectedRowsLookup[row];
-                    }
+        grid.onClick.subscribe(function(e, args) {
+            // clicking on a row select checkbox
+            if ($(e.target).is(".slick-cell-checkboxsel :checkbox")) {
+                // if editing, try to commit
+                if (grid.getEditorLock().isActive() && !grid.getEditorLock().commitCurrentEdit()) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    return;
                 }
-                for (i in selectedRowsLookup) {
-                    grid.invalidateRow(i);
-                }
-                selectedRowsLookup = lookup;
-                grid.render();
 
-                if (selectedRows.length == data.length) {
-                    grid.updateColumnHeader("selector", "<input type='checkbox' checked='checked'>", "Unselect All");
+                if (selectedRowsLookup[args.row]) {
+                    grid.setSelectedRows($.grep(grid.getSelectedRows(),function(n) { return n != args.row }));
                 }
                 else {
-                    grid.updateColumnHeader("selector", "<input type='checkbox'>", "Select All");
+                    grid.setSelectedRows(grid.getSelectedRows().concat(args.row));
                 }
-            });
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+            }
+        });
 
-            grid.onClick.subscribe(function(e, args) {
-                // clicking on a row select checkbox
-                if ($(e.target).is(".slick-cell-checkboxsel :checkbox")) {
-                    // if editing, try to commit
-                    if (grid.getEditorLock().isActive() && !grid.getEditorLock().commitCurrentEdit()) {
-                        e.preventDefault();
-                        e.stopImmediatePropagation();
-                        return;
-                    }
-
-                    if (selectedRowsLookup[args.row]) {
-                        grid.setSelectedRows($.grep(grid.getSelectedRows(),function(n) { return n != args.row }));
-                    }
-                    else {
-                        grid.setSelectedRows(grid.getSelectedRows().concat(args.row));
-                    }
-                    e.stopPropagation();
+        grid.onHeaderClick.subscribe(function(e, args) {
+            if (args.column.id == "selector") {
+                // if editing, try to commit
+                if (grid.getEditorLock().isActive() && !grid.getEditorLock().commitCurrentEdit()) {
+                    e.preventDefault();
                     e.stopImmediatePropagation();
+                    return;
                 }
-            });
 
-            grid.onHeaderClick.subscribe(function(e, args) {
-                if (args.column.id == "selector") {
-                    // if editing, try to commit
-                    if (grid.getEditorLock().isActive() && !grid.getEditorLock().commitCurrentEdit()) {
-                        e.preventDefault();
-                        e.stopImmediatePropagation();
-                        return;
+                if ($(e.target).is(":checked")) {
+                    var rows = [];
+                    for (var i = 0; i < data.length; i++) {
+                        rows.push(i);
                     }
-
-                    if ($(e.target).is(":checked")) {
-                        var rows = [];
-                        for (var i = 0; i < data.length; i++) {
-                            rows.push(i);
-                        }
-                        grid.setSelectedRows(rows);
-                    }
-                    else {
-                        grid.setSelectedRows([]);
-                    }
-                    // could update the existing dom nodes instead, but whatever
-                    grid.invalidate();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
+                    grid.setSelectedRows(rows);
                 }
-            })
-		})
-		</script>
-	</body>
+                else {
+                    grid.setSelectedRows([]);
+                }
+                // could update the existing dom nodes instead, but whatever
+                grid.invalidate();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+            }
+        })
+    })
+</script>
+</body>
 </html>
