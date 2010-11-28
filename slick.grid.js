@@ -136,6 +136,7 @@ if (typeof Slick === "undefined") {
         var avgRowRenderTime = 10;
 
         var selectionModel;
+        var selectedRows = [];
 
         var plugins = [];
         var cellCssClasses = {};
@@ -355,6 +356,18 @@ if (typeof Slick === "undefined") {
 
         function unbindAncestorScrollEvents() {
             $canvas.parents().unbind("scroll.slickgrid");
+        }
+
+        function updateColumnHeader(columnId, title, toolTip) {
+            var idx = getColumnIndex(columnId);
+            var $header = $headers.children().eq(idx);
+            if ($header) {
+                columns[idx].name = title;
+                columns[idx].toolTip = toolTip;
+                $header
+                    .attr("title", toolTip || title || "")
+                    .children().eq(0).html(title);
+            }
         }
 
         function createColumnHeaders() {
@@ -800,10 +813,13 @@ if (typeof Slick === "undefined") {
         }
 
         function handleSelectedRangesChanged(e, ranges) {
+            selectedRows = [];
             var hash = {};
-
             for (var i = 0; i < ranges.length; i++) {
                 for (var j = ranges[i].fromRow; j <= ranges[i].toRow; j++) {
+                    if (!hash[j]) {  // prevent duplicates
+                        selectedRows.push(j);
+                    }
                     hash[j] = {};
                     for (var k = ranges[i].fromCell; k <= ranges[i].toCell; k++) {
                         hash[j][columns[k].id] = options.selectedCellCssClass;
@@ -935,7 +951,6 @@ if (typeof Slick === "undefined") {
             var d = getDataItem(row);
             var dataLoading = row < getDataLength() && !d;
             var cellCss;
-            // TODO:  apply css class to selected cells
             var css = "slick-row " +
                 (dataLoading ? " loading" : "") +
                 (row % 2 == 1 ? ' odd' : ' even');
@@ -2084,16 +2099,6 @@ if (typeof Slick === "undefined") {
             return true;
         }
 
-        function rangesToRows(ranges) {
-            var rows = [];
-            for (var i = 0; i < ranges.length; i++) {
-                for (var j = ranges[i].fromRow; j <= ranges[i].toRow; j++) {
-                    rows.push(j);
-                }
-            }
-            return rows;
-        }
-
         function rowsToRanges(rows) {
             var ranges = [];
             var lastCell = columns.length - 1;
@@ -2107,7 +2112,7 @@ if (typeof Slick === "undefined") {
             if (!selectionModel) {
                 throw "Selection model is not set";
             }
-            return rangesToRows(selectionModel.getSelectedRanges());
+            return selectedRows;
         }
 
         function setSelectedRows(rows) {
@@ -2181,6 +2186,7 @@ if (typeof Slick === "undefined") {
             "getColumns":                   getColumns,
             "setColumns":                   setColumns,
             "getColumnIndex":               getColumnIndex,
+            "updateColumnHeader":           updateColumnHeader,
             "setSortColumn":                setSortColumn,
             "autosizeColumns":              autosizeColumns,
             "getOptions":                   getOptions,

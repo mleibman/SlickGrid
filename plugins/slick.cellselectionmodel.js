@@ -7,7 +7,7 @@
     });
 
 
-    function CellSelectionModel() {
+    function CellSelectionModel(options) {
         var _grid;
         var _canvas;
         var _ranges = [];
@@ -17,8 +17,14 @@
                 "border": "2px solid black"
             }
         });
+        var _options;
+        var _defaults = {
+            selectActiveCell: true
+        };
+
 
         function init(grid) {
+            _options = $.extend(true, {}, _defaults, options);
             _grid = grid;
             _canvas = _grid.getCanvasNode();
             _grid.onActiveCellChanged.subscribe(handleActiveCellChange);
@@ -68,7 +74,9 @@
         }
 
         function handleActiveCellChange(e, args) {
-            setSelectedRanges([new Slick.Range(args.row,args.cell)]);
+            if (_options.selectActiveCell) {
+                setSelectedRanges([new Slick.Range(args.row,args.cell)]);
+            }
         }
 
         $.extend(this, {
