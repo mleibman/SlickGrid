@@ -35,6 +35,8 @@
 		<script src="../lib/jquery.event.drag-2.0.min.js"></script>
 
         <script src="../slick.core.js"></script>
+		<script src="../plugins/slick.autotooltips.js"></script>
+		<script src="../plugins/slick.cellrangedecorator.js"></script>
 		<script src="../plugins/slick.cellrangeselector.js"></script>
 		<script src="../plugins/slick.cellcopymanager.js"></script>
 		<script src="../plugins/slick.cellselectionmodel.js"></script>
@@ -122,6 +124,7 @@
 			grid = new Slick.Grid("#myGrid", data, columns, options);
 
             grid.setSelectionModel(new Slick.CellSelectionModel());
+            grid.registerPlugin(new Slick.AutoTooltips());
 
             // set keyboard focus on the grid
             grid.getCanvasNode().focus();
@@ -148,9 +151,6 @@
                 }
                 grid.render();
             });
-
-
-
 
             grid.onAddNewRow.subscribe(function(e, args) {
                 var item = args.item;

@@ -76,8 +76,6 @@ if (typeof Slick === "undefined") {
             showSecondaryHeaderRow: false,
             secondaryHeaderRowHeight: 25,
             syncColumnCellResize: false,
-            enableAutoTooltips: true,
-            toolTipMaxLength: null,
             formatterFactory: null,
             editorFactory: null,
             cellFlashingCssClass: "flashing",
@@ -249,11 +247,13 @@ if (typeof Slick === "undefined") {
                 .bind("click.slickgrid", handleClick)
                 .bind("dblclick.slickgrid", handleDblClick)
                 .bind("contextmenu.slickgrid", handleContextMenu)
-                .bind("mouseover.slickgrid", handleHover)
                 .bind("draginit", handleDragInit)
                 .bind("dragstart", handleDragStart)
                 .bind("drag", handleDrag)
                 .bind("dragend", handleDragEnd);
+
+            $canvas.delegate(".slick-cell", "mouseenter", handleMouseEnter);
+            $canvas.delegate(".slick-cell", "mouseleave", handleMouseLeave);
         }
 
         function registerPlugin(plugin) {
@@ -852,8 +852,7 @@ if (typeof Slick === "undefined") {
 
         function setData(newData,scrollToTop) {
             invalidateAllRows();
-            data = newData;
-            gridData = data;
+            gridData = newData;
             if (scrollToTop)
                 scrollTo(0);
         }
@@ -1524,35 +1523,23 @@ if (typeof Slick === "undefined") {
         }
 
         function handleHeaderContextMenu(e) {
-            var selectedElement = $(e.target).closest(".slick-header-column", ".slick-header-columns");
-            self.onHeaderContextMenu.notify(e, {
-                column: columns[self.getColumnIndex(selectedElement.data("fieldId"))]
-            });
+            var $header = $(e.target).closest(".slick-header-column", ".slick-header-columns");
+            var column = $header && columns[self.getColumnIndex($header.data("fieldId"))];
+            self.onHeaderContextMenu.notify(e, {column: column});
         }
 
         function handleHeaderClick(e) {
-            var $col = $(e.target).closest(".slick-header-column");
-            if ($col.length ==0) { return; }
-            var column = columns[getSiblingIndex($col[0])];
-
-            if (self.onHeaderClick && getEditorLock().commitCurrentEdit()) {
-                e.preventDefault();
-                self.onHeaderClick(e, column);
-            }
+            var $header = $(e.target).closest(".slick-header-column", ".slick-header-columns");
+            var column = $header && columns[self.getColumnIndex($header.data("fieldId"))];
+            self.onHeaderClick.notify(e, {column: column});
         }
 
-        function handleHover(e) {
-            if (!options.enableAutoTooltips) return;
-            var $cell = $(e.target).closest(".slick-cell",$canvas);
-            if ($cell.length) {
-                if ($cell.innerWidth() < $cell[0].scrollWidth) {
-                    var text = $.trim($cell.text());
-                    $cell.attr("title", (options.toolTipMaxLength && text.length > options.toolTipMaxLength) ?  text.substr(0, options.toolTipMaxLength - 3) + "..." : text);
-                }
-                else {
-                    $cell.attr("title","");
-                }
-            }
+        function handleMouseEnter(e) {
+            self.onMouseEnter.notify(e,{});
+        }
+
+        function handleMouseLeave(e) {
+            self.onMouseLeave.notify(e,{});
         }
 
         function cellExists(row,cell) {
@@ -2164,6 +2151,9 @@ if (typeof Slick === "undefined") {
             // Events
             "onSort":                       new Slick.Event(),
             "onHeaderContextMenu":          new Slick.Event(),
+            "onHeaderClick":                new Slick.Event(),
+            "onMouseEnter":                 new Slick.Event(),
+            "onMouseLeave":                 new Slick.Event(),
             "onClick":                      new Slick.Event(),
             "onDblClick":                   new Slick.Event(),
             "onContextMenu":                new Slick.Event(),

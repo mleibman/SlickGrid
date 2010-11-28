@@ -11,6 +11,7 @@
         var _grid;
         var _canvas;
         var _dragging;
+        var _decorator;
         var _self = this;
         var _defaults = {
             selectionCss: {
@@ -21,6 +22,7 @@
 
         function init(grid) {
             options = $.extend(true, {}, _defaults, options);
+            _decorator = new Slick.CellRangeDecorator(grid, options);
             _grid = grid;
             _canvas = _grid.getCanvasNode();
             _grid.onDragStart.subscribe(handleDragStart);
@@ -32,17 +34,6 @@
             _grid.onDragStart.unsubscribe(handleDragStart);
             _grid.onDrag.unsubscribe(handleDrag);
             _grid.onDragEnd.unsubscribe(handleDragEnd);
-        }
-
-        function fixUpRange(range) {
-            var r1 = Math.min(range.start.row,range.end.row);
-            var c1 = Math.min(range.start.cell,range.end.cell);
-            var r2 = Math.max(range.start.row,range.end.row);
-            var c2 = Math.max(range.start.cell,range.end.cell);
-            return {
-                start: {row:r1, cell:c1},
-                end: {row:r2, cell:c2}
-            };
         }
 
         function handleDragStart(e,dd) {
@@ -63,17 +54,13 @@
 
             dd.range = {start:start,end:{}};
 
-            // TODO:  use a decorator
-            return $("<div></div>", {css: options.selectionCss})
-                .css("position", "absolute")
-                .appendTo(_canvas);
+            return _decorator.show(new Slick.Range(start.row,start.cell));
         }
 
         function handleDrag(e,dd) {
             if (!_dragging) {
                 return;
             }
-
             e.stopImmediatePropagation();
 
             var end = _grid.getCellFromPoint(
@@ -85,16 +72,7 @@
             }
 
             dd.range.end = end;
-            var r = fixUpRange(dd.range);
-            var from = _grid.getCellNodeBox(r.start.row,r.start.cell);
-            var to = _grid.getCellNodeBox(r.end.row,r.end.cell);
-
-            $(dd.proxy).css({
-                top: from.top - 1,
-                left: from.left - 1,
-                height: to.bottom - from.top - 2,
-                width: to.right - from.left - 2
-            });
+            _decorator.show(new Slick.Range(dd.range.start.row,dd.range.start.cell,end.row,end.cell));
         }
 
         function handleDragEnd(e,dd) {
@@ -104,8 +82,8 @@
 
             _dragging = false;
             e.stopImmediatePropagation();
-            $(dd.proxy).remove();
 
+            _decorator.hide();
             _self.onCellRangeSelected.notify({
                 range:  new Slick.Range(
                             dd.range.start.row,

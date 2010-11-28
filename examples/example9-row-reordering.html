@@ -83,6 +83,7 @@
 		<script language="JavaScript" src="../lib/jquery.event.drop-2.0.min.js"></script>
 
         <script language="JavaScript" src="../slick.core.js"></script>
+        <script language="JavaScript" src="../plugins/slick.cellrangeselector.js"></script>
         <script language="JavaScript" src="../plugins/slick.cellselectionmodel.js"></script>
         <script language="JavaScript" src="../plugins/slick.rowselectionmodel.js"></script>
         <script language="JavaScript" src="../plugins/slick.rowmovemanager.js"></script>
@@ -155,7 +156,7 @@
 
 			grid = new Slick.Grid("#myGrid", data, columns, options);
 
-            grid.setSelectionModel(new Slick.RowSelectionModel());
+            grid.setSelectionModel(new Slick.CellSelectionModel());
 
             var moveRowsPlugin = new Slick.RowMoveManager();
 
