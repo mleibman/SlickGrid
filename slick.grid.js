@@ -63,6 +63,7 @@ if (typeof Slick === "undefined") {
             leaveSpaceForNewRows: false,
             editable: false,
             autoEdit: true,
+            alwaysNavigateDownOnCommit: false,
             enableCellNavigation: true,
             enableCellRangeSelection: false,
             enableColumnReorder: true,
@@ -1781,7 +1782,7 @@ if (typeof Slick === "undefined") {
             if (getEditorLock().commitCurrentEdit()) {
                   focusOnActiveCell();
 
-                if (options.autoEdit) {
+                if (options.autoEdit || options.alwaysNavigateDownOnCommit) {
                     navigateDown();
                 }
             }
