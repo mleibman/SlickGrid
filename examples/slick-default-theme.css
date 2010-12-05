@@ -19,6 +19,16 @@ classes should alter those!
     background: white url('../images/header-columns-over-bg.gif') repeat-x center bottom;
 }
 
+.slick-headerrow {
+    background: #fafafa;
+}
+
+.slick-headerrow-column {
+    background: #fafafa;
+    border-bottom: 0;
+    height: 100%;
+}
+
 .slick-row.ui-state-active {
     background: #F5F7D7;
 }

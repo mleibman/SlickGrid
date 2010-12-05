@@ -6,13 +6,13 @@ classes should alter those!
 */
 
 
-.slick-header.ui-state-default {
+.slick-header.ui-state-default, .slick-headerrow.ui-state-default {
 	width: 100%;
 	overflow: hidden;
 	border-left: 0px;
 }
 
-.slick-header-columns {
+.slick-header-columns, .slick-headerrow-columns {
 	width: 999999px;
 	position: relative;
 	white-space: nowrap;
@@ -34,6 +34,10 @@ classes should alter those!
 	border-top: 0px;
 	border-bottom: 0px;
 	float: left;
+}
+
+.slick-headerrow-column.ui-state-default {
+    padding: 4px;
 }
 
 .slick-header-column-sorted {
@@ -80,7 +84,7 @@ classes should alter those!
 	border: 0px;
 }
 
-.slick-cell {
+.slick-cell, .slick-headerrow-column {
 	float: left;
 
 	border: 1px solid transparent;
