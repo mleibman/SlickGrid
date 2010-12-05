@@ -52,6 +52,11 @@
 					<li>loading data through AJAX</li>
 					<li>custom row height</li>
 				</ul>
+
+                <h2>WARNING:</h2>
+                <ul>
+                    <li>Digg API uses request rate limiting.  You may occasionally get an error if you do a frequent scrolling/resorting/searching.</li>
+                </ul>
 		</div>
 
 		<script language="JavaScript" src="../lib/firebugx.js"></script>
@@ -61,6 +66,7 @@
 		<script language="JavaScript" src="../lib/jquery.event.drag-2.0.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery.jsonp-1.1.0.min.js"></script>
 
+		<script language="JavaScript" src="../slick.core.js"></script>
 		<script language="JavaScript" src="../slick.remotemodel.js"></script>
 		<script language="JavaScript" src="../slick.grid.js"></script>
 
@@ -95,16 +101,16 @@
 		{
 			grid = new Slick.Grid("#myGrid", loader.data, columns, options);
 
-			grid.onViewportChanged = function() {
+			grid.onViewportChanged.subscribe(function(e,args) {
                 var vp = grid.getViewport();
                 loader.ensureData(vp.top, vp.bottom);
-            };
+            });
 
-			grid.onSort = function(sortCol, sortAsc) {
-                loader.setSort(sortCol.field, sortAsc ? 1 : -1);
+			grid.onSort.subscribe(function(e,args) {
+                loader.setSort(args.sortCol.field, args.sortAsc ? 1 : -1);
                 var vp = grid.getViewport();
                 loader.ensureData(vp.top, vp.bottom);
-            };
+            });
 
 			loader.onDataLoading.subscribe(function() {
 				if (!loadingIndicator)
@@ -121,7 +127,7 @@
 				loadingIndicator.show();
 			});
 
-			loader.onDataLoaded.subscribe(function(args) {
+			loader.onDataLoaded.subscribe(function(e,args) {
 				for (var i = args.from; i <= args.to; i++) {
 					grid.invalidateRow(i);
 				}
@@ -143,7 +149,7 @@
 
 
 			// load the first page
-			grid.onViewportChanged();
+			grid.onViewportChanged.notify();
 		})
 		</script>
 	</body>

@@ -61,7 +61,7 @@
 				toPage--;
 
 			if (fromPage > toPage || ((fromPage == toPage) && data[fromPage*PAGESIZE] !== undefined)) {
-				// TODO:  lookeahead
+				// TODO:  look-ahead
 				return;
 			}
 
@@ -102,7 +102,7 @@
 		}
 
 		function onSuccess(resp) {
-			var from = resp.offset, to = resp.offset + resp.count;
+			var from = this.fromPage*PAGESIZE, to = from + resp.count;
 			data.length = parseInt(resp.total);
 
 			for (var i = 0; i < resp.stories.length; i++) {
