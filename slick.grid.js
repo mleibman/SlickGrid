@@ -1319,32 +1319,34 @@ if (typeof Slick === "undefined") {
                 $headerRowScroller[0].scrollLeft = scrollLeft;
             }
 
-            if (!scrollDist) return;
+            if (scrollDist) {
+                scrollDir = prevScrollTop < scrollTop ? 1 : -1;
+                prevScrollTop = scrollTop;
 
-            scrollDir = prevScrollTop < scrollTop ? 1 : -1;
-            prevScrollTop = scrollTop;
+                // switch virtual pages if needed
+                if (scrollDist < viewportH) {
+                    scrollTo(scrollTop + offset);
+                }
+                else {
+                    var oldOffset = offset;
+                    page = Math.min(n - 1, Math.floor(scrollTop * ((th - viewportH) / (h - viewportH)) * (1 / ph)));
+                    offset = Math.round(page * cj);
+                    if (oldOffset != offset)
+                        invalidateAllRows();
+                }
 
-            // switch virtual pages if needed
-            if (scrollDist < viewportH) {
-                scrollTo(scrollTop + offset);
+                if (h_render)
+                    clearTimeout(h_render);
+
+                if (Math.abs(lastRenderedScrollTop - scrollTop) < viewportH)
+                    render();
+                else
+                    h_render = setTimeout(render, 50);
+
+                self.onViewportChanged.notify({});
             }
-            else {
-                var oldOffset = offset;
-                page = Math.min(n - 1, Math.floor(scrollTop * ((th - viewportH) / (h - viewportH)) * (1 / ph)));
-                offset = Math.round(page * cj);
-                if (oldOffset != offset)
-                    invalidateAllRows();
-            }
 
-            if (h_render)
-                clearTimeout(h_render);
-
-            if (Math.abs(lastRenderedScrollTop - scrollTop) < viewportH)
-                render();
-            else
-                h_render = setTimeout(render, 50);
-
-            self.onViewportChanged.notify({});
+            self.onScroll.notify({scrollLeft:scrollLeft, scrollTop:scrollTop});
         }
 
         function asyncPostProcessRows() {
@@ -2196,6 +2198,7 @@ if (typeof Slick === "undefined") {
             "slickGridVersion": "2.0a1",
 
             // Events
+            "onScroll":                     new Slick.Event(),
             "onSort":                       new Slick.Event(),
             "onHeaderContextMenu":          new Slick.Event(),
             "onHeaderClick":                new Slick.Event(),
@@ -2277,7 +2280,6 @@ if (typeof Slick === "undefined") {
             "getTopPanel":              getTopPanel,
             "showTopPanel":                 showTopPanel,
             "hideTopPanel":                 hideTopPanel,
-
             "showHeaderRowColumns":         showHeaderRowColumns,
             "hideHeaderRowColumns":         hideHeaderRowColumns,
             "getHeaderRow":                 getHeaderRow,
