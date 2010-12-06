@@ -118,7 +118,7 @@
 			enableCellNavigation: true,
 			asyncEditorLoading: true,
 			forceFitColumns: false,
-            secondaryHeaderRowHeight: 25
+            topPanelHeight: 25
 		};
 
 		var sortcol = "title";
@@ -153,10 +153,10 @@
 		}
 
         function toggleFilterRow() {
-            if ($(grid.getSecondaryHeaderRow()).is(":visible"))
-                grid.hideSecondaryHeaderRow();
+            if ($(grid.getTopPanel()).is(":visible"))
+                grid.hideTopPanel();
             else
-                grid.showSecondaryHeaderRow();
+                grid.showTopPanel();
         }
 
 
@@ -194,9 +194,9 @@
 			var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
 
 
-            // move the filter panel defined in a hidden div into an inline secondary grid header row
+            // move the filter panel defined in a hidden div into grid top panel
             $("#inlineFilterPanel")
-                .appendTo(grid.getSecondaryHeaderRow())
+                .appendTo(grid.getTopPanel())
                 .show();
 
             grid.onCellChange.subscribe(function(e,args) {
