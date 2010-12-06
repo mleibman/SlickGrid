@@ -1615,6 +1615,10 @@ if (typeof Slick === "undefined") {
                 cell++;
             }
 
+            if (cell < 0) {
+                cell = 0;
+            }
+
             return {row:row,cell:cell-1};
         }
 
@@ -2277,7 +2281,7 @@ if (typeof Slick === "undefined") {
             "navigateLeft":                 navigateLeft,
             "navigateRight":                navigateRight,
             "gotoCell":                     gotoCell,
-            "getTopPanel":              getTopPanel,
+            "getTopPanel":                  getTopPanel,
             "showTopPanel":                 showTopPanel,
             "hideTopPanel":                 hideTopPanel,
             "showHeaderRowColumns":         showHeaderRowColumns,
