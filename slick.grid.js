@@ -285,7 +285,7 @@ if (typeof Slick === "undefined") {
 
         function setSelectionModel(model) {
             if (selectionModel) {
-                selectionModel.onSelectedRangesChanged.subscribe(handleSelectedRangesChanged);
+                selectionModel.onSelectedRangesChanged.unsubscribe(handleSelectedRangesChanged);
                 if (selectionModel.destroy) {
                     selectionModel.destroy();
                 }
