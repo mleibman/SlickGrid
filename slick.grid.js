@@ -82,7 +82,8 @@ if (typeof Slick === "undefined") {
             editorFactory: null,
             cellFlashingCssClass: "flashing",
             selectedCellCssClass: "selected",
-            multiSelect: true
+            multiSelect: true,
+            enableTextSelectionOnCells: false
         },
         gridData;
 
@@ -237,7 +238,7 @@ if (typeof Slick === "undefined") {
             // selection in grid cells (grid body) is already unavailable in
             // all browsers except IE
             disableSelection($headers); // disable all text selection in header (including input and textarea)
-            $viewport.bind("selectstart.ui", function (event) { return $(event.target).is("input,textarea"); }); // disable text selection in grid cells except in input and textarea elements (this is IE-specific, because selectstart event will only fire in IE)
+            if (!options.enableTextSelectionOnCells) $viewport.bind("selectstart.ui", function (event) { return $(event.target).is("input,textarea"); }); // disable text selection in grid cells except in input and textarea elements (this is IE-specific, because selectstart event will only fire in IE)
 
             createColumnHeaders();
             setupColumnSort();
