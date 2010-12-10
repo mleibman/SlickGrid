@@ -68,7 +68,7 @@
             if (args.pageNum != undefined)
                 pagenum = Math.min(args.pageNum, Math.ceil(totalRows / pagesize));
 
-            onPagingInfoChanged.notify(getPagingInfo());
+            onPagingInfoChanged.notify(getPagingInfo(), null, self);
 
             refresh();
         }
@@ -231,9 +231,9 @@
 
             updated = null;
 
-            if (totalRowsBefore != totalRows) onPagingInfoChanged.notify(getPagingInfo());
-            if (countBefore != rows.length) onRowCountChanged.notify({previous:countBefore, current:rows.length});
-            if (diff.length > 0) onRowsChanged.notify(diff);
+            if (totalRowsBefore != totalRows) onPagingInfoChanged.notify(getPagingInfo(), null, self);
+            if (countBefore != rows.length) onRowCountChanged.notify({previous:countBefore, current:rows.length}, null, self);
+            if (diff.length > 0) onRowsChanged.notify({rows:diff}, null, self);
         }
 
 

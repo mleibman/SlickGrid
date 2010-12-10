@@ -268,8 +268,8 @@
                 grid.render();
 			});
 
-			dataView.onRowsChanged.subscribe(function(e,rows) {
-				grid.invalidateRows(rows);
+			dataView.onRowsChanged.subscribe(function(e,args) {
+				grid.invalidateRows(args.rows);
 				grid.render();
 
 				if (selectedRowIds.length > 0)

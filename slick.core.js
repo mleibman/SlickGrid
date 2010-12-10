@@ -47,21 +47,13 @@
             }
         };
 
-        this.notify = function(arg1, arg2) {
-            var e;
-            var data;
-            var returnValue;
-            if (arguments.length === 2) {
-                e = arg1;
-                data = arg2;
-            }
-            else {
-                e = new EventData();
-                data = arg1;
-            }
+        this.notify = function(args, e, scope) {
+            e = e || new EventData();
+            scope = scope || this;
 
+            var returnValue;
             for (var i = 0; i < handlers.length && !(e.isPropagationStopped() || e.isImmediatePropagationStopped()); i++) {
-                returnValue = handlers[i].call(this, e, data);
+                returnValue = handlers[i].call(scope, e, args);
             }
 
             return returnValue;
@@ -90,7 +82,7 @@
         this.contains = function(row, cell) {
             return row >= this.fromRow && row <= this.toRow &&
                    cell >= this.fromCell && cell <= this.toCell;
-        }
+        };
 
         this.toString = function() {
             if (this.isSingleCell()) {

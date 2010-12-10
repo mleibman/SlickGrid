@@ -459,7 +459,7 @@ if (typeof Slick === "undefined") {
                     }
 
                     setSortColumn(sortColumnId,sortAsc);
-                    self.onSort.notify({sortCol:column,sortAsc:sortAsc});
+                    trigger(self.onSort, {sortCol:column,sortAsc:sortAsc});
                 }
             });
         }
@@ -488,7 +488,7 @@ if (typeof Slick === "undefined") {
                     }
                     setColumns(reorderedColumns);
 
-                    self.onColumnsReordered.notify({});
+                    trigger(self.onColumnsReordered, {});
                     e.stopPropagation();
                     setupColumnResize();
                 }
@@ -650,7 +650,7 @@ if (typeof Slick === "undefined") {
                             }
                         }
                         resizeCanvas();
-                        self.onColumnsResized.notify({});
+                        trigger(self.onColumnsResized, {});
                     });
                 });
         }
@@ -726,7 +726,7 @@ if (typeof Slick === "undefined") {
         function destroy() {
             getEditorLock().cancelCurrentEdit();
 
-            self.onBeforeDestroy.notify({});
+            trigger(self.onBeforeDestro, {});
 
             for (var i = 0; i < plugins.length; i++) {
                 unregisterPlugin(plugin);
@@ -746,6 +746,13 @@ if (typeof Slick === "undefined") {
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         // General
+
+        function trigger(evt, args, e) {
+            e = e || new Slick.EventData();
+            args = args || args;
+            args.grid = self;
+            return evt.notify(args, e, self);
+        }
 
         function getEditorLock() {
             return options.editorLock;
@@ -855,7 +862,7 @@ if (typeof Slick === "undefined") {
 
             setCellCssStyles(options.selectedCellCssClass, hash);
 
-            self.onSelectedRowsChanged.notify(e, getSelectedRows());
+            trigger(self.onSelectedRowsChanged, {rows:getSelectedRows()}, e);
         }
 
         function getColumns() {
@@ -965,7 +972,7 @@ if (typeof Slick === "undefined") {
                 scrollDir = (prevScrollTop + oldOffset < newScrollTop + offset) ? 1 : -1;
                 $viewport[0].scrollTop = (lastRenderedScrollTop = scrollTop = prevScrollTop = newScrollTop);
 
-                self.onViewportChanged.notify({});
+                trigger(self.onViewportChanged, {});
             }
         }
 
@@ -1343,10 +1350,10 @@ if (typeof Slick === "undefined") {
                 else
                     h_render = setTimeout(render, 50);
 
-                self.onViewportChanged.notify({});
+                trigger(self.onViewportChanged, {});
             }
 
-            self.onScroll.notify({scrollLeft:scrollLeft, scrollTop:scrollTop});
+            trigger(self.onScroll, {scrollLeft:scrollLeft, scrollTop:scrollTop});
         }
 
         function asyncPostProcessRows() {
@@ -1445,7 +1452,7 @@ if (typeof Slick === "undefined") {
                 return false;
             }
 
-            retval = self.onDragInit.notify(e,dd);
+            retval = trigger(self.onDragInit, dd, e);
             if (e.isImmediatePropagationStopped()) {
                 return retval;
             }
@@ -1457,7 +1464,7 @@ if (typeof Slick === "undefined") {
                 return false;
             }
 
-            var retval = self.onDragStart.notify(e,dd);
+            var retval = trigger(self.onDragStart, dd, e);
             if (e.isImmediatePropagationStopped()) {
                 return retval;
             }
@@ -1466,15 +1473,15 @@ if (typeof Slick === "undefined") {
         }
 
         function handleDrag(e,dd) {
-            return self.onDrag.notify(e,dd);
+            return trigger(self.onDrag, dd, e);
         }
 
         function handleDragEnd(e,dd) {
-            self.onDragEnd.notify(e,dd);
+            trigger(self.onDragEnd, dd, e);
         }
 
         function handleKeyDown(e) {
-            self.onKeyDown.notify(e, {});
+            trigger(self.onKeyDown, {}, e);
             var handled = e.isImmediatePropagationStopped();
 
             if (!handled) {
@@ -1542,7 +1549,7 @@ if (typeof Slick === "undefined") {
                 return;
             }
 
-            self.onClick.notify(e, {row:cell.row, cell:cell.cell});
+            trigger(self.onClick, {row:cell.row, cell:cell.cell}, e);
             if (e.isImmediatePropagationStopped()) {
                 return;
             }
@@ -1562,7 +1569,7 @@ if (typeof Slick === "undefined") {
             // are we editing this cell?
             if (activeCellNode === $cell[0] && currentEditor !== null) { return; }
 
-            self.onContextMenu.notify(e,{});
+            trigger(self.onContextMenu, {}, e);
         }
 
         function handleDblClick(e) {
@@ -1571,7 +1578,7 @@ if (typeof Slick === "undefined") {
                 return;
             }
 
-            self.onDblClick.notify(e, {row:cell.row, cell:cell.cell});
+            trigger(self.onDblClick, {row:cell.row, cell:cell.cell}, e);
             if (e.isImmediatePropagationStopped()) {
                 return;
             }
@@ -1584,21 +1591,21 @@ if (typeof Slick === "undefined") {
         function handleHeaderContextMenu(e) {
             var $header = $(e.target).closest(".slick-header-column", ".slick-header-columns");
             var column = $header && columns[self.getColumnIndex($header.data("fieldId"))];
-            self.onHeaderContextMenu.notify(e, {column: column});
+            trigger(self.onHeaderContextMenu, {column: column}, e);
         }
 
         function handleHeaderClick(e) {
             var $header = $(e.target).closest(".slick-header-column", ".slick-header-columns");
             var column = $header && columns[self.getColumnIndex($header.data("fieldId"))];
-            self.onHeaderClick.notify(e, {column: column});
+            trigger(self.onHeaderClick, {column: column}, e);
         }
 
         function handleMouseEnter(e) {
-            self.onMouseEnter.notify(e,{});
+            trigger(self.onMouseEnter, {}, e);
         }
 
         function handleMouseLeave(e) {
-            self.onMouseLeave.notify(e,{});
+            trigger(self.onMouseLeave, {}, e);
         }
 
         function cellExists(row,cell) {
@@ -1719,7 +1726,7 @@ if (typeof Slick === "undefined") {
             }
 
             if (activeCellChanged) {
-                self.onActiveCellChanged.notify(getActiveCell());
+                trigger(self.onActiveCellChanged, getActiveCell());
             }
         }
 
@@ -1756,7 +1763,7 @@ if (typeof Slick === "undefined") {
 
         function makeActiveCellNormal() {
             if (!currentEditor) { return; }
-            self.onBeforeCellEditorDestroy.notify({editor:currentEditor});
+            trigger(self.onBeforeCellEditorDestroy, {editor:currentEditor});
             currentEditor.destroy();
             currentEditor = null;
 
@@ -1790,7 +1797,7 @@ if (typeof Slick === "undefined") {
                 return;
             }
 
-            if (self.onBeforeEditCell.notify({row:activeRow, cell:activeCell,item:getDataItem(activeRow)}) === false) {
+            if (trigger(self.onBeforeEditCell, {row:activeRow, cell:activeCell,item:getDataItem(activeRow)}) === false) {
                 focusOnActiveCell();
                 return;
             }
@@ -1883,7 +1890,7 @@ if (typeof Slick === "undefined") {
             if (!activeCellNode) return;
             var cellBox;
 
-            self.onActiveCellPositionChanged.notify({});
+            trigger(self.onActiveCellPositionChanged, {});
 
             if (currentEditor) {
                 cellBox = cellBox || getActiveCellPosition();
@@ -2103,7 +2110,7 @@ if (typeof Slick === "undefined") {
                                 makeActiveCellNormal();
                             }
 
-                            self.onCellChange.notify({
+                            trigger(self.onCellChange, {
                                 row: activeRow,
                                 cell: activeCell,
                                 item: item
@@ -2113,7 +2120,7 @@ if (typeof Slick === "undefined") {
                             var newItem = {};
                             currentEditor.applyValue(newItem,currentEditor.serializeValue());
                             makeActiveCellNormal();
-                            self.onAddNewRow.notify({item:newItem, column:column});
+                            trigger(self.onAddNewRow, {item:newItem, column:column});
                         }
 
                         // check whether the lock has been re-acquired by event handlers
@@ -2124,7 +2131,7 @@ if (typeof Slick === "undefined") {
                         $(activeCellNode).addClass("invalid");
                         $(activeCellNode).stop(true,true).effect("highlight", {color:"red"}, 300);
 
-                        self.onValidationError.notify({
+                        trigger(self.onValidationError, {
                             cellNode: activeCellNode,
                             validationResults: validationResults,
                             row: activeRow,

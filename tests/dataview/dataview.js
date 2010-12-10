@@ -163,7 +163,7 @@ test("refresh fires after resume", function() {
     var count = 0;
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, [0,1], "args");
+        same(args, {rows:[0,1]}, "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -324,7 +324,7 @@ test("applied immediately", function() {
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, [0], "args");
+        same(args, {rows:[0]}, "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -358,7 +358,7 @@ test("re-applied on refresh", function() {
 
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, [0], "args");
+        same(args, {rows:[0]}, "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -434,7 +434,7 @@ test("all then none", function() {
 
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, [0,1,2], "args");
+        same(args, {rows:[0,1,2]}, "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -467,7 +467,7 @@ test("basic", function() {
 
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, [1], "args");
+        same(args, {rows:[1]}, "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -508,7 +508,7 @@ test("updating an item to pass the filter", function() {
     dv.setFilter(function(o) { return o["val"] !== 1337 });
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, [3], "args");
+        same(args, {rows:[3]}, "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -589,7 +589,7 @@ test("basic", function() {
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, [3], "args");
+        same(args, {rows:[3]}, "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -660,7 +660,7 @@ test("insert at the beginning", function() {
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, [0,1,2,3], "args");
+        same(args, {rows:[0,1,2,3]}, "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -690,7 +690,7 @@ test("insert in the middle", function() {
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, [2,3], "args");
+        same(args, {rows:[2,3]}, "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -720,7 +720,7 @@ test("insert at the end", function() {
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, [3], "args");
+        same(args, {rows:[3]}, "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -804,7 +804,7 @@ test("delete at the beginning", function() {
     dv.setItems([{id:05,val:0},{id:15,val:1},{id:25,val:2}]);
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, [0,1], "args");
+        same(args, {rows:[0,1]}, "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -833,7 +833,7 @@ test("delete in the middle", function() {
     dv.setItems([{id:05,val:0},{id:15,val:1},{id:25,val:2}]);
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, [1], "args");
+        same(args, {rows:[1]}, "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
