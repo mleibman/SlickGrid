@@ -63,8 +63,9 @@ if (typeof Slick === "undefined") {
             leaveSpaceForNewRows: false,
             editable: false,
             autoEdit: true,
-            alwaysNavigateDownOnCommit: false,
             enableCellNavigation: true,
+            alwaysNavigateDownOnCommit: false,
+            shiftKeyPreventsNavigation: false,
             enableCellRangeSelection: false,
             enableColumnReorder: true,
             asyncEditorLoading: false,
@@ -1479,7 +1480,7 @@ if (typeof Slick === "undefined") {
             var handled = e.isImmediatePropagationStopped();
 
             if (!handled) {
-                if (!e.shiftKey && !e.altKey && !e.ctrlKey) {
+                if (!(options.shiftKeyPreventsNavigation && e.shiftKey) && !e.altKey && !e.ctrlKey) {
                     if (e.which == 27) {
                         if (!getEditorLock().isActive()) {
                             return; // no editing mode to cancel, allow bubbling and default processing (exit without cancelling the event)
