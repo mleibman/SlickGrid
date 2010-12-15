@@ -1009,6 +1009,9 @@ if (typeof Slick === "undefined") {
                 var m = columns[i];
 
                 cellCss = "slick-cell c" + i + (m.cssClass ? " " + m.cssClass : "");
+                if (row === activeRow && i === activeCell) {
+                    cellCss += (" active");
+                }
 
                 // TODO:  merge them together in the setter
                 for (var key in cellCssClasses) {
@@ -1256,8 +1259,9 @@ if (typeof Slick === "undefined") {
                 renderedRows++;
                 rows.push(i);
                 appendRowHtml(stringArray,i);
-                if (activeCellNode && activeRow === i)
+                if (activeCellNode && activeRow === i) {
                     needToReselectCell = true;
+                }
                 counter_rows_rendered++;
             }
 
@@ -1269,7 +1273,7 @@ if (typeof Slick === "undefined") {
             }
 
             if (needToReselectCell) {
-                setActiveCellInternal(getCellNode(activeRow,activeCell),false);
+                activeCellNode = getCellNode(activeRow,activeCell);
             }
 
             if (renderedRows - rowsBefore > 5) {
@@ -1667,28 +1671,27 @@ if (typeof Slick === "undefined") {
             setActiveCellInternal(null,false);
         }
 
-        function focusOnActiveCell() {
-            // lazily enable the cell to receive keyboard focus
-            $(activeCellNode)
-                .attr("tabIndex",0)
-                .attr("hideFocus",true);
-
+        function setFocus() {
             // IE7 tries to scroll the viewport so that the item being focused is aligned to the left border
             // IE-specific .setActive() sets the focus, but doesn't scroll
             if ($.browser.msie && parseInt($.browser.version) < 8)
-                activeCellNode.setActive();
+                $canvas[0].setActive();
             else
-                activeCellNode.focus();
+                $canvas[0].focus();
+        }
 
-            var left = $(activeCellNode).position().left,
-                right = left + $(activeCellNode).outerWidth(),
-                scrollLeft = $viewport.scrollLeft(),
-                scrollRight = scrollLeft + $viewport.width();
+        function scrollActiveCellIntoView() {
+            if (activeCellNode) {
+                var left = $(activeCellNode).position().left,
+                    right = left + $(activeCellNode).outerWidth(),
+                    scrollLeft = $viewport.scrollLeft(),
+                    scrollRight = scrollLeft + $viewport.width();
 
-            if (left < scrollLeft)
-                $viewport.scrollLeft(left);
-            else if (right > scrollRight)
-                $viewport.scrollLeft(Math.min(left, right - $viewport[0].clientWidth));
+                if (left < scrollLeft)
+                    $viewport.scrollLeft(left);
+                else if (right > scrollRight)
+                    $viewport.scrollLeft(Math.min(left, right - $viewport[0].clientWidth));
+                }
         }
 
         function setActiveCellInternal(newCell,editMode) {
@@ -1717,7 +1720,7 @@ if (typeof Slick === "undefined") {
                     }
                 }
                 else {
-                      focusOnActiveCell()
+                      setFocus();
                 }
             }
             else {
@@ -1726,6 +1729,7 @@ if (typeof Slick === "undefined") {
             }
 
             if (activeCellChanged) {
+                scrollActiveCellIntoView();
                 trigger(self.onActiveCellChanged, getActiveCell());
             }
         }
@@ -1798,7 +1802,7 @@ if (typeof Slick === "undefined") {
             }
 
             if (trigger(self.onBeforeEditCell, {row:activeRow, cell:activeCell,item:getDataItem(activeRow)}) === false) {
-                focusOnActiveCell();
+                setFocus();
                 return;
             }
 
@@ -1834,7 +1838,7 @@ if (typeof Slick === "undefined") {
             // if the commit fails, it would do so due to a validation error
             // if so, do not steal the focus from the editor
             if (getEditorLock().commitCurrentEdit()) {
-                  focusOnActiveCell();
+                  setFocus();
 
                 if (options.autoEdit) {
                     navigateDown();
@@ -1844,7 +1848,7 @@ if (typeof Slick === "undefined") {
 
         function cancelEditAndSetFocus() {
             if (getEditorLock().cancelCurrentEdit()) {
-                  focusOnActiveCell();
+                  setFocus();
             }
         }
 
@@ -1987,13 +1991,13 @@ if (typeof Slick === "undefined") {
                 scrollRowIntoView(row,!isAddNewRow);
                 setActiveCellInternal(nextCell[0], isAddNewRow || options.autoEdit);
 
-                // if no editor was created, set the focus back on the cell
+                // if no editor was created, set the focus back on the grid
                 if (!currentEditor) {
-                      focusOnActiveCell();
+                      setFocus();
                 }
             }
             else {
-                  focusOnActiveCell();
+                  setFocus();
             }
         }
 
@@ -2041,9 +2045,9 @@ if (typeof Slick === "undefined") {
             // if selecting the 'add new' row, start editing right away
             setActiveCellInternal(newCell, forceEdit || (row === getDataLength()) || options.autoEdit);
 
-            // if no editor was created, set the focus back on the cell
+            // if no editor was created, set the focus back on the grid
             if (!currentEditor) {
-                  focusOnActiveCell();
+                  setFocus();
             }
         }
 
