@@ -174,6 +174,14 @@
             refresh();
         }
 
+        function getLength() {
+            return rows.length;
+        }
+
+        function getItem(i) {
+            return rows[i];
+        }
+
         function recalc(_items, _rows, _filter, _updated) {
             var diff = [];
             var items = _items, rows = _rows, filter = _filter, updated = _updated; // cache as local vars
@@ -261,6 +269,9 @@
             "insertItem":       insertItem,
             "addItem":          addItem,
             "deleteItem":       deleteItem,
+
+            "getLength":        getLength,
+            "getItem":          getItem,
 
             // events
             "onRowCountChanged":    onRowCountChanged,
