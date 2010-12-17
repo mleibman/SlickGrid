@@ -83,6 +83,7 @@
 		<script language="JavaScript" src="../lib/jquery.event.drop-2.0.min.js"></script>
 
         <script language="JavaScript" src="../slick.core.js"></script>
+        <script language="JavaScript" src="../plugins/slick.cellrangedecorator.js"></script>
         <script language="JavaScript" src="../plugins/slick.cellrangeselector.js"></script>
         <script language="JavaScript" src="../plugins/slick.cellselectionmodel.js"></script>
         <script language="JavaScript" src="../plugins/slick.rowselectionmodel.js"></script>
@@ -151,12 +152,9 @@
 				{ name: "Find out who's nice", complete: false}
 			];
 
-            data = data.concat(data);
-            data = data.concat(data);
-
 			grid = new Slick.Grid("#myGrid", data, columns, options);
 
-            grid.setSelectionModel(new Slick.CellSelectionModel());
+            grid.setSelectionModel(new Slick.RowSelectionModel());
 
             var moveRowsPlugin = new Slick.RowMoveManager();
 
