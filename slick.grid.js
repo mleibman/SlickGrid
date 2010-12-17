@@ -1500,8 +1500,13 @@ if (typeof Slick === "undefined") {
                         navigateDown();
                     }
                     else if (e.which == 9) {
-                        navigateNext();
+                        if (e.shiftKey) {
+                            navigatePrev();
+                        } else {
+                            navigateNext();
+                        }
                     }
+
                     else if (e.which == 13) {
                         if (options.editable) {
                             if (currentEditor) {
@@ -1521,9 +1526,6 @@ if (typeof Slick === "undefined") {
                     }
                     else
                         return;
-                }
-                else if (e.which == 9 && e.shiftKey && !e.ctrlKey && !e.altKey) {
-                        navigatePrev();
                 }
                 else
                     return;
