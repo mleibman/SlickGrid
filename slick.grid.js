@@ -57,6 +57,7 @@ if (typeof Slick === "undefined") {
 
         // settings
         var defaults = {
+            headerHeight: 25,
             rowHeight: 25,
             defaultColumnWidth: 80,
             enableAddRow: false,
@@ -229,8 +230,6 @@ if (typeof Slick === "undefined") {
             // calculate the diff so we can set consistent sizes
             measureCellPaddingAndBorder();
 
-            resizeViewport();
-
             // for usability reasons, all text selection in SlickGrid is disabled
             // with the exception of input and textarea elements (selection must
             // be enabled there so that editors work as expected); note that
@@ -242,6 +241,8 @@ if (typeof Slick === "undefined") {
             createColumnHeaders();
             setupColumnSort();
             createCssRules();
+
+            viewportW = parseInt($.curCSS($container[0], "width", true));
 
             resizeAndRender();
 
@@ -655,16 +656,32 @@ if (typeof Slick === "undefined") {
                 });
         }
 
+        function getVBoxDelta($el) {
+            var p = ["borderTopWidth", "borderBottomWidth", "paddingTop", "paddingBottom"];
+            var s = $el.curStyles.apply($el, p);
+            var delta = 0;
+            $.each(p, function(n,val) { delta += parseInt(s[val]) || 0; });
+            return delta;
+        }
+
         function measureCellPaddingAndBorder() {
-            var tmp = $("<div class='ui-state-default slick-header-column' style='visibility:hidden'>-</div>").appendTo($headers);
-            headerColumnWidthDiff = tmp.outerWidth() - tmp.width();
-            headerColumnHeightDiff = tmp.outerHeight() - tmp.height();
-            tmp.remove();
+            var el, s;
+            var h = ["borderLeftWidth", "borderRightWidth", "paddingLeft", "paddingRight"];
+            var v = ["borderTopWidth", "borderBottomWidth", "paddingTop", "paddingBottom"];
+
+            el = $("<div class='ui-state-default slick-header-column' style='visibility:hidden'>-</div>").appendTo($headers);
+            headerColumnWidthDiff = headerColumnHeightDiff = 0;
+            s = el.curStyles.apply(el, h.concat(v));
+            $.each(h, function(n,val) { headerColumnWidthDiff += parseInt(s[val]) || 0; });
+            $.each(v, function(n,val) { headerColumnHeightDiff += parseInt(s[val]) || 0; });
+            el.remove();
 
             var r = $("<div class='slick-row' />").appendTo($canvas);
-            tmp = $("<div class='slick-cell' id='' style='visibility:hidden'>-</div>").appendTo(r);
-            cellWidthDiff = tmp.outerWidth() - tmp.width();
-            cellHeightDiff = tmp.outerHeight() - tmp.height();
+            el = $("<div class='slick-cell' id='' style='visibility:hidden'>-</div>").appendTo(r);
+            cellWidthDiff = cellHeightDiff = 0;
+            s = el.curStyles.apply(el, h.concat(v));
+            $.each(h, function(n,val) { cellWidthDiff += parseInt(s[val]) || 0; });
+            $.each(v, function(n,val) { cellHeightDiff += parseInt(s[val]) || 0; });
             r.remove();
 
             absoluteColumnMinWidth = Math.max(headerColumnWidthDiff,cellWidthDiff);
@@ -770,7 +787,6 @@ if (typeof Slick === "undefined") {
             var i, c,
                 widths = [],
                 shrinkLeeway = 0,
-                viewportW = $viewport.innerWidth(), // may not be initialized yet
                 availWidth = (options.autoHeight ? viewportW : viewportW - scrollbarDimensions.width), // with AutoHeight, we do not need to accomodate the vertical scroll bar
                 total = 0,
                 existingTotal = 0;
@@ -1121,32 +1137,31 @@ if (typeof Slick === "undefined") {
             invalidatePostProcessingResults(row);
         }
 
-        function resizeViewport() {
-            $viewport.height(
-                $container.innerHeight() -
-                $headerScroller.outerHeight() -
-                (options.showTopPanel ? $topPanelScroller.outerHeight() : 0) -
-                (options.showHeaderRow ? $headerRow.outerHeight() : 0));
+        function getViewportHeight() {
+            return parseInt($.curCSS($container[0], "height", true)) -
+                options.headerHeight -
+                getVBoxDelta($headers) -
+                (options.showTopPanel ? options.topPanelHeight + getVBoxDelta($topPanelScroller) : 0) -
+                (options.showHeaderRow ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0);
         }
 
         function resizeCanvas() {
-            var newViewportH = options.rowHeight * (getDataLength() + (options.enableAddRow ? 1 : 0) + (options.leaveSpaceForNewRows? numVisibleRows - 1 : 0));
-            if (options.autoHeight) { // use computed height to set both canvas _and_ divMainScroller, effectively hiding scroll bars.
-                $viewport.height(newViewportH);
+            if (options.autoHeight) {
+                viewportH = options.rowHeight * (getDataLength() + (options.enableAddRow ? 1 : 0) + (options.leaveSpaceForNewRows? numVisibleRows - 1 : 0));
             }
             else {
-                resizeViewport();
+                viewportH = getViewportHeight();
             }
 
-            viewportW = $viewport.innerWidth();
-            viewportH = $viewport.innerHeight();
             numVisibleRows = Math.ceil(viewportH / options.rowHeight);
+            viewportW = parseInt($.curCSS($container[0], "width", true));
+            $viewport.height(viewportH);
 
-            var totalWidth = 0;
-            $headers.find(".slick-header-column").each(function() {
-                totalWidth += $(this).outerWidth();
-            });
-            setCanvasWidth(totalWidth);
+            var w = 0, i = columns.length;
+            while (i--) {
+                w += columns[i].currentWidth || columns[i].width;
+            }
+            setCanvasWidth(w);
 
             updateRowCount();
             render();
@@ -1694,7 +1709,7 @@ if (typeof Slick === "undefined") {
                 }
         }
 
-        function setActiveCellInternal(newCell,editMode) {
+        function setActiveCellInternal(newCell, editMode) {
             if (activeCellNode !== null) {
                 makeActiveCellNormal();
                 $(activeCellNode).removeClass("active");
