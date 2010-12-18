@@ -1687,12 +1687,14 @@ if (typeof Slick === "undefined") {
         }
 
         function setFocus() {
-            // IE7 tries to scroll the viewport so that the item being focused is aligned to the left border
+            // IE tries to scroll the viewport so that the item being focused is aligned to the left border
             // IE-specific .setActive() sets the focus, but doesn't scroll
-            if ($.browser.msie && parseInt($.browser.version) < 8)
+            if ($.browser.msie) {
                 $canvas[0].setActive();
-            else
+            }
+            else {
                 $canvas[0].focus();
+            }
         }
 
         function scrollActiveCellIntoView() {
@@ -1706,7 +1708,7 @@ if (typeof Slick === "undefined") {
                     $viewport.scrollLeft(left);
                 else if (right > scrollRight)
                     $viewport.scrollLeft(Math.min(left, right - $viewport[0].clientWidth));
-                }
+            }
         }
 
         function setActiveCellInternal(newCell, editMode) {
