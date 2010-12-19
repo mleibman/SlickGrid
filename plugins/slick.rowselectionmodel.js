@@ -94,38 +94,24 @@
 
                 var top = selectedRows[0];
                 var bottom = selectedRows[selectedRows.length - 1];
+                var active;
 
                 if (e.which == 40) {
-                    if (activeRow.row < bottom || top == bottom) {
-                        bottom++;
-                        _grid.scrollRowIntoView(bottom);
-                    }
-                    else {
-                        top++;
-                        _grid.scrollRowIntoView(top);
-                    }
+                    active = activeRow.row < bottom || top == bottom ? ++bottom : ++top;
                 }
                 else {
-                    if (activeRow.row < bottom) {
-                        bottom--;
-                        _grid.scrollRowIntoView(bottom);
-                    } else {
-                        top--;
-                        _grid.scrollRowIntoView(top);
-                    }
+                    active = activeRow.row < bottom ? --bottom : --top;
                 }
 
-                selectedRows = getRowsRange(top,bottom);
-                _ranges = rowsToRanges(selectedRows);
-
-                setSelectedRanges(_ranges);
+                if (active >= 0 && active < _grid.getDataLength()) {
+                    _grid.scrollRowIntoView(active);
+                    _ranges = rowsToRanges(getRowsRange(top,bottom));
+                    setSelectedRanges(_ranges);
+                }
 
                 e.preventDefault();
                 e.stopPropagation();
-                return true;
             }
-
-            return false;
         }
 
         function handleClick(e) {
