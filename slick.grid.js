@@ -22,6 +22,9 @@ if (typeof jQuery === "undefined") {
 if (!jQuery.fn.drag) {
     throw "SlickGrid requires jquery.event.drag module to be loaded";
 }
+if (!jQuery.fn.curStyles) {
+    throw "SlickGrid requires jquery.curstyles module to be loaded";
+}
 if (typeof Slick === "undefined") {
     throw "slick.core.js not loaded";
 }

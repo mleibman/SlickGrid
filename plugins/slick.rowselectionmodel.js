@@ -26,7 +26,7 @@
         function destroy() {
             _grid.onActiveCellChanged.unsubscribe(handleActiveCellChange);
             _grid.onKeyDown.unsubscribe(handleKeyDown);
-            _grid.onClick.unsubscribe(handleClick());
+            _grid.onClick.unsubscribe(handleClick);
         }
 
         function rangesToRows(ranges) {
