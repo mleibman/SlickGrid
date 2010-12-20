@@ -746,7 +746,7 @@ if (typeof Slick === "undefined") {
         function destroy() {
             getEditorLock().cancelCurrentEdit();
 
-            trigger(self.onBeforeDestro, {});
+            trigger(self.onBeforeDestroy, {});
 
             for (var i = 0; i < plugins.length; i++) {
                 unregisterPlugin(plugin);
