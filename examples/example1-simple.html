@@ -11,7 +11,7 @@
 		<table width="100%">
 		<tr>
 			<td valign="top" width="50%">
-				<div id="myGrid" style="width:600px;height:500px;"></div>
+				<div id="myGrid" style="width:600px;height:500px;display:none;"></div>
 			</td>
 			<td valign="top">
 				<h2>Demonstrates:</h2>
@@ -24,7 +24,6 @@
 
 		<script src="../lib/jquery-1.4.3.min.js"></script>
 		<script src="../lib/jquery.event.drag-2.0.min.js"></script>
-        <script src="../lib/jquery.curstyles.min.js"></script>
 
         <script src="../slick.core.js"></script>
         <script src="../slick.grid.js"></script>
@@ -61,6 +60,8 @@
 			}
 
 			grid = new Slick.Grid("#myGrid", data, columns, options);
+
+            $("#myGrid").show();
 		})
 
 		</script>

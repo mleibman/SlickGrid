@@ -22,9 +22,6 @@ if (typeof jQuery === "undefined") {
 if (!jQuery.fn.drag) {
     throw "SlickGrid requires jquery.event.drag module to be loaded";
 }
-if (!jQuery.fn.curStyles) {
-    throw "SlickGrid requires jquery.curstyles module to be loaded";
-}
 if (typeof Slick === "undefined") {
     throw "slick.core.js not loaded";
 }
@@ -245,7 +242,7 @@ if (typeof Slick === "undefined") {
             setupColumnSort();
             createCssRules();
 
-            viewportW = parseInt($.curCSS($container[0], "width", true));
+            viewportW = parseFloat($.css($container[0], "width", true));
 
             resizeAndRender();
 
@@ -661,30 +658,27 @@ if (typeof Slick === "undefined") {
 
         function getVBoxDelta($el) {
             var p = ["borderTopWidth", "borderBottomWidth", "paddingTop", "paddingBottom"];
-            var s = $el.curStyles.apply($el, p);
             var delta = 0;
-            $.each(p, function(n,val) { delta += parseInt(s[val]) || 0; });
+            $.each(p, function(n,val) { delta += parseFloat($el.css(val)) || 0; });
             return delta;
         }
 
         function measureCellPaddingAndBorder() {
-            var el, s;
+            var el;
             var h = ["borderLeftWidth", "borderRightWidth", "paddingLeft", "paddingRight"];
             var v = ["borderTopWidth", "borderBottomWidth", "paddingTop", "paddingBottom"];
 
             el = $("<div class='ui-state-default slick-header-column' style='visibility:hidden'>-</div>").appendTo($headers);
             headerColumnWidthDiff = headerColumnHeightDiff = 0;
-            s = el.curStyles.apply(el, h.concat(v));
-            $.each(h, function(n,val) { headerColumnWidthDiff += parseInt(s[val]) || 0; });
-            $.each(v, function(n,val) { headerColumnHeightDiff += parseInt(s[val]) || 0; });
+            $.each(h, function(n,val) { headerColumnWidthDiff += parseFloat(el.css(val)) || 0; console.log(el.css(val)) });
+            $.each(v, function(n,val) { headerColumnHeightDiff += parseFloat(el.css(val)) || 0; });
             el.remove();
 
             var r = $("<div class='slick-row' />").appendTo($canvas);
             el = $("<div class='slick-cell' id='' style='visibility:hidden'>-</div>").appendTo(r);
             cellWidthDiff = cellHeightDiff = 0;
-            s = el.curStyles.apply(el, h.concat(v));
-            $.each(h, function(n,val) { cellWidthDiff += parseInt(s[val]) || 0; });
-            $.each(v, function(n,val) { cellHeightDiff += parseInt(s[val]) || 0; });
+            $.each(h, function(n,val) { cellWidthDiff += parseFloat(el.css(val)) || 0; });
+            $.each(v, function(n,val) { cellHeightDiff += parseFloat(el.css(val)) || 0; });
             r.remove();
 
             absoluteColumnMinWidth = Math.max(headerColumnWidthDiff,cellWidthDiff);
@@ -1141,7 +1135,7 @@ if (typeof Slick === "undefined") {
         }
 
         function getViewportHeight() {
-            return parseInt($.curCSS($container[0], "height", true)) -
+            return parseFloat($.css($container[0], "height", true)) -
                 options.headerHeight -
                 getVBoxDelta($headers) -
                 (options.showTopPanel ? options.topPanelHeight + getVBoxDelta($topPanelScroller) : 0) -
@@ -1157,7 +1151,7 @@ if (typeof Slick === "undefined") {
             }
 
             numVisibleRows = Math.ceil(viewportH / options.rowHeight);
-            viewportW = parseInt($.curCSS($container[0], "width", true));
+            viewportW = parseFloat($.css($container[0], "width", true));
             $viewport.height(viewportH);
 
             var w = 0, i = columns.length;
