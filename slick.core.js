@@ -1,3 +1,9 @@
+/***
+ * Contains core SlickGrid classes.
+ * @module Core
+ * @namespace Slick
+ */
+
 (function($) {
     // register namespace
     $.extend(true, window, {
@@ -10,35 +16,75 @@
         }
     });
 
-
+    /***
+     * An event object for passing data to event handlers and letting them control propagation.
+     * <p>This is pretty much identical to how W3C and jQuery implement events.</p>
+     * @class EventData
+     * @constructor
+     */
     function EventData() {
         var isPropagationStopped = false;
         var isImmediatePropagationStopped = false;
 
+        /***
+         * Stops event from propagating up the DOM tree.
+         * @method stopPropagation
+         */
         this.stopPropagation = function() {
             isPropagationStopped = true;
         };
 
+        /***
+         * Returns whether stopPropagation was called on this event object.
+         * @method isPropagationStopped
+         * @return {Boolean}
+         */
         this.isPropagationStopped = function() {
             return isPropagationStopped;
         };
 
+        /***
+         * Prevents the rest of the handlers from being executed.
+         * @method stopImmediatePropagation
+         */
         this.stopImmediatePropagation = function() {
             isImmediatePropagationStopped = true;
         };
 
+        /***
+         * Returns whether stopImmediatePropagation was called on this event object.\
+         * @method isImmediatePropagationStopped
+         * @return {Boolean}
+         */
         this.isImmediatePropagationStopped = function() {
             return isImmediatePropagationStopped;
         }
     }
 
+    /***
+     * A simple publisher-subscriber implementation.
+     * @class Event
+     * @constructor
+     */
     function Event() {
         var handlers = [];
 
+        /***
+         * Adds an event handler to be called when the event is fired.
+         * <p>Event handler will receive two arguments - an <code>EventData</code> and the <code>data</code>
+         * object the event was fired with.<p>
+         * @method subscribe
+         * @param fn {Function} Event handler.
+         */
         this.subscribe = function(fn) {
             handlers.push(fn);
         };
 
+        /***
+         * Removes an event handler added with <code>subscribe(fn)</code>.
+         * @method unsubscribe
+         * @param fn {Function} Event handler to be removed.
+         */
         this.unsubscribe = function(fn) {
             for (var i = handlers.length - 1; i >= 0; i--) {
                 if (handlers[i] === fn) {
@@ -47,6 +93,19 @@
             }
         };
 
+        /***
+         * Fires an event notifying all subscribers.
+         * @method notify
+         * @param args {Object} Additional data object to be passed to all handlers.
+         * @param e {EventData}
+         *      Optional.
+         *      An <code>EventData</code> object to be passed to all handlers.
+         *      For DOM events, an existing W3C/jQuery event object can be passed in.
+         * @param scope {Object}
+         *      Optional.
+         *      The scope ("this") within which the handler will be executed.
+         *      If not specified, the scope will be set to the <code>Event</code> instance.
+         */
         this.notify = function(args, e, scope) {
             e = e || new EventData();
             scope = scope || this;
@@ -60,30 +119,80 @@
         };
     }
 
+    /***
+     * A structure containing a range of cells.
+     * @class Range
+     * @constructor
+     * @param fromRow {Integer} Starting row.
+     * @param fromCell {Integer} Starting cell.
+     * @param toRow {Integer} Optional. Ending row. Defaults to <code>fromRow</code>.
+     * @param toCell {Integer} Optional. Ending cell. Defaults to <code>fromCell</code>.
+     */
     function Range(fromRow, fromCell, toRow, toCell) {
         if (toRow === undefined && toCell === undefined) {
             toRow = fromRow;
             toCell = fromCell;
         }
 
+        /***
+         * @property fromRow
+         * @type {Integer}
+         */
         this.fromRow = Math.min(fromRow, toRow);
+
+        /***
+         * @property fromCell
+         * @type {Integer}
+         */
         this.fromCell = Math.min(fromCell, toCell);
+
+        /***
+         * @property toRow
+         * @type {Integer}
+         */
         this.toRow = Math.max(fromRow, toRow);
+
+        /***
+         * @property toCell
+         * @type {Integer}
+         */
         this.toCell = Math.max(fromCell, toCell);
 
+        /***
+         * Returns whether a range represents a single row.
+         * @method isSingleRow
+         * @return {Boolean}
+         */
         this.isSingleRow = function() {
             return this.fromRow == this.toRow;
         };
 
+        /***
+         * Returns whether a range represents a single cell.
+         * @method isSingleCell
+         * @return {Boolean}
+         */
         this.isSingleCell = function() {
             return this.fromRow == this.toRow && this.fromCell == this.toCell;
         };
 
+        /***
+         * Returns whether a range contains a given cell.
+         * @method contains
+         * @param row {Integer}
+         * @param cell {Integer}
+         * @return {Boolean}
+         */
         this.contains = function(row, cell) {
             return row >= this.fromRow && row <= this.toRow &&
                    cell >= this.fromCell && cell <= this.toCell;
         };
 
+        /***
+         * Returns a readable representation of a range.
+         * @method toString
+         * @return {String}
+         */
         this.toString = function() {
             if (this.isSingleCell()) {
                 return "(" + this.fromRow + ":" + this.fromCell + ")";
