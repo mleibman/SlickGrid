@@ -670,7 +670,7 @@ if (typeof Slick === "undefined") {
 
             el = $("<div class='ui-state-default slick-header-column' style='visibility:hidden'>-</div>").appendTo($headers);
             headerColumnWidthDiff = headerColumnHeightDiff = 0;
-            $.each(h, function(n,val) { headerColumnWidthDiff += parseFloat(el.css(val)) || 0; console.log(el.css(val)) });
+            $.each(h, function(n,val) { headerColumnWidthDiff += parseFloat(el.css(val)) || 0; });
             $.each(v, function(n,val) { headerColumnHeightDiff += parseFloat(el.css(val)) || 0; });
             el.remove();
 
