@@ -97,7 +97,7 @@
 			}
 
             dataView = new Slick.Data.DataView();
-            grid = new Slick.Grid("#myGrid", dataView.rows, columns, options);
+            grid = new Slick.Grid("#myGrid", dataView, columns, options);
 
 
 			dataView.onRowCountChanged.subscribe(function(e,args) {

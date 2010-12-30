@@ -11,6 +11,9 @@
             "Event":        Event,
             "EventData":    EventData,
             "Range":        Range,
+            "NonDataRow":   NonDataItem,
+            "Group":        Group,
+            "GroupTotals":  GroupTotals,
             "EditorLock":   EditorLock,
             "GlobalEditorLock": new EditorLock()
         }
@@ -202,6 +205,87 @@
             }
         }
     }
+
+
+    /***
+     * A base class that all special / non-data rows (like Group and GroupTotals) derive from.
+     * @class NonDataItem
+     * @constructor
+     */
+    function NonDataItem() {
+    }
+
+
+    /***
+     * Information about a group of rows.
+     * @class Group
+     * @constructor
+     */
+    function Group() {
+        /***
+         * Number of rows in the group.
+         * @property count
+         * @type {Integer}
+         */
+        this.count = 0;
+
+        /***
+         * Grouping value.
+         * @property value
+         * @type {Object}
+         */
+        this.value = null;
+
+        /***
+         * Formatted display value of the group.
+         * @property title
+         * @type {String}
+         */
+        this.title = null;
+
+        /***
+         * Starting row of the group (inclusive).
+         * @property start
+         * @type {Integer}
+         */
+        this.start = null;
+
+        /***
+         * Ending row of the group (inclusive).
+         * @property end
+         * @type {Integer}
+         */
+        this.end = null;
+
+        /***
+         * Whether a group is collapsed.
+         * @property collapsed
+         * @type {Boolean}
+         */
+        this.collapsed = false;
+    }
+
+    Group.prototype = new NonDataItem();
+
+    /***
+     * Compares two Group instances.
+     * @class Group
+     * @method equals
+     * @returns {Boolean}
+     * @param group {Group} Group instance to compare to.
+     */
+    Group.prototype.equals = function(group) {
+        return this.value === group.value &&
+               this.count === group.count &&
+               this.collapsed === group.collapsed;
+    };
+
+
+    function GroupTotals() {
+    }
+
+    GroupTotals.prototype = new NonDataItem();
+
 
     function EditorLock() {
         /// <summary>

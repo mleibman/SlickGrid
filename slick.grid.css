@@ -104,6 +104,18 @@ classes should alter those!
 	cursor: default;
 }
 
+.slick-group {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.slick-group-toggle {
+    display: inline-block;
+}
+
 .slick-cell.highlighted {
     background: lightskyblue;
     background: rgba(0,0,255,0.2);

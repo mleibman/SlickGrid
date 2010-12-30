@@ -93,7 +93,8 @@ if (typeof Slick === "undefined") {
             sortable: false,
             minWidth: 30,
             rerenderOnResize: false,
-            unselectable: false
+            unselectable: false,
+            groupTotalsFormatter: null
         };
 
         // scroller
@@ -238,12 +239,11 @@ if (typeof Slick === "undefined") {
             disableSelection($headers); // disable all text selection in header (including input and textarea)
             $viewport.bind("selectstart.ui", function (event) { return $(event.target).is("input,textarea"); }); // disable text selection in grid cells except in input and textarea elements (this is IE-specific, because selectstart event will only fire in IE)
 
+            viewportW = parseFloat($.css($container[0], "width", true));
+
             createColumnHeaders();
             setupColumnSort();
             createCssRules();
-
-            viewportW = parseFloat($.css($container[0], "width", true));
-
             resizeAndRender();
 
             bindAncestorScrollEvents();
@@ -318,6 +318,15 @@ if (typeof Slick === "undefined") {
             var dim = { width: $c.width() - $c[0].clientWidth, height: $c.height() - $c[0].clientHeight };
             $c.remove();
             return dim;
+        }
+
+        function getRowWidth() {
+            var rowWidth = 0;
+            var i = columns.length;
+            while (i--) {
+                rowWidth += (columns[i].currentWidth || columns[i].width || columnDefaults.width);
+            }
+            return rowWidth;
         }
 
         function setCanvasWidth(width) {
@@ -692,7 +701,8 @@ if (typeof Slick === "undefined") {
                 "." + uid + " .slick-header-column { left: 10000px; }",
                 "." + uid + " .slick-top-panel { height:" + options.topPanelHeight + "px; }",
                 "." + uid + " .slick-headerrow-columns { height:" + options.headerRowHeight + "px; }",
-                "." + uid + " .slick-cell { height:" + rowHeight + "px; }"
+                "." + uid + " .slick-cell { height:" + rowHeight + "px; }",
+                "." + uid + " .slick-row { width:" + getRowWidth() + "px; }"
             ];
 
             for (var i=0; i<columns.length; i++) {
@@ -839,6 +849,7 @@ if (typeof Slick === "undefined") {
             $headers.children().eq(index).css("width", width - headerColumnWidthDiff);
             if (styleCells) {
                 findCssRuleForCell(index).style.width = (width - cellWidthDiff) + "px";
+                findCssRule("." + uid + " .slick-row").style.width = getRowWidth() + "px";
             }
         }
 
@@ -1013,34 +1024,55 @@ if (typeof Slick === "undefined") {
 
             // if the user has specified a function to provide additional per-row css classes, call it here
             if (options.rowCssClasses) {
-                css += ' ' + options.rowCssClasses(d);
+                css += " " + options.rowCssClasses(d);
+            }
+
+            if (d instanceof Slick.GroupTotals) {
+                css += " slick-group-totals";
             }
 
             stringArray.push("<div class='ui-widget-content " + css + "' row='" + row + "' style='top:" + (options.rowHeight*row-offset) + "px'>");
 
-            for (var i=0, cols=columns.length; i<cols; i++) {
-                var m = columns[i];
-
-                cellCss = "slick-cell c" + i + (m.cssClass ? " " + m.cssClass : "");
-                if (row === activeRow && i === activeCell) {
-                    cellCss += (" active");
-                }
-
-                // TODO:  merge them together in the setter
-                for (var key in cellCssClasses) {
-                    if (cellCssClasses[key][row] && cellCssClasses[key][row][m.id]) {
-                        cellCss += (" " + cellCssClasses[key][row][m.id]);
-                    }
-                }
-
-                stringArray.push("<div class='" + cellCss + "'>");
-
-                // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
-                if (d) {
-                    stringArray.push(getFormatter(m)(row, i, d[m.field], m, d));
-                }
-
+            if (d instanceof Slick.Group) {
+                stringArray.push("<div class='slick-cell slick-group" + (row === activeRow ? " active" : "") + "'>");
+                stringArray.push("<span class='slick-group-toggle " + (d.collapsed ? "collapsed" : "expanded") + "'></span>");
+                stringArray.push(d.title);
                 stringArray.push("</div>");
+            }
+            else {
+                for (var i=0, cols=columns.length; i<cols; i++) {
+                    var m = columns[i];
+
+                    cellCss = "slick-cell c" + i + (m.cssClass ? " " + m.cssClass : "");
+                    if (row === activeRow && i === activeCell) {
+                        cellCss += (" active");
+                    }
+
+                    if (!(d instanceof Slick.NonDataRow)) {
+                        // TODO:  merge them together in the setter
+                        for (var key in cellCssClasses) {
+                            if (cellCssClasses[key][row] && cellCssClasses[key][row][m.id]) {
+                                cellCss += (" " + cellCssClasses[key][row][m.id]);
+                            }
+                        }
+                    }
+
+                    stringArray.push("<div class='" + cellCss + "'>");
+
+                    // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
+                    if (d) {
+                        if (d instanceof Slick.GroupTotals) {
+                            if (m.groupTotalsFormatter) {
+                                stringArray.push(m.groupTotalsFormatter(d, m));
+                            }
+                        }
+                        else {
+                            stringArray.push(getFormatter(m)(row, i, d[m.field], m, d));
+                        }
+                    }
+
+                    stringArray.push("</div>");
+                }
             }
 
             stringArray.push("</div>");
@@ -1400,9 +1432,11 @@ if (typeof Slick === "undefined") {
 
             for (var row in rowsCache) {
                 if (hash[row]) {
-                    for (var columnId in hash[row]) {
-                        $(rowsCache[row]).children().eq(getColumnIndex(columnId))
-                            .addClass(hash[row][columnId]);
+                    if (!(getDataItem(row) instanceof Slick.NonDataRow)) {
+                        for (var columnId in hash[row]) {
+                            $(rowsCache[row]).children().eq(getColumnIndex(columnId))
+                                .addClass(hash[row][columnId]);
+                        }
                     }
                 }
             }
@@ -1544,7 +1578,7 @@ if (typeof Slick === "undefined") {
                         return;
                 }
                 else if (e.which == 9 && e.shiftKey && !e.ctrlKey && !e.altKey) {
-                        navigatePrev();
+                    navigatePrev();
                 }
                 else
                     return;
@@ -1763,6 +1797,11 @@ if (typeof Slick === "undefined") {
         function isCellPotentiallyEditable(row,cell) {
             // is the data for this row loaded?
             if (row < getDataLength() && !getDataItem(row)) {
+                return false;
+            }
+
+            // is this a special/non-data row?
+            if (getDataItem(row) instanceof Slick.NonDataRow) {
                 return false;
             }
 
@@ -2040,7 +2079,8 @@ if (typeof Slick === "undefined") {
                     && row >= 0
                     && cell < columns.length
                     && cell >= 0
-                    && !columns[cell].unselectable;
+                    && !columns[cell].unselectable
+                    && !(getDataItem(row) instanceof Slick.NonDataRow);
         }
 
         function gotoCell(row, cell, forceEdit) {

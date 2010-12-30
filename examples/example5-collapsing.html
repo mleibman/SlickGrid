@@ -187,7 +187,7 @@
 
 
 			// initialize the grid
-			grid = new Slick.Grid("#myGrid", dataView.rows, columns, options);
+			grid = new Slick.Grid("#myGrid", dataView, columns, options);
 
             grid.onCellChange.subscribe(function(e,args) {
                 dataView.updateItem(args.item.id,args.item);
@@ -201,7 +201,7 @@
 
 			grid.onClick.subscribe(function(e,args) {
                 if ($(e.target).hasClass("toggle")) {
-                    var item = dataView.rows[args.row];
+                    var item = dataView.getItem(args.row);
                     if (item) {
                         if (!item._collapsed)
                             item._collapsed = true;
