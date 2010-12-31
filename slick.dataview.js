@@ -35,6 +35,8 @@
         var groupingGetter;
         var groupingFormatter;
         var groupingComparer;
+        var groups = [];
+        var totals = [];
         var collapsedGroups = {};
         var aggregators;
         var aggregateCollapsed = false;
@@ -101,7 +103,7 @@
             }
             else {
                 return function combinedComparer(a ,b) {
-                    return groupingCmp(groupingGetter(a), groupingGetter(b)) || (cmp && cmp(a, b)) || 0;
+                    return groupingCmp(getGroupingValue(a), getGroupingValue(b)) || (cmp && cmp(a, b)) || 0;
                 }
             }
         }
@@ -213,6 +215,14 @@
             refresh();
         }
 
+        function getGroups() {
+            return groups;
+        }
+
+        function getGroupTotals() {
+            return totals
+        }
+
         function getGroupingValue(item) {
             if (typeof groupingGetter === "function") {
                 return groupingGetter(item);
@@ -222,7 +232,7 @@
             }
         }
 
-        function getGroups(rows) {
+        function extractGroups(rows) {
             var group;
             var val;
             var groups = [];
@@ -254,7 +264,8 @@
 
 
         function flattenGroupedRows(groups, rows) {
-            var groupedRows = [], gl = 0, idx, totals;
+            var groupedRows = [], gl = 0, idx, t;
+            totals = [];
             for (var i = 0, l = groups.length; i < l; i++) {
                 var g = groups[i];
                 groupedRows[gl++] = g;
@@ -279,12 +290,14 @@
                 }
 
                 if (aggregators && (!g.collapsed || aggregateCollapsed)) {
-                    totals = new Slick.GroupTotals();
+                    t = new Slick.GroupTotals();
+                    t.group = g;
                     idx = aggregators.length;
                     while (idx--) {
-                        aggregators[idx].storeResult(totals);
+                        aggregators[idx].storeResult(t);
                     }
-                    groupedRows[gl++] = totals;
+                    groupedRows[gl++] = t;
+                    totals.push(t);
                 }
             }
             return groupedRows;
@@ -323,8 +336,9 @@
                 itemIdx = il;
             }
 
+            groups = [];
             if (groupingGetter != null) {
-                var groups = getGroups(newRows);
+                groups = extractGroups(newRows);
                 if (groups.length) {
                     newRows = flattenGroupedRows(groups, newRows);
                 }
@@ -393,6 +407,8 @@
             "setAggregators":   setAggregators,
             "collapseGroup":    collapseGroup,
             "expandGroup":      expandGroup,
+            "getGroups":        getGroups,
+            "getGroupTotals":   getGroupTotals,
             "getIdxById":       getIdxById,
             "getRowById":       getRowById,
             "getItemById":      getItemById,

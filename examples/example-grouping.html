@@ -16,33 +16,19 @@
 		.cell-effort-driven {
 			text-align: center;
 		}
-
-        .cell-selection {
-            border-right-color: silver;
-            border-right-style: solid;
-            background: #f5f5f5;
-            color: gray;
-            text-align: right;
-            font-size: 10px;
-        }
-
-        .slick-row.selected .cell-selection {
-            background-color: transparent; /* show default selected row background */
-        }
 	</style>
 	</head>
 	<body>
 		<div style="width:600px;float:left;">
 			<div class="grid-header" style="width:100%">
 				<label>SlickGrid</label>
-                <span style="float:right" class="ui-icon ui-icon-search" title="Toggle search panel" onclick="toggleFilterRow()"></span>
 			</div>
 			<div id="myGrid" style="width:100%;height:500px;"></div>
 			<div id="pager" style="width:100%;height:20px;"></div>
 		</div>
 
 		<div class="options-panel" style="width:320px;margin-left:650px;">
-			<b>Search:</b>
+			<b>Options:</b>
 			<hr/>
 			<div style="padding:6px;">
 				<label style="width:200px;float:left">Show tasks with % at least: </label>
@@ -53,7 +39,13 @@
 				<label style="width:200px;float:left">And title including:</label>
 				<input type=text id="txtSearch" style="width:100px;">
 				<br/><br/>
-				<button id="btnSelectRows">Select first 10 rows</button>
+                <hr/>
+                <button onclick="clearGrouping()">Clear grouping</button><br/>
+                <button onclick="groupByDurationNoSort()">Group by duration & preserve sort order</button><br/>
+                <button onclick="groupByDuration()">Group by duration & sort groups</button><br/>
+                <br/>
+                <button onclick="collapseAllGroups()">Collapse all groups</button><br/>
+                <button onclick="expandAllGroups()">Expand all groups</button><br/>
 			</div>
 		</div>
 
@@ -68,11 +60,6 @@
 			</ul>
 		</div>
 
-        <div id="inlineFilterPanel" style="display:none;background:#dddddd;padding:3px;color:black;">
-            Show tasks with title including <input type="text" id="txtSearch2">
-            and % at least &nbsp; <div style="width:100px;display:inline-block;" id="pcSlider2"></div>
-        </div>
-
 		<script src="../lib/firebugx.js"></script>
 
 		<script src="../lib/jquery-1.4.3.min.js"></script>
@@ -81,10 +68,6 @@
 
 		<script src="../slick.core.js"></script>
 		<script src="../slick.editors.js"></script>
-		<script src="../plugins/slick.rowselectionmodel.js"></script>
-		<script src="../plugins/slick.cellrangedecorator.js"></script>
-		<script src="../plugins/slick.cellrangeselector.js"></script>
-		<script src="../plugins/slick.cellselectionmodel.js"></script>
 		<script src="../slick.grid.js"></script>
 		<script src="../slick.dataview.js"></script>
 		<script src="../controls/slick.pager.js"></script>
@@ -94,26 +77,19 @@
 		var dataView;
 		var grid;
 		var data = [];
-		var selectedRowIds = [];
 
 		var columns = [
-			{id:"sel", name:"#", field:"num", behavior:"select", cssClass:"cell-selection", width:40, cannotTriggerInsert:true, resizable:false, unselectable:true },
-			{id:"title", name:"Title", field:"title", width:120, minWidth:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, sortable:true},
-			{id:"duration", name:"Duration", field:"duration", editor:TextCellEditor, sortable:true},
-			{id:"%", name:"% Complete", field:"percentComplete", width:80, formatter:GraphicalPercentCompleteCellFormatter, editor:PercentCompleteCellEditor, sortable:true, groupTotalsFormatter:avgTotalsFormatter},
-			{id:"start", name:"Start", field:"start", minWidth:60, editor:DateCellEditor, sortable:true},
-			{id:"finish", name:"Finish", field:"finish", minWidth:60, editor:DateCellEditor, sortable:true},
-			{id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter, editor:YesNoCheckboxCellEditor, cannotTriggerInsert:true, sortable:true}
+			{id:"sel", name:"#", field:"num", cssClass:"cell-selection", width:40, resizable:false, unselectable:true },
+			{id:"title", name:"Title", field:"title", width:120, minWidth:120, cssClass:"cell-title", sortable:true},
+			{id:"duration", name:"Duration", field:"duration", sortable:true},
+			{id:"%", name:"% Complete", field:"percentComplete", width:80, formatter:GraphicalPercentCompleteCellFormatter, sortable:true, groupTotalsFormatter:avgTotalsFormatter},
+			{id:"start", name:"Start", field:"start", minWidth:60, sortable:true},
+			{id:"finish", name:"Finish", field:"finish", minWidth:60, sortable:true},
+			{id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter, sortable:true}
 		];
 
 		var options = {
-			editable: true,
-			enableAddRow: true,
-			enableCellNavigation: true,
-			asyncEditorLoading: true,
-			forceFitColumns: false,
-            topPanelHeight: 25,
-            autoEdit: false
+			enableCellNavigation: true
 		};
 
 		var sortcol = "title";
@@ -124,13 +100,6 @@
         function avgTotalsFormatter(totals, columnDef) {
             return "avg: " + Math.round(totals.avg[columnDef.field]) + "%";
         }
-
-		function requiredFieldValidator(value) {
-			if (value == null || value == undefined || !value.length)
-				return {valid:false, msg:"This is a required field"};
-			else
-				return {valid:true, msg:null};
-		}
 
 		function myFilter(item) {
 			if (item["percentComplete"] < percentCompleteThreshold)
@@ -151,12 +120,54 @@
 			return (sortdir) * (x == y ? 0 : (x > y ? 1 : -1));
 		}
 
-        function toggleFilterRow() {
-            if ($(grid.getTopPanel()).is(":visible"))
-                grid.hideTopPanel();
-            else
-                grid.showTopPanel();
+        function collapseAllGroups() {
+            dataView.beginUpdate();
+            for (var i = 0; i < dataView.getGroups().length; i++) {
+                dataView.collapseGroup(dataView.getGroups()[i].value);
+            }
+            dataView.endUpdate();
         }
+
+        function expandAllGroups() {
+            dataView.beginUpdate();
+            for (var i = 0; i < dataView.getGroups().length; i++) {
+                dataView.expandGroup(dataView.getGroups()[i].value);
+            }
+            dataView.endUpdate();
+        }
+
+        function clearGrouping() {
+            dataView.groupBy(null);
+        }
+
+        function groupByDurationNoSort() {
+            dataView.groupBy(
+                "duration",
+                function (g) {
+                    return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+                },
+                null
+            );
+            dataView.setAggregators([
+                new Slick.Data.Aggregators.Avg("percentComplete")
+            ], true);
+        }
+
+        function groupByDuration() {
+            dataView.groupBy(
+                "duration",
+                function (g) {
+                    return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+                },
+                function (a, b) {
+                    return a - b;
+                }
+            );
+            dataView.setAggregators([
+                new Slick.Data.Aggregators.Avg("percentComplete")
+            ], true);
+        }
+
 
         $(".grid-header .ui-icon")
             .addClass("ui-state-default ui-corner-all")
@@ -186,17 +197,9 @@
 
 			dataView = new Slick.Data.DataView();
 			grid = new Slick.Grid("#myGrid", dataView, columns, options);
-            grid.setSelectionModel(new Slick.CellSelectionModel());
 
 			var pager = new Slick.Controls.Pager(dataView, grid, $("#pager"));
 			var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
-
-
-            // move the filter panel defined in a hidden div into grid top panel
-            $("#inlineFilterPanel")
-                .appendTo(grid.getTopPanel())
-                .show();
-
 
             grid.onClick.subscribe(function(e, args) {
                 var item = this.getDataItem(args.row);
@@ -213,51 +216,10 @@
                 }
             });
 
-            grid.onCellChange.subscribe(function(e,args) {
-                dataView.updateItem(args.item.id,args.item);
-            });
-
-			grid.onAddNewRow.subscribe(function(e,args) {
-                var item = {"num": data.length, "id": "new_" + (Math.round(Math.random()*10000)), "title":"New task", "duration":"1 day", "percentComplete":0, "start":"01/01/2009", "finish":"01/01/2009", "effortDriven":false};
-                $.extend(item,args.item);
-                dataView.addItem(item);
-            });
-
-			grid.onKeyDown.subscribe(function(e) {
-                // select all rows on ctrl-a
-                if (e.which != 65 || !e.ctrlKey)
-                    return false;
-
-                var rows = [];
-                selectedRowIds = [];
-
-                for (var i = 0, l = dataView.getDataLength(); i < l; i++) {
-                    rows.push(i);
-                    selectedRowIds.push(dataView.getItem(i).id);
-                }
-
-                grid.setSelectedRows(rows);
-                e.preventDefault();
-            });
-
-			grid.onSelectedRowsChanged.subscribe(function(e) {
-                selectedRowIds = [];
-                var rows = grid.getSelectedRows();
-                for (var i = 0, l = rows.length; i < l; i++) {
-                    var item = dataView.getItem(rows[i]);
-                    if (item) selectedRowIds.push(item.id);
-                }
-            });
-
-			grid.onSort.subscribe(function(e, data) {
-                var sortCol = data.sortCol;
-                var sortAsc = data.sortAsc;
-                sortdir = sortAsc ? 1 : -1;
-                sortcol = sortCol.field;
-
-                // using native sort with comparer
-                // preferred method but can be very slow in IE with huge datasets
-                dataView.sort(comparer,sortAsc);
+			grid.onSort.subscribe(function(e, args) {
+                sortdir = args.sortAsc ? 1 : -1;
+                sortcol = args.sortCol.field;
+                dataView.sort(comparer);
             });
 
 			// wire up model events to drive the grid
@@ -269,32 +231,7 @@
 			dataView.onRowsChanged.subscribe(function(e,args) {
 				grid.invalidateRows(args.rows);
 				grid.render();
-
-				if (selectedRowIds.length > 0)
-				{
-					// since how the original data maps onto rows has changed,
-					// the selected rows in the grid need to be updated
-					var selRows = [];
-					for (var i = 0; i < selectedRowIds.length; i++)
-					{
-						var idx = dataView.getRowById(selectedRowIds[i]);
-						if (idx != undefined)
-							selRows.push(idx);
-					}
-
-					grid.setSelectedRows(selRows);
-				}
 			});
-
-			dataView.onPagingInfoChanged.subscribe(function(e,pagingInfo) {
-				var isLastPage = pagingInfo.pageSize*(pagingInfo.pageNum+1)-1 >= pagingInfo.totalRows;
-                var enableAddRow = isLastPage || pagingInfo.pageSize==0;
-                var options = grid.getOptions();
-
-                if (options.enableAddRow != enableAddRow)
-    				grid.setOptions({enableAddRow:enableAddRow});
-			});
-
 
 
 			var h_runfilters = null;
@@ -327,29 +264,13 @@
 				dataView.refresh();
 			});
 
-			$("#btnSelectRows").click(function() {
-				if (!Slick.GlobalEditorLock.commitCurrentEdit()) { return; }
-
-				var rows = [];
-				selectedRowIds = [];
-
-				for (var i=0; i<10 && i<dataView.getLength(); i++) {
-					rows.push(i);
-					selectedRowIds.push(dataView.getItem(i).id);
-				}
-
-				grid.setSelectedRows(rows);
-			});
-
 
 			// initialize the model after all the events have been hooked up
 			dataView.beginUpdate();
 			dataView.setItems(data);
 			dataView.setFilter(myFilter);
             dataView.groupBy(
-                function (d) {
-                    return d.duration;
-                },
+                "duration",
                 function (g) {
                     return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
                 },

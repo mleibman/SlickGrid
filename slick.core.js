@@ -219,6 +219,7 @@
     /***
      * Information about a group of rows.
      * @class Group
+     * @extends NonDataItem
      * @constructor
      */
     function Group() {
@@ -280,8 +281,19 @@
                this.collapsed === group.collapsed;
     };
 
-
+    /***
+     * Information about group totals.
+     * @class GroupTotals
+     * @extends NonDataItem
+     * @constructor
+     */
     function GroupTotals() {
+        /***
+         * Parent Group.
+         * @param group
+         * @type {Group{
+         */
+        this.group = null;
     }
 
     GroupTotals.prototype = new NonDataItem();
