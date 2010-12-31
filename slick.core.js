@@ -15,7 +15,14 @@
             "Group":        Group,
             "GroupTotals":  GroupTotals,
             "EditorLock":   EditorLock,
-            "GlobalEditorLock": GlobalEditorLock
+
+            /***
+             * A global singleton editor lock.
+             * @class GlobalEditorLock
+             * @static
+             * @constructor
+             */
+            "GlobalEditorLock": new EditorLock()
         }
     });
 
@@ -380,14 +387,6 @@
             return (activeEditController ? activeEditController.cancelCurrentEdit() : true);
         };
     }
-
-    /***
-     * A global singleton editor lock.
-     * @class GlobalEditorLock
-     * @static
-     * @constructor
-     */
-    var GlobalEditorLock = new EditorLock();
 })(jQuery);
 
 
