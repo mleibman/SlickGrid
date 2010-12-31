@@ -149,7 +149,7 @@
 
 		function comparer(a,b) {
 			var x = a[sortcol], y = b[sortcol];
-			return (x == y ? 0 : (x > y ? 1 : -1));
+			return sortdir * (x == y ? 0 : (x > y ? 1 : -1));
 		}
 
         function toggleFilterRow() {
@@ -235,31 +235,10 @@
                 }
             });
 
-			grid.onSort.subscribe(function(e, data) {
-                var sortCol = data.sortCol;
-                var sortAsc = data.sortAsc;
-                sortdir = sortAsc ? 1 : -1;
-                sortcol = sortCol.field;
-
-                // using native sort with comparer
-                // preferred method but can be very slow in IE with huge datasets
-                //dataView.sort(comparer,sortAsc);
-
-                // using temporary Object.prototype.toString override
-                // more limited and does lexicographic sort only by default, but can be much faster
-
-                var percentCompleteValueFn = function() {
-                    var val = this["percentComplete"];
-                    if (val < 10)
-                        return "00" + val;
-                    else if (val < 100)
-                        return "0" + val;
-                    else
-                        return val;
-                };
-
-                // use numeric sort of % and lexicographic for everything else
-                dataView.fastSort((sortcol=="percentComplete")?percentCompleteValueFn:sortcol,sortAsc);
+			grid.onSort.subscribe(function(e, args) {
+                sortdir = args.sortAsc ? 1 : -1;
+                sortcol = args.sortCol.field;
+                dataView.sort(comparer);
             });
 
 			// wire up model events to drive the grid
