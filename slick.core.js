@@ -15,7 +15,7 @@
             "Group":        Group,
             "GroupTotals":  GroupTotals,
             "EditorLock":   EditorLock,
-            "GlobalEditorLock": new EditorLock()
+            "GlobalEditorLock": GlobalEditorLock
         }
     });
 
@@ -219,7 +219,7 @@
     /***
      * Information about a group of rows.
      * @class Group
-     * @extends NonDataItem
+     * @extends Slick.NonDataItem
      * @constructor
      */
     function Group() {
@@ -270,9 +270,8 @@
 
     /***
      * Compares two Group instances.
-     * @class Group
      * @method equals
-     * @returns {Boolean}
+     * @return {Boolean}
      * @param group {Group} Group instance to compare to.
      */
     Group.prototype.equals = function(group) {
@@ -283,61 +282,57 @@
 
     /***
      * Information about group totals.
+     * An instance of GroupTotals will be created for each totals row and passed to the aggregators
+     * so that they can store arbitrary data in it.  That data can later be accessed by group totals
+     * formatters during the display.
      * @class GroupTotals
-     * @extends NonDataItem
+     * @extends Slick.NonDataItem
      * @constructor
      */
     function GroupTotals() {
         /***
          * Parent Group.
          * @param group
-         * @type {Group{
+         * @type {Group}
          */
         this.group = null;
     }
 
     GroupTotals.prototype = new NonDataItem();
 
-
+    /***
+     * A locking helper to track the active edit controller and ensure that only a single controller
+     * can be active at a time.  This prevents a whole class of state and validation synchronization
+     * issues.  An edit controller (such as SlickGrid) can query if an active edit is in progress
+     * and attempt a commit or cancel before proceeding.
+     * @class EditorLock
+     * @constructor
+     */
     function EditorLock() {
-        /// <summary>
-        /// Track currently active edit controller and ensure
-        /// that onle a single controller can be active at a time.
-        /// Edit controller is an object that is responsible for
-        /// gory details of looking after editor in the browser,
-        /// and allowing EditorLock clients to either accept
-        /// or cancel editor changes without knowing any of the
-        /// implementation details. SlickGrid instance is used
-        /// as edit controller for cell editors.
-        /// </summary>
+        var activeEditController = null;
 
-        var currentEditController = null;
-
-        this.isActive = function isActive(editController) {
-            /// <summary>
-            /// Return true if the specified editController
-            /// is currently active in this lock instance
-            /// (i.e. if that controller acquired edit lock).
-            /// If invoked without parameters ("editorLock.isActive()"),
-            /// return true if any editController is currently
-            /// active in this lock instance.
-            /// </summary>
-            return (editController ? currentEditController === editController : currentEditController !== null);
+        /***
+         * Returns true if a specified edit controller is active (has the edit lock).
+         * If the parameter is not specified, returns true if any edit controller is active.
+         * @method isActive
+         * @param editController {EditController}
+         * @return {Boolean}
+         */
+        this.isActive = function(editController) {
+            return (editController ? activeEditController === editController : activeEditController !== null);
         };
 
-        this.activate = function activate(editController) {
-            /// <summary>
-            /// Set the specified editController as the active
-            /// controller in this lock instance (acquire edit lock).
-            /// If another editController is already active,
-            /// an error will be thrown (i.e. before calling
-            /// this method isActive() must be false,
-            /// afterwards isActive() will be true).
-            /// </summary>
-            if (editController === currentEditController) { // already activated?
+        /***
+         * Sets the specified edit controller as the active edit controller (acquire edit lock).
+         * If another edit controller is already active, and exception will be thrown.
+         * @method activate
+         * @param editController {EditController} edit controller acquiring the lock
+         */
+        this.activate = function(editController) {
+            if (editController === activeEditController) { // already activated?
                 return;
             }
-            if (currentEditController !== null) {
+            if (activeEditController !== null) {
                 throw "SlickGrid.EditorLock.activate: an editController is still active, can't activate another editController";
             }
             if (!editController.commitCurrentEdit) {
@@ -346,45 +341,53 @@
             if (!editController.cancelCurrentEdit) {
                 throw "SlickGrid.EditorLock.activate: editController must implement .cancelCurrentEdit()";
             }
-            currentEditController = editController;
+            activeEditController = editController;
         };
 
-        this.deactivate = function deactivate(editController) {
-            /// <summary>
-            /// Unset the specified editController as the active
-            /// controller in this lock instance (release edit lock).
-            /// If the specified editController is not the editController
-            /// that is currently active in this lock instance,
-            /// an error will be thrown.
-            /// </summary>
-            if (currentEditController !== editController) {
+        /***
+         * Unsets the specified edit controller as the active edit controller (release edit lock).
+         * If the specified edit controller is not the active one, an exception will be thrown.
+         * @method deactivate
+         * @param editController {EditController} edit controller releasing the lock
+         */
+        this.deactivate = function(editController) {
+            if (activeEditController !== editController) {
                 throw "SlickGrid.EditorLock.deactivate: specified editController is not the currently active one";
             }
-            currentEditController = null;
+            activeEditController = null;
         };
 
-        this.commitCurrentEdit = function commitCurrentEdit() {
-            /// <summary>
-            /// Invoke the "commitCurrentEdit" method on the
-            /// editController that is active in this lock
-            /// instance and return the return value of that method
-            /// (if no controller is active, return true).
-            /// "commitCurrentEdit" is expected to return true
-            /// to indicate successful commit, false otherwise.
-            /// </summary>
-            return (currentEditController ? currentEditController.commitCurrentEdit() : true);
+        /***
+         * Attempts to commit the current edit by calling "commitCurrentEdit" method on the active edit
+         * controller and returns whether the commit attempt was successful (commit may fail due to validation
+         * errors, etc.).  Edit controller's "commitCurrentEdit" must return true if the commit has succeeded
+         * and false otherwise.  If no edit controller is active, returns true.
+         * @method commitCurrentEdit
+         * @return {Boolean}
+         */
+        this.commitCurrentEdit = function() {
+            return (activeEditController ? activeEditController.commitCurrentEdit() : true);
         };
 
+        /***
+         * Attempts to cancel the current edit by calling "cancelCurrentEdit" method on the active edit
+         * controller and returns whether the edit was successfully cancelled.  If no edit controller is
+         * active, returns true.
+         * @method cancelCurrentEdit
+         * @return {Boolean}
+         */
         this.cancelCurrentEdit = function cancelCurrentEdit() {
-            /// <summary>
-            /// Invoke the "cancelCurrentEdit" method on the
-            /// editController that is active in this lock
-            /// instance (if no controller is active, do nothing).
-            /// Returns true if the edit was succesfully cancelled.
-            /// </summary>
-            return (currentEditController ? currentEditController.cancelCurrentEdit() : true);
+            return (activeEditController ? activeEditController.cancelCurrentEdit() : true);
         };
     }
+
+    /***
+     * A global singleton editor lock.
+     * @class GlobalEditorLock
+     * @static
+     * @constructor
+     */
+    var GlobalEditorLock = new EditorLock();
 })(jQuery);
 
 

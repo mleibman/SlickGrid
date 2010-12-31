@@ -41,7 +41,6 @@ if (typeof Slick === "undefined") {
     // SlickGrid class implementation (available as Slick.Grid)
 
     /**
-     * @constructor
      * @param {Node}              container   Container node to create the grid in.
      * @param {Array,Object}      data        An array of objects for databinding.
      * @param {Array}             columns     An array of column definitions.
