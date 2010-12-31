@@ -33,6 +33,7 @@
         var suspend = false;	// suspends the recalculation
         var sortComparer;
         var groupingGetter;
+        var groupingGetterIsAFn;
         var groupingFormatter;
         var groupingComparer;
         var groups = [];
@@ -103,7 +104,17 @@
             }
             else {
                 return function combinedComparer(a ,b) {
-                    return groupingCmp(getGroupingValue(a), getGroupingValue(b)) || (cmp && cmp(a, b)) || 0;
+                    var x, y;
+                    if (groupingGetterIsAFn) {
+                        x = groupingGetter(a);
+                        y = groupingGetter(b);
+                    }
+                    else {
+                        x = a[groupingGetter];
+                        y = b[groupingGetter];
+                    }
+
+                    return groupingCmp(x, y) || (cmp && cmp(a, b)) || 0;
                 }
             }
         }
@@ -131,6 +142,7 @@
 
         function groupBy(valueGetter, valueFormatter, sortComparer) {
             groupingGetter = valueGetter;
+            groupingGetterIsAFn = typeof groupingGetter === "function";
             groupingFormatter = valueFormatter;
             groupingComparer = sortComparer;
             collapsedGroups = {};
@@ -220,16 +232,7 @@
         }
 
         function getGroupTotals() {
-            return totals
-        }
-
-        function getGroupingValue(item) {
-            if (typeof groupingGetter === "function") {
-                return groupingGetter(item);
-            }
-            else {
-                return item[groupingGetter];
-            }
+            return totals;
         }
 
         function extractGroups(rows) {
@@ -238,7 +241,8 @@
             var groups = [];
 
             for (var i = 0, l = rows.length; i < l; i++) {
-                val = getGroupingValue(rows[i]);
+                val = (groupingGetterIsAFn) ? groupingGetter(rows[i]) : rows[i][groupingGetter];
+
                 if (!group || group.value !== val) {
                     if (group) {
                         group.end = i - 1;
@@ -264,10 +268,10 @@
 
 
         function flattenGroupedRows(groups, rows) {
-            var groupedRows = [], gl = 0, idx, t;
+            var groupedRows = [], gl = 0, idx, t, g, r;
             totals = [];
             for (var i = 0, l = groups.length; i < l; i++) {
-                var g = groups[i];
+                g = groups[i];
                 groupedRows[gl++] = g;
 
                 if (aggregators) {
@@ -278,14 +282,15 @@
                 }
 
                 for (var j = g.start; j <= g.end; j++) {
+                    r = rows[j];
                     if (aggregators) {
                         idx = aggregators.length;
                         while (idx--) {
-                            aggregators[idx].accumulate(rows[j]);
+                            aggregators[idx].accumulate(r);
                         }
                     }
                     if (!g.collapsed) {
-                        groupedRows[gl++] = rows[j];
+                        groupedRows[gl++] = r;
                     }
                 }
 
@@ -344,15 +349,16 @@
                 }
             }
 
+            var eitherIsNonData;
             for (var i = 0, nrl = newRows.length, r; i < nrl; i++) {
                 item = newRows[i];
                 r = _rows[i];
 
                 if (i >= rl ||
-                    (groupingGetter &&
+                    (groupingGetter && (eitherIsNonData = (item instanceof Slick.NonDataRow) || (r instanceof Slick.NonDataRow)) &&
                         (item instanceof Slick.Group !== r instanceof Slick.Group ||
                         (item instanceof Slick.Group && !item.equals(r)))) ||
-                    (aggregators &&
+                    (aggregators && eitherIsNonData &&
                         // no good way to compare totals since they are arbitrary DTOs
                         // deep object comparison is pretty expensive
                         // always considering them 'dirty' seems easier for the time being
@@ -362,6 +368,7 @@
                     diff[diff.length] = i;
                 }
             }
+
 
             rows = newRows;
             totalRows = itemIdx;
@@ -444,7 +451,7 @@
             this.count++;
             if (val != null && val != NaN) {
                 this.nonNullCount++;
-                this.sum += parseFloat(val);
+                this.sum += 1 * val;
             }
         };
 
