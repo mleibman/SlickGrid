@@ -41,8 +41,9 @@
 				<br/><br/>
                 <hr/>
                 <button onclick="clearGrouping()">Clear grouping</button><br/>
-                <button onclick="groupByDurationNoSort()">Group by duration & preserve sort order</button><br/>
-                <button onclick="groupByDuration()">Group by duration & sort groups</button><br/>
+                <button onclick="groupByDuration()">Group by duration & sort groups by value</button><br/>
+                <button onclick="groupByDurationOrderByCount()">Group by duration & sort groups by count</button><br/>
+                <button onclick="groupByDurationOrderByCountGroupCollapsed()">Group by duration & sort groups by count, group collapsed</button><br/>
                 <br/>
                 <button onclick="collapseAllGroups()">Collapse all groups</button><br/>
                 <button onclick="expandAllGroups()">Expand all groups</button><br/>
@@ -117,7 +118,7 @@
 
 		function comparer(a,b) {
 			var x = a[sortcol], y = b[sortcol];
-			return (sortdir) * (x == y ? 0 : (x > y ? 1 : -1));
+			return (x == y ? 0 : (x > y ? 1 : -1));
 		}
 
         function collapseAllGroups() {
@@ -140,19 +141,6 @@
             dataView.groupBy(null);
         }
 
-        function groupByDurationNoSort() {
-            dataView.groupBy(
-                "duration",
-                function (g) {
-                    return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
-                },
-                null
-            );
-            dataView.setAggregators([
-                new Slick.Data.Aggregators.Avg("percentComplete")
-            ], true);
-        }
-
         function groupByDuration() {
             dataView.groupBy(
                 "duration",
@@ -160,14 +148,43 @@
                     return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
                 },
                 function (a, b) {
-                    return a - b;
+                    return a.value - b.value;
+                }
+            );
+            dataView.setAggregators([
+                new Slick.Data.Aggregators.Avg("percentComplete")
+            ], false);
+        }
+
+        function groupByDurationOrderByCount() {
+            dataView.groupBy(
+                "duration",
+                function (g) {
+                    return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+                },
+                function (a, b) {
+                    return a.count - b.count;
+                }
+            );
+            dataView.setAggregators([
+                new Slick.Data.Aggregators.Avg("percentComplete")
+            ], false);
+        }
+
+        function groupByDurationOrderByCountGroupCollapsed() {
+            dataView.groupBy(
+                "duration",
+                function (g) {
+                    return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+                },
+                function (a, b) {
+                    return a.count - b.count;
                 }
             );
             dataView.setAggregators([
                 new Slick.Data.Aggregators.Avg("percentComplete")
             ], true);
         }
-
 
         $(".grid-header .ui-icon")
             .addClass("ui-state-default ui-corner-all")
@@ -181,7 +198,7 @@
 		$(function()
 		{
 			// prepare the data
-			for (var i=0; i<10000; i++) {
+			for (var i=0; i<50000; i++) {
 				var d = (data[i] = {});
 
 				d["id"] = "id_" + i;
@@ -219,7 +236,29 @@
 			grid.onSort.subscribe(function(e, args) {
                 sortdir = args.sortAsc ? 1 : -1;
                 sortcol = args.sortCol.field;
-                dataView.sort(comparer);
+
+                if ($.browser.msie && $.browser.version <= 8) {
+                    // using temporary Object.prototype.toString override
+                    // more limited and does lexicographic sort only by default, but can be much faster
+
+                    var percentCompleteValueFn = function() {
+                        var val = this["percentComplete"];
+                        if (val < 10)
+                            return "00" + val;
+                        else if (val < 100)
+                            return "0" + val;
+                        else
+                            return val;
+                    };
+
+                    // use numeric sort of % and lexicographic for everything else
+                    dataView.fastSort((sortcol=="percentComplete")?percentCompleteValueFn:sortcol,args.sortAsc);
+                }
+                else {
+                    // using native sort with comparer
+                    // preferred method but can be very slow in IE with huge datasets
+                    dataView.sort(comparer, args.sortAsc);
+                }
             });
 
 			// wire up model events to drive the grid
@@ -275,12 +314,12 @@
                     return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
                 },
                 function (a, b) {
-                    return a - b;
+                    return a.value - b.value;
                 }
             );
             dataView.setAggregators([
                 new Slick.Data.Aggregators.Avg("percentComplete")
-            ], true);
+            ], false);
             dataView.collapseGroup(0);
 			dataView.endUpdate();
 

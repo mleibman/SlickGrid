@@ -220,6 +220,7 @@
      * @constructor
      */
     function NonDataItem() {
+        this.__nonDataRow = true;
     }
 
 
@@ -230,6 +231,8 @@
      * @constructor
      */
     function Group() {
+        this.__group = true;
+
         /***
          * Number of rows in the group.
          * @property count
@@ -252,25 +255,18 @@
         this.title = null;
 
         /***
-         * Starting row of the group (inclusive).
-         * @property start
-         * @type {Integer}
-         */
-        this.start = null;
-
-        /***
-         * Ending row of the group (inclusive).
-         * @property end
-         * @type {Integer}
-         */
-        this.end = null;
-
-        /***
          * Whether a group is collapsed.
          * @property collapsed
          * @type {Boolean}
          */
         this.collapsed = false;
+
+        /***
+         * GroupTotals, if any.
+         * @property totals
+         * @type {GroupTotals}
+         */
+        this.totals = null;
     }
 
     Group.prototype = new NonDataItem();
@@ -297,6 +293,8 @@
      * @constructor
      */
     function GroupTotals() {
+        this.__groupTotals = true;
+
         /***
          * Parent Group.
          * @param group

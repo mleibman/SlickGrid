@@ -31,6 +31,8 @@
         var filter = null;		// filter function
         var updated = null; 	// updated item ids
         var suspend = false;	// suspends the recalculation
+        var sortAsc = true;
+        var fastSortField;
         var sortComparer;
 
         // grouping
@@ -39,7 +41,6 @@
         var groupingFormatter;
         var groupingComparer;
         var groups = [];
-        var totals = [];
         var collapsedGroups = {};
         var aggregators;
         var aggregateCollapsed = false;
@@ -100,40 +101,44 @@
             return {pageSize:pagesize, pageNum:pagenum, totalRows:totalRows};
         }
 
-        function getCombinedComparer(groupingCmp, cmp) {
-            if (!groupingCmp) {
-                return cmp;
-            }
-            else {
-                return function combinedComparer(a ,b) {
-                    var x, y;
-                    if (groupingGetterIsAFn) {
-                        x = groupingGetter(a);
-                        y = groupingGetter(b);
-                    }
-                    else {
-                        x = a[groupingGetter];
-                        y = b[groupingGetter];
-                    }
-
-                    return groupingCmp(x, y) || (cmp && cmp(a, b)) || 0;
-                }
-            }
+        function sort(comparer, ascending) {
+           sortAsc = ascending;
+           sortComparer = comparer;
+           fastSortField = null;
+           if (ascending === false) items.reverse();
+           items.sort(comparer);
+           if (ascending === false) items.reverse();
+           refreshIdxById();
+           refresh();
         }
 
-        function sort(comparer) {
-            sortComparer = comparer;
-            var combinedComparer = getCombinedComparer(groupingComparer, comparer);
-            if (combinedComparer) {
-                items.sort(combinedComparer);
-                refreshIdxById();
-                refresh();
-            }
-        }
+       /***
+        * Provides a workaround for the extremely slow sorting in IE.
+        * Does a [lexicographic] sort on a give column by temporarily overriding Object.prototype.toString
+        * to return the value of that field and then doing a native Array.sort().
+        */
+       function fastSort(field, ascending) {
+           sortAsc = ascending;
+           fastSortField = field;
+           sortComparer = null;
+           var oldToString = Object.prototype.toString;
+           Object.prototype.toString = (typeof field == "function")?field:function() { return this[field] };
+           // an extra reversal for descending sort keeps the sort stable
+           // (assuming a stable native sort implementation, which isn't true in some cases)
+           if (ascending === false) items.reverse();
+           items.sort();
+           Object.prototype.toString = oldToString;
+           if (ascending === false) items.reverse();
+           refreshIdxById();
+           refresh();
+       }
 
         function reSort() {
-            if (groupingGetter || sortComparer) {
-                sort(sortComparer);
+            if (sortComparer) {
+               sort(sortComparer, sortAsc);
+            }
+            else if (fastSortField) {
+               fastSort(fastSortField, sortAsc);
             }
         }
 
@@ -148,7 +153,6 @@
             groupingFormatter = valueFormatter;
             groupingComparer = sortComparer;
             collapsedGroups = {};
-            reSort();
             refresh();
         }
 
@@ -233,79 +237,88 @@
             return groups;
         }
 
-        function getGroupTotals() {
-            return totals;
-        }
-
         function extractGroups(rows) {
             var group;
             var val;
             var groups = [];
+            var groupsByVal = {};
+            var r;
 
             for (var i = 0, l = rows.length; i < l; i++) {
-                val = (groupingGetterIsAFn) ? groupingGetter(rows[i]) : rows[i][groupingGetter];
-
-                if (!group || group.value !== val) {
-                    if (group) {
-                        group.end = i - 1;
-                        group.count = group.end - group.start + 1;
-                        group.title = groupingFormatter ? groupingFormatter(group) : group.value;
-                    }
-
+                r = rows[i];
+                val = (groupingGetterIsAFn) ? groupingGetter(r) : r[groupingGetter];
+                group = groupsByVal[val];
+                if (!group) {
                     group = new Slick.Group();
+                    group.count = 0;
                     group.value = val;
-                    group.start = i;
                     group.collapsed = (val in collapsedGroups);
+                    group.rows = [];
                     groups[groups.length] = group;
+                    groupsByVal[val] = group;
                 }
+
+                group.rows[group.count++] = r;
             }
-            if (group) {
-                group.end = rows.length - 1;
-                group.count = group.end - group.start + 1;
-                group.title = groupingFormatter ? groupingFormatter(group) : group.value;
+
+            // generate the title only after we have complete counts
+            var j = groups.length;
+            while (j--) {
+                groups[j].title = groupingFormatter ? groupingFormatter(groups[j]) : groups[j].value;
             }
 
             return groups;
         }
 
-
-        function flattenGroupedRows(groups, rows) {
-            var groupedRows = [], gl = 0, idx, t, g, r;
-            totals = [];
-            for (var i = 0, l = groups.length; i < l; i++) {
+        function calculateTotals(groups) {
+            var g, t, r, idx;
+            for (var i = 0, ii = groups.length; i < ii; i++) {
                 g = groups[i];
-                groupedRows[gl++] = g;
 
-                if (aggregators) {
-                    idx = aggregators.length;
-                    while (idx--) {
-                        aggregators[idx].init();
-                    }
+                idx = aggregators.length;
+                while (idx--) {
+                    aggregators[idx].init();
                 }
 
-                for (var j = g.start; j <= g.end; j++) {
-                    r = rows[j];
-                    if (aggregators) {
+                for (var j = 0, jj = g.rows.length; j < jj; j++) {
+                    r = g.rows[j];
+                    if (!g.collapsed || aggregateCollapsed) {
                         idx = aggregators.length;
                         while (idx--) {
                             aggregators[idx].accumulate(r);
                         }
                     }
-                    if (!g.collapsed) {
-                        groupedRows[gl++] = r;
-                    }
                 }
 
-                if (aggregators && (!g.collapsed || aggregateCollapsed)) {
+                if (!g.collapsed || aggregateCollapsed) {
                     t = new Slick.GroupTotals();
-                    t.group = g;
                     idx = aggregators.length;
                     while (idx--) {
                         aggregators[idx].storeResult(t);
                     }
-                    groupedRows[gl++] = t;
-                    totals[totals.length] = t;
+                    t.group = g;
+                    g.totals = t;
                 }
+            }
+        }
+
+        function flattenGroupedRows(groups) {
+            var groupedRows = [], gl = 0, idx, t, g, r;
+            for (var i = 0, l = groups.length; i < l; i++) {
+                g = groups[i];
+                groupedRows[gl++] = g;
+
+                if (!g.collapsed) {
+                    for (var j = 0, jj = g.rows.length; j < jj; j++) {
+                        groupedRows[gl++] = g.rows[j];
+                    }
+                }
+
+                if (g.totals) {
+                    groupedRows[gl++] = g.totals;
+                }
+
+                g.rows = null;
             }
             return groupedRows;
         }
@@ -339,14 +352,39 @@
             return {totalRows:itemIdx, rows:newRows};
         }
 
-        function recalc(_items, _rows, _filter, _updated) {
-            var diff = [];
+        function getRowDiffs(rows, newRows) {
+            var item, r, eitherIsNonData, diff = [];
+            for (var i = 0, rl = rows.length, nrl = newRows.length; i < nrl; i++) {
+                if (i >= rl) {
+                    diff[diff.length] = i;
+                }
+                else {
+                    item = newRows[i];
+                    r = rows[i];
 
+                    if ((groupingGetter && (eitherIsNonData = (item.__nonDataRow) || (r.__nonDataRow)) &&
+                            (item.__group !== r.__group ||
+                            (item.__group && !item.equals(r))))
+                        || (aggregators && eitherIsNonData &&
+                            // no good way to compare totals since they are arbitrary DTOs
+                            // deep object comparison is pretty expensive
+                            // always considering them 'dirty' seems easier for the time being
+                            (item.__groupTotals || r.__groupTotals))
+                        || item[idProperty] != r[idProperty]
+                        || (updated && updated[item[idProperty]])
+                        ) {
+                        diff[diff.length] = i;
+                    }
+                }
+            }
+            return diff;
+        }
+
+        function recalc(_items, _rows, _filter) {
             rowsById = null;
 
             // go over all items remapping them to rows on the fly
             // while keeping track of the differences and updating indexes
-            var item;
             var newRows = [];
 
             var filteredItems = getFilteredAndPagedItems(_items, _filter);
@@ -357,31 +395,15 @@
             if (groupingGetter != null) {
                 groups = extractGroups(newRows);
                 if (groups.length) {
-                    newRows = flattenGroupedRows(groups, newRows);
+                    groups.sort(groupingComparer);
+                    if (aggregators) {
+                        calculateTotals(groups);
+                    }
+                    newRows = flattenGroupedRows(groups);
                 }
             }
 
-            var eitherIsNonData;
-            for (var i = 0, rl = _rows.length, nrl = newRows.length, r; i < nrl; i++) {
-                item = newRows[i];
-                r = _rows[i];
-
-                if (i >= rl
-                    || (groupingGetter && (eitherIsNonData = (item instanceof Slick.NonDataRow) || (r instanceof Slick.NonDataRow)) &&
-                        (item instanceof Slick.Group !== r instanceof Slick.Group ||
-                        (item instanceof Slick.Group && !item.equals(r))))
-                    || (aggregators && eitherIsNonData &&
-                        // no good way to compare totals since they are arbitrary DTOs
-                        // deep object comparison is pretty expensive
-                        // always considering them 'dirty' seems easier for the time being
-                        (item instanceof Slick.GroupTotals || r instanceof Slick.GroupTotals))
-                    || item[idProperty] != r[idProperty]
-                    || (_updated && _updated[item[idProperty]])
-                    ) {
-                    diff[diff.length] = i;
-                }
-            }
-
+            var diff = getRowDiffs(_rows, newRows);
 
             rows = newRows;
 
@@ -394,13 +416,13 @@
             var countBefore = rows.length;
             var totalRowsBefore = totalRows;
 
-            var diff = recalc(items, rows, filter, updated); // pass as direct refs to avoid closure perf hit
+            var diff = recalc(items, rows, filter); // pass as direct refs to avoid closure perf hit
 
             // if the current page is no longer valid, go to last page and recalc
             // we suffer a performance penalty here, but the main loop (recalc) remains highly optimized
             if (pagesize && totalRows < pagenum * pagesize) {
                 pagenum = Math.floor(totalRows / pagesize);
-                diff = recalc(items, rows, filter, updated);
+                diff = recalc(items, rows, filter);
             }
 
             updated = null;
@@ -421,13 +443,13 @@
             "setItems":         setItems,
             "setFilter":        setFilter,
             "sort":             sort,
+            "fastSort":         fastSort,
             "reSort":           reSort,
             "groupBy":          groupBy,
             "setAggregators":   setAggregators,
             "collapseGroup":    collapseGroup,
             "expandGroup":      expandGroup,
             "getGroups":        getGroups,
-            "getGroupTotals":   getGroupTotals,
             "getIdxById":       getIdxById,
             "getRowById":       getRowById,
             "getItemById":      getItemById,
@@ -452,18 +474,22 @@
 
 
     function AvgAggregator(field) {
+        var count;
+        var nonNullCount;
+        var sum;
+
         this.init = function() {
-            this.count = 0;
-            this.nonNullCount = 0;
-            this.sum = 0;
+            count = 0;
+            nonNullCount = 0;
+            sum = 0;
         };
 
         this.accumulate = function(item) {
             var val = item[field];
-            this.count++;
+            count++;
             if (val != null && val != NaN) {
-                this.nonNullCount++;
-                this.sum += 1 * val;
+                nonNullCount++;
+                sum += 1 * val;
             }
         };
 
@@ -471,23 +497,25 @@
             if (!groupTotals.avg) {
                 groupTotals.avg = {};
             }
-            if (this.nonNullCount != 0) {
-                groupTotals.avg[field] = this.sum / this.nonNullCount;
+            if (nonNullCount != 0) {
+                groupTotals.avg[field] = sum / nonNullCount;
             }
         };
     }
 
 
     function MinAggregator(field) {
+        var min;
+
         this.init = function() {
-            this.min = null;
+            min = null;
         };
 
         this.accumulate = function(item) {
             var val = item[field];
             if (val != null && val != NaN) {
-                if (this.min == null ||val < this.min) {
-                    this.min = val;
+                if (min == null ||val < min) {
+                    min = val;
                 }
             }
         };
@@ -496,20 +524,22 @@
             if (!groupTotals.min) {
                 groupTotals.min = {};
             }
-            groupTotals.min[field] = this.min;
+            groupTotals.min[field] = min;
         }
     }
 
     function MaxAggregator(field) {
+        var max;
+
         this.init = function() {
-            this.max = null;
+            max = null;
         };
 
         this.accumulate = function(item) {
             var val = item[field];
             if (val != null && val != NaN) {
-                if (this.max == null ||val > this.max) {
-                    this.max = val;
+                if (max == null ||val > max) {
+                    max = val;
                 }
             }
         };
@@ -518,7 +548,7 @@
             if (!groupTotals.max) {
                 groupTotals.max = {};
             }
-            groupTotals.max[field] = this.max;
+            groupTotals.max[field] = max;
         }
     }
 
