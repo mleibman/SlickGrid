@@ -32,6 +32,8 @@
         var updated = null; 	// updated item ids
         var suspend = false;	// suspends the recalculation
         var sortComparer;
+
+        // grouping
         var groupingGetter;
         var groupingGetterIsAFn;
         var groupingFormatter;
@@ -254,7 +256,7 @@
                     group.value = val;
                     group.start = i;
                     group.collapsed = (val in collapsedGroups);
-                    groups.push(group);
+                    groups[groups.length] = group;
                 }
             }
             if (group) {
@@ -302,32 +304,25 @@
                         aggregators[idx].storeResult(t);
                     }
                     groupedRows[gl++] = t;
-                    totals.push(t);
+                    totals[totals.length] = t;
                 }
             }
             return groupedRows;
         }
 
-        function recalc(_items, _rows, _filter, _updated) {
-            var diff = [];
-
-            rowsById = null;
-
-            // go over all items remapping them to rows on the fly
-            // while keeping track of the differences and updating indexes
+        function getFilteredAndPagedItems(items, filter) {
             var pageStartRow = pagesize * pagenum;
             var pageEndRow = pageStartRow + pagesize;
-            var item,id;
+            var itemIdx = 0, rowIdx = 0, item;
             var newRows = [];
-            var il = _items.length;
-            var rl = _rows.length;
-            var itemIdx = 0, rowIdx = 0;
 
             // filter the data and get the current page if paging
-            if (_filter) {
-                for (var i = 0; i < il; ++i) {
-                    item = _items[i];
-                    if (_filter(item)) {
+            // TODO:  replace pagesize by a slice() if no filter
+            if (filter || pagesize) {
+                for (var i = 0, il = items.length; i < il; ++i) {
+                    item = items[i];
+
+                    if (!filter || filter(item)) {
                         if (!pagesize || (itemIdx >= pageStartRow && itemIdx < pageEndRow)) {
                             newRows[rowIdx] = item;
                             rowIdx++;
@@ -337,9 +332,26 @@
                 }
             }
             else {
-                newRows = _items.concat();
+                newRows = items.concat();
                 itemIdx = il;
             }
+
+            return {totalRows:itemIdx, rows:newRows};
+        }
+
+        function recalc(_items, _rows, _filter, _updated) {
+            var diff = [];
+
+            rowsById = null;
+
+            // go over all items remapping them to rows on the fly
+            // while keeping track of the differences and updating indexes
+            var item;
+            var newRows = [];
+
+            var filteredItems = getFilteredAndPagedItems(_items, _filter);
+            totalRows = filteredItems.totalRows;
+            newRows = filteredItems.rows;
 
             groups = [];
             if (groupingGetter != null) {
@@ -350,28 +362,28 @@
             }
 
             var eitherIsNonData;
-            for (var i = 0, nrl = newRows.length, r; i < nrl; i++) {
+            for (var i = 0, rl = _rows.length, nrl = newRows.length, r; i < nrl; i++) {
                 item = newRows[i];
                 r = _rows[i];
 
-                if (i >= rl ||
-                    (groupingGetter && (eitherIsNonData = (item instanceof Slick.NonDataRow) || (r instanceof Slick.NonDataRow)) &&
+                if (i >= rl
+                    || (groupingGetter && (eitherIsNonData = (item instanceof Slick.NonDataRow) || (r instanceof Slick.NonDataRow)) &&
                         (item instanceof Slick.Group !== r instanceof Slick.Group ||
-                        (item instanceof Slick.Group && !item.equals(r)))) ||
-                    (aggregators && eitherIsNonData &&
+                        (item instanceof Slick.Group && !item.equals(r))))
+                    || (aggregators && eitherIsNonData &&
                         // no good way to compare totals since they are arbitrary DTOs
                         // deep object comparison is pretty expensive
                         // always considering them 'dirty' seems easier for the time being
-                        (item instanceof Slick.GroupTotals || r instanceof Slick.GroupTotals)) ||
-                    item[idProperty] != r[idProperty] ||
-                    (_updated && _updated[item[idProperty]])) {
+                        (item instanceof Slick.GroupTotals || r instanceof Slick.GroupTotals))
+                    || item[idProperty] != r[idProperty]
+                    || (_updated && _updated[item[idProperty]])
+                    ) {
                     diff[diff.length] = i;
                 }
             }
 
 
             rows = newRows;
-            totalRows = itemIdx;
 
             return diff;
         }
