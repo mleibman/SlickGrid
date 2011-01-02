@@ -235,7 +235,7 @@
                 }
             });
 
-			grid.onSort.subscribe(function(e, data) {
+			grid.onSort.subscribe(function(e, args) {
                 sortdir = args.sortAsc ? 1 : -1;
                 sortcol = args.sortCol.field;
 
