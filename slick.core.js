@@ -232,6 +232,7 @@
      */
     function Group() {
         this.__group = true;
+        this.__updated = false;
 
         /***
          * Number of rows in the group.

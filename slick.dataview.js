@@ -22,6 +22,11 @@
     function DataView() {
         var self = this;
 
+        var HINT_OMIT_FILTERING = 1;
+        var HINT_OMIT_REGROUPING = 2;
+        var HINT_OMIT_AGGREGATION = 4;
+        var HINT_OMIT_GROUP_SORTING = 8;
+
         // private
         var idProperty = "id";  // property holding a unique row id
         var items = [];			// data by index
@@ -59,9 +64,9 @@
             suspend = true;
         }
 
-        function endUpdate() {
+        function endUpdate(hints) {
             suspend = false;
-            refresh();
+            refresh(hints);
         }
 
         function refreshIdxById() {
@@ -153,6 +158,7 @@
             groupingFormatter = valueFormatter;
             groupingComparer = sortComparer;
             collapsedGroups = {};
+            groups = [];
             refresh();
         }
 
@@ -225,12 +231,12 @@
 
         function collapseGroup(groupingValue) {
             collapsedGroups[groupingValue] = true;
-            refresh();
+            refresh(HINT_OMIT_FILTERING | HINT_OMIT_REGROUPING | HINT_OMIT_AGGREGATION | HINT_OMIT_GROUP_SORTING);
         }
 
         function expandGroup(groupingValue) {
             delete collapsedGroups[groupingValue];
-            refresh();
+            refresh(HINT_OMIT_FILTERING | HINT_OMIT_REGROUPING | HINT_OMIT_AGGREGATION | HINT_OMIT_GROUP_SORTING);
         }
 
         function getGroups() {
@@ -252,7 +258,6 @@
                     group = new Slick.Group();
                     group.count = 0;
                     group.value = val;
-                    group.collapsed = (val in collapsedGroups);
                     group.rows = [];
                     groups[groups.length] = group;
                     groupsByVal[val] = group;
@@ -261,14 +266,11 @@
                 group.rows[group.count++] = r;
             }
 
-            // generate the title only after we have complete counts
-            var j = groups.length;
-            while (j--) {
-                groups[j].title = groupingFormatter ? groupingFormatter(groups[j]) : groups[j].value;
-            }
-
             return groups;
         }
+
+        // TODO:  calculateTotalsForGroup(group)
+        // TODO:  lazy totals calculation
 
         function calculateTotals(groups) {
             var g, t, r, idx;
@@ -314,11 +316,9 @@
                     }
                 }
 
-                if (g.totals) {
+                if (g.totals && (!g.collapsed || aggregateCollapsed)) {
                     groupedRows[gl++] = g.totals;
                 }
-
-                g.rows = null;
             }
             return groupedRows;
         }
@@ -330,8 +330,7 @@
             var newRows = [];
 
             // filter the data and get the current page if paging
-            // TODO:  replace pagesize by a slice() if no filter
-            if (filter || pagesize) {
+            if (filter) {
                 for (var i = 0, il = items.length; i < il; ++i) {
                     item = items[i];
 
@@ -345,8 +344,8 @@
                 }
             }
             else {
-                newRows = items.concat();
-                itemIdx = il;
+                newRows = pagesize ? items.slice(pageStartRow, pageEndRow) : items.concat();
+                itemIdx = items.length;
             }
 
             return {totalRows:itemIdx, rows:newRows};
@@ -363,8 +362,9 @@
                     r = rows[i];
 
                     if ((groupingGetter && (eitherIsNonData = (item.__nonDataRow) || (r.__nonDataRow)) &&
-                            (item.__group !== r.__group ||
-                            (item.__group && !item.equals(r))))
+                            item.__group !== r.__group ||
+                            item.__updated ||
+                            item.__group && !item.equals(r))
                         || (aggregators && eitherIsNonData &&
                             // no good way to compare totals since they are arbitrary DTOs
                             // deep object comparison is pretty expensive
@@ -380,24 +380,41 @@
             return diff;
         }
 
-        function recalc(_items, _rows, _filter) {
+        function recalc(hints, _items, _rows, _filter) {
             rowsById = null;
 
-            // go over all items remapping them to rows on the fly
-            // while keeping track of the differences and updating indexes
             var newRows = [];
+
+            if (hints & HINT_OMIT_FILTERING) {
+                _filter = null;
+            }
 
             var filteredItems = getFilteredAndPagedItems(_items, _filter);
             totalRows = filteredItems.totalRows;
             newRows = filteredItems.rows;
 
-            groups = [];
             if (groupingGetter != null) {
-                groups = extractGroups(newRows);
+                if (!(hints & HINT_OMIT_REGROUPING)) {
+                    groups = extractGroups(newRows);
+                }
                 if (groups.length) {
-                    groups.sort(groupingComparer);
+                    var idx = groups.length, g;
+                    var collapsed;
+                    while (idx--) {
+                        g = groups[idx];
+                        collapsed = (g.value in collapsedGroups);
+                        g.__updated = (g.collapsed != collapsed);
+                        g.collapsed = collapsed;
+                        g.title = groupingFormatter ? groupingFormatter(g) : g.value;
+                    }
+
+                    if (!(hints & HINT_OMIT_GROUP_SORTING)) {
+                        groups.sort(groupingComparer);
+                    }
                     if (aggregators) {
-                        calculateTotals(groups);
+                        if (!(hints & HINT_OMIT_AGGREGATION)) {
+                            calculateTotals(groups);
+                        }
                     }
                     newRows = flattenGroupedRows(groups);
                 }
@@ -410,19 +427,19 @@
             return diff;
         }
 
-        function refresh() {
+        function refresh(hints) {
             if (suspend) return;
 
             var countBefore = rows.length;
             var totalRowsBefore = totalRows;
 
-            var diff = recalc(items, rows, filter); // pass as direct refs to avoid closure perf hit
+            var diff = recalc(hints, items, rows, filter); // pass as direct refs to avoid closure perf hit
 
             // if the current page is no longer valid, go to last page and recalc
             // we suffer a performance penalty here, but the main loop (recalc) remains highly optimized
             if (pagesize && totalRows < pagenum * pagesize) {
                 pagenum = Math.floor(totalRows / pagesize);
-                diff = recalc(items, rows, filter);
+                diff = recalc(hints, items, rows, filter);
             }
 
             updated = null;
