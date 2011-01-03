@@ -514,8 +514,11 @@ if (typeof Slick === "undefined") {
                     lastResizable = i;
                 }
             });
+            if (firstResizable === undefined) {
+                return;
+            }
             columnElements.each(function(i,e) {
-                if ((firstResizable !== undefined && i < firstResizable) || (options.forceFitColumns && i >= lastResizable)) { return; }
+                if (i < firstResizable || (options.forceFitColumns && i >= lastResizable)) { return; }
                 $col = $(e);
                 $("<div class='slick-resizable-handle' />")
                     .appendTo(e)
@@ -772,7 +775,7 @@ if (typeof Slick === "undefined") {
 
         function trigger(evt, args, e) {
             e = e || new Slick.EventData();
-            args = args || args;
+            args = args || {};
             args.grid = self;
             return evt.notify(args, e, self);
         }
