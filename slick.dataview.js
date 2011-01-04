@@ -22,11 +22,6 @@
     function DataView() {
         var self = this;
 
-        var HINT_OMIT_FILTERING = 1;
-        var HINT_OMIT_REGROUPING = 2;
-        var HINT_OMIT_AGGREGATION = 4;
-        var HINT_OMIT_GROUP_SORTING = 8;
-
         // private
         var idProperty = "id";  // property holding a unique row id
         var items = [];			// data by index
@@ -231,12 +226,12 @@
 
         function collapseGroup(groupingValue) {
             collapsedGroups[groupingValue] = true;
-            refresh(HINT_OMIT_FILTERING | HINT_OMIT_REGROUPING | HINT_OMIT_AGGREGATION | HINT_OMIT_GROUP_SORTING);
+            refresh();
         }
 
         function expandGroup(groupingValue) {
             delete collapsedGroups[groupingValue];
-            refresh(HINT_OMIT_FILTERING | HINT_OMIT_REGROUPING | HINT_OMIT_AGGREGATION | HINT_OMIT_GROUP_SORTING);
+            refresh();
         }
 
         function getGroups() {
@@ -269,38 +264,50 @@
             return groups;
         }
 
-        // TODO:  calculateTotalsForGroup(group)
         // TODO:  lazy totals calculation
 
-        function calculateTotals(groups) {
-            var g, t, r, idx;
-            for (var i = 0, ii = groups.length; i < ii; i++) {
-                g = groups[i];
+        function calculateGroupTotals(group) {
+            var r, idx;
 
+            if (group.collapsed && !aggregateCollapsed) {
+                return;
+            }
+
+            idx = aggregators.length;
+            while (idx--) {
+                aggregators[idx].init();
+            }
+
+            for (var j = 0, jj = group.rows.length; j < jj; j++) {
+                r = group.rows[j];
                 idx = aggregators.length;
                 while (idx--) {
-                    aggregators[idx].init();
+                    aggregators[idx].accumulate(r);
                 }
+            }
 
-                for (var j = 0, jj = g.rows.length; j < jj; j++) {
-                    r = g.rows[j];
-                    if (!g.collapsed || aggregateCollapsed) {
-                        idx = aggregators.length;
-                        while (idx--) {
-                            aggregators[idx].accumulate(r);
-                        }
-                    }
-                }
+            var t = new Slick.GroupTotals();
+            idx = aggregators.length;
+            while (idx--) {
+                aggregators[idx].storeResult(t);
+            }
+            t.group = group;
+            group.totals = t;
+        }
 
-                if (!g.collapsed || aggregateCollapsed) {
-                    t = new Slick.GroupTotals();
-                    idx = aggregators.length;
-                    while (idx--) {
-                        aggregators[idx].storeResult(t);
-                    }
-                    t.group = g;
-                    g.totals = t;
-                }
+        function calculateTotals(groups) {
+            var idx = groups.length;
+            while (idx--) {
+                calculateGroupTotals(groups[idx]);
+            }
+        }
+
+        function finalizeGroups(groups) {
+            var idx = groups.length, g;
+            while (idx--) {
+                g = groups[idx];
+                g.collapsed = (g.value in collapsedGroups);
+                g.title = groupingFormatter ? groupingFormatter(g) : g.value;
             }
         }
 
@@ -380,42 +387,24 @@
             return diff;
         }
 
-        function recalc(hints, _items, _rows, _filter) {
+        function recalc(_items, _rows, _filter) {
             rowsById = null;
 
             var newRows = [];
-
-            if (hints & HINT_OMIT_FILTERING) {
-                _filter = null;
-            }
 
             var filteredItems = getFilteredAndPagedItems(_items, _filter);
             totalRows = filteredItems.totalRows;
             newRows = filteredItems.rows;
 
+            groups = [];
             if (groupingGetter != null) {
-                if (!(hints & HINT_OMIT_REGROUPING)) {
-                    groups = extractGroups(newRows);
-                }
+                groups = extractGroups(newRows);
                 if (groups.length) {
-                    var idx = groups.length, g;
-                    var collapsed;
-                    while (idx--) {
-                        g = groups[idx];
-                        collapsed = (g.value in collapsedGroups);
-                        g.__updated = (g.collapsed != collapsed);
-                        g.collapsed = collapsed;
-                        g.title = groupingFormatter ? groupingFormatter(g) : g.value;
-                    }
-
-                    if (!(hints & HINT_OMIT_GROUP_SORTING)) {
-                        groups.sort(groupingComparer);
-                    }
+                    finalizeGroups(groups);
                     if (aggregators) {
-                        if (!(hints & HINT_OMIT_AGGREGATION)) {
-                            calculateTotals(groups);
-                        }
+                        calculateTotals(groups);
                     }
+                    groups.sort(groupingComparer);
                     newRows = flattenGroupedRows(groups);
                 }
             }
@@ -427,19 +416,19 @@
             return diff;
         }
 
-        function refresh(hints) {
+        function refresh() {
             if (suspend) return;
 
             var countBefore = rows.length;
             var totalRowsBefore = totalRows;
 
-            var diff = recalc(hints, items, rows, filter); // pass as direct refs to avoid closure perf hit
+            var diff = recalc(items, rows, filter); // pass as direct refs to avoid closure perf hit
 
             // if the current page is no longer valid, go to last page and recalc
             // we suffer a performance penalty here, but the main loop (recalc) remains highly optimized
             if (pagesize && totalRows < pagenum * pagesize) {
                 pagenum = Math.floor(totalRows / pagesize);
-                diff = recalc(hints, items, rows, filter);
+                diff = recalc(items, rows, filter);
             }
 
             updated = null;
