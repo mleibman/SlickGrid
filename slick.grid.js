@@ -1843,7 +1843,7 @@ if (typeof Slick === "undefined") {
             getEditorLock().deactivate(editController);
         }
 
-        function makeActiveCellEditable() {
+        function makeActiveCellEditable(editor) {
             if (!activeCellNode) { return; }
             if (!options.editable) {
                 throw "Grid : makeActiveCellEditable : should never get called when options.editable is false";
@@ -1856,7 +1856,10 @@ if (typeof Slick === "undefined") {
                 return;
             }
 
-            if (trigger(self.onBeforeEditCell, {row:activeRow, cell:activeCell,item:getDataItem(activeRow)}) === false) {
+            var columnDef = columns[activeCell];
+            var item = getDataItem(activeRow);
+
+            if (trigger(self.onBeforeEditCell, {row:activeRow, cell:activeCell, item:item, column:columnDef}) === false) {
                 setFocus();
                 return;
             }
@@ -1864,12 +1867,12 @@ if (typeof Slick === "undefined") {
             getEditorLock().activate(editController);
             $(activeCellNode).addClass("editable");
 
-            activeCellNode.innerHTML = "";
+            // don't clear the cell if a custom editor is passed through
+            if (!editor) {
+                activeCellNode.innerHTML = "";
+            }
 
-            var columnDef = columns[activeCell];
-            var item = getDataItem(activeRow);
-
-            currentEditor = new (getEditor(columnDef))({
+            currentEditor = new (editor || getEditor(columnDef))({
                 grid: self,
                 gridPosition: absBox($container[0]),
                 position: absBox(activeCellNode),
@@ -2192,6 +2195,7 @@ if (typeof Slick === "undefined") {
                         $(activeCellNode).stop(true,true).effect("highlight", {color:"red"}, 300);
 
                         trigger(self.onValidationError, {
+                            editor: currentEditor,
                             cellNode: activeCellNode,
                             validationResults: validationResults,
                             row: activeRow,
