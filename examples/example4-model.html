@@ -217,9 +217,9 @@
                 var rows = [];
                 selectedRowIds = [];
 
-                for (var i = 0; i < dataView.rows.length; i++) {
+                for (var i = 0; i < dataView.getLength(); i++) {
                     rows.push(i);
-                    selectedRowIds.push(dataView.rows[i].id);
+                    selectedRowIds.push(dataView.getItem(i).id);
                 }
 
                 grid.setSelectedRows(rows);
@@ -230,7 +230,7 @@
                 selectedRowIds = [];
                 var rows = grid.getSelectedRows();
                 for (var i = 0, l = rows.length; i < l; i++) {
-                    var item = dataView.rows[rows[i]];
+                    var item = dataView.getItem(rows[i]);
                     if (item) selectedRowIds.push(item.id);
                 }
             });
@@ -336,9 +336,9 @@
 				var rows = [];
 				selectedRowIds = [];
 
-				for (var i=0; i<10 && i<dataView.rows.length; i++) {
+				for (var i=0; i<10 && i<dataView.getLength(); i++) {
 					rows.push(i);
-					selectedRowIds.push(dataView.rows[i].id);
+					selectedRowIds.push(dataView.getItem(i).id);
 				}
 
 				grid.setSelectedRows(rows);
