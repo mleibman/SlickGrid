@@ -93,7 +93,8 @@ if (typeof Slick === "undefined") {
             minWidth: 30,
             rerenderOnResize: false,
             unselectable: false,
-            groupTotalsFormatter: null
+            groupTotalsFormatter: null,
+            headerCssClass: null
         };
 
         // scroller
@@ -422,6 +423,7 @@ if (typeof Slick === "undefined") {
                     .width((m.currentWidth || m.width) - headerColumnWidthDiff)
                     .attr("title", m.toolTip || m.name || "")
                     .data("fieldId", m.id)
+                    .addClass(m.headerCssClass || "")
                     .appendTo($headers);
 
                 if (options.enableColumnReorder || m.sortable) {
