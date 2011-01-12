@@ -98,8 +98,6 @@
                 else {
                     _grid.setSelectedRows([]);
                 }
-                // could update the existing dom nodes instead, but whatever
-                _grid.invalidate();
                 e.stopPropagation();
                 e.stopImmediatePropagation();
             }
