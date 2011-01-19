@@ -1765,7 +1765,7 @@ if (typeof Slick === "undefined") {
                     clearTimeout(h_editorLoader);
 
                     if (options.asyncEditorLoading) {
-                        h_editorLoader = setTimeout(makeActiveCellEditable, options.asyncEditorLoadDelay);
+                        h_editorLoader = setTimeout(function() { makeActiveCellEditable(); }, options.asyncEditorLoadDelay);
                     }
                     else {
                         makeActiveCellEditable();
