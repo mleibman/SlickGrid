@@ -208,13 +208,13 @@ if (typeof Slick === "undefined") {
                 $container.css("position","relative");
 
             $headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-            $headers = $("<div class='slick-header-columns' style='width:100000px; left:-10000px' />").appendTo($headerScroller);
+            $headers = $("<div class='slick-header-columns' style='width:10000px; left:-1000px' />").appendTo($headerScroller);
 
             $headerRowScroller = $("<div class='slick-headerrow ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-            $headerRow = $("<div class='slick-headerrow-columns' style='width:100000px;' />").appendTo($headerRowScroller);
+            $headerRow = $("<div class='slick-headerrow-columns' style='width:10000px;' />").appendTo($headerRowScroller);
 
             $topPanelScroller = $("<div class='slick-top-panel-scroller ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-            $topPanel = $("<div class='slick-top-panel' style='width:100000px' />").appendTo($topPanelScroller);
+            $topPanel = $("<div class='slick-top-panel' style='width:10000px' />").appendTo($topPanelScroller);
 
             if (!options.showTopPanel) {
                 $topPanelScroller.hide();
@@ -702,7 +702,7 @@ if (typeof Slick === "undefined") {
             var rowHeight = (options.rowHeight - cellHeightDiff);
 
             var rules = [
-                "." + uid + " .slick-header-column { left: 10000px; }",
+                "." + uid + " .slick-header-column { left: 1000px; }",
                 "." + uid + " .slick-top-panel { height:" + options.topPanelHeight + "px; }",
                 "." + uid + " .slick-headerrow-columns { height:" + options.headerRowHeight + "px; }",
                 "." + uid + " .slick-cell { height:" + rowHeight + "px; }",
