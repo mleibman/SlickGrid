@@ -65,7 +65,6 @@ if (typeof Slick === "undefined") {
             autoEdit: true,
             alwaysNavigateDownOnCommit: false,
             enableCellNavigation: true,
-            alwaysNavigateDownOnCommit: false,
             shiftKeyPreventsNavigation: true,
             enableCellRangeSelection: false,
             enableColumnReorder: true,
