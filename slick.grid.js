@@ -65,6 +65,8 @@ if (typeof Slick === "undefined") {
             autoEdit: true,
             alwaysNavigateDownOnCommit: false,
             enableCellNavigation: true,
+            alwaysNavigateDownOnCommit: false,
+            shiftKeyPreventsNavigation: true,
             enableCellRangeSelection: false,
             enableColumnReorder: true,
             asyncEditorLoading: false,
@@ -1540,7 +1542,7 @@ if (typeof Slick === "undefined") {
             var handled = e.isImmediatePropagationStopped();
 
             if (!handled) {
-                if (!e.shiftKey && !e.altKey && !e.ctrlKey) {
+                if (!(options.shiftKeyPreventsNavigation && e.shiftKey) && !e.altKey && !e.ctrlKey) {
                     if (e.which == 27) {
                         if (!getEditorLock().isActive()) {
                             return; // no editing mode to cancel, allow bubbling and default processing (exit without cancelling the event)
@@ -1560,8 +1562,13 @@ if (typeof Slick === "undefined") {
                         navigateDown();
                     }
                     else if (e.which == 9) {
-                        navigateNext();
+                        if (e.shiftKey) {
+                            navigatePrev();
+                        } else {
+                            navigateNext();
+                        }
                     }
+
                     else if (e.which == 13) {
                         if (options.editable) {
                             if (currentEditor) {
