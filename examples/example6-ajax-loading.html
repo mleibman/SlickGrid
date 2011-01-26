@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE HTML>
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
@@ -52,17 +52,23 @@
 					<li>loading data through AJAX</li>
 					<li>custom row height</li>
 				</ul>
+
+                <h2>WARNING:</h2>
+                <ul>
+                    <li>Digg API uses request rate limiting.  You may occasionally get an error if you do a frequent scrolling/resorting/searching.</li>
+                </ul>
 		</div>
 
-		<script language="JavaScript" src="../lib/firebugx.js"></script>
+		<script src="../lib/firebugx.js"></script>
 
-		<script language="JavaScript" src="../lib/jquery-1.4.3.min.js"></script>
-		<script language="JavaScript" src="../lib/jquery-ui-1.8.5.custom.min.js"></script>
-		<script language="JavaScript" src="../lib/jquery.event.drag-2.0.min.js"></script>
-		<script language="JavaScript" src="../lib/jquery.jsonp-1.1.0.min.js"></script>
+		<script src="../lib/jquery-1.4.3.min.js"></script>
+		<script src="../lib/jquery-ui-1.8.5.custom.min.js"></script>
+		<script src="../lib/jquery.event.drag-2.0.min.js"></script>
+		<script src="../lib/jquery.jsonp-1.1.0.min.js"></script>
 
-		<script language="JavaScript" src="../slick.remotemodel.js"></script>
-		<script language="JavaScript" src="../slick.grid.js"></script>
+		<script src="../slick.core.js"></script>
+		<script src="../slick.remotemodel.js"></script>
+		<script src="../slick.grid.js"></script>
 
 		<script>
 		var grid;
@@ -93,18 +99,18 @@
 
 		$(function()
 		{
-			grid = new Slick.Grid($("#myGrid"), loader.data, columns, options);
+			grid = new Slick.Grid("#myGrid", loader.data, columns, options);
 
-			grid.onViewportChanged = function() {
+			grid.onViewportChanged.subscribe(function(e,args) {
                 var vp = grid.getViewport();
                 loader.ensureData(vp.top, vp.bottom);
-            };
+            });
 
-			grid.onSort = function(sortCol, sortAsc) {
-                loader.setSort(sortCol.field, sortAsc ? 1 : -1);
+			grid.onSort.subscribe(function(e,args) {
+                loader.setSort(args.sortCol.field, args.sortAsc ? 1 : -1);
                 var vp = grid.getViewport();
                 loader.ensureData(vp.top, vp.bottom);
-            };
+            });
 
 			loader.onDataLoading.subscribe(function() {
 				if (!loadingIndicator)
@@ -121,9 +127,9 @@
 				loadingIndicator.show();
 			});
 
-			loader.onDataLoaded.subscribe(function(args) {
+			loader.onDataLoaded.subscribe(function(e,args) {
 				for (var i = args.from; i <= args.to; i++) {
-					grid.removeRow(i);
+					grid.invalidateRow(i);
 				}
 
 				grid.updateRowCount();
@@ -143,7 +149,7 @@
 
 
 			// load the first page
-			grid.onViewportChanged();
+			grid.onViewportChanged.notify();
 		})
 		</script>
 	</body>

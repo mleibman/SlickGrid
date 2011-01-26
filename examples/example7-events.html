@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE HTML>
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
@@ -62,14 +62,15 @@
 			<li data="High">High</li>
 		</ul>
 
-		<script language="JavaScript" src="../lib/firebugx.js"></script>
+		<script src="../lib/firebugx.js"></script>
 
-		<script language="JavaScript" src="../lib/jquery-1.4.3.min.js"></script>
-		<script language="JavaScript" src="../lib/jquery-ui-1.8.5.custom.min.js"></script>
-		<script language="JavaScript" src="../lib/jquery.event.drag-2.0.min.js"></script>
+		<script src="../lib/jquery-1.4.3.min.js"></script>
+		<script src="../lib/jquery-ui-1.8.5.custom.min.js"></script>
+		<script src="../lib/jquery.event.drag-2.0.min.js"></script>
 
-		<script language="JavaScript" src="../slick.editors.js"></script>
-		<script language="JavaScript" src="../slick.grid.js"></script>
+		<script src="../slick.core.js"></script>
+		<script src="../slick.editors.js"></script>
+		<script src="../slick.grid.js"></script>
 
 		<script>
 		var grid;
@@ -95,18 +96,18 @@
         {
             for (var i = 0; i < 100; i++) {
                 var d = (data[i] = {});
-
                 d["title"] = "Task " + i;
                 d["priority"] = "Medium";
             }
 
+            grid = new Slick.Grid("#myGrid", data, columns, options);
 
-            grid = new Slick.Grid($("#myGrid"), data, columns, options);
-
-            grid.onContextMenu = function (e, row, cell)
+            grid.onContextMenu.subscribe(function (e)
             {
+                e.preventDefault();
+                var cell = grid.getCellFromEvent(e);
                 $("#contextMenu")
-                        .data("row", row)
+                        .data("row", cell.row)
                         .css("top", e.pageY)
                         .css("left", e.pageX)
                         .show();
@@ -114,24 +115,18 @@
                 $("body").one("click", function() {
                     $("#contextMenu").hide();
                 });
+            });
 
-                return true;
-            };
-
-            grid.onClick = function (e, row, cell)
-            {
-                if (columns[cell].id == "priority")
-                {
+            grid.onClick.subscribe(function(e) {
+                var cell = grid.getCellFromEvent(e);
+                if (columns[cell.cell].id == "priority") {
                     var states = { "Low": "Medium", "Medium": "High", "High": "Low" };
-
-                    data[row].priority = states[data[row].priority];
-                    grid.updateRow(row);
-
-                    return true;
+                    data[cell.row].priority = states[data[cell.row].priority];
+                    grid.updateRow(cell.row);
+                    e.stopPropagation();
                 }
-            }
+            });
         });
-
 
 		$("#contextMenu").click(function(e) {
 			if (!$(e.target).is("li"))
@@ -141,10 +136,6 @@
 			data[row].priority = $(e.target).attr("data");
 			grid.updateRow(row);
 		});
-
-
-
 		</script>
-
 	</body>
 </html>

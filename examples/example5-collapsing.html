@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE HTML>
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
@@ -56,15 +56,16 @@
 		</tr>
 		</table>
 
-		<script language="JavaScript" src="../lib/firebugx.js"></script>
+		<script src="../lib/firebugx.js"></script>
 
-		<script language="JavaScript" src="../lib/jquery-1.4.3.min.js"></script>
-		<script language="JavaScript" src="../lib/jquery-ui-1.8.5.custom.min.js"></script>
-		<script language="JavaScript" src="../lib/jquery.event.drag-2.0.min.js"></script>
+		<script src="../lib/jquery-1.4.3.min.js"></script>
+		<script src="../lib/jquery-ui-1.8.5.custom.min.js"></script>
+		<script src="../lib/jquery.event.drag-2.0.min.js"></script>
 
-		<script language="JavaScript" src="../slick.editors.js"></script>
-		<script language="JavaScript" src="../slick.grid.js"></script>
-		<script language="JavaScript" src="../slick.model.js"></script>
+		<script src="../slick.core.js"></script>
+		<script src="../slick.editors.js"></script>
+		<script src="../slick.grid.js"></script>
+		<script src="../slick.dataview.js"></script>
 
 		<script>
 		function requiredFieldValidator(value) {
@@ -140,13 +141,6 @@
 			return a["percentComplete"] - b["percentComplete"];
 		}
 
-		function addItem(newItem,columnDef) {
-			var item = {"id": "new_" + (Math.round(Math.random()*10000)), "indent":0, "title":"New task", "duration":"1 day", "percentComplete":0, "start":"01/01/2009", "finish":"01/01/2009", "effortDriven":false};
-			$.extend(item,newItem);
-			dataView.addItem(item);
-		}
-
-
 		$(function()
 		{
 			var indent = 0;
@@ -193,18 +187,21 @@
 
 
 			// initialize the grid
-			grid = new Slick.Grid($("#myGrid"), dataView.rows, columns, options);
+			grid = new Slick.Grid("#myGrid", dataView, columns, options);
 
-            grid.onCellChange = function(row,col,item) {
-                dataView.updateItem(item.id,item);
-            };
+            grid.onCellChange.subscribe(function(e,args) {
+                dataView.updateItem(args.item.id,args.item);
+            });
             
-			grid.onAddNewRow = addItem;
+			grid.onAddNewRow.subscribe(function(e,args) {
+                var item = {"id": "new_" + (Math.round(Math.random()*10000)), "indent":0, "title":"New task", "duration":"1 day", "percentComplete":0, "start":"01/01/2009", "finish":"01/01/2009", "effortDriven":false};
+                $.extend(item,args.item);
+                dataView.addItem(item);
+            });
 
-			grid.onClick = function(e, row, cell) {
+			grid.onClick.subscribe(function(e,args) {
                 if ($(e.target).hasClass("toggle")) {
-
-                    var item = dataView.rows[row];
+                    var item = dataView.getItem(args.row);
                     if (item) {
                         if (!item._collapsed)
                             item._collapsed = true;
@@ -213,22 +210,19 @@
 
                         dataView.updateItem(item.id, item);
                     }
-
-                    return true;
+                    e.stopImmediatePropagation();
                 }
-
-                return false;
-            };
+            });
 
 
 			// wire up model events to drive the grid
-			dataView.onRowCountChanged.subscribe(function(args) {
+			dataView.onRowCountChanged.subscribe(function(e,args) {
 				grid.updateRowCount();
                 grid.render();
 			});
 
-			dataView.onRowsChanged.subscribe(function(rows) {
-				grid.removeRows(rows);
+			dataView.onRowsChanged.subscribe(function(e,args) {
+				grid.invalidateRows(args.rows);
 				grid.render();
 			});
 
@@ -263,8 +257,6 @@
 				dataView.refresh();
 			})
 		})
-
 		</script>
-
 	</body>
 </html>

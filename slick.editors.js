@@ -90,6 +90,14 @@
                 $input.focus();
             };
 
+            this.getValue = function() {
+                return $input.val();
+            };
+
+            this.setValue = function(val) {
+                $input.val(val);
+            };
+
             this.loadValue = function(item) {
                 defaultValue = item[args.column.field] || "";
                 $input.val(defaultValue);

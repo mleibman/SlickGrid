@@ -43,7 +43,7 @@ for (var i=0; i<COLS; i++) {
 
 cols[0].minWidth = 70;
 
-grid = new Slick.Grid($("#container"), data, cols);
+grid = new Slick.Grid("#container", data, cols);
 grid.render();
 
 
