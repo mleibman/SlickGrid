@@ -21,7 +21,7 @@
         }
 
         function destroy() {
-            _grid.onMouseEnter.subscribe(handleMouseEnter);
+            _grid.onMouseEnter.unsubscribe(handleMouseEnter);
         }
 
         function handleMouseEnter(e,args) {
