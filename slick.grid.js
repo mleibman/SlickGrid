@@ -757,7 +757,7 @@ if (typeof Slick === "undefined") {
             trigger(self.onBeforeDestroy, {});
 
             for (var i = 0; i < plugins.length; i++) {
-                unregisterPlugin(plugin);
+                unregisterPlugin(plugins[i]);
             }
 
             if (options.enableColumnReorder && $headers.sortable)
