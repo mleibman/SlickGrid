@@ -54,6 +54,16 @@
         var onRowsChanged = new Slick.Event();
         var onPagingInfoChanged = new Slick.Event();
 
+        // TODO:  move into options
+        function defaultGroupCellFormatter(row, cell, value, columnDef, dataContext) {
+            return "<span class='slick-group-toggle " + (dataContext.collapsed ? "collapsed" : "expanded") + "'></span>" +
+                    dataContext.title;
+        }
+
+        // TODO:  move into options
+        function defaultTotalsCellFormatter(row, cell, value, columnDef, dataContext) {
+            return (columnDef.groupTotalsFormatter && columnDef.groupTotalsFormatter(dataContext, columnDef)) || "";
+        }
 
         function beginUpdate() {
             suspend = true;
@@ -112,26 +122,26 @@
            refresh();
         }
 
-       /***
+        /***
         * Provides a workaround for the extremely slow sorting in IE.
         * Does a [lexicographic] sort on a give column by temporarily overriding Object.prototype.toString
         * to return the value of that field and then doing a native Array.sort().
         */
-       function fastSort(field, ascending) {
-           sortAsc = ascending;
-           fastSortField = field;
-           sortComparer = null;
-           var oldToString = Object.prototype.toString;
-           Object.prototype.toString = (typeof field == "function")?field:function() { return this[field] };
-           // an extra reversal for descending sort keeps the sort stable
-           // (assuming a stable native sort implementation, which isn't true in some cases)
-           if (ascending === false) items.reverse();
-           items.sort();
-           Object.prototype.toString = oldToString;
-           if (ascending === false) items.reverse();
-           refreshIdxById();
-           refresh();
-       }
+        function fastSort(field, ascending) {
+            sortAsc = ascending;
+            fastSortField = field;
+            sortComparer = null;
+            var oldToString = Object.prototype.toString;
+            Object.prototype.toString = (typeof field == "function")?field:function() { return this[field] };
+            // an extra reversal for descending sort keeps the sort stable
+            // (assuming a stable native sort implementation, which isn't true in some cases)
+            if (ascending === false) items.reverse();
+            items.sort();
+            Object.prototype.toString = oldToString;
+            if (ascending === false) items.reverse();
+            refreshIdxById();
+            refresh();
+        }
 
         function reSort() {
             if (sortComparer) {
@@ -224,6 +234,42 @@
             return rows[i];
         }
 
+        function getItemMetadata(i) {
+            var item = rows[i];
+            if (item === undefined) {
+                return null;
+            }
+
+            // overrides for group rows
+            if (item.__group) {
+                return {
+                    selectable: false,
+                    focusable: true,
+                    cssClasses: "slick-group",
+                    columns: {
+                        0: {
+                            colspan: "*",
+                            formatter: defaultGroupCellFormatter,
+                            editor: null
+                        }
+                    }
+                };
+            }
+
+            // overrides for totals rows
+            if (item.__groupTotals) {
+                return {
+                    selectable: false,
+                    focusable: false,
+                    cssClasses: "slick-group-totals",
+                    formatter: defaultTotalsCellFormatter,
+                    editor: null
+                };
+            }
+
+            return null;
+        }
+
         function collapseGroup(groupingValue) {
             collapsedGroups[groupingValue] = true;
             refresh();
@@ -265,7 +311,6 @@
         }
 
         // TODO:  lazy totals calculation
-
         function calculateGroupTotals(group) {
             var r, idx;
 
@@ -466,8 +511,10 @@
             "addItem":          addItem,
             "deleteItem":       deleteItem,
 
+            // data provider methods
             "getLength":        getLength,
             "getItem":          getItem,
+            "getItemMetadata":  getItemMetadata,
 
             // events
             "onRowCountChanged":    onRowCountChanged,

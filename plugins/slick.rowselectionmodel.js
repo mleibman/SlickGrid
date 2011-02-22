@@ -116,7 +116,7 @@
 
         function handleClick(e) {
             var cell = _grid.getCellFromEvent(e);
-            if (!cell || !_grid.canCellBeSelected(cell.row, cell.cell)) {
+            if (!cell || !_grid.canCellBeActive(cell.row, cell.cell)) {
                 return false;
             }
 

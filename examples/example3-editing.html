@@ -17,23 +17,25 @@
 	</style>
 	</head>
 	<body>
-		<div style="width:600px;float:left;">
-			<div id="myGrid" style="width:100%;height:500px;"></div>
-		</div>
+        <div style="position:relative">
+            <div style="width:600px;">
+                <div id="myGrid" style="width:100%;height:500px;"></div>
+            </div>
 
-		<div class="options-panel" style="width:320px;margin-left:650px;">
-            <h2>Demonstrates:</h2>
-            <ul>
-                <li>adding basic keyboard navigation and editing</li>
-                <li>custom editors and validators</li>
-                <li>auto-edit settings</li>
-            </ul>
+            <div class="options-panel">
+                <h2>Demonstrates:</h2>
+                <ul>
+                    <li>adding basic keyboard navigation and editing</li>
+                    <li>custom editors and validators</li>
+                    <li>auto-edit settings</li>
+                </ul>
 
-            <h2>Options:</h2>
-            <button onclick="grid.setOptions({autoEdit:true})">Auto-edit ON</button> 
-            &nbsp;
-            <button onclick="grid.setOptions({autoEdit:false})">Auto-edit OFF</button>
-		</div>
+                <h2>Options:</h2>
+                <button onclick="grid.setOptions({autoEdit:true})">Auto-edit ON</button>
+                &nbsp;
+                <button onclick="grid.setOptions({autoEdit:false})">Auto-edit OFF</button>
+            </div>
+        </div>
 
 		<script src="../lib/firebugx.js"></script>
 

@@ -110,7 +110,6 @@
                 toolTip: _options.toolTip,
                 field: "sel",
                 width: _options.width,
-                unselectable: true,
                 resizable: false,
                 sortable: false,
                 cssClass: _options.cssClass,

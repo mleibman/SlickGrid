@@ -47,7 +47,7 @@
 
 		var columns = [
 			{id:"title", name:"Title", field:"title", width:120, cssClass:"cell-title"},
-			{id:"duration", name:"Duration", field:"duration", unselectable:true},
+			{id:"duration", name:"Duration", field:"duration", selectable:false},
 			{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter},
 			{id:"start", name:"Start", field:"start", minWidth:60},
 			{id:"finish", name:"Finish", field:"finish", minWidth:60},
@@ -63,7 +63,7 @@
 			enableAddRow: false,
 			enableCellNavigation: true,
 			enableAsyncPostRender: true,
-            forceFitColumns: true
+            forceFitColumns: false
 		};
 
 
