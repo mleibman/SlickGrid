@@ -82,8 +82,7 @@ if (typeof Slick === "undefined") {
             cellFlashingCssClass: "flashing",
             selectedCellCssClass: "selected",
             multiSelect: true
-        },
-        gridData;
+        };
 
         var columnDefaults = {
             name: "",
@@ -173,8 +172,6 @@ if (typeof Slick === "undefined") {
             /// </summary>
 
             $container = $(container);
-
-            gridData = data;
 
             maxSupportedCssHeight = getMaxSupportedCssHeight();
 
@@ -952,30 +949,30 @@ if (typeof Slick === "undefined") {
 
         function setData(newData,scrollToTop) {
             invalidateAllRows();
-            gridData = newData;
+            data = newData;
             if (scrollToTop)
                 scrollTo(0);
         }
 
         function getData() {
-            return gridData;
+            return data;
         }
 
         function getDataLength() {
-            if (gridData.getLength) {
-                return gridData.getLength();
+            if (data.getLength) {
+                return data.getLength();
             }
             else {
-                return gridData.length;
+                return data.length;
             }
         }
 
         function getDataItem(i) {
-            if (gridData.getItem) {
-                return gridData.getItem(i);
+            if (data.getItem) {
+                return data.getItem(i);
             }
             else {
-                return gridData[i];
+                return data[i];
             }
         }
 
