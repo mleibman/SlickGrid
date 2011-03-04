@@ -172,6 +172,9 @@ if (typeof Slick === "undefined") {
             /// </summary>
 
             $container = $(container);
+            if($container.length < 1) {
+              throw new Error("SlickGrid requires a valid container, "+container+" does not exist in the DOM.");
+            }
 
             maxSupportedCssHeight = getMaxSupportedCssHeight();
 
