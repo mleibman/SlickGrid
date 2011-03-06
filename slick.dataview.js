@@ -19,9 +19,14 @@
      *
      * Relies on the data item having an "id" property uniquely identifying it.
      */
-    function DataView() {
+    function DataView(options) {
         var self = this;
 
+        var defaults = {
+            groupItemMetadataProvider: new Slick.Data.GroupItemMetadataProvider()
+        };
+
+        
         // private
         var idProperty = "id";  // property holding a unique row id
         var items = [];			// data by index
@@ -54,16 +59,8 @@
         var onRowsChanged = new Slick.Event();
         var onPagingInfoChanged = new Slick.Event();
 
-        // TODO:  move into options
-        function defaultGroupCellFormatter(row, cell, value, columnDef, dataContext) {
-            return "<span class='slick-group-toggle " + (dataContext.collapsed ? "collapsed" : "expanded") + "'></span>" +
-                    dataContext.title;
-        }
+        options = $.extend(true, {}, defaults, options);
 
-        // TODO:  move into options
-        function defaultTotalsCellFormatter(row, cell, value, columnDef, dataContext) {
-            return (columnDef.groupTotalsFormatter && columnDef.groupTotalsFormatter(dataContext, columnDef)) || "";
-        }
 
         function beginUpdate() {
             suspend = true;
@@ -242,29 +239,12 @@
 
             // overrides for group rows
             if (item.__group) {
-                return {
-                    selectable: false,
-                    focusable: true,
-                    cssClasses: "slick-group",
-                    columns: {
-                        0: {
-                            colspan: "*",
-                            formatter: defaultGroupCellFormatter,
-                            editor: null
-                        }
-                    }
-                };
+                return options.groupItemMetadataProvider.getGroupRowMetadata(item);
             }
 
             // overrides for totals rows
             if (item.__groupTotals) {
-                return {
-                    selectable: false,
-                    focusable: false,
-                    cssClasses: "slick-group-totals",
-                    formatter: defaultTotalsCellFormatter,
-                    editor: null
-                };
+                return options.groupItemMetadataProvider.getTotalsRowMetadata(item);
             }
 
             return null;
@@ -555,7 +535,6 @@
             }
         };
     }
-
 
     function MinAggregator(field) {
         var min;
