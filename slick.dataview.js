@@ -23,7 +23,7 @@
         var self = this;
 
         var defaults = {
-            groupItemMetadataProvider: new Slick.Data.GroupItemMetadataProvider()
+            groupItemMetadataProvider: null
         };
 
         
@@ -155,6 +155,10 @@
         }
 
         function groupBy(valueGetter, valueFormatter, sortComparer) {
+            if (!options.groupItemMetadataProvider) {
+                options.groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
+            }
+
             groupingGetter = valueGetter;
             groupingGetterIsAFn = typeof groupingGetter === "function";
             groupingFormatter = valueFormatter;
