@@ -71,13 +71,25 @@
             refresh(hints);
         }
 
-        function refreshIdxById() {
-            idxById = {};
-            for (var i = 0,l = items.length; i < l; i++) {
-                var id = items[i][idProperty];
-                if (id == undefined || idxById[id] != undefined)
+        function updateIdxById(startingIndex) {
+            startingIndex = startingIndex || 0;
+            var id;
+            for (var i = startingIndex, l = items.length; i < l; i++) {
+                id = items[i][idProperty];
+                if (id === undefined) {
                     throw "Each data element must implement a unique 'id' property";
+                }
                 idxById[id] = i;
+            }
+        }
+
+        function ensureIdUniqueness() {
+            var id;
+            for (var i = 0, l = items.length; i < l; i++) {
+                id = items[i][idProperty];
+                if (id === undefined || idxById[id] !== i) {
+                    throw "Each data element must implement a unique 'id' property";
+                }
             }
         }
 
@@ -88,7 +100,9 @@
         function setItems(data, objectIdProperty) {
             if (objectIdProperty !== undefined) idProperty = objectIdProperty;
             items = data;
-            refreshIdxById();
+            idxById = {};
+            updateIdxById();
+            ensureIdUniqueness();
             refresh();
         }
 
@@ -109,14 +123,15 @@
         }
 
         function sort(comparer, ascending) {
-           sortAsc = ascending;
-           sortComparer = comparer;
-           fastSortField = null;
-           if (ascending === false) items.reverse();
-           items.sort(comparer);
-           if (ascending === false) items.reverse();
-           refreshIdxById();
-           refresh();
+            sortAsc = ascending;
+            sortComparer = comparer;
+            fastSortField = null;
+            if (ascending === false) items.reverse();
+            items.sort(comparer);
+            if (ascending === false) items.reverse();
+            idxById = {};
+            updateIdxById();
+            refresh();
         }
 
         /***
@@ -136,7 +151,8 @@
             items.sort();
             Object.prototype.toString = oldToString;
             if (ascending === false) items.reverse();
-            refreshIdxById();
+            idxById = {};
+            updateIdxById();
             refresh();
         }
 
@@ -209,21 +225,24 @@
 
         function insertItem(insertBefore, item) {
             items.splice(insertBefore, 0, item);
-            refreshIdxById();  // TODO:  optimize
+            updateIdxById(insertBefore);
             refresh();
         }
 
         function addItem(item) {
             items.push(item);
-            refreshIdxById();  // TODO:  optimize
+            updateIdxById(items.length - 1);
             refresh();
         }
 
         function deleteItem(id) {
-            if (idxById[id] === undefined)
+            var idx = idxById[id];
+            if (idx === undefined) {
                 throw "Invalid id";
-            items.splice(idxById[id], 1);
-            refreshIdxById();  // TODO:  optimize
+            }
+            delete idxById[id];
+            items.splice(idx, 1);
+            updateIdxById(idx);
             refresh();
         }
 
