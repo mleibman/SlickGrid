@@ -81,7 +81,8 @@ if (typeof Slick === "undefined") {
             editorFactory: null,
             cellFlashingCssClass: "flashing",
             selectedCellCssClass: "selected",
-            multiSelect: true
+            multiSelect: true,
+            enableTextSelectionOnCells: false
         };
 
         var columnDefaults = {
@@ -235,7 +236,9 @@ if (typeof Slick === "undefined") {
             // selection in grid cells (grid body) is already unavailable in
             // all browsers except IE
             disableSelection($headers); // disable all text selection in header (including input and textarea)
-            $viewport.bind("selectstart.ui", function (event) { return $(event.target).is("input,textarea"); }); // disable text selection in grid cells except in input and textarea elements (this is IE-specific, because selectstart event will only fire in IE)
+            //$viewport.bind("selectstart.ui", function (event) { return $(event.target).is("input,textarea"); }); // disable text selection in grid cells except in input and textarea elements (this is IE-specific, because selectstart event will only fire in IE)
+            if (!options.enableTextSelectionOnCells)
+                $viewport.bind("selectstart.ui", function (event) { return $(event.target).is("input,textarea"); }); // disable text selection in grid cells except in input and textarea elements (this is IE-specific, because selectstart event will only fire in IE)
 
             viewportW = parseFloat($.css($container[0], "width", true));
 
@@ -255,11 +258,15 @@ if (typeof Slick === "undefined") {
                 .bind("keydown.slickgrid", handleKeyDown)
                 .bind("click.slickgrid", handleClick)
                 .bind("dblclick.slickgrid", handleDblClick)
-                .bind("contextmenu.slickgrid", handleContextMenu)
-                .bind("draginit", handleDragInit)
-                .bind("dragstart", handleDragStart)
-                .bind("drag", handleDrag)
-                .bind("dragend", handleDragEnd);
+                .bind("contextmenu.slickgrid", handleContextMenu);
+
+            if (!options.enableTextSelectionOnCells) {
+                $canvas
+                    .bind("draginit", handleDragInit)
+                    .bind("dragstart", handleDragStart)
+                    .bind("drag", handleDrag)
+                    .bind("dragend", handleDragEnd);
+            }
 
             $canvas.delegate(".slick-cell", "mouseenter", handleMouseEnter);
             $canvas.delegate(".slick-cell", "mouseleave", handleMouseLeave);
