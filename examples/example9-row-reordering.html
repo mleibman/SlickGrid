@@ -206,27 +206,24 @@
             grid.registerPlugin(moveRowsPlugin);
 
             grid.onDragInit.subscribe(function(e,dd) {
-                var cell = grid.getCellFromEvent(e);
-                if (!cell)
-                    return false;
-
-                dd.row = cell.row;
-                if (!data[dd.row])
-                    return false;
-
-                if (Slick.GlobalEditorLock.isActive())
-                    return false;
-
+                // prevent the grid from cancelling drag'n'drop by default
                 e.stopImmediatePropagation();
-                dd.mode = "recycle";
             });
 
             grid.onDragStart.subscribe(function(e,dd) {
-                if (dd.mode != "recycle") {
+                var cell = grid.getCellFromEvent(e);
+                if (!cell)
                     return;
-                }
+
+                dd.row = cell.row;
+                if (!data[dd.row])
+                    return;
+
+                if (Slick.GlobalEditorLock.isActive())
+                    return;
 
                 e.stopImmediatePropagation();
+                dd.mode = "recycle";
 
                 var selectedRows = grid.getSelectedRows();
 

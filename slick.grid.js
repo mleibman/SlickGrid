@@ -1553,6 +1553,8 @@ if (typeof Slick === "undefined") {
                 return retval;
             }
 
+            // if nobody claims to be handling drag'n'drop by stopping immediate propagation,
+            // cancel out of it
             return false;
         }
 
