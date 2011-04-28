@@ -1246,6 +1246,30 @@ if (typeof Slick === "undefined") {
             updateRowCount();
             render();
         }
+        
+        function resizeToRowNum (rowNum){
+            numVisibleRows = rowNum;
+            var hScrollHeight = (viewportHasHScroll?scrollbarDimensions.height:0);
+            var viewportH = options.rowHeight * (rowNum + (options.enableAddRow ? 1 : 0) + (options.leaveSpaceForNewRows? numVisibleRows - 1 : 0)) + hScrollHeight;
+            viewportW = parseFloat($.css($container[0], "width", true));
+            $viewport.height(viewportH);
+
+            var w = 0, i = columns.length;
+            while (i--) {
+                w += columns[i].width;
+            }
+            
+           
+            setCanvasWidth(w);
+
+            updateRowCount();
+            render();
+            var outerHeight = options.headerHeight -
+                getVBoxDelta($headers) -
+                (options.showTopPanel ? options.topPanelHeight + getVBoxDelta($topPanelScroller) : 0) -
+                (options.showHeaderRow ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0);
+            $container.height(viewportH + outerHeight);
+        }
 
         function resizeAndRender() {
             if (options.forceFitColumns) {
@@ -2566,6 +2590,7 @@ if (typeof Slick === "undefined") {
             "updateRow":                    updateRow,
             "getViewport":                  getVisibleRange,
             "resizeCanvas":                 resizeCanvas,
+            "resizeToRowNum":               resizeToRowNum,
             "updateRowCount":               updateRowCount,
             "scrollRowIntoView":            scrollRowIntoView,
             "getCanvasNode":                getCanvasNode,
