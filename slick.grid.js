@@ -79,6 +79,7 @@ if (typeof Slick === "undefined") {
             topPanelHeight: 25,
             formatterFactory: null,
             editorFactory: null,
+            newRowDefault: {},
             cellFlashingCssClass: "flashing",
             selectedCellCssClass: "selected",
             multiSelect: true,
@@ -2417,7 +2418,7 @@ if (typeof Slick === "undefined") {
                             });
                         }
                         else {
-                            var newItem = {};
+                            var newItem = $.extend({}, options.newRowDefault);
                             currentEditor.applyValue(newItem,currentEditor.serializeValue());
                             makeActiveCellNormal();
                             trigger(self.onAddNewRow, {item:newItem, column:column});
