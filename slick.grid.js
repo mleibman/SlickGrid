@@ -81,7 +81,8 @@ if (typeof Slick === "undefined") {
             editorFactory: null,
             cellFlashingCssClass: "flashing",
             selectedCellCssClass: "selected",
-            multiSelect: true
+            multiSelect: true,
+            enableTextSelectionOnCells: false
         };
 
         var columnDefaults = {
@@ -235,7 +236,14 @@ if (typeof Slick === "undefined") {
             // selection in grid cells (grid body) is already unavailable in
             // all browsers except IE
             disableSelection($headers); // disable all text selection in header (including input and textarea)
-            $viewport.bind("selectstart.ui", function (event) { return $(event.target).is("input,textarea"); }); // disable text selection in grid cells except in input and textarea elements (this is IE-specific, because selectstart event will only fire in IE)
+
+            if (!options.enableTextSelectionOnCells) {
+                // disable text selection in grid cells except in input and textarea elements
+                // (this is IE-specific, because selectstart event will only fire in IE)
+                $viewport.bind("selectstart.ui", function (event) {
+                    return $(event.target).is("input,textarea");
+                });
+            }
 
             viewportW = parseFloat($.css($container[0], "width", true));
 
@@ -338,13 +346,16 @@ if (typeof Slick === "undefined") {
             /// the specified target.
             /// </summary
             if ($target && $target.jquery) {
-                $target.attr('unselectable', 'on').css('MozUserSelect', 'none').bind('selectstart.ui', function() { return false; }); // from jquery:ui.core.js 1.7.2
+                $target
+                    .attr('unselectable', 'on')
+                    .css('MozUserSelect', 'none')
+                    .bind('selectstart.ui', function() { return false; }); // from jquery:ui.core.js 1.7.2
             }
         }
 
         function getMaxSupportedCssHeight() {
             var increment = 1000000;
-            var supportedHeight = 0;
+            var supportedHeight = increment;
             // FF reports the height back but still renders blank after ~6M px
             var testUpTo = ($.browser.mozilla) ? 5000000 : 1000000000;
             var div = $("<div style='display:none' />").appendTo(document.body);
@@ -1541,6 +1552,10 @@ if (typeof Slick === "undefined") {
             if (e.isImmediatePropagationStopped()) {
                 return retval;
             }
+
+            // if nobody claims to be handling drag'n'drop by stopping immediate propagation,
+            // cancel out of it
+            return false;
         }
 
         function handleDragStart(e,dd) {

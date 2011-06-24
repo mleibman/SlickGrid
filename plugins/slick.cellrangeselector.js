@@ -25,18 +25,25 @@
             _decorator = new Slick.CellRangeDecorator(grid, options);
             _grid = grid;
             _canvas = _grid.getCanvasNode();
+            _grid.onDragInit.subscribe(handleDragInit);
             _grid.onDragStart.subscribe(handleDragStart);
             _grid.onDrag.subscribe(handleDrag);
             _grid.onDragEnd.subscribe(handleDragEnd);
         }
 
         function destroy() {
+            _grid.onDragInit.unsubscribe(handleDragInit);
             _grid.onDragStart.unsubscribe(handleDragStart);
             _grid.onDrag.unsubscribe(handleDrag);
             _grid.onDragEnd.unsubscribe(handleDragEnd);
         }
 
-        function handleDragStart(e,dd) {
+        function handleDragInit(e, dd) {
+            // prevent the grid from cancelling drag'n'drop by default
+            e.stopImmediatePropagation();
+        }
+
+        function handleDragStart(e, dd) {
             var cell = _grid.getCellFromEvent(e);
             if (_self.onBeforeCellRangeSelected.notify(cell) !== false) {
                 if (_grid.canCellBeSelected(cell.row,cell.cell)) {
@@ -57,7 +64,7 @@
             return _decorator.show(new Slick.Range(start.row,start.cell));
         }
 
-        function handleDrag(e,dd) {
+        function handleDrag(e, dd) {
             if (!_dragging) {
                 return;
             }
@@ -75,7 +82,7 @@
             _decorator.show(new Slick.Range(dd.range.start.row,dd.range.start.cell,end.row,end.cell));
         }
 
-        function handleDragEnd(e,dd) {
+        function handleDragEnd(e, dd) {
             if (!_dragging) {
                 return;
             }

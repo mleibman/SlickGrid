@@ -19,9 +19,14 @@
      *
      * Relies on the data item having an "id" property uniquely identifying it.
      */
-    function DataView() {
+    function DataView(options) {
         var self = this;
 
+        var defaults = {
+            groupItemMetadataProvider: null
+        };
+
+        
         // private
         var idProperty = "id";  // property holding a unique row id
         var items = [];			// data by index
@@ -54,16 +59,8 @@
         var onRowsChanged = new Slick.Event();
         var onPagingInfoChanged = new Slick.Event();
 
-        // TODO:  move into options
-        function defaultGroupCellFormatter(row, cell, value, columnDef, dataContext) {
-            return "<span class='slick-group-toggle " + (dataContext.collapsed ? "collapsed" : "expanded") + "'></span>" +
-                    dataContext.title;
-        }
+        options = $.extend(true, {}, defaults, options);
 
-        // TODO:  move into options
-        function defaultTotalsCellFormatter(row, cell, value, columnDef, dataContext) {
-            return (columnDef.groupTotalsFormatter && columnDef.groupTotalsFormatter(dataContext, columnDef)) || "";
-        }
 
         function beginUpdate() {
             suspend = true;
@@ -74,13 +71,25 @@
             refresh(hints);
         }
 
-        function refreshIdxById() {
-            idxById = {};
-            for (var i = 0,l = items.length; i < l; i++) {
-                var id = items[i][idProperty];
-                if (id == undefined || idxById[id] != undefined)
+        function updateIdxById(startingIndex) {
+            startingIndex = startingIndex || 0;
+            var id;
+            for (var i = startingIndex, l = items.length; i < l; i++) {
+                id = items[i][idProperty];
+                if (id === undefined) {
                     throw "Each data element must implement a unique 'id' property";
+                }
                 idxById[id] = i;
+            }
+        }
+
+        function ensureIdUniqueness() {
+            var id;
+            for (var i = 0, l = items.length; i < l; i++) {
+                id = items[i][idProperty];
+                if (id === undefined || idxById[id] !== i) {
+                    throw "Each data element must implement a unique 'id' property";
+                }
             }
         }
 
@@ -91,7 +100,9 @@
         function setItems(data, objectIdProperty) {
             if (objectIdProperty !== undefined) idProperty = objectIdProperty;
             items = data;
-            refreshIdxById();
+            idxById = {};
+            updateIdxById();
+            ensureIdUniqueness();
             refresh();
         }
 
@@ -112,14 +123,15 @@
         }
 
         function sort(comparer, ascending) {
-           sortAsc = ascending;
-           sortComparer = comparer;
-           fastSortField = null;
-           if (ascending === false) items.reverse();
-           items.sort(comparer);
-           if (ascending === false) items.reverse();
-           refreshIdxById();
-           refresh();
+            sortAsc = ascending;
+            sortComparer = comparer;
+            fastSortField = null;
+            if (ascending === false) items.reverse();
+            items.sort(comparer);
+            if (ascending === false) items.reverse();
+            idxById = {};
+            updateIdxById();
+            refresh();
         }
 
         /***
@@ -139,7 +151,8 @@
             items.sort();
             Object.prototype.toString = oldToString;
             if (ascending === false) items.reverse();
-            refreshIdxById();
+            idxById = {};
+            updateIdxById();
             refresh();
         }
 
@@ -158,6 +171,10 @@
         }
 
         function groupBy(valueGetter, valueFormatter, sortComparer) {
+            if (!options.groupItemMetadataProvider) {
+                options.groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
+            }
+
             groupingGetter = valueGetter;
             groupingGetterIsAFn = typeof groupingGetter === "function";
             groupingFormatter = valueFormatter;
@@ -208,21 +225,24 @@
 
         function insertItem(insertBefore, item) {
             items.splice(insertBefore, 0, item);
-            refreshIdxById();  // TODO:  optimize
+            updateIdxById(insertBefore);
             refresh();
         }
 
         function addItem(item) {
             items.push(item);
-            refreshIdxById();  // TODO:  optimize
+            updateIdxById(items.length - 1);
             refresh();
         }
 
         function deleteItem(id) {
-            if (idxById[id] === undefined)
+            var idx = idxById[id];
+            if (idx === undefined) {
                 throw "Invalid id";
-            items.splice(idxById[id], 1);
-            refreshIdxById();  // TODO:  optimize
+            }
+            delete idxById[id];
+            items.splice(idx, 1);
+            updateIdxById(idx);
             refresh();
         }
 
@@ -242,29 +262,12 @@
 
             // overrides for group rows
             if (item.__group) {
-                return {
-                    selectable: false,
-                    focusable: true,
-                    cssClasses: "slick-group",
-                    columns: {
-                        0: {
-                            colspan: "*",
-                            formatter: defaultGroupCellFormatter,
-                            editor: null
-                        }
-                    }
-                };
+                return options.groupItemMetadataProvider.getGroupRowMetadata(item);
             }
 
             // overrides for totals rows
             if (item.__groupTotals) {
-                return {
-                    selectable: false,
-                    focusable: false,
-                    cssClasses: "slick-group-totals",
-                    formatter: defaultTotalsCellFormatter,
-                    editor: null
-                };
+                return options.groupItemMetadataProvider.getTotalsRowMetadata(item);
             }
 
             return null;
@@ -555,7 +558,6 @@
             }
         };
     }
-
 
     function MinAggregator(field) {
         var min;

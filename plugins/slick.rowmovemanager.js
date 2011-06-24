@@ -15,15 +15,22 @@
         function init(grid) {
             _grid = grid;
             _canvas = _grid.getCanvasNode();
+            _grid.onDragInit.subscribe(handleDragInit);
             _grid.onDragStart.subscribe(handleDragStart);
             _grid.onDrag.subscribe(handleDrag);
             _grid.onDragEnd.subscribe(handleDragEnd);
         }
 
         function destroy() {
+            _grid.onDragInit.unsubscribe(handleDragInit);
             _grid.onDragStart.unsubscribe(handleDragStart);
             _grid.onDrag.unsubscribe(handleDrag);
             _grid.onDragEnd.unsubscribe(handleDragEnd);
+        }
+
+        function handleDragInit(e, dd) {
+            // prevent the grid from cancelling drag'n'drop by default
+            e.stopImmediatePropagation();
         }
 
         function handleDragStart(e,dd) {

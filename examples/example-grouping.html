@@ -75,6 +75,7 @@
         <script src="../plugins/slick.cellrangeselector.js"></script>
         <script src="../plugins/slick.cellselectionmodel.js"></script>
 		<script src="../slick.grid.js"></script>
+		<script src="../slick.groupitemmetadataprovider.js"></script>
 		<script src="../slick.dataview.js"></script>
 		<script src="../controls/slick.pager.js"></script>
 		<script src="../controls/slick.columnpicker.js"></script>
@@ -217,29 +218,20 @@
 				d["effortDriven"] = (i % 5 == 0);
 			}
 
-
-			dataView = new Slick.Data.DataView();
+            var groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
+			dataView = new Slick.Data.DataView({
+                groupItemMetadataProvider: groupItemMetadataProvider
+            });
 			grid = new Slick.Grid("#myGrid", dataView, columns, options);
+
+            // register the group item metadata provider to add expand/collapse group handlers
+            grid.registerPlugin(groupItemMetadataProvider);
 
             grid.setSelectionModel(new Slick.CellSelectionModel());
 
 			var pager = new Slick.Controls.Pager(dataView, grid, $("#pager"));
 			var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
 
-            grid.onClick.subscribe(function(e, args) {
-                var item = this.getDataItem(args.row);
-                if (item && item instanceof Slick.Group && $(e.target).hasClass("slick-group-toggle")) {
-                    if (item.collapsed) {
-                        this.getData().expandGroup(item.value);
-                    }
-                    else {
-                        this.getData().collapseGroup(item.value);
-                    }
-
-                    e.stopImmediatePropagation();
-                    e.preventDefault();
-                }
-            });
 
 			grid.onSort.subscribe(function(e, args) {
                 sortdir = args.sortAsc ? 1 : -1;
