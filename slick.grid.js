@@ -299,9 +299,10 @@ if (typeof Slick === "undefined") {
             }
 
             selectionModel = model;
-            selectionModel.init(self);
-
-            selectionModel.onSelectedRangesChanged.subscribe(handleSelectedRangesChanged);
+            if (selectionModel) {
+                selectionModel.init(self);
+                selectionModel.onSelectedRangesChanged.subscribe(handleSelectedRangesChanged);
+            }
         }
 
         function getSelectionModel() {
