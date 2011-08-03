@@ -299,9 +299,10 @@ if (typeof Slick === "undefined") {
             }
 
             selectionModel = model;
-            selectionModel.init(self);
-
-            selectionModel.onSelectedRangesChanged.subscribe(handleSelectedRangesChanged);
+            if (selectionModel) {
+                selectionModel.init(self);
+                selectionModel.onSelectedRangesChanged.subscribe(handleSelectedRangesChanged);
+            }
         }
 
         function getSelectionModel() {
@@ -711,7 +712,7 @@ if (typeof Slick === "undefined") {
                 "." + uid + " .slick-top-panel { height:" + options.topPanelHeight + "px; }",
                 "." + uid + " .slick-headerrow-columns { height:" + options.headerRowHeight + "px; }",
                 "." + uid + " .slick-cell { height:" + rowHeight + "px; }",
-                "." + uid + " .slick-row { width:" + getRowWidth() + "px; }",
+                "." + uid + " .slick-row { width:" + getRowWidth() + "px; height:" + options.rowHeight + "px; }",
                 "." + uid + " .lr { float:none; position:absolute; }"
             ];
 
@@ -719,11 +720,8 @@ if (typeof Slick === "undefined") {
             var x = 0, w;
             for (var i=0; i<columns.length; i++) {
                 w = columns[i].width;
-
                 rules.push("." + uid + " .l" + i + " { left: " + x + "px; }");
                 rules.push("." + uid + " .r" + i + " { right: " + (rowWidth - x - w) + "px; }");
-                rules.push("." + uid + " .c" + i + " { width:" + (w - cellWidthDiff) + "px; }");
-
                 x += columns[i].width;
             }
 
@@ -872,9 +870,6 @@ if (typeof Slick === "undefined") {
             var x = 0, w, rule;
             for (var i = 0; i < columns.length; i++) {
                 w = columns[i].width;
-
-                rule = findCssRule("." + uid + " .c" + i);
-                rule.style.width = (w - cellWidthDiff) + "px";
 
                 rule = findCssRule("." + uid + " .l" + i);
                 rule.style.left = x + "px";
@@ -1094,14 +1089,7 @@ if (typeof Slick === "undefined") {
             for (var i=0, cols=columns.length; i<cols; i++) {
                 var m = columns[i];
                 colspan = getColspan(row, i);  // TODO:  don't calc unless we have to
-
-                if (true || rowHasColumnData) {
-                    cellCss = "slick-cell lr l" + i + " r" + Math.min(columns.length -1, i + colspan - 1) + (m.cssClass ? " " + m.cssClass : "");
-                }
-                else {
-                    cellCss = "slick-cell c" + i + (m.cssClass ? " " + m.cssClass : "");
-                }
-
+                cellCss = "slick-cell lr l" + i + " r" + Math.min(columns.length -1, i + colspan - 1) + (m.cssClass ? " " + m.cssClass : "");
                 if (row === activeRow && i === activeCell) {
                     cellCss += (" active");
                 }
