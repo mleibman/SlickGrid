@@ -1574,6 +1574,7 @@ if (typeof Slick === "undefined") {
 
             if (!handled) {
                 if (!e.shiftKey && !e.altKey && !e.ctrlKey) {
+                    var activeCell = self.getActiveCell();
                     if (e.which == 27) {
                         if (!getEditorLock().isActive()) {
                             return; // no editing mode to cancel, allow bubbling and default processing (exit without cancelling the event)
@@ -1581,23 +1582,26 @@ if (typeof Slick === "undefined") {
                         cancelEditAndSetFocus();
                     }
                     else if (e.which == 37) {
-                        navigateLeft();
+                        if (activeCell.cell != 0) navigateLeft();
                     }
                     else if (e.which == 39) {
-                        navigateRight();
+                        var cellCount = self.getColumns().length;
+                        if (activeCell.cell != cellCount - 1) navigateRight();
                     }
                     else if (e.which == 38) {
-                        navigateUp();
+                        if (activeCell.row != 0) navigateUp();
                     }
                     else if (e.which == 40) {
-                        navigateDown();
+                        var rowCount = self.getDataLength();
+                        if (activeCell.row != rowCount - 1) navigateDown();
                     }
                     else if (e.which == 9) {
-                        navigateNext();
+                        var cellCount = self.getColumns().length;
+                        if (activeCell.cell != cellCount - 1) navigateNext();
                     }
                     else if (e.which == 13) {
                         if (options.editable) {
-                            if (currentEditor) {
+                             if (currentEditor) {
                                 // adding new row
                                 if (activeRow === getDataLength()) {
                                     navigateDown();
