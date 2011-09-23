@@ -80,6 +80,11 @@
         }
 
         function handleHeaderClick(e, args) {
+            // No cloumn was clicked, but instead the background of header
+            if (args.column == undefined) {
+                return;
+            }
+            
             if (args.column.id == _options.columnId && $(e.target).is(":checkbox")) {
                 // if editing, try to commit
                 if (_grid.getEditorLock().isActive() && !_grid.getEditorLock().commitCurrentEdit()) {
