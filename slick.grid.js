@@ -1283,7 +1283,9 @@ if (!jQuery.fn.drag) {
             if (prevScrollTop != newScrollTop) {
                 scrollDir = (prevScrollTop + oldOffset < newScrollTop + offset) ? 1 : -1;
 
-                $viewport.attr("scrollTop", (lastRenderedScrollTop = scrollTop = prevScrollTop = newScrollTop) );
+                lastRenderedScrollTop = scrollTop = prevScrollTop = newScrollTop;
+
+                $viewport.scrollTop( scrollTop );
 
                 if (self.onViewportChanged) {
                     self.onViewportChanged();
