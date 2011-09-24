@@ -1775,8 +1775,7 @@ if (!jQuery.fn.drag) {
             if (scrollLeft !== prevScrollLeft) {
                 prevScrollLeft = scrollLeft;
 
-                $("#hs" + suffix, $container)[0].scrollLeft( scrollLeft );
-                $("#shs" + suffix, $container)[0].scrollLeft(scrollLeft );
+                $("#hs" + suffix + ",#shs" + suffix, $container).scrollLeft( scrollLeft );
             }
 
             if (!scrollDist) return;
