@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE HTML>
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
@@ -25,13 +25,12 @@
 	    </style>
 	</head>
 	<body>
-
-
-		<div style="width:520px;float:left;">
+        <div style="position:relative">
+		<div style="width:520px;">
 			<div id="myGrid" style="width:100%;height:500px;"></div>
 		</div>
 
-		<div class="options-panel" style="width:320px;margin-left:550px;">
+		<div class="options-panel">
             <h2>About</h2>
             This example simulates a real-time display of CPU utilization in a web farm.
             Data is updated in real-time, and cells with changed data are highlighted.
@@ -46,15 +45,19 @@
             <button onclick="simulateRealTimeUpdates()">Start simulation</button>
             <button onclick="findCurrentServer()">Find current server</button>
 		</div>
+        </div>
 
-		<script language="JavaScript" src="../lib/firebugx.js"></script>
+		<script src="../lib/firebugx.js"></script>
 
-		<script language="JavaScript" src="../lib/jquery-1.4.3.min.js"></script>
+		<script src="../lib/jquery-1.4.3.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery-ui-1.8.6.custom.min.js"></script>
-		<script language="JavaScript" src="../lib/jquery.event.drag-2.0.min.js"></script>
+		<script src="../lib/jquery.event.drag-2.0.min.js"></script>
 
-		<script language="JavaScript" src="../slick.editors.js"></script>
-		<script language="JavaScript" src="../slick.grid.js"></script>
+        <script src="../slick.core.js"></script>
+        <script src="../plugins/slick.cellselectionmodel.js"></script>
+        <script src="../plugins/slick.rowmovemanager.js"></script>
+		<script src="../slick.editors.js"></script>
+		<script src="../slick.grid.js"></script>
 
 		<script>
 		var grid;
@@ -96,13 +99,12 @@
 			for (var i=0; i<500; i++) {
 				var d = (data[i] = {});
                 d.server = "Server " + i;
-				d.id = "Server " + i;
                 for (var j=0; j<columns.length; j++) {
                     d[j] = Math.round(Math.random()*100);
                 }
 			}
 
-			grid = new Slick.Grid($("#myGrid"), data, columns, options);
+			grid = new Slick.Grid("#myGrid", data, columns, options);
 
             currentServer = Math.round(Math.random()*(data.length-1));
 		});
@@ -115,22 +117,22 @@
                 var server = Math.round(Math.random()*(data.length-1));
                 var cpu = Math.round(Math.random()*(columns.length-1));
                 var delta = Math.round(Math.random()*50)-25;
-
-                var val = data[server]["cpu" + cpu] + delta;
+                var col = grid.getColumnIndex("cpu" + cpu);
+                var val = data[server][col] + delta;
                 val = Math.max(0,val);
                 val = Math.min(100,val);
 
-                data[server]["cpu" + cpu] = val;
+                data[server][col] = val;
 
                 if (!changes[data[server].id])
                     changes[data[server].id] = {};
 
-                changes[data[server].id]["cpu" + cpu] = true;
+                changes[server]["cpu" + cpu] = "changed";
 
-                grid.removeRow(server);
+                grid.invalidateRow(server);
             }
 
-            grid.setHighlightedCells(changes);
+            grid.setCellCssStyles("highlight", changes);
             grid.render();
 
             setTimeout(simulateRealTimeUpdates, 500);

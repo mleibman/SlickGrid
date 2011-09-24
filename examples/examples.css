@@ -7,6 +7,8 @@
 
 body {
     background: beige;
+    padding: 0;
+    margin: 8;
 }
 
 h2 {
@@ -75,6 +77,10 @@ li {
 	background: #f0f0f0;	
 	padding: 4px;		
 	margin-bottom: 20px;
+    width:320px;
+    position:absolute;
+    top:0px;
+    left:650px;
 }
 
  
@@ -137,7 +143,7 @@ input.editor-text {
 
 }
 
-.slick-cell .ui-datepicker-trigger {
+.ui-datepicker-trigger {
 	margin-top: 2px;
 	padding: 0;
 	vertical-align: top;

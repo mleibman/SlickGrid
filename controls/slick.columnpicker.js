@@ -8,7 +8,7 @@
 		};
 
 		function init() {
-			grid.onHeaderContextMenu = displayContextMenu;
+			grid.onHeaderContextMenu.subscribe(handleHeaderContextMenu);
 			options = $.extend({}, defaults, options);
 
 			$menu = $("<span class='slick-columnpicker' style='display:none;position:absolute;z-index:20;' />").appendTo(document.body);
@@ -18,11 +18,11 @@
 
 		}
 
-		function displayContextMenu(e)
+		function handleHeaderContextMenu(e, args)
 		{
+            e.preventDefault();
 			$menu.empty();
 
-            var visibleColumns = grid.getColumns();
 			var $li, $input;
 			for (var i=0; i<columns.length; i++) {
 				$li = $("<li />").appendTo($menu);

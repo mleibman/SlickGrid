@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE HTML>
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
@@ -17,13 +17,14 @@
 		</style>
 	</head>
 	<body>
-		<script language="JavaScript" src="../lib/firebugx.js"></script>
-		<script language="JavaScript" src="../lib/jquery-1.4.3.min.js"></script>
-		<script language="JavaScript" src="../lib/jquery-ui-1.8.5.custom.min.js"></script>
-		<script language="JavaScript" src="../lib/jquery.event.drag-2.0.min.js"></script>
+		<script src="../lib/firebugx.js"></script>
+		<script src="../lib/jquery-1.4.3.min.js"></script>
+		<script src="../lib/jquery-ui-1.8.5.custom.min.js"></script>
+		<script src="../lib/jquery.event.drag-2.0.min.js"></script>
 
-		<script language="JavaScript" src="../slick.grid.js"></script>
-		<script language="JavaScript" src="../slick.editors.js"></script>
+		<script src="../slick.core.js"></script>
+		<script src="../slick.grid.js"></script>
+		<script src="../slick.editors.js"></script>
 
 		<button onclick="grid.debug()">Debug info</button>
 		<button onclick="startBench(100)">Run (+= 100px)</button>
@@ -46,7 +47,7 @@
 
 		var columns = [
 			{id:"title", name:"Title", field:"title", width:120, cssClass:"cell-title"},
-			{id:"duration", name:"Duration", field:"duration", unselectable:true},
+			{id:"duration", name:"Duration", field:"duration", selectable:false},
 			{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter},
 			{id:"start", name:"Start", field:"start", minWidth:60},
 			{id:"finish", name:"Finish", field:"finish", minWidth:60},
@@ -61,7 +62,8 @@
 			editable: false,
 			enableAddRow: false,
 			enableCellNavigation: true,
-			enableAsyncPostRender: true
+			enableAsyncPostRender: true,
+            forceFitColumns: false
 		};
 
 
@@ -82,7 +84,7 @@
 
 
             // initialize the grid
-            grid = new Slick.Grid($("#myGrid"), data, columns, options);
+            grid = new Slick.Grid("#myGrid", data, columns, options);
 
             $grid = $("#myGrid div.grid-canvas").parent();
         });

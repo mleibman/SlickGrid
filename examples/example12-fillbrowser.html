@@ -10,7 +10,7 @@
             html,body { margin:0; padding:0; background-color:White; overflow:auto; }
             body { font:11px Helvetica,Arial,sans-serif; }
             #container { position:absolute; top:0; left:0; right:0; bottom:0; }
-            #description { position:fixed; top:30px; right:30px; width:25em; background-color:beige; border:solid 1px gray; }
+            #description { position:fixed; top:30px; right:30px; width:25em; background:beige; border:solid 1px gray; z-index:1000; }
             #description h2 { padding-left:0.5em; }
         </style>
     </head>
@@ -25,10 +25,11 @@
             </ul>
         </div>
 
-        <script language="JavaScript" src="../lib/jquery-1.4.3.min.js"></script>
-        <script language="JavaScript" src="../lib/jquery.event.drag-2.0.min.js"></script>
+        <script src="../lib/jquery-1.4.3.min.js"></script>
+        <script src="../lib/jquery.event.drag-2.0.min.js"></script>
 
-        <script language="JavaScript" src="../slick.grid.js"></script>
+        <script src="../slick.core.js"></script>
+        <script src="../slick.grid.js"></script>
         <script>
             var grid,
                 data = [],
@@ -78,7 +79,7 @@
                 };
             }
 
-            grid = new Slick.Grid($("#container"), data, columns, options);
+            grid = new Slick.Grid("#container", data, columns, options);
         </script>
 
     </body>

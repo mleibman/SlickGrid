@@ -19,6 +19,16 @@ classes should alter those!
     background: white url('../images/header-columns-over-bg.gif') repeat-x center bottom;
 }
 
+.slick-headerrow {
+    background: #fafafa;
+}
+
+.slick-headerrow-column {
+    background: #fafafa;
+    border-bottom: 0;
+    height: 100%;
+}
+
 .slick-row.ui-state-active {
     background: #F5F7D7;
 }
@@ -40,7 +50,34 @@ classes should alter those!
     padding-right: 4px;
 }
 
+.slick-group {
+    border-bottom: 2px solid silver;
+}
+
+.slick-group-toggle {
+    width: 9px;
+    height: 9px;
+    margin-right: 5px;
+}
+
+.slick-group-toggle.expanded {
+    background: url(../images/collapse.gif) no-repeat center center;
+}
+
+.slick-group-toggle.collapsed {
+    background: url(../images/expand.gif) no-repeat center center;
+}
+
+.slick-group-totals {
+    color: gray;
+    background: white;
+}
+
 .slick-cell.selected {
+    background-color: beige;
+}
+
+.slick-cell.active {
     border-color: gray;
     border-style: solid;
 }
