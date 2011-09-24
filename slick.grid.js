@@ -2496,7 +2496,7 @@ if (!jQuery.fn.drag) {
             if (!options.editorLock.commitCurrentEdit()) { return; }
 
             function selectableCellFilter() {
-                return !columns[getCellFromNode(currentCellNode)].unselectable
+                return !columns[getCellFromNode(this)].unselectable
             }
 
             var nextRow = rowsCache[currentRow + dy];
