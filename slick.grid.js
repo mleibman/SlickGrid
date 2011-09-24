@@ -466,13 +466,19 @@ if (!jQuery.fn.drag) {
             bindAncestorScrollEvents();
             $viewport.bind("scroll.slickgrid", handleScroll);
             $container.bind("resize.slickgrid", resizeAndRender);
-            $canvas.bind("keydown.slickgrid", handleKeyDown);
-            $canvas.bind("click.slickgrid", handleClick);
-            $canvas.bind("dblclick.slickgrid", handleDblClick);
-            $canvas.bind("contextmenu.slickgrid", handleContextMenu);
-            $canvas.bind("mouseover.slickgrid", handleHover);
-            $headerScroller.bind("contextmenu.slickgrid", handleHeaderContextMenu);
-            $headerScroller.bind("click.slickgrid", handleHeaderClick);
+
+            $headerScroller.bind({
+                "contextmenu.slickgrid": handleHeaderContextMenu,
+                "click.slickgrid": handleHeaderClick
+            });
+
+            $canvas.bind({
+                "keydown.slickgrid": handleKeyDown,
+                "click.slickgrid": handleClick,
+                "dblclick.slickgrid": handleDblClick,
+                "contextmenu.slickgrid": handleContextMenu,
+                "mouseover.slickgrid": handleHover
+            });
         }
 
         function measureScrollbar() {
