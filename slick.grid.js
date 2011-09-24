@@ -162,9 +162,6 @@ if (typeof Slick === "undefined") {
         var counter_rows_rendered = 0;
         var counter_rows_removed = 0;
 
-        // drag types
-        var MOVE_ROWS = 1;
-        var SELECT_CELLS = 2;
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Initialization
@@ -677,22 +674,12 @@ if (typeof Slick === "undefined") {
                     });
                 });
         }
-        
+
         function getVBoxDelta($el) {
             var p = ["borderTopWidth", "borderBottomWidth", "paddingTop", "paddingBottom"];
             var delta = 0;
             $.each(p, function(n,val) { delta += parseFloat($el.css(val)) || 0; });
             return delta;
-                        if ( !( scrollTimer ) ) {
-                            scrollTimer = setInterval( scrollDown, 100, '', e, dd );
-                        if ( scrollTimer ) {
-                            clearInterval( scrollTimer );
-                            scrollTimer = null;
-                    if ( scrollTimer ) {
-                        clearInterval( scrollTimer );
-                        scrollTimer = null;
-                    }
-                    
         }
 
         function measureCellPaddingAndBorder() {
@@ -971,11 +958,11 @@ if (typeof Slick === "undefined") {
 
         function setData(newData,scrollToTop) {
             invalidateAllRows();
-            gridData = newData;
+            data = newData;
             if (scrollToTop)
                 scrollTo(0);
         }
-        
+
         function getData() {
             return data;
         }
