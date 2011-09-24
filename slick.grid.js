@@ -1504,8 +1504,8 @@ if (!jQuery.fn.drag) {
             var newRowCount = gridDataGetLength() + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0);
             var oldH = h;
 
-            var sufix = ((options.frozenColumn > -1 ) ? "1" : "") + uis;
-            var vwp = $("#v" + sufix, $container)[0];
+            var suffix = ((options.frozenColumn > -1 ) ? "1" : "") + uis;
+            var vwp = $("#v" + suffix, $container)[0];
             // changed
 
             // remove the rows that are now outside of the data range
@@ -1764,9 +1764,9 @@ if (!jQuery.fn.drag) {
         }
 
         function handleScroll() {
-            var sufix = ((options.frozenColumn > -1 ) ? "1" : "") + uis;
-            var vwp = $("#v" + sufix, $container)[0];
-            // changed
+            var suffix = ((options.frozenColumn > -1 ) ? "1" : "") + uis;
+            var vwp = $("#v" + suffix, $container)[0];
+
             scrollTop = vwp.scrollTop;
             var scrollLeft = vwp.scrollLeft;
 
@@ -1775,8 +1775,8 @@ if (!jQuery.fn.drag) {
             if (scrollLeft !== prevScrollLeft) {
                 prevScrollLeft = scrollLeft;
 
-                $("#hs" + sufix, $container)[0].scrollLeft( scrollLeft );
-                $("#shs" + sufix, $container)[0].scrollLeft(scrollLeft );
+                $("#hs" + suffix, $container)[0].scrollLeft( scrollLeft );
+                $("#shs" + suffix, $container)[0].scrollLeft(scrollLeft );
             }
 
             if (!scrollDist) return;
@@ -2188,8 +2188,8 @@ if (!jQuery.fn.drag) {
         }
 
         function focusOnCurrentCell() {
-            var sufix = ((options.frozenColumn > -1 ) ? "1" : "") + uis;
-            var vwp = $("#v" + sufix, $container)[0];
+            var suffix = ((options.frozenColumn > -1 ) ? "1" : "") + uis;
+            var vwp = $("#v" + suffix, $container)[0];
             // changed
             var scrollLeft = vwp.scrollLeft;
 
@@ -2211,12 +2211,12 @@ if (!jQuery.fn.drag) {
 
             var left = $(currentCellNode).position().left,
                 right = left + $(currentCellNode).outerWidth(),
-                scrollRight = scrollLeft + $("#v" + sufix, $container).width();
+                scrollRight = scrollLeft + $("#v" + suffix, $container).width();
 
             if (left < scrollLeft)
                 $viewport.scrollLeft(left);
             else if (right > scrollRight) {
-                $("#v" + sufix, $container).scrollLeft(Math.min(left, right -  vwp.clientWidth));
+                $("#v" + suffix, $container).scrollLeft(Math.min(left, right -  vwp.clientWidth));
             }
         }
 
@@ -2473,8 +2473,8 @@ if (!jQuery.fn.drag) {
             var rowAtTop = row * options.rowHeight;
             var rowAtBottom = (row + 1) * options.rowHeight - viewportH + (viewportHasHScroll?scrollbarDimensions.height:0);
 
-            var sufix = ((options.frozenColumn > -1 ) ? "1" : "") + uis;
-            var vwp = $("#v" + sufix, $container)[0];
+            var suffix = ((options.frozenColumn > -1 ) ? "1" : "") + uis;
+            var vwp = $("#v" + suffix, $container)[0];
             // changed
             scrollTop = vwp.scrollTop;
 
