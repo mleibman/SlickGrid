@@ -1660,7 +1660,6 @@ if (!jQuery.fn.drag) {
          * @author DB
          */
         function appendSplitedHtmlRow(stringArray, stringArrayRight, row) {
-
             var d = gridDataGetItem(row);
             var dataLoading = row < gridDataGetLength() && !d;
             var css = "slick-row " +
@@ -1693,7 +1692,7 @@ if (!jQuery.fn.drag) {
             stringArray.push("</div>");
 
             // right row
-            for (i=options.frozenColumn + 1, cols=columns.length; i<cols; i++) {
+            for (var i=options.frozenColumn + 1, cols=columns.length; i<cols; i++) {
                 m = columns[i];
                 if (m.hidden) continue;
 
