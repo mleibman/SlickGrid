@@ -255,19 +255,21 @@ if (typeof Slick === "undefined") {
             bindAncestorScrollEvents();
             $viewport.bind("scroll.slickgrid", handleScroll);
             $container.bind("resize.slickgrid", resizeAndRender);
-            $headerScroller
-                .bind("contextmenu.slickgrid", handleHeaderContextMenu)
-                .bind("click.slickgrid", handleHeaderClick);
+            $headerScroller.bind({
+                "contextmenu.slickgrid": handleHeaderContextMenu,
+                "click.slickgrid": handleHeaderClick
+            });
 
-            $canvas
-                .bind("keydown.slickgrid", handleKeyDown)
-                .bind("click.slickgrid", handleClick)
-                .bind("dblclick.slickgrid", handleDblClick)
-                .bind("contextmenu.slickgrid", handleContextMenu)
-                .bind("draginit", handleDragInit)
-                .bind("dragstart", handleDragStart)
-                .bind("drag", handleDrag)
-                .bind("dragend", handleDragEnd);
+            $canvas.bind({
+                "keydown.slickgrid": handleKeyDown,
+                "click.slickgrid": handleClick,
+                "dblclick.slickgrid": handleDblClick,
+                "contextmenu.slickgrid": handleContextMenu,
+                "draginit": handleDragInit,
+                "dragstart": handleDragStart,
+                "drag": handleDrag,
+                "dragend": handleDragEnd
+            });
 
             $canvas.delegate(".slick-cell", "mouseenter", handleMouseEnter);
             $canvas.delegate(".slick-cell", "mouseleave", handleMouseLeave);
@@ -2358,7 +2360,7 @@ if (typeof Slick === "undefined") {
             }
         }
 
-        
+
         //////////////////////////////////////////////////////////////////////////////////////////////
         // IEditor implementation for the editor lock
 
