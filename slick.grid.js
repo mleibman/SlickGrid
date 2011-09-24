@@ -402,7 +402,7 @@ if (!jQuery.fn.drag) {
 
             if (options.frozenColumn > -1){
                 msStyle = "width:100%;outline:0;position:relative;overflow-x: scroll; overflow-y: hidden;"
-            }else {
+            } else {
                  // with autoHeight, we can set the mainscroller's y-overflow to auto, since the scroll bar will not appear
                  msStyle = "width:100%;overflow-x:auto;outline:0;position:relative;overflow-y:auto;"
             }
