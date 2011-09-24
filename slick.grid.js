@@ -40,7 +40,7 @@
  *     editorFactory            - (default null) A factory object responsible to creating an editor for a given cell.
  *                                Must implement getEditor(column).
  *     multiSelect              - (default true) Enable multiple row selection.
- *     frozenColumn             - (default -1) If greater than Cero, then columns whose index are less than or equal to this number will be frozen
+ *     frozenColumn             - (default -1) If greater than zero, then columns whose index are less than or equal to this number will be frozen
  *
  * COLUMN DEFINITION (columns) OPTIONS:
  *     id                  - Column ID.
@@ -1765,10 +1765,10 @@ if (!jQuery.fn.drag) {
 
         function handleScroll() {
             var suffix = ((options.frozenColumn > -1 ) ? "1" : "") + uis;
-            var vwp = $("#v" + suffix, $container)[0];
+            var vwp = $("#v" + suffix, $container);
 
-            scrollTop = vwp.scrollTop;
-            var scrollLeft = vwp.scrollLeft;
+            scrollTop = vwp.scrollTop();
+            var scrollLeft = vwp.scrollLeft();
 
             var scrollDist = Math.abs(scrollTop - prevScrollTop);
 
@@ -1786,8 +1786,7 @@ if (!jQuery.fn.drag) {
             // switch virtual pages if needed
             if (scrollDist < viewportH) {
                 scrollTo(scrollTop + offset);
-            }
-            else {
+            } else {
                 var oldOffset = offset;
                 page = Math.min(n - 1, Math.floor(scrollTop * ((th - viewportH) / (h - viewportH)) * (1 / ph)));
                 offset = Math.round(page * cj);
@@ -1877,15 +1876,6 @@ if (!jQuery.fn.drag) {
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Interactivity
-
-        function getSiblingIndex(node) {
-            var idx = 0;
-            while (node && node.previousSibling) {
-                idx++;
-                node = node.previousSibling;
-            }
-            return idx;
-        }
 
         function handleKeyDown(e) {
             // give registered handler chance to process the keyboard event
