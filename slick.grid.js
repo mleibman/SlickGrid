@@ -5,6 +5,9 @@
  * Distributed under MIT license.
  * All rights reserved.
  *
+ * Credits:
+ *  Frozen Columns: Diego Boris
+ *
  * SlickGrid v1.4.3
  *
  * TODO:
@@ -319,7 +322,6 @@ if (!jQuery.fn.drag) {
         var counter_rows_rendered = 0;
         var counter_rows_removed = 0;
 
-        // appended for split funtionality
         var canvas0, canvas1, headers0, headers1, viewp0,
             uis = "dbhp" + Math.round(1000000 * Math.random());
 
@@ -341,14 +343,11 @@ if (!jQuery.fn.drag) {
 
             maxSupportedCssHeight = getMaxSupportedCssHeight();
 
-            // @author DB 5/Jan/2011
-            // for frozen column
             var $headerScroller1, $headers1, $secondaryHeaderScroller1, $secondaryHeaders1,
                 $viewport1, $canvas1, $scrollerContainer, totalFrozenWidth = 0;
             scrollbarDimensions = scrollbarDimensions || measureScrollbar(); // skip measurement if already have dimensions
             options = $.extend({},defaults,options);
-            // validate frozenColumn
-            // @author(modify)DB
+
             options.frozenColumn = ( options.frozenColumn >= 0
                 && options.frozenColumn < columns.length ) ? parseInt(options.frozenColumn) : -1;
             columnDefaults.width = options.defaultColumnWidth;
@@ -376,25 +375,18 @@ if (!jQuery.fn.drag) {
             if (!/relative|absolute|fixed/.test($container.css("position")))
                 $container.css("position","relative");
 
-            // modified (attribute 'id' appended)
-            // @author(modify)DB
             $headerScroller = $("<div id='hs" + uis + "' class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
             $headers = $("<div id='h" + uis + "' class='slick-header-columns' style='width:100000px; left:-10000px' />").appendTo($headerScroller);
 
-            // modified (attribute 'id' appended)
-            // @author(modify)DB
             $secondaryHeaderScroller = $("<div id='shs" + uis + "' class='slick-header-secondary ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
             $secondaryHeaders = $("<div id='sh" + uis + "' class='slick-header-columns-secondary' style='width:100000px' />").appendTo($secondaryHeaderScroller);
 
-            // split in two
-            // @author(modify)DB
             if (options.frozenColumn > -1){
                 $scrollerContainer = $("<div id='splittedC" + uis + "' style='overflow:hidden;position:absolute;top:0px;' />");
                 $headerScroller1 = $("<div id='hs1" + uis + "' class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($scrollerContainer);
                 $headers1 = $("<div id='h1" + uis + "' class='slick-header-columns' style='width:100000px; left:-10000px' />").appendTo($headerScroller1);
                 $headers = $().add($headers).add($headers1);
                 // TODO REFACTORING
-                // @author DB
                 $secondaryHeaderScroller1 = $("<div id='shs1" + uis + "' class='slick-header-secondary ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($scrollerContainer);
                 $secondaryHeaders1 = $("<div id='sh1" + uis + "' class='slick-header-columns-secondary' style='width:100000px' />").appendTo($secondaryHeaderScroller1);
                 $secondaryHeaderScroller = $().add($secondaryHeaderScroller).add($secondaryHeaderScroller1);
@@ -406,8 +398,6 @@ if (!jQuery.fn.drag) {
                 $secondaryHeaderScroller.hide();
             }
 
-            // original code for msStyle was modified
-            // @author DB 27/Jan/2011
             var msStyle = "";
 
             if (options.frozenColumn > -1){
@@ -416,13 +406,10 @@ if (!jQuery.fn.drag) {
                  // with autoHeight, we can set the mainscroller's y-overflow to auto, since the scroll bar will not appear
                  msStyle = "width:100%;overflow-x:auto;outline:0;position:relative;overflow-y:auto;"
             }
-            // modified (attribute 'id' appended)
-            // @author(modify)DB
+
             $viewport = $("<div id='v" + uis + "' class='slick-viewport' tabIndex='0' hideFocus style='" + msStyle + "'>").appendTo($container);
             $canvas = $("<div id='c" + uis + "' class='grid-canvas' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($viewport);
 
-            // split in two
-            // @author(modify)DB
             if (options.frozenColumn > -1){
                 var msStyle1 = "width:100%;overflow-x:scroll;overflow-y:auto;outline:0;position:relative;overflow-y:auto;";
                 $viewport1 = $("<div id='v1" + uis + "' class='slick-viewport' tabIndex='0' hideFocus style='" + msStyle1 + "'>").appendTo($scrollerContainer);
@@ -462,8 +449,6 @@ if (!jQuery.fn.drag) {
             setupDragEvents();
             createCssRules();
 
-            // appended
-            // @author DB
             if (options.frozenColumn > -1){
                 // set width
                 // problems with cache when recovering item by index
@@ -572,7 +557,6 @@ if (!jQuery.fn.drag) {
         function createColumnHeaders() {
             var i;
 
-            // @author Diego Boris(modified for frozen Column)  (6/Jan/2011)
             var $headerTarget;
 
             function hoverBegin() {
@@ -590,7 +574,6 @@ if (!jQuery.fn.drag) {
                 var m = columns[i] = $.extend({},columnDefaults,columns[i]);
                 columnsById[m.id] = i;
 
-                // @author Diego Boris(modify for frozen Column)  (7/Jan/2011)
                 $headerTarget = (options.frozenColumn > -1 ) ?
                     ((i <= options.frozenColumn) ? $(headers0): $(headers1)) : $headers;
                 if (options.frozenColumn > -1){
@@ -598,7 +581,6 @@ if (!jQuery.fn.drag) {
                         $headerTarget = $(headers0);
                         // TODO..
                         // make it resizable
-                        // @author DB
                         m.resizable = false;
                     }else{
                         $headerTarget = $(headers1);
@@ -1065,8 +1047,6 @@ if (!jQuery.fn.drag) {
 
             unbindAncestorScrollEvents();
 
-            // changed
-            // @author DB
             $headers.each(function(){
                 if ($(this).sortable){
                     $(this).sortable("destroy");
@@ -1362,8 +1342,6 @@ if (!jQuery.fn.drag) {
                 makeSelectedCellNormal();
             }
 
-            // modified
-            // @author DB
             $canvas.each(function(){
                 this.innerHTML = "";
             });
@@ -1377,11 +1355,7 @@ if (!jQuery.fn.drag) {
         function removeRowFromCache(row) {
             var node = rowsCache[row];
             if (!node) { return; }
-
-            // comment added and changed original code
             // remove from DOM
-            // @auhor DB
-            // node.parentNode.removeChild(node);
             $canvas.find(".slick-row[row=" + row + "]").detach();
 
             delete rowsCache[row];
@@ -1468,7 +1442,6 @@ if (!jQuery.fn.drag) {
             // FIXME.. although
             // when read, resizeCanvas() method is always invoked
             // so it appears it gives no problem
-            // @author DB
 
             viewportW = $viewport.innerWidth();
             viewportH = $viewport.innerHeight();
@@ -1481,8 +1454,6 @@ if (!jQuery.fn.drag) {
 
             setCanvasWidth(totalWidth);
 
-             // modified to support split functionality
-            // @author DB
             if(options.frozenColumn > -1 ){
                 var o = getWidthSplittedCanvas();
                 $(canvas0).width(o.widthFixed);
@@ -1597,8 +1568,6 @@ if (!jQuery.fn.drag) {
                 parentNode = $canvas[0],
                 rowsBefore = renderedRows,
                 stringArray = [],
-                // appended
-                // @author DB
                 stringArrayRight = [],
                 rows = [],
                 startTimestamp = new Date(),
@@ -1658,8 +1627,7 @@ if (!jQuery.fn.drag) {
 
         /**
          * Split htmlRow into the appropiate canvas according
-         * to options.frozenColumn value 26/Jan/2011
-         * @author DB
+         * to options.frozenColumn value
          */
         function appendSplitedHtmlRow(stringArray, stringArrayRight, row) {
             var d = gridDataGetItem(row);
@@ -1712,7 +1680,6 @@ if (!jQuery.fn.drag) {
         }
 
         // Return an object containing the two newly created canvas' width
-        // @author DB 28/Jan/2011
         function getWidthSplittedCanvas(){
             var widthFixed = 0, widthScrolled = 0;
 
@@ -1795,7 +1762,6 @@ if (!jQuery.fn.drag) {
                     removeAllRows();
             }
 
-            // appended
             if (options.frozenColumn > -1 ){
                 viewp0.scrollTop = scrollTop;
             }
@@ -1819,8 +1785,6 @@ if (!jQuery.fn.drag) {
                 var rowNode = rowsCache[row];
                 if (!rowNode || postProcessedRows[row] || row>=gridDataGetLength()) { continue; }
 
-                // modified
-                // @author DB
                 var d = gridDataGetItem(row), cellNodes = $(rowNode).children();
 
                 for (var i=0, j=0, l=columns.length; i<l; ++i) {
