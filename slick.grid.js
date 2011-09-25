@@ -6,7 +6,8 @@
  * All rights reserved.
  *
  * Credits:
- *  Frozen Columns: Diego Boris
+ *  Static Frozen Columns: Diego Boris
+ *  Dynamic Frozen Columns: Justin Lynch
  *
  * SlickGrid v1.4.3
  *
@@ -275,9 +276,7 @@ if (!jQuery.fn.drag) {
         var $container;
         var uid = "slickgrid_" + Math.round(1000000 * Math.random());
         var self = this;
-        var $headerScroller;
         var $headers;
-        var $secondaryHeaderScroller;
         var $secondaryHeaders;
         var $viewport;
         var $canvas;
