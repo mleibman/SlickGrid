@@ -452,7 +452,7 @@ if (!jQuery.fn.drag) {
             measureCellPaddingAndBorder();
 
             $viewport.height(
-                $container.outerHeight() -
+                $container.innerHeight() -
                 $headerContainerL.outerHeight() -
                 (options.showSecondaryHeaderRow ? $secondHeaderContainerL.outerHeight() : 0));
 
@@ -1450,7 +1450,7 @@ if (!jQuery.fn.drag) {
             }
             else {
                 $viewport.height(
-                    $container.outerHeight() -
+                    $container.innerHeight() -
                     $headerContainerL.outerHeight() -
                     (options.showSecondaryHeaderRow ? $secondHeaderContainerL.outerHeight() : 0));
             }
