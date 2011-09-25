@@ -322,9 +322,22 @@ if (!jQuery.fn.drag) {
         var counter_rows_rendered = 0;
         var counter_rows_removed = 0;
 
-        var canvas0, canvas1, headers0, headers1, viewp0,
-            uis = "dbhp" + Math.round(1000000 * Math.random());
-
+        var $paneTopL;
+        var $paneTopR;
+        var $paneBottomL;
+        var $paneBottomR;
+        var $headerContainerL;
+        var $headerContainerR;
+        var $headerColumnsL;
+        var $headerColumnsR;
+        var $secondHeaderContainerL;
+        var $secondHeaderContainerR;
+        var $secondHeaderColumnsL;
+        var $secondHeaderColumnsR;
+        var $viewportL;
+        var $viewportR;
+        var $canvasL;
+        var $canvasR;
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Initialization
@@ -343,13 +356,11 @@ if (!jQuery.fn.drag) {
 
             maxSupportedCssHeight = getMaxSupportedCssHeight();
 
-            var $headerScroller1, $headers1, $secondaryHeaderScroller1, $secondaryHeaders1,
-                $viewport1, $canvas1, $scrollerContainer, totalFrozenWidth = 0;
+            var totalFrozenWidth = 0;
             scrollbarDimensions = scrollbarDimensions || measureScrollbar(); // skip measurement if already have dimensions
             options = $.extend({},defaults,options);
 
-            options.frozenColumn = ( options.frozenColumn >= 0
-                && options.frozenColumn < columns.length ) ? parseInt(options.frozenColumn) : -1;
+            options.frozenColumn = ( options.frozenColumn >= 0 && options.frozenColumn < columns.length ) ? parseInt(options.frozenColumn) : -1;
             columnDefaults.width = options.defaultColumnWidth;
 
             // validate loaded JavaScript modules against requested options
@@ -375,66 +386,75 @@ if (!jQuery.fn.drag) {
             if (!/relative|absolute|fixed/.test($container.css("position")))
                 $container.css("position","relative");
 
-            $headerScroller = $("<div id='hs" + uis + "' class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-            $headers = $("<div id='h" + uis + "' class='slick-header-columns' style='width:100000px; left:-10000px' />").appendTo($headerScroller);
+            var showRightPane =  ( options.frozenColumn > -1 ) ? "" : "display:none;";
 
-            $secondaryHeaderScroller = $("<div id='shs" + uis + "' class='slick-header-secondary ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-            $secondaryHeaders = $("<div id='sh" + uis + "' class='slick-header-columns-secondary' style='width:100000px' />").appendTo($secondaryHeaderScroller);
+            // Containers used for scrolling frozen columns and rows
+            $paneTopL = $("<div class='slick-pane-top-left' style='overflow:hidden;position:relative;top:0px;' />");
+            $paneTopR = $("<div class='slick-pane-top-right' style='" + showRightPane + "overflow:hidden;position:absolute;top:0px;' />");
+            $paneBottomL = $("<div class='slick-pane-bottom-left' style='display:none;overflow:hidden;position:relative;top:0px;' />");
+            $paneBottomR = $("<div class='slick-pane-bottom-right' style=''display:none;overflow:hidden;position:absolute;top:0px;' />");
 
-            if (options.frozenColumn > -1){
-                $scrollerContainer = $("<div id='splittedC" + uis + "' style='overflow:hidden;position:absolute;top:0px;' />");
-                $headerScroller1 = $("<div id='hs1" + uis + "' class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($scrollerContainer);
-                $headers1 = $("<div id='h1" + uis + "' class='slick-header-columns' style='width:100000px; left:-10000px' />").appendTo($headerScroller1);
-                $headers = $().add($headers).add($headers1);
-                // TODO REFACTORING
-                $secondaryHeaderScroller1 = $("<div id='shs1" + uis + "' class='slick-header-secondary ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($scrollerContainer);
-                $secondaryHeaders1 = $("<div id='sh1" + uis + "' class='slick-header-columns-secondary' style='width:100000px' />").appendTo($secondaryHeaderScroller1);
-                $secondaryHeaderScroller = $().add($secondaryHeaderScroller).add($secondaryHeaderScroller1);
-                $headerScroller = $().add($headerScroller).add($headerScroller1);
-                $secondaryHeaders = $().add($secondaryHeaders).add($secondaryHeaders1);
-            };
+            // Append the panes to the main container
+            $container.append( $paneTopL, $paneTopR, $paneBottomL, $paneBottomR );
+
+            // Append the header containers
+            $headerContainerL = $("<div class='slick-header slick-header-left ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($paneTopL);
+            $headerContainerR = $("<div class='slick-header slick-header-right ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($paneTopR);
+
+            // Append the columnn containers to the headers
+            $headerColumnsL = $("<div class='slick-header-columns slick-header-columns-left' style='width:100000px; left:-10000px' />").appendTo($headerContainerL);
+            $headerColumnsR = $("<div class='slick-header-columns slick-header-columns-right' style='width:100000px; left:-10000px' />").appendTo($headerContainerR);
+
+            // Cache the header columns
+            $headers = $('.slick-header-columns');
+
+            // Append the second header containers
+            $secondHeaderContainerL = $("<div class='slick-header-secondary slick-header-secondary-left ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($paneTopL);
+            $secondHeaderContainerR = $("<div class='slick-header-secondary slick-header-secondary-right ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($paneTopR);
+
+            // Append the second header columns
+            $secondHeaderColumnsL = $("<div class='slick-header-columns-secondary slick-header-columns-secondary-left' style='width:100000px; left:-10000px' />").appendTo($secondHeaderContainerL);
+            $secondHeaderColumnsR = $("<div class='slick-header-columns-secondar yslick-header-columns-secondary-right' style='width:100000px; left:-10000px' />").appendTo($secondHeaderContainerR);
+
+            // Cache the second header columns
+            $secondaryHeaders = $('.slick-header-columns-secondary');
 
             if (!options.showSecondaryHeaderRow) {
-                $secondaryHeaderScroller.hide();
+                $( '.slick-header-secondary' ).hide();
             }
 
-            var msStyle = "";
+            var msStyle = "", msStyle1 = "";
 
             if (options.frozenColumn > -1){
                 msStyle = "width:100%;outline:0;position:relative;overflow-x: scroll; overflow-y: hidden;"
+                msStyle1 = "width:100%;overflow-x:scroll;overflow-y:auto;outline:0;position:relative;overflow-y:auto;";
             } else {
-                 // with autoHeight, we can set the mainscroller's y-overflow to auto, since the scroll bar will not appear
-                 msStyle = "width:100%;overflow-x:auto;outline:0;position:relative;overflow-y:auto;"
+                // with autoHeight, we can set the mainscroller's y-overflow to auto, since the scroll bar will not appear
+                msStyle = "width:100%;overflow-x:auto;outline:0;position:relative;overflow-y:auto;"
             }
 
-            $viewport = $("<div id='v" + uis + "' class='slick-viewport' tabIndex='0' hideFocus style='" + msStyle + "'>").appendTo($container);
-            $canvas = $("<div id='c" + uis + "' class='grid-canvas' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($viewport);
+            // Append the viewport containers
+            $viewportL = $("<div class='slick-viewport slick-viewport-left' tabIndex='0' hideFocus style='" + msStyle + "'>").appendTo($paneTopL);
+            $viewportR = $("<div class='slick-viewport slick-viewport-right' tabIndex='0' hideFocus style='" + msStyle1 + "'>").appendTo($paneTopR);
 
-            if (options.frozenColumn > -1){
-                var msStyle1 = "width:100%;overflow-x:scroll;overflow-y:auto;outline:0;position:relative;overflow-y:auto;";
-                $viewport1 = $("<div id='v1" + uis + "' class='slick-viewport' tabIndex='0' hideFocus style='" + msStyle1 + "'>").appendTo($scrollerContainer);
-                $canvas1 = $("<div id='c1" + uis + "' class='grid-canvas' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($viewport1);
-                $viewport = $().add($viewport).add($viewport1);
-                $canvas = $().add($canvas).add($canvas1);
-                $scrollerContainer.appendTo($container);
-                // canvas
-                canvas0 = $("#c" + uis, $container)[0];
-                canvas1 = $("#c1" + uis, $container)[0];
-                // headers
-                headers0 = $("#h" + uis, $container)[0];
-                headers1 = $("#h1" + uis, $container)[0];
-                // viewport
-                viewp0 = $("#v" + uis, $container)[0];
-            }
+            // Cache the viewports
+            $viewport = $( '.slick-viewport' );
+
+            // Append the canvas containers
+            $canvasL = $("<div class='grid-canvas grid-canvas-left' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($viewportL);
+            $canvasR = $("<div class='grid-canvas grid-canvas-right' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($viewportR);
+
+            // Cache the canvases
+            $canvas = $( '.grid-canvas' );
 
             // header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
             // calculate the diff so we can set consistent sizes
             measureCellPaddingAndBorder();
 
             $viewport.height(
-                $container.innerHeight() -
-                $headerScroller.outerHeight() -
-                (options.showSecondaryHeaderRow ? $secondaryHeaderScroller.outerHeight() : 0));
+                $container.outerHeight() -
+                $headerContainerL.outerHeight() -
+                (options.showSecondaryHeaderRow ? $secondHeaderContainerL.outerHeight() : 0));
 
             // for usability reasons, all text selection in SlickGrid is disabled
             // with the exception of input and textarea elements (selection must
@@ -449,16 +469,13 @@ if (!jQuery.fn.drag) {
             setupDragEvents();
             createCssRules();
 
+
             if (options.frozenColumn > -1){
-                // set width
-                // problems with cache when recovering item by index
-                // e.g headers0 = $headers.get(0)
                 totalFrozenWidth = getWidthSplittedCanvas().widthFixed;
-                $("#hs" + uis , $container).width(totalFrozenWidth);
-                $("#shs" + uis, $container).width(totalFrozenWidth);
-                $("#v" + uis, $container).width(totalFrozenWidth);
-                var rightW = $container.width() - totalFrozenWidth;
-                $scrollerContainer.css("left", totalFrozenWidth);
+                $headerContainerL.width(totalFrozenWidth);
+                $secondHeaderContainerL.width(totalFrozenWidth);
+                $viewportL.width(totalFrozenWidth);
+                $paneTopR.css("left", totalFrozenWidth);
             }
 
             resizeAndRender();
@@ -467,7 +484,7 @@ if (!jQuery.fn.drag) {
             $viewport.bind("scroll.slickgrid", handleScroll);
             $container.bind("resize.slickgrid", resizeAndRender);
 
-            $headerScroller.bind({
+            $headers.bind({
                 "contextmenu.slickgrid": handleHeaderContextMenu,
                 "click.slickgrid": handleHeaderClick
             });
@@ -548,10 +565,10 @@ if (!jQuery.fn.drag) {
 
         // TODO:  this is static.  need to handle page mutation.
         function bindAncestorScrollEvents() {
-            var elem = $canvas[0];
+            var elem = $canvasL[0];
             while ((elem = elem.parentNode) != document.body) {
                 // bind to scroll containers only
-                if (elem == $viewport[0] || elem.scrollWidth != elem.clientWidth || elem.scrollHeight != elem.clientHeight)
+                if (elem == $viewportL[0] || elem.scrollWidth != elem.clientWidth || elem.scrollHeight != elem.clientHeight)
                     $(elem).bind("scroll.slickgrid", handleCurrentCellPositionChange);
             }
         }
@@ -562,8 +579,6 @@ if (!jQuery.fn.drag) {
 
         function createColumnHeaders() {
             var i;
-
-            var $headerTarget;
 
             function hoverBegin() {
                 $(this).addClass("ui-state-hover");
@@ -580,20 +595,7 @@ if (!jQuery.fn.drag) {
                 var m = columns[i] = $.extend({},columnDefaults,columns[i]);
                 columnsById[m.id] = i;
 
-                $headerTarget = (options.frozenColumn > -1 ) ?
-                    ((i <= options.frozenColumn) ? $(headers0): $(headers1)) : $headers;
-                if (options.frozenColumn > -1){
-                    if (i <= options.frozenColumn){
-                        $headerTarget = $(headers0);
-                        // TODO..
-                        // make it resizable
-                        m.resizable = false;
-                    }else{
-                        $headerTarget = $(headers1);
-                    }
-                }else{
-                    $headerTarget = $headers;
-                }
+                var $headerTarget = (options.frozenColumn > -1 ) ? ((i <= options.frozenColumn) ? $headerColumnsL: $headerColumnsR) : $headerColumnsL;
 
                 var header = $("<div class='ui-state-default slick-header-column' id='" + uid + m.id + "' />")
                     .html("<span class='slick-column-name'>" + m.name + "</span>")
@@ -666,12 +668,10 @@ if (!jQuery.fn.drag) {
                         return;
                     }
 
-                    if ( options.frozenColumn > -1 ) {
-                        var reorderedIds =  $(headers0).sortable("toArray");
-                        reorderedIds = reorderedIds.concat( $(headers1).sortable("toArray") );
-                    } else {
-                        var reorderedIds = $headers.sortable("toArray");
-                    }
+                    var reorderedIds;
+
+                    reorderedIds = $headerColumnsL.sortable("toArray");
+                    reorderedIds = reorderedIds.concat( $headerColumnsR.sortable("toArray") );
 
                     var reorderedColumns = [];
                     for (var i=0; i<reorderedIds.length; i++) {
@@ -1194,10 +1194,20 @@ if (!jQuery.fn.drag) {
 
         function setColumns(columnDefinitions) {
             columns = columnDefinitions;
+
             removeAllRows();
             createColumnHeaders();
             removeCssRules();
             createCssRules();
+
+            if (options.frozenColumn > -1){
+                totalFrozenWidth = getWidthSplittedCanvas().widthFixed;
+                $headerContainerL.width(totalFrozenWidth);
+                $secondHeaderContainerL.width(totalFrozenWidth);
+                $viewportL.width(totalFrozenWidth);
+                $paneTopR.css("left", totalFrozenWidth);
+            }
+
             resizeAndRender();
             handleScroll();
         }
@@ -1242,12 +1252,12 @@ if (!jQuery.fn.drag) {
 
         function showSecondaryHeaderRow() {
             options.showSecondaryHeaderRow = true;
-            $secondaryHeaderScroller.slideDown("fast", resizeCanvas);
+            $( '.slick-header-secondary' ).slideDown("fast", resizeCanvas);
         }
 
         function hideSecondaryHeaderRow() {
             options.showSecondaryHeaderRow = false;
-            $secondaryHeaderScroller.slideUp("fast", resizeCanvas);
+            $( '.slick-header-secondary' ).slideUp("fast", resizeCanvas);
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1440,9 +1450,9 @@ if (!jQuery.fn.drag) {
             }
             else {
                 $viewport.height(
-                        $container.innerHeight() -
-                        $headerScroller.outerHeight() -
-                        (options.showSecondaryHeaderRow ? $secondaryHeaderScroller.outerHeight() : 0));
+                    $container.outerHeight() -
+                    $headerContainerL.outerHeight() -
+                    (options.showSecondaryHeaderRow ? $secondHeaderContainerL.outerHeight() : 0));
             }
 
             // FIXME.. although
@@ -1460,12 +1470,11 @@ if (!jQuery.fn.drag) {
 
             setCanvasWidth(totalWidth);
 
-            if(options.frozenColumn > -1 ){
-                var o = getWidthSplittedCanvas();
-                $(canvas0).width(o.widthFixed);
-                $(canvas1).width(o.widthScrolled);
-                $("#splittedC" + uis, $container).width($container.width() - o.widthFixed);
-            }
+            var o = getWidthSplittedCanvas();
+
+            $canvasL.width( o.widthFixed );
+            $canvasR.width( o.widthScrolled );
+            $paneTopR.width( $container.width() - o.widthFixed );
 
             updateRowCount();
             render();
@@ -1482,10 +1491,6 @@ if (!jQuery.fn.drag) {
         function updateRowCount() {
             var newRowCount = gridDataGetLength() + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0);
             var oldH = h;
-
-            var suffix = ((options.frozenColumn > -1 ) ? "1" : "") + uis;
-            var vwp = $("#v" + suffix, $container)[0];
-            // changed
 
             // remove the rows that are now outside of the data range
             // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
@@ -1513,7 +1518,7 @@ if (!jQuery.fn.drag) {
             if (h !== oldH) {
                 $canvas.css("height",h);
 
-                scrollTop = vwp.scrollTop;
+                scrollTop = $viewportL.scrollTop();
             }
 
             var oldScrollTopInRange = (scrollTop + offset <= th - viewportH);
@@ -1571,7 +1576,7 @@ if (!jQuery.fn.drag) {
 
         function renderRows(range) {
             var i, l,
-                parentNode = $canvas[0],
+                parentNode = $canvasL,
                 rowsBefore = renderedRows,
                 stringArray = [],
                 stringArrayRight = [],
@@ -1599,8 +1604,8 @@ if (!jQuery.fn.drag) {
                 xRight.innerHTML = stringArrayRight.join("");
 
                 for (i = 0, l = x.childNodes.length; i < l; i++) {
-                    rowsCache[rows[i]] = $().add($(x.firstChild).appendTo(canvas0))
-                                            .add($(xRight.firstChild).appendTo(canvas1));
+                    rowsCache[rows[i]] = $().add($(x.firstChild).appendTo($canvasL))
+                                            .add($(xRight.firstChild).appendTo($canvasR));
                 }
             } else {
                 for (i = range.top; i <= range.bottom; i++) {
@@ -1617,7 +1622,7 @@ if (!jQuery.fn.drag) {
                 x.innerHTML = stringArray.join("");
 
                 for (i = 0, l = x.childNodes.length; i < l; i++) {
-                    rowsCache[rows[i]] = parentNode.appendChild(x.firstChild);
+                    rowsCache[rows[i]] = $().add($(x.firstChild).appendTo($canvasL));
                 }
             }
 
@@ -1689,11 +1694,11 @@ if (!jQuery.fn.drag) {
         function getWidthSplittedCanvas(){
             var widthFixed = 0, widthScrolled = 0;
 
-            $(headers0).find('.slick-header-column:visible').each(function () {
+            $headerContainerL.find('.slick-header-column:visible').each(function () {
                 widthFixed += $(this).outerWidth();
             });
 
-            $(headers1).find('.slick-header-column:visible').each(function () {
+            $headerContainerR.find('.slick-header-column:visible').each(function () {
                 widthScrolled += $(this).outerWidth();
             });
 
@@ -1738,18 +1743,21 @@ if (!jQuery.fn.drag) {
         }
 
         function handleScroll() {
-            var suffix = ((options.frozenColumn > -1 ) ? "1" : "") + uis;
-            var vwp = $("#v" + suffix, $container);
+            var $viewportScrollContainer = (options.frozenColumn > -1 ) ? $viewportR : $viewportL;
+            var $headerScrollContainer = (options.frozenColumn > -1 ) ? $headerContainerR : $headerContainerL;
+            var $secondHeaderScrollContainer = (options.frozenColumn > -1 ) ? $secondHeaderContainerR : $secondHeaderContainerL;
 
-            scrollTop = vwp.scrollTop();
-            var scrollLeft = vwp.scrollLeft();
+            scrollTop = $viewportScrollContainer.scrollTop();
+
+            var scrollLeft = $viewportScrollContainer.scrollLeft();
 
             var scrollDist = Math.abs(scrollTop - prevScrollTop);
 
             if (scrollLeft !== prevScrollLeft) {
                 prevScrollLeft = scrollLeft;
 
-                $("#hs" + suffix + ",#shs" + suffix, $container).scrollLeft( scrollLeft );
+                $headerScrollContainer.scrollLeft( scrollLeft );
+                $secondHeaderScrollContainer.scrollLeft( scrollLeft );
             }
 
             if (!scrollDist) return;
@@ -1769,7 +1777,7 @@ if (!jQuery.fn.drag) {
             }
 
             if (options.frozenColumn > -1 ){
-                viewp0.scrollTop = scrollTop;
+                $viewportL.scrollTop( scrollTop );
             }
 
             if (h_render)
@@ -2148,10 +2156,8 @@ if (!jQuery.fn.drag) {
         }
 
         function focusOnCurrentCell() {
-            var suffix = ((options.frozenColumn > -1 ) ? "1" : "") + uis;
-            var vwp = $("#v" + suffix, $container)[0];
-            // changed
-            var scrollLeft = vwp.scrollLeft;
+            var $scrollContainer = (options.frozenColumn > -1 ) ? $viewportR : $viewportL;
+            var scrollLeft = $scrollContainer.scrollLeft();
 
             // lazily enable the cell to receive keyboard focus
             $(currentCellNode)
@@ -2165,18 +2171,18 @@ if (!jQuery.fn.drag) {
             else
                 currentCellNode.focus();
 
-            if ( options.frozenColumn == -1 || $(currentCellNode).parents('#v1' + uis).length == 0 ) {
+            if ( options.frozenColumn == -1 || $(currentCellNode).parents('.slick-viewport-right').length == 0 ) {
                 return;
             }
 
             var left = $(currentCellNode).position().left,
                 right = left + $(currentCellNode).outerWidth(),
-                scrollRight = scrollLeft + $("#v" + suffix, $container).width();
+                scrollRight = scrollLeft + $scrollContainer.width();
 
             if (left < scrollLeft)
                 $viewport.scrollLeft(left);
             else if (right > scrollRight) {
-                $("#v" + suffix, $container).scrollLeft(Math.min(left, right -  vwp.clientWidth));
+                $scrollContainer.scrollLeft(Math.min(left, right - $viewportR[0].clientWidth));
             }
         }
 
@@ -2433,10 +2439,8 @@ if (!jQuery.fn.drag) {
             var rowAtTop = row * options.rowHeight;
             var rowAtBottom = (row + 1) * options.rowHeight - viewportH + (viewportHasHScroll?scrollbarDimensions.height:0);
 
-            var suffix = ((options.frozenColumn > -1 ) ? "1" : "") + uis;
-            var vwp = $("#v" + suffix, $container)[0];
-            // changed
-            scrollTop = vwp.scrollTop;
+            var $scrollContainer = (options.frozenColumn > -1 ) ? $viewportR : $viewportR;
+            var scrollLeft = $scrollContainer.scrollLeft();
 
             // need to page down?
             if ((row + 1) * options.rowHeight > scrollTop + viewportH + offset) {
