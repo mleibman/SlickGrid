@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-		<title>SlickGrid example 4: Model</title>
+		<title>SlickGrid example: Frozen Columns</title>
 		<link rel="stylesheet" href="../slick.grid.css" type="text/css" media="screen" charset="utf-8" />
 		<link rel="stylesheet" href="../slick.pager.css" type="text/css" media="screen" charset="utf-8" />
         <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" media="screen" charset="utf-8" />
@@ -37,7 +37,7 @@
 				<label>SlickGrid</label>
                 <span style="float:right" class="ui-icon ui-icon-search" title="Toggle search panel" onclick="toggleFilterRow()"></span>
 			</div>
-			<div id="myGrid" style="width:100%;height:500px;"></div>
+			<div id="myGrid" style="width:100%;height:400px;"></div>
 			<div id="pager" style="width:100%;height:20px;"></div>
 		</div>
 
@@ -52,6 +52,9 @@
 				<br/>
 				<label style="width:200px;float:left">And title including:</label>
 				<input type=text id="txtSearch" style="width:100px;">
+				<br/><br/>
+				<label style="width:200px;float:left">Frozen Column:</label>
+				<input type=text id="frozenColumn" style="width:100px;" value=1>
 				<br/><br/>
 				<button id="btnSelectRows">Select first 10 rows</button>
 			</div>
@@ -122,7 +125,7 @@
 			,forceFitColumns: false
             ,secondaryHeaderRowHeight: 25
 			,autoEdit: false
-			,frozenColumn: 2
+			,frozenColumn: 1
 		};
 
 		var sortcol = "title";
@@ -349,6 +352,14 @@
 				}
 
 				grid.setSelectedRows(rows);
+			});
+
+			$( '#frozenColumn' ).keyup(function() {
+				var columns = grid.getColumns();
+
+				grid.setOptions({ 'frozenColumn': parseInt( $(this).val() ) })
+				grid.setColumns(columns);
+				grid.render();
 			});
 
 
