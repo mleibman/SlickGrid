@@ -44,7 +44,8 @@
  *     editorFactory            - (default null) A factory object responsible to creating an editor for a given cell.
  *                                Must implement getEditor(column).
  *     multiSelect              - (default true) Enable multiple row selection.
- *     frozenColumn             - (default -1) If greater than zero, then columns whose index are less than or equal to this number will be frozen
+ *     frozenColumn             - (default -1) If greater than zero, then column whose index are less than or equal to this number will be frozen
+ *     frozenRow                - (default -1) If greater than zero, then row whose index are less than or equal to this number will be frozen
  *
  * COLUMN DEFINITION (columns) OPTIONS:
  *     id                  - Column ID.
@@ -248,7 +249,8 @@ if (!jQuery.fn.drag) {
             cellHighlightCssClass: "highlighted",
             cellFlashingCssClass: "flashing",
             multiSelect: true,
-            frozenColumn: -1
+            frozenColumn: -1,
+            frozenRow: -1
 
         },
         gridData, gridDataGetLength, gridDataGetItem;
@@ -333,10 +335,14 @@ if (!jQuery.fn.drag) {
         var $secondHeaderContainerR;
         var $secondHeaderColumnsL;
         var $secondHeaderColumnsR;
-        var $viewportL;
-        var $viewportR;
-        var $canvasL;
-        var $canvasR;
+        var $viewportTopL;
+        var $viewportTopR;
+        var $viewportBottomL;
+        var $viewportBottonR;
+        var $canvasTopL;
+        var $canvasTopR;
+        var $canvasBottomL;
+        var $canvasBottomR;
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Initialization
@@ -356,6 +362,8 @@ if (!jQuery.fn.drag) {
             maxSupportedCssHeight = getMaxSupportedCssHeight();
 
             var totalFrozenWidth = 0;
+            var totalFrozenHeight = 0;
+
             scrollbarDimensions = scrollbarDimensions || measureScrollbar(); // skip measurement if already have dimensions
             options = $.extend({},defaults,options);
 
@@ -385,16 +393,27 @@ if (!jQuery.fn.drag) {
             if (!/relative|absolute|fixed/.test($container.css("position")))
                 $container.css("position","relative");
 
-            var showRightPane =  ( options.frozenColumn > -1 ) ? "" : "display:none;";
+            var showRightPane = ( options.frozenColumn > -1 ) ? "" : "display:none;";
+            var showBottomPane = ( options.frozenRow > -1 ) ? "" : "display:none;";
+            var showBottomRightPane = ( options.frozenRow > -1 && options.frozenColumn > -1 ) ? "" : "display:none;";
 
             // Containers used for scrolling frozen columns and rows
-            $paneTopL = $("<div class='slick-pane-top-left' style='overflow:hidden;position:relative;top:0px;' />");
-            $paneTopR = $("<div class='slick-pane-top-right' style='" + showRightPane + "overflow:hidden;position:absolute;top:0px;' />");
-            $paneBottomL = $("<div class='slick-pane-bottom-left' style='display:none;overflow:hidden;position:relative;top:0px;' />");
-            $paneBottomR = $("<div class='slick-pane-bottom-right' style=''display:none;overflow:hidden;position:absolute;top:0px;' />");
+            $paneTopL = $("<div class='slick-pane slick-pane-top-left' />")
+                .appendTo( $container );
+
+            $paneTopR = $("<div class='slick-pane slick-pane-top-right' style='" + showRightPane + "' />")
+                .appendTo( $container );
+
+            $paneBottomL = $("<div class='slick-pane slick-pane-bottom-left' style='" + showBottomPane + "' />")
+                .appendTo( $container );
+
+            $paneBottomR = $("<div class='slick-pane slick-pane-bottom-right' style='" + showBottomRightPane + "' />")
+                .appendTo( $container );
+
+            setPaneOverflow();
 
             // Append the panes to the main container
-            $container.append( $paneTopL, $paneTopR, $paneBottomL, $paneBottomR );
+            //$container.append( $paneTopL, $paneTopR, $paneBottomL, $paneBottomR );
 
             // Append the header containers
             $headerContainerL = $("<div class='slick-header slick-header-left ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($paneTopL);
@@ -422,26 +441,27 @@ if (!jQuery.fn.drag) {
                 $( '.slick-header-secondary' ).hide();
             }
 
-            var msStyle = "", msStyle1 = "";
-
-            if (options.frozenColumn > -1){
-                msStyle = "width:100%;outline:0;position:relative;overflow-x: scroll; overflow-y: hidden;"
-                msStyle1 = "width:100%;overflow-x:scroll;overflow-y:auto;outline:0;position:relative;overflow-y:auto;";
-            } else {
-                // with autoHeight, we can set the mainscroller's y-overflow to auto, since the scroll bar will not appear
-                msStyle = "width:100%;overflow-x:auto;outline:0;position:relative;overflow-y:auto;"
-            }
-
             // Append the viewport containers
-            $viewportL = $("<div class='slick-viewport slick-viewport-left' tabIndex='0' hideFocus style='" + msStyle + "'>").appendTo($paneTopL);
-            $viewportR = $("<div class='slick-viewport slick-viewport-right' tabIndex='0' hideFocus style='" + msStyle1 + "'>").appendTo($paneTopR);
+            $viewportTopL = $("<div class='slick-viewport slick-viewport-left' tabIndex='0' hideFocus>")
+                .appendTo( $paneTopL );
+
+            $viewportTopR = $("<div class='slick-viewport slick-viewport-right' tabIndex='0' hideFocus'>")
+                .appendTo($paneTopR);
+
+            $viewportBottomL = $("<div class='slick-viewport slick-viewport-bottom-left' tabIndex='0' hideFocus>")
+                .appendTo($paneBottomL);
+
+            $viewportBottomR = $("<div class='slick-viewport slick-viewport-bottom-right' tabIndex='0' hideFocus>")
+                .appendTo($paneBottomR);
 
             // Cache the viewports
             $viewport = $( '.slick-viewport' );
 
             // Append the canvas containers
-            $canvasL = $("<div class='grid-canvas grid-canvas-left' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($viewportL);
-            $canvasR = $("<div class='grid-canvas grid-canvas-right' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($viewportR);
+            $canvasTopL = $("<div class='grid-canvas grid-canvas-left' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($viewportTopL);
+            $canvasTopR = $("<div class='grid-canvas grid-canvas-right' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($viewportTopR);
+            $canvasBottomL = $("<div class='grid-canvas grid-canvas-bottom-left' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($viewportBottomL);
+            $canvasBottomR = $("<div class='grid-canvas grid-canvas-bottom-right' tabIndex='0' hideFocus style='overflow:hidden' />").appendTo($viewportBottomR);
 
             // Cache the canvases
             $canvas = $( '.grid-canvas' );
@@ -467,20 +487,13 @@ if (!jQuery.fn.drag) {
             setupColumnSort();
             setupDragEvents();
             createCssRules();
-
-
-            if (options.frozenColumn > -1){
-                totalFrozenWidth = getWidthSplittedCanvas().widthFixed;
-                $headerContainerL.width(totalFrozenWidth);
-                $secondHeaderContainerL.width(totalFrozenWidth);
-                $viewportL.width(totalFrozenWidth);
-                $paneTopR.css("left", totalFrozenWidth);
-            }
-
             resizeAndRender();
 
             bindAncestorScrollEvents();
-            $viewport.bind("scroll.slickgrid", handleScroll);
+            //$viewport.bind("scroll.slickgrid", handleScroll);
+
+            $( '.slick-pane' ).bind("scroll.slickgrid", handleScroll);
+
             $container.bind("resize.slickgrid", resizeAndRender);
 
             $headers.bind({
@@ -495,6 +508,89 @@ if (!jQuery.fn.drag) {
                 "contextmenu.slickgrid": handleContextMenu,
                 "mouseover.slickgrid": handleHover
             });
+        }
+
+        function setPaneOverflow() {
+            $paneTopL
+                .css({
+                     'overflow-x':
+                        ( options.frozenColumn > -1 )
+                            ? ( options.frozenRow > -1 )
+                                ? 'hidden'
+                                : 'hidden'
+                            : ( options.frozenRow > -1 )
+                                ? 'hidden'
+                                : 'auto'
+                    ,'overflow-y':
+                        ( options.frozenColumn > -1 )
+                            ? ( options.frozenRow > -1 )
+                                ? 'hidden'
+                                : 'hidden'
+                            : ( options.frozenRow > -1 )
+                                ? 'scroll'
+                                : 'auto'
+                    ,'width': '100%'
+                });
+
+            $paneTopR
+                .css({
+                     'overflow-x':
+                        ( options.frozenColumn > -1 )
+                            ? ( options.frozenRow > -1 )
+                                ? 'hidden'
+                                : 'hidden'
+                            : ( options.frozenRow > -1 )
+                                ? 'hidden'
+                                : 'auto'
+                    ,'overflow-y':
+                        ( options.frozenColumn > -1 )
+                            ? ( options.frozenRow > -1 )
+                                ? 'scroll'
+                                : 'hidden'
+                            : ( options.frozenRow > -1 )
+                                ? 'scroll'
+                                : 'auto'
+                });
+
+            $paneBottomL
+                .css({
+                     'overflow-x':
+                        ( options.frozenColumn > -1 )
+                            ? ( options.frozenRow > -1 )
+                                ? 'scroll'
+                                : 'auto'
+                            : ( options.frozenRow > -1 )
+                                ? 'auto'
+                                : 'auto'
+                    ,'overflow-y':
+                        ( options.frozenColumn > -1 )
+                            ? ( options.frozenRow > -1 )
+                                ? 'hidden'
+                                : 'hidden'
+                            : ( options.frozenRow > -1 )
+                                ? 'scroll'
+                                : 'auto'
+                });
+
+            $paneBottomR
+                .css({
+                     'overflow-x':
+                        ( options.frozenColumn > -1 )
+                            ? ( options.frozenRow > -1 )
+                                ? 'auto'
+                                : 'auto'
+                            : ( options.frozenRow > -1 )
+                                ? 'auto'
+                                : 'auto'
+                    ,'overflow-y':
+                        ( options.frozenColumn > -1 )
+                            ? ( options.frozenRow > -1 )
+                                ? 'auto'
+                                : 'auto'
+                            : ( options.frozenRow > -1 )
+                                ? 'auto'
+                                : 'auto'
+                });
         }
 
         function measureScrollbar() {
@@ -512,7 +608,7 @@ if (!jQuery.fn.drag) {
         }
 
         function setCanvasWidth(width) {
-            $canvas.width(width);
+            //$canvas.width(width);
             viewportHasHScroll = (width > viewportW - scrollbarDimensions.width);
         }
 
@@ -551,7 +647,8 @@ if (!jQuery.fn.drag) {
             var div = $("<div style='display:none' />").appendTo(document.body);
 
             while (supportedHeight <= testUpTo) {
-                div.css("height", supportedHeight + increment);
+                //div.css("height", supportedHeight + increment);
+                div.height( supportedHeight + increment );
                 if (div.height() !== supportedHeight + increment)
                     break;
                 else
@@ -564,10 +661,10 @@ if (!jQuery.fn.drag) {
 
         // TODO:  this is static.  need to handle page mutation.
         function bindAncestorScrollEvents() {
-            var elem = $canvasL[0];
+            var elem = ( options.frozenRow > -1 ) ? $canvasBottomL[0] : $canvasTopL[0];
             while ((elem = elem.parentNode) != document.body) {
                 // bind to scroll containers only
-                if (elem == $viewportL[0] || elem.scrollWidth != elem.clientWidth || elem.scrollHeight != elem.clientHeight)
+                if (elem == $viewportTopL[0] || elem.scrollWidth != elem.clientWidth || elem.scrollHeight != elem.clientHeight)
                     $(elem).bind("scroll.slickgrid", handleCurrentCellPositionChange);
             }
         }
@@ -898,7 +995,8 @@ if (!jQuery.fn.drag) {
                             .css("position", "absolute")
                             .css("zIndex", "99999")
                             .css("width", $(this).innerWidth())
-                            .css("height", options.rowHeight*selectedRows.length)
+                            //.css("height", options.rowHeight*selectedRows.length)
+                            .height( options.rowHeight*selectedRows.length )
                             .appendTo($viewport);
 
                         dd.guide = $("<div class='slick-reorder-guide'/>")
@@ -1193,20 +1291,27 @@ if (!jQuery.fn.drag) {
 
         function setColumns(columnDefinitions) {
             columns = columnDefinitions;
+            
+            if ( options.frozenColumn > -1 ) {
+                $paneTopR.show();
+            } else {
+                $paneTopR.hide();
+                $paneBottomR.hide();
+            }
+
+            if ( options.frozenRow > -1 ) {
+                $paneBottomR.show();
+            } else {
+                $paneBottomL.hide();
+                $paneBottomR.hide();
+            }
+
+            setPaneOverflow();
 
             removeAllRows();
             createColumnHeaders();
             removeCssRules();
             createCssRules();
-
-            if (options.frozenColumn > -1){
-                totalFrozenWidth = getWidthSplittedCanvas().widthFixed;
-                $headerContainerL.width(totalFrozenWidth);
-                $secondHeaderContainerL.width(totalFrozenWidth);
-                $viewportL.width(totalFrozenWidth);
-                $paneTopR.css("left", totalFrozenWidth);
-            }
-
             resizeAndRender();
             handleScroll();
         }
@@ -1228,7 +1333,7 @@ if (!jQuery.fn.drag) {
 
             options = $.extend(options,args);
 
-            render();
+            setColumns( columns );
         }
 
         function setData(newData,scrollToTop) {
@@ -1280,7 +1385,11 @@ if (!jQuery.fn.drag) {
 
                 lastRenderedScrollTop = scrollTop = prevScrollTop = newScrollTop;
 
-                $viewport.scrollTop( scrollTop );
+                if ( options.frozenRow > -1 ) {
+                    $viewportBottomL.scrollTop( scrollTop );
+                } else {
+                    $viewport.scrollTop( scrollTop );
+                }
 
                 if (self.onViewportChanged) {
                     self.onViewportChanged();
@@ -1302,7 +1411,7 @@ if (!jQuery.fn.drag) {
             return column.editor || (options.editorFactory && options.editorFactory.getEditor(column));
         }
 
-        function appendRowHtml(stringArray,row) {
+        function appendRowHtml(stringArray, row) {
             var d = gridDataGetItem(row);
             var dataLoading = row < gridDataGetLength() && !d;
             var cellCss;
@@ -1316,7 +1425,9 @@ if (!jQuery.fn.drag) {
                 css += ' ' + options.rowCssClasses(d);
             }
 
-            stringArray.push("<div class='ui-widget-content " + css + "' row='" + row + "' style='top:" + (options.rowHeight*row-offset) + "px'>");
+            var frozenOffset = ( options.frozenRow > -1 && row >= options.frozenRow ) ?  options.rowHeight * options.frozenRow : 0;
+
+            stringArray.push("<div class='ui-widget-content " + css + "' row='" + row + "' style='top:" + (options.rowHeight * row - offset - frozenOffset) + "px'>");
 
             for (var i=0, cols=columns.length; i<cols; i++) {
                 var m = columns[i];
@@ -1340,7 +1451,7 @@ if (!jQuery.fn.drag) {
 
         function cleanupRows(rangeToKeep) {
             for (var i in rowsCache) {
-                if (((i = parseInt(i, 10)) !== currentRow) && (i < rangeToKeep.top || i > rangeToKeep.bottom)) {
+                if (((i = parseInt(i, 10)) !== currentRow) && (i < rangeToKeep.top || i > rangeToKeep.bottom) && ( options.frozenRow > -1 && i >= options.frozenRow )) {
                     removeRowFromCache(i);
                 }
             }
@@ -1444,14 +1555,18 @@ if (!jQuery.fn.drag) {
 
         function resizeCanvas() {
             var newViewportH = options.rowHeight * (gridDataGetLength() + (options.enableAddRow ? 1 : 0) + (options.leaveSpaceForNewRows? numVisibleRows - 1 : 0));
+
             if (options.autoHeight) { // use computed height to set both canvas _and_ divMainScroller, effectively hiding scroll bars.
                 $viewport.height(newViewportH);
-            }
-            else {
-                $viewport.height(
-                    $container.innerHeight() -
-                    $headerContainerL.outerHeight() -
-                    (options.showSecondaryHeaderRow ? $secondHeaderContainerL.outerHeight() : 0));
+            } else {
+                if ( options.frozenRow > -1 ) {
+
+                } else {
+                    $viewport.height(
+                        $container.innerHeight() -
+                        $headerContainerL.outerHeight() -
+                        (options.showSecondaryHeaderRow ? $secondHeaderContainerL.outerHeight() : 0));
+                }
             }
 
             // FIXME.. although
@@ -1459,7 +1574,9 @@ if (!jQuery.fn.drag) {
             // so it appears it gives no problem
 
             viewportW = $viewport.innerWidth();
-            viewportH = $viewport.innerHeight();
+
+            viewportH = ( options.frozenRow > -1 ) ? $viewportBottomL.innerHeight() : $viewportTopL.innerHeight();
+
             numVisibleRows = Math.ceil(viewportH / options.rowHeight);
 
             var totalWidth = 0;
@@ -1470,10 +1587,74 @@ if (!jQuery.fn.drag) {
             setCanvasWidth(totalWidth);
 
             var o = getWidthSplittedCanvas();
+            var paneW = $container.width() - o.widthFixed;
 
-            $canvasL.width( o.widthFixed );
-            $canvasR.width( o.widthScrolled );
-            $paneTopR.width( $container.width() - o.widthFixed );
+            totalFrozenHeight = ( options.frozenRow * options.rowHeight || options.rowHeight ) + $headerContainerL.outerHeight();
+
+            $paneTopL.width( o.widthFixed );
+            $headerContainerL.width( o.widthFixed );
+            $secondHeaderContainerL.width( o.widthFixed );
+            $canvasTopL.width( o.widthFixed );
+
+            if ( options.frozenColumn > -1 ) {
+                $paneTopR.width( paneW );
+
+                $headerContainerR.width( o.widthScrolled );
+                $secondHeaderContainerR.width( o.widthScrolled );
+                $canvasTopR.width( o.widthScrolled );
+
+                if ( options.frozenRow > -1 ) {
+                    $canvasBottomL.width( o.widthFixed );
+
+                    // Position the right panes next to the left panes
+                    $paneTopR.css("left", o.widthFixed );
+
+                    $paneBottomR.css({
+                         "top": totalFrozenHeight
+                        ,"left": o.widthFixed
+                    });
+
+                    $paneBottomL.css({
+                        "top": totalFrozenHeight
+                    });
+                }
+            } else {
+                $paneTopL.css({
+                     'width': 'auto'
+                    ,'overflow-y': 'auto'
+                })
+
+                $paneTopR.hide();
+            }
+
+            if ( options.frozenRow > -1 ) {
+                $canvasTopL.height( options.rowHeight * options.frozenRow || options.rowHeight );
+
+                $canvasBottomL.width( o.widthFixed );
+                $canvasBottomR.width( o.widthScrolled );
+
+                $paneBottomR.width( paneW );
+
+                // Resize the top viewports to the fixed height
+                $paneTopL.height(totalFrozenHeight);
+                $paneBottomR.width( paneW );
+
+                $viewportTopR.height(options.frozenRow * options.rowHeight || options.rowHeight);
+
+                var lowerPaneH = $container.innerHeight() -
+                                 (options.showSecondaryHeaderRow ? $secondHeaderContainerL.outerHeight() : 0) -
+                                 totalFrozenHeight;
+
+                $paneBottomL.height(lowerPaneH);
+                $paneBottomR.height(lowerPaneH);
+
+                if ( options.frozenColumn > -1 ) {
+                    totalFrozenWidth = getWidthSplittedCanvas().widthScrolled;
+
+                    $paneBottomR.css("top", totalFrozenHeight );
+                    $canvasBottomR.width( totalFrozenWidth );
+                }
+            }
 
             updateRowCount();
             render();
@@ -1515,21 +1696,32 @@ if (!jQuery.fn.drag) {
             }
 
             if (h !== oldH) {
-                $canvas.css("height",h);
+                if ( options.frozenRow > -1 ) {
+                    //$canvasTopL.css("height",options.rowHeight * options.frozenRow || options.rowHeight);
+                    //$canvasTopL.height( options.rowHeight * options.frozenRow || options.rowHeight );
+                    //$canvasBottomL.css("height",h);
+                    $canvasBottomL.height( h );
+                    $canvasBottomR.height( h );
+                } else {
+                    //$canvas.css("height",h);
+                    $canvas.height( h );
+                }
 
-                scrollTop = $viewportL.scrollTop();
+                if ( options.frozenRow > -1 ) {
+                    scrollTop = $viewportBottomL.scrollTop();
+                } else {
+                    scrollTop = $viewportTopL.scrollTop();
+                }
             }
 
             var oldScrollTopInRange = (scrollTop + offset <= th - viewportH);
 
             if (th == 0 || scrollTop == 0) {
                 page = offset = 0;
-            }
-            else if (oldScrollTopInRange) {
+            } else if (oldScrollTopInRange) {
                 // maintain virtual position
                 scrollTo(scrollTop+offset);
-            }
-            else {
+            } else {
                 // scroll to bottom
                 scrollTo(th-viewportH);
             }
@@ -1575,7 +1767,6 @@ if (!jQuery.fn.drag) {
 
         function renderRows(range) {
             var i, l,
-                parentNode = $canvasL,
                 rowsBefore = renderedRows,
                 stringArray = [],
                 stringArrayRight = [],
@@ -1603,15 +1794,21 @@ if (!jQuery.fn.drag) {
                 xRight.innerHTML = stringArrayRight.join("");
 
                 for (i = 0, l = x.childNodes.length; i < l; i++) {
-                    rowsCache[rows[i]] = $().add($(x.firstChild).appendTo($canvasL))
-                                            .add($(xRight.firstChild).appendTo($canvasR));
+                    if ( rows[i] < options.frozenRow ) {
+                        rowsCache[rows[i]] = $().add($(x.firstChild).appendTo($canvasTopL))
+                                            .add($(xRight.firstChild).appendTo($canvasTopR));
+                    } else {
+                        rowsCache[rows[i]] = $().add($(x.firstChild).appendTo($canvasBottomL))
+                                            .add($(xRight.firstChild).appendTo($canvasBottomR));
+                    }
                 }
             } else {
                 for (i = range.top; i <= range.bottom; i++) {
                     if (rowsCache[i]) { continue; }
                     renderedRows++;
                     rows.push(i);
-                    appendRowHtml(stringArray,i);
+
+                    appendRowHtml( stringArray, i );
                     if (currentCellNode && currentRow === i)
                         needToReselectCell = true;
                     counter_rows_rendered++;
@@ -1621,7 +1818,11 @@ if (!jQuery.fn.drag) {
                 x.innerHTML = stringArray.join("");
 
                 for (i = 0, l = x.childNodes.length; i < l; i++) {
-                    rowsCache[rows[i]] = $().add($(x.firstChild).appendTo($canvasL));
+                    if ( rows[i] < options.frozenRow ) {
+                        rowsCache[rows[i]] = $().add($(x.firstChild).appendTo($canvasTopL));
+                    } else {
+                        rowsCache[rows[i]] = $().add($(x.firstChild).appendTo($canvasBottomL));
+                    }
                 }
             }
 
@@ -1652,8 +1853,10 @@ if (!jQuery.fn.drag) {
                 css += ' ' + options.rowCssClasses(d);
             }
 
-            stringArray.push("<div class='ui-widget-content " + css + "' row='" + row + "' style='top:" + (options.rowHeight*row) + "px'>");
-            stringArrayRight.push("<div class='ui-widget-content " + css + "' row='" + row + "' style='top:" + (options.rowHeight*row) + "px'>");
+            var frozenOffset = ( options.frozenRow > -1 && row >= options.frozenRow ) ?  options.rowHeight * options.frozenRow : 0;
+
+            stringArray.push("<div class='ui-widget-content " + css + "' row='" + row + "' style='top:" + (options.rowHeight*row - frozenOffset) + "px'>");
+            stringArrayRight.push("<div class='ui-widget-content " + css + "' row='" + row + "' style='top:" + (options.rowHeight*row - frozenOffset) + "px'>");
 
             // left row
             for (var i=0, cols=options.frozenColumn + 1; i<cols; i++) {
@@ -1742,8 +1945,23 @@ if (!jQuery.fn.drag) {
         }
 
         function handleScroll() {
-            var $viewportScrollContainer = (options.frozenColumn > -1 ) ? $viewportR : $viewportL;
-            var $headerScrollContainer = (options.frozenColumn > -1 ) ? $headerContainerR : $headerContainerL;
+            var $viewportScrollContainer;
+
+            if ( options.frozenColumn > -1 ) {
+                if ( options.frozenRow > -1 ) {
+                    $viewportScrollContainer = $paneBottomR;
+                } else {
+                    $viewportScrollContainer = $paneTopR;
+                }
+            } else {
+                if ( options.frozenRow > -1 ) {
+                    $viewportScrollContainer = $paneBottomL;
+                } else {
+                    $viewportScrollContainer = $paneTopL;
+                }
+            }
+
+            var $headerScrollContainer = ( options.frozenColumn > -1 ) ? $headerContainerR : $headerContainerL;
             var $secondHeaderScrollContainer = (options.frozenColumn > -1 ) ? $secondHeaderContainerR : $secondHeaderContainerL;
 
             scrollTop = $viewportScrollContainer.scrollTop();
@@ -1755,8 +1973,12 @@ if (!jQuery.fn.drag) {
             if (scrollLeft !== prevScrollLeft) {
                 prevScrollLeft = scrollLeft;
 
-                $headerScrollContainer.scrollLeft( scrollLeft );
-                $secondHeaderScrollContainer.scrollLeft( scrollLeft );
+                if ( options.frozenRow > -1 ) {
+                    $paneTopR.scrollLeft( scrollLeft );
+                } else {
+                    $headerScrollContainer.scrollLeft( scrollLeft );
+                    $secondHeaderScrollContainer.scrollLeft( scrollLeft );
+                }
             }
 
             if (!scrollDist) return;
@@ -1775,8 +1997,10 @@ if (!jQuery.fn.drag) {
                     removeAllRows();
             }
 
-            if (options.frozenColumn > -1 ){
-                $viewportL.scrollTop( scrollTop );
+            if ( ( options.frozenColumn > -1 ) && ( options.frozenRow == -1 ) ) {
+                $paneTopL.scrollTop( scrollTop );
+            } else if ( options.frozenRow > -1 ) {
+                $paneBottomL.scrollTop( scrollTop );
             }
 
             if (h_render)
@@ -2155,8 +2379,24 @@ if (!jQuery.fn.drag) {
         }
 
         function focusOnCurrentCell() {
-            var $scrollContainer = (options.frozenColumn > -1 ) ? $viewportR : $viewportL;
-            var scrollLeft = $scrollContainer.scrollLeft();
+            //var $scrollContainer = (options.frozenColumn > -1 ) ? $viewportTopR : $viewportTopL;
+            var $viewportScrollContainer;
+
+            if ( options.frozenColumn > -1 ) {
+                if ( options.frozenRow > -1 ) {
+                    $viewportScrollContainer = $viewportBottomR;
+                } else {
+                    $viewportScrollContainer = $viewportTopR;
+                }
+            } else {
+                if ( options.frozenRow > -1 ) {
+                    $viewportScrollContainer = $viewportBottomL;
+                } else {
+                    $viewportScrollContainer = $viewportTopL;
+                }
+            }
+
+            var scrollLeft = $viewportScrollContainer.scrollLeft();
 
             // lazily enable the cell to receive keyboard focus
             $(currentCellNode)
@@ -2176,12 +2416,12 @@ if (!jQuery.fn.drag) {
 
             var left = $(currentCellNode).position().left,
                 right = left + $(currentCellNode).outerWidth(),
-                scrollRight = scrollLeft + $scrollContainer.width();
+                scrollRight = scrollLeft + $viewportScrollContainer.width();
 
             if (left < scrollLeft)
                 $viewport.scrollLeft(left);
             else if (right > scrollRight) {
-                $scrollContainer.scrollLeft(Math.min(left, right - $viewportR[0].clientWidth));
+                $viewportScrollContainer.scrollLeft(Math.min(left, right - $viewportTopR[0].clientWidth));
             }
         }
 
@@ -2438,17 +2678,32 @@ if (!jQuery.fn.drag) {
             var rowAtTop = row * options.rowHeight;
             var rowAtBottom = (row + 1) * options.rowHeight - viewportH + (viewportHasHScroll?scrollbarDimensions.height:0);
 
-            var $scrollContainer = (options.frozenColumn > -1 ) ? $viewportR : $viewportR;
-            var scrollLeft = $scrollContainer.scrollLeft();
+            //var $scrollContainer = (options.frozenColumn > -1 ) ? $viewportTopR : $viewportTopL;
+
+            var $viewportScrollContainer;
+
+            if ( options.frozenColumn > -1 ) {
+                if ( options.frozenRow > -1 ) {
+                    $viewportScrollContainer = $viewportBottomR;
+                } else {
+                    $viewportScrollContainer = $viewportTopR;
+                }
+            } else {
+                if ( options.frozenRow > -1 ) {
+                    $viewportScrollContainer = $viewportBottomL;
+                } else {
+                    $viewportScrollContainer = $viewportTopL;
+                }
+            }
+
+            var scrollLeft = $viewportScrollContainer.scrollLeft();
 
             // need to page down?
             if ((row + 1) * options.rowHeight > scrollTop + viewportH + offset) {
                 scrollTo(doPaging ? rowAtTop : rowAtBottom);
                 render();
-            }
-
-            // or page up?
-            else if (row * options.rowHeight < scrollTop + offset) {
+            } else if (row * options.rowHeight < scrollTop + offset) {
+                // or page up?
                 scrollTo(doPaging ? rowAtBottom : rowAtTop);
                 render();
             }

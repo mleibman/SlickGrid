@@ -73,6 +73,7 @@ classes should alter those!
 .grid-canvas {
 	position: relative;
 	outline: 0;
+	height: 100%;
 }
 
 .slick-row.ui-widget-content, .slick-row.ui-state-active {
@@ -94,7 +95,7 @@ classes should alter those!
 	z-index: 1;
 	padding: 1px 2px 2px 1px;
     margin: 0;
-    
+
 	white-space: nowrap;
 
 	cursor: default;
@@ -150,4 +151,14 @@ classes should alter those!
     -webkit-box-shadow: 0px 0px 10px black;
     -moz-box-shadow: 0px 0px 10px black;
     box-shadow: 0px 0px 10px black;
+}
+
+.slick-viewport {
+	position: relative;
+	outline: 0;
+}
+
+.slick-pane {
+	position: absolute;
+	outline: 0;
 }
