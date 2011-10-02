@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-		<title>SlickGrid example: Frozen Rows</title>
+		<title>SlickGrid example: Frozen Rows & Columns</title>
 		<link rel="stylesheet" href="../slick.grid.css" type="text/css" media="screen" charset="utf-8" />
 		<link rel="stylesheet" href="../slick.pager.css" type="text/css" media="screen" charset="utf-8" />
         <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" media="screen" charset="utf-8" />
@@ -56,6 +56,9 @@
 				<label style="width:200px;float:left">Frozen Row:</label>
 				<input type=text id="frozenRow" style="width:100px;" value=5>
 				<br/><br/>
+				<label style="width:200px;float:left">Frozen Column:</label>
+				<input type=text id="frozenColumn" style="width:100px;" value=-1>
+				<br/><br/
 				<button id="btnSelectRows">Select first 10 rows</button>
 			</div>
 		</div>
@@ -126,6 +129,7 @@
             ,secondaryHeaderRowHeight: 25
 			,autoEdit: false
 			,frozenRow: 5
+			,frozenColumn: 3
 		};
 
 		var sortcol = "title";
@@ -356,6 +360,16 @@
 
 			$( '#frozenRow' ).keyup(function() {
 				grid.setOptions({ 'frozenRow': parseInt( $(this).val() ) });
+			});
+
+			$( '#frozenColumn' ).keyup(function() {
+				var val = -1;
+
+				if ( $(this).val() != '' ) {
+					val = parseInt( $(this).val() );
+				}
+
+				grid.setOptions({ 'frozenColumn': val });
 			});
 
 			// initialize the model after all the events have been hooked up
