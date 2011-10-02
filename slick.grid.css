@@ -156,9 +156,12 @@ classes should alter those!
 .slick-viewport {
 	position: relative;
 	outline: 0;
+	width: 100%;
 }
 
 .slick-pane {
 	position: absolute;
 	outline: 0;
+	overflow: hidden;
+	width: 100%;
 }
