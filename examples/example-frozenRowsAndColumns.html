@@ -101,6 +101,11 @@
 		<script language="JavaScript" src="../slick.columnpicker.js"></script>
 
 		<script>
+		$(function() {
+			$( '#frozenRow' ).val( options.frozenRow );
+			$( '#frozenColumn' ).val( options.frozenColumn );
+		});
+
 		var dataView;
 		var grid;
 		var data = [];
