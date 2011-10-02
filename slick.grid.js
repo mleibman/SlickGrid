@@ -1374,12 +1374,12 @@ if (!jQuery.fn.drag) {
 
         function showSecondaryHeaderRow() {
             options.showSecondaryHeaderRow = true;
-            $( '.slick-header-secondary' ).slideDown("fast", resizeCanvas);
+            $secondaryHeaders.slideDown("fast", resizeCanvas);
         }
 
         function hideSecondaryHeaderRow() {
             options.showSecondaryHeaderRow = false;
-            $( '.slick-header-secondary' ).slideUp("fast", resizeCanvas);
+            $secondaryHeaders.slideUp("fast", resizeCanvas);
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1587,10 +1587,6 @@ if (!jQuery.fn.drag) {
                     (options.showSecondaryHeaderRow ? $secondHeaderContainerL.outerHeight() : 0)
                 );
             }
-
-            // FIXME.. although
-            // when read, resizeCanvas() method is always invoked
-            // so it appears it gives no problem
 
             viewportW = $viewportScrollContainer.innerWidth();
             viewportH = $viewportScrollContainer.innerHeight();
@@ -2397,6 +2393,12 @@ if (!jQuery.fn.drag) {
                 currentCellNode.setActive();
             else
                 currentCellNode.focus();
+
+            if ( options.frozenRow > -1 ) {
+                if ( options.frozenColumn > -1 ) {
+                    $viewportBottomR.scrollTop( $viewportBottomL.scrollTop() );
+                }
+            }
 
             // Don't scroll the right viewport if the current cell is in the left viewport
             if ( options.frozenColumn > -1 ) {
