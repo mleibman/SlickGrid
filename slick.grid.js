@@ -1641,12 +1641,18 @@ if (!jQuery.fn.drag) {
                     ,'overflow-y': 'hidden'
                 })
 
+                $paneBottomL.css({
+                     "top": totalFrozenHeight
+                    ,'width': '100%'
+                });
+
                 $paneTopR.hide();
             }
 
             if ( options.frozenRow > -1 ) {
                 $canvasTopL.height( options.rowHeight * options.frozenRow || options.rowHeight );
 
+                $canvasTopL.width( o.widthFixed );
                 $canvasBottomL.width( o.widthFixed );
                 $canvasBottomR.width( o.widthScrolled );
 
@@ -1668,7 +1674,7 @@ if (!jQuery.fn.drag) {
                 if ( options.frozenColumn > -1 ) {
                     totalFrozenWidth = getWidthSplittedCanvas().widthScrolled;
 
-                    $paneBottomR.css("top", totalFrozenHeight );
+                    $paneBottomR.css( "top", totalFrozenHeight );
                     $canvasBottomR.width( totalFrozenWidth );
                 }
             }
@@ -1827,7 +1833,7 @@ if (!jQuery.fn.drag) {
                 x.innerHTML = stringArray.join("");
 
                 for (i = 0, l = x.childNodes.length; i < l; i++) {
-                    if ( ( options.frozenRow > -1 ) && ( rows[i] > options.frozenRow ) ) {
+                    if ( ( options.frozenRow > -1 ) && ( rows[i] >= options.frozenRow ) ) {
                         rowsCache[rows[i]] = $().add($(x.firstChild).appendTo($canvasBottomL));
                     } else {
                         rowsCache[rows[i]] = $().add($(x.firstChild).appendTo($canvasTopL));
@@ -1966,8 +1972,14 @@ if (!jQuery.fn.drag) {
             if (scrollLeft !== prevScrollLeft) {
                 prevScrollLeft = scrollLeft;
 
-                if ( options.frozenRow > -1 ) {
-                    $viewportTopR.scrollLeft( scrollLeft );
+                if ( options.frozenColumn > -1 ) {
+                    if ( options.frozenRow > -1 ) {
+                        $viewportTopR.scrollLeft( scrollLeft );
+                    }
+                } else {
+                    if ( options.frozenRow > -1 ) {
+                        $viewportTopL.scrollLeft( scrollLeft );
+                    }
                 }
 
                 $headerScrollContainer.scrollLeft( scrollLeft );
