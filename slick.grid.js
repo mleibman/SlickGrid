@@ -1369,7 +1369,7 @@ if (!jQuery.fn.drag) {
         }
 
         function getSecondaryHeaderRow() {
-            return $secondaryHeaders[0];
+            return $secondaryHeaders;
         }
 
         function showSecondaryHeaderRow() {
