@@ -1307,16 +1307,23 @@ if (!jQuery.fn.drag) {
 
             if ( options.frozenColumn > -1 ) {
                 $paneTopR.show();
+
+                if ( options.frozenRow > -1 ) {
+                    $paneBottomR.show();
+                } else {
+                    $paneBottomR.hide();
+                    $paneBottomL.hide();
+                }
             } else {
                 $paneTopR.hide();
                 $paneBottomR.hide();
-            }
 
-            if ( options.frozenRow > -1 ) {
-                $paneBottomR.show();
-            } else {
-                $paneBottomL.hide();
-                $paneBottomR.hide();
+                if ( options.frozenRow > -1 ) {
+                    $paneBottomL.show();
+                } else {
+                    $paneBottomR.hide();
+                    $paneBottomL.hide();
+                }
             }
 
             setOverflow();
@@ -1605,11 +1612,11 @@ if (!jQuery.fn.drag) {
 
             totalFrozenHeight = ( options.frozenRow * options.rowHeight || options.rowHeight ) + $headerContainerL.outerHeight();
 
-            if ( options.frozenColumn > -1 ) {
-                $headerContainerL.width( o.widthFixed );
-                $secondHeaderContainerL.width( o.widthFixed );
-                $canvasTopL.width( o.widthFixed );
+            $headerContainerL.width( o.widthFixed );
+            $secondHeaderContainerL.width( o.widthFixed );
+            $canvasTopL.width( o.widthFixed );
 
+            if ( options.frozenColumn > -1 ) {
                 $paneTopR.width( paneW );
 
                 $headerContainerR.width( o.widthScrolled );
@@ -1633,16 +1640,13 @@ if (!jQuery.fn.drag) {
                 }
             } else {
                 $paneTopL.css({
-                     'width': '100%'
-                    ,'overflow-y': 'hidden'
+                    'width': '100%'
                 })
 
                 $paneBottomL.css({
                      "top": totalFrozenHeight
                     ,'width': '100%'
                 });
-
-                $paneTopR.hide();
             }
 
             if ( options.frozenRow > -1 ) {
@@ -1652,13 +1656,11 @@ if (!jQuery.fn.drag) {
                 $canvasBottomL.width( o.widthFixed );
                 $canvasBottomR.width( o.widthScrolled );
 
-                $paneBottomR.width( paneW );
-
                 // Resize the top viewports to the fixed height
                 $viewportTopL.height(totalFrozenHeight);
-                $viewportBottomR.width( paneW );
+                $viewportTopR.height(totalFrozenHeight);
 
-                $viewportTopR.height(options.frozenRow * options.rowHeight || options.rowHeight);
+                $viewportBottomR.width( paneW );
 
                 var lowerPaneH = $container.innerHeight() -
                                  (options.showSecondaryHeaderRow ? $secondHeaderContainerL.outerHeight() : 0) -
@@ -1673,6 +1675,8 @@ if (!jQuery.fn.drag) {
                     $paneBottomR.css( "top", totalFrozenHeight );
                     $canvasBottomR.width( totalFrozenWidth );
                 }
+            } else {
+                //$canvasTopL.height( options.rowHeight * options.frozenRow || options.rowHeight );
             }
 
             updateRowCount();
@@ -1689,7 +1693,7 @@ if (!jQuery.fn.drag) {
 
         function updateRowCount() {
             var newRowCount = gridDataGetLength() + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0);
-            var oldH = h;
+            var oldH = ( options.frozenRow > -1 ) ? $canvasBottomL.height() : $canvasTopL.height();
 
             // remove the rows that are now outside of the data range
             // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
@@ -1719,7 +1723,11 @@ if (!jQuery.fn.drag) {
                     $canvasBottomL.height( h );
                     $canvasBottomR.height( h );
                 } else {
-                    $canvas.height( h );
+                    $canvasTopL.height( h );
+                }
+
+                if ( options.frozenColumn > -1 )  {
+                    $canvasTopR.height( h );
                 }
 
                 scrollTop = $viewportScrollContainer.scrollTop();
