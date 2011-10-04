@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+		<title>SlickGrid Model Benchmark</title>
+	</head>
+	<body>
+		<script language="JavaScript" src="../lib/firebugx.js"></script>
+		<script language="JavaScript" src="../lib/jquery-1.4.3.min.js"></script>
+		<script language="JavaScript" src="../slick.model.js"></script>
+
+		<script>
+
+		var filterparam = 0;
+
+		function filter(item) {
+			// simulate a more expensive filer
+			var matches = 0;
+			if (item.title.indexOf("ask") != -1) matches++;
+			for (var i=0; i<5; i++)
+				matches += Math.random();
+
+			return item.percentComplete >= filterparam;
+		}
+
+		var data = [];
+
+		for (var i=0; i<20000; i++) {
+			var d = (data[i] = {});
+
+			d["id"] = i;
+			d["title"] = "Task " + i;
+			d["percentComplete"] = i % 100;
+		}
+
+
+		var dv = new Slick.Data.DataView();
+		dv.beginUpdate();
+		dv.setItems(data);
+		dv.setFilter(filter);
+		//dv.setPagingOptions({pageSize:25});
+		dv.endUpdate();
+
+
+		var b = new Date();
+
+		console.time("refresh");
+
+		for (var i = 0; i <= 100; i+=2) {
+			filterparam = i;
+			dv.refresh();
+		}
+
+		console.timeEnd("refresh");
+
+		var a = new Date();
+		alert(a-b);
+
+
+		</script>
+
+	</body>
+</html>

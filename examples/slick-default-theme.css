@@ -1,0 +1,68 @@
+/*
+IMPORTANT:
+In order to preserve the uniform grid appearance, all cell styles need to have padding, margin and border sizes.
+No built-in (selected, editable, highlight, flashing, invalid, loading, :focus) or user-specified CSS
+classes should alter those!
+*/
+
+.slick-header-columns {
+    background: url('../images/header-columns-bg.gif') repeat-x center bottom;
+    border-bottom: 1px solid silver;
+}
+
+.slick-header-column {
+    background: url('../images/header-columns-bg.gif') repeat-x center bottom;
+    border-right: 1px solid silver;
+}
+
+.slick-header-column:hover, .slick-header-column-active {
+    background: white url('../images/header-columns-over-bg.gif') repeat-x center bottom;
+}
+
+.slick-row.ui-state-active {
+    background: #F5F7D7;
+}
+
+.slick-row {
+    position: absolute;
+    background: white;
+    border: 0px;
+    line-height: 20px;
+}
+
+.slick-row.selected {
+    z-index: 10;
+    background: #DFE8F6;
+}
+
+.slick-cell {
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.slick-cell.selected {
+    border-color: gray;
+    border-style: solid;
+}
+
+
+.slick-sortable-placeholder {
+    background: silver!important;
+}
+
+.slick-row[row$="1"], .slick-row[row$="3"], .slick-row[row$="5"], .slick-row[row$="7"],	.slick-row[row$="9"] {
+    background: #fafafa;
+}
+
+.slick-row.ui-state-active {
+    background: #F5F7D7;
+}
+
+.slick-row.loading {
+    opacity: 0.5;
+    filter: alpha(opacity=50);
+}
+
+.slick-cell.invalid {
+	border-color: red;
+}

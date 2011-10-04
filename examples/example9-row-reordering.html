@@ -1,0 +1,254 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+		<title>SlickGrid example 9: Row reordering</title>
+		<link rel="stylesheet" href="../slick.grid.css" type="text/css" media="screen" charset="utf-8" />
+        <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" media="screen" charset="utf-8" />
+		<link rel="stylesheet" href="examples.css" type="text/css" media="screen" charset="utf-8" />
+		<style>
+		.cell-title {
+			font-weight: bold;
+		}
+		.cell-effort-driven {
+			text-align: center;
+		}
+		.cell-reorder {
+			cursor: move;
+			background: url("../images/drag-handle.png") no-repeat center center;
+		}
+
+        .recycle-bin {
+            width: 120px;
+            border: 1px solid gray;
+            background: beige;
+            padding: 4px;
+            font-size: 12pt;
+            font-weight: bold;
+            color: black;
+            text-align: center;
+            -moz-border-radius: 10px;
+        }
+	</style>
+	</head>
+	<body>
+		<div style="width:600px;float:left;">
+			<div class="grid-header" style="width:100%">
+				<label>Santa's TODO list:</label>
+			</div>
+			<div id="myGrid" style="width:100%;height:500px;"></div>
+		</div>
+		<div class="options-panel" style="width:320px;margin-left:650px;">
+			<b>Tips:</b>
+			<hr/>
+			<div style="padding:6px;">
+				Click to select, Ctrl-click to toggle selection, Shift-click to select a range.<br/>
+				Drag one or more rows by the handle to reorder.<br/>
+                Drag one or more rows to the recycle bin to delete.
+
+                <br/>
+                <br/>
+                <div id="dropzone" class="recycle-bin">
+                    Recycle Bin
+                </div>
+			</div>
+		</div>
+
+		<script language="JavaScript" src="../lib/firebugx.js"></script>
+
+		<script language="JavaScript" src="../lib/jquery-1.6.4.min.js"></script>
+		<script language="JavaScript" src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
+		<script language="JavaScript" src="../lib/jquery.event.drag-2.0.min.js"></script>
+		<script language="JavaScript" src="../lib/jquery.event.drop-2.0.min.js"></script>
+
+		<script language="JavaScript" src="../slick.editors.js"></script>
+		<script language="JavaScript" src="../slick.grid.js"></script>
+
+		<script>
+		var grid;
+		var data = [];
+
+        var columns = [
+            {
+                id: "#",
+                name: "",
+                width: 40,
+                behavior: "selectAndMove",
+                unselectable: true,
+                resizable: false,
+                cssClass: "cell-reorder dnd"
+            },
+            {
+                id: "name",
+                name: "Name",
+                field: "name",
+                width: 500,
+                cssClass: "cell-title",
+                editor: TextCellEditor,
+                validator: requiredFieldValidator
+            },
+            {
+                id: "complete",
+                name: "Complete",
+                width: 60,
+                cssClass: "cell-effort-driven",
+                field: "complete",
+                cannotTriggerInsert: true,
+                formatter: BoolCellFormatter,
+                editor: YesNoCheckboxCellEditor
+            }
+        ];
+
+		var options = {
+			editable: true,
+			enableAddRow: true,
+			enableRowReordering: true,
+			enableCellNavigation: true,
+			forceFitColumns: true,
+            autoEdit: false
+		};
+
+		function requiredFieldValidator(value) {
+			if (value == null || value == undefined || !value.length)
+				return {valid:false, msg:"This is a required field"};
+			else
+				return {valid:true, msg:null};
+		}
+
+        function selectMultipleRows() {
+            if (!Slick.GlobalEditorLock.commitCurrentEdit()) { return; }
+            grid.setSelectedRows([0,1,2]);
+        }
+
+		$(function()
+		{
+			data = [
+				{ name: "Make a list", complete: true},
+				{ name: "Check it twice", complete: false},
+				{ name: "Find out who's naughty", complete: false},
+				{ name: "Find out who's nice", complete: false}
+			];
+
+			grid = new Slick.Grid($("#myGrid"), data, columns, options);
+
+            $("#myGrid")
+                .bind("draginit", function(e,dd) {
+                    var cell = grid.getCellFromEvent(e);
+                    if (!cell)
+                        return false;
+
+                    dd.row = cell.row;
+                    if (!data[dd.row])
+                        return false;
+
+                    if (Slick.GlobalEditorLock.isActive() && !Slick.GlobalEditorLock.cancelCurrentEdit())
+                        return false;
+                })
+                .bind("dragstart", function(e,dd) {
+                    var selectedRows = grid.getSelectedRows();
+
+                    if (!selectedRows.length || $.inArray(dd.row,selectedRows) == -1) {
+                        selectedRows = [dd.row];
+                        grid.setSelectedRows(selectedRows);
+                    }
+
+                    dd.rows = selectedRows;
+                    dd.count = selectedRows.length;
+
+                    var proxy = $("<span></span>")
+                        .css({
+                            position: "absolute",
+                            display: "inline-block",
+                            padding: "4px 10px",
+                            background: "#e0e0e0",
+                            border: "1px solid gray",
+                            "z-index": 99999,
+                            "-moz-border-radius": "8px",
+                            "-moz-box-shadow": "2px 2px 6px silver"
+                            })
+                        .text("Drag to Recycle Bin to delete " + dd.count + " selected row(s)")
+                        .appendTo("body");
+
+                    dd.helper = proxy;
+
+                    $(dd.available).css("background","pink");
+
+                    return proxy;
+                })
+                .bind("drag", function(e,dd) {
+                    dd.helper.css({top: e.pageY + 5, left: e.pageX + 5});
+                })
+                .bind("dragend", function(e,dd) {
+                    dd.helper.remove();
+                    $(dd.available).css("background","beige");
+                });
+
+
+            $("#dropzone")
+                .bind("dropstart", function(e,dd) {
+                    $(this).css("background","yellow");
+                })
+                .bind("dropend", function(e,dd) {
+                    $(dd.available).css("background","pink");
+                })
+                .bind("drop", function(e,dd) {
+                    var rowsToDelete = dd.rows.sort().reverse();
+                    for (var i=0; i<rowsToDelete.length; i++) {
+                        data.splice(rowsToDelete[i],1);
+                    }
+                    grid.invalidate();
+                    grid.setSelectedRows([]);
+                });
+
+            
+			grid.onAddNewRow = function(newItem,columnDef) {
+                var item = {name:"New task", complete: false};
+                $.extend(item,newItem);
+                data.push(item);
+                grid.removeRows([data.length - 1]);
+                grid.updateRowCount();
+                grid.render();
+            };
+
+			grid.onBeforeMoveRows = function(rows, insertBefore) {
+                for (var i = 0; i < rows.length; i++) {
+                    // no point in moving before or after itself
+                    if (rows[i] == insertBefore || rows[i] == insertBefore - 1) return false;
+                }
+
+                return true;
+            };
+
+			grid.onMoveRows = function(rows,insertBefore) {
+				var extractedRows = [], left, right;
+				left = data.slice(0,insertBefore);
+				right = data.slice(insertBefore,data.length);
+
+				for (var i=0; i<rows.length; i++) {
+					extractedRows.push(data[rows[i]]);
+				}
+
+				rows.sort().reverse();
+
+				for (var i=0; i<rows.length; i++) {
+					var row = rows[i];
+					if (row < insertBefore)
+						left.splice(row,1);
+					else
+						right.splice(row-insertBefore,1);
+				}
+
+				data = left.concat(extractedRows.concat(right));
+
+				var selectedRows = [];
+				for (var i=0; i<rows.length; i++)
+					selectedRows.push(left.length+i);
+
+				grid.setData(data);
+				grid.setSelectedRows(selectedRows);
+				grid.render();
+			}
+		})
+		</script>
+	</body>
+</html>
