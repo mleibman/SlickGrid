@@ -1309,6 +1309,7 @@ if (!jQuery.fn.drag) {
                 $paneTopR.show();
 
                 if ( options.frozenRow > -1 ) {
+                    $paneBottomL.show();
                     $paneBottomR.show();
                 } else {
                     $paneBottomR.hide();
@@ -1610,11 +1611,16 @@ if (!jQuery.fn.drag) {
             var o = getWidthSplittedCanvas();
             var paneW = $container.width() - o.widthFixed;
 
-            totalFrozenHeight = ( options.frozenRow * options.rowHeight || options.rowHeight ) + $headerContainerL.outerHeight();
+            totalFrozenHeight = ( options.frozenRow * options.rowHeight || options.rowHeight );
 
             $headerContainerL.width( o.widthFixed );
             $secondHeaderContainerL.width( o.widthFixed );
             $canvasTopL.width( o.widthFixed );
+
+            var lowerPaneH = $container.innerHeight() -
+                             (options.showSecondaryHeaderRow ? $secondHeaderContainerL.outerHeight() : 0) -
+                             $headerContainerL.outerHeight() -
+                             totalFrozenHeight;
 
             if ( options.frozenColumn > -1 ) {
                 $paneTopR.width( paneW );
@@ -1623,60 +1629,47 @@ if (!jQuery.fn.drag) {
                 $secondHeaderContainerR.width( o.widthScrolled );
                 $canvasTopR.width( o.widthScrolled );
 
-                // Position the right panes next to the left panes
                 $paneTopR.css("left", o.widthFixed );
 
                 if ( options.frozenRow > -1 ) {
-                    $canvasBottomL.width( o.widthFixed );
+                    $paneBottomL.css({
+                        "top": totalFrozenHeight + $headerContainerL.outerHeight()
+                    });
 
                     $paneBottomR.css({
-                         "top": totalFrozenHeight
+                         "top": totalFrozenHeight + $headerContainerL.outerHeight()
                         ,"left": o.widthFixed
                     });
 
-                    $paneBottomL.css({
-                        "top": totalFrozenHeight
-                    });
+                    $viewportTopR.height( totalFrozenHeight );
+                    $canvasTopR.height( totalFrozenHeight );
+
+                    $viewportBottomR.width( paneW );
+
+                    $viewportBottomR.height( lowerPaneH );
+                    $canvasBottomR.width( o.widthScrolled );
                 }
             } else {
                 $paneTopL.css({
                     'width': '100%'
-                })
-
-                $paneBottomL.css({
-                     "top": totalFrozenHeight
-                    ,'width': '100%'
                 });
+
+                if ( options.frozenRow > -1 ) {
+                    $paneBottomL.css({
+                        "top": totalFrozenHeight + $headerContainerL.outerHeight()
+                       ,'width': '100%'
+                   });
+                }
             }
 
             if ( options.frozenRow > -1 ) {
-                $canvasTopL.height( options.rowHeight * options.frozenRow || options.rowHeight );
+                $canvasTopL.height( totalFrozenHeight );
 
+                $viewportTopL.height( totalFrozenHeight );
                 $canvasTopL.width( o.widthFixed );
+
+                $viewportBottomL.height( lowerPaneH );
                 $canvasBottomL.width( o.widthFixed );
-                $canvasBottomR.width( o.widthScrolled );
-
-                // Resize the top viewports to the fixed height
-                $viewportTopL.height(totalFrozenHeight);
-                $viewportTopR.height(totalFrozenHeight);
-
-                $viewportBottomR.width( paneW );
-
-                var lowerPaneH = $container.innerHeight() -
-                                 (options.showSecondaryHeaderRow ? $secondHeaderContainerL.outerHeight() : 0) -
-                                 totalFrozenHeight;
-
-                $viewportBottomL.height(lowerPaneH);
-                $viewportBottomR.height(lowerPaneH);
-
-                if ( options.frozenColumn > -1 ) {
-                    totalFrozenWidth = getWidthSplittedCanvas().widthScrolled;
-
-                    $paneBottomR.css( "top", totalFrozenHeight );
-                    $canvasBottomR.width( totalFrozenWidth );
-                }
-            } else {
-                //$canvasTopL.height( options.rowHeight * options.frozenRow || options.rowHeight );
             }
 
             updateRowCount();
@@ -1727,7 +1720,11 @@ if (!jQuery.fn.drag) {
                 }
 
                 if ( options.frozenColumn > -1 )  {
-                    $canvasTopR.height( h );
+                    if ( options.frozenRow > -1 ) {
+                        $canvasBottomR.height( h );
+                    } else {
+                        $canvasTopR.height( h );
+                    }
                 }
 
                 scrollTop = $viewportScrollContainer.scrollTop();
