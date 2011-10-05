@@ -80,10 +80,13 @@
 			</ul>
 		</div>
 
-        <div id="inlineFilterPanel" style="display:none;background:#dddddd;padding:3px;color:black;">
+        <div id="inlineFilterPanelL" style="display:none;background:#dddddd;padding:3px;color:black;">
             Show tasks with title including <input type="text" id="txtSearch2">
-            and % at least &nbsp; <div style="width:100px;display:inline-block;" id="pcSlider2"></div>
         </div>
+
+		<div id="inlineFilterPanelR" style="display:none;background:#dddddd;padding:6px;color:black;">
+			and % at least &nbsp; <div style="width:100px;display:inline-block;" id="pcSlider2"></div>
+		</div>
 
 		<script language="JavaScript" src="../lib/firebugx.js"></script>
 
@@ -216,8 +219,14 @@
 
 
             // move the filter panel defined in a hidden div into an inline secondary grid header row
-            $("#inlineFilterPanel")
-                .appendTo(grid.getSecondaryHeaderRow())
+            var $secondaryRow = grid.getSecondaryHeaderRow();
+
+            $("#inlineFilterPanelL")
+                .appendTo($secondaryRow[0])
+                .show();
+
+			$("#inlineFilterPanelR")
+                .appendTo($secondaryRow[1])
                 .show();
 
             grid.onCellChange = function(row,col,item) {
