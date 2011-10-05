@@ -429,13 +429,14 @@ if (!jQuery.fn.drag) {
 
             // Append the second header columns
             $secondHeaderColumnsL = $("<div class='slick-header-columns-secondary slick-header-columns-secondary-left' style='width:100000px; left:-10000px' />").appendTo($secondHeaderContainerL);
-            $secondHeaderColumnsR = $("<div class='slick-header-columns-secondar yslick-header-columns-secondary-right' style='width:100000px; left:-10000px' />").appendTo($secondHeaderContainerR);
+            $secondHeaderColumnsR = $("<div class='slick-header-columns-secondary slick-header-columns-secondary-right' style='width:100000px; left:-10000px' />").appendTo($secondHeaderContainerR);
 
             // Cache the second header columns
-            $secondaryHeaders = $('.slick-header-columns-secondary');
+            $secondaryHeaderContainer = $().add( $secondHeaderContainerL ).add( $secondHeaderContainerR )
+            $secondaryHeaders = $().add( $secondHeaderColumnsL ).add( $secondHeaderColumnsR );
 
             if (!options.showSecondaryHeaderRow) {
-                $( '.slick-header-secondary' ).hide();
+                $secondaryHeaderContainer.hide();
             }
 
             // Append the viewport containers
@@ -1377,17 +1378,17 @@ if (!jQuery.fn.drag) {
         }
 
         function getSecondaryHeaderRow() {
-            return $secondaryHeaders;
+            return ( options.frozenColumn > -1 ) ? $secondaryHeaders : $secondaryHeaders[0];
         }
 
         function showSecondaryHeaderRow() {
             options.showSecondaryHeaderRow = true;
-            $secondaryHeaders.slideDown("fast", resizeCanvas);
+            $secondaryHeaderContainer.slideDown("fast", resizeCanvas);
         }
 
         function hideSecondaryHeaderRow() {
             options.showSecondaryHeaderRow = false;
-            $secondaryHeaders.slideUp("fast", resizeCanvas);
+            $secondaryHeaderContainer.slideUp("fast", resizeCanvas);
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1622,6 +1623,10 @@ if (!jQuery.fn.drag) {
                              $headerContainerL.outerHeight() -
                              totalFrozenHeight;
 
+            var lowerPaneTop = totalFrozenHeight +
+                               $headerContainerL.outerHeight() +
+                               (options.showSecondaryHeaderRow ? $secondHeaderContainerL.outerHeight() : 0)
+
             if ( options.frozenColumn > -1 ) {
                 $paneTopR.width( paneW );
 
@@ -1633,11 +1638,11 @@ if (!jQuery.fn.drag) {
 
                 if ( options.frozenRow > -1 ) {
                     $paneBottomL.css({
-                        "top": totalFrozenHeight + $headerContainerL.outerHeight()
+                        "top": lowerPaneTop
                     });
 
                     $paneBottomR.css({
-                         "top": totalFrozenHeight + $headerContainerL.outerHeight()
+                         "top": lowerPaneTop
                         ,"left": o.widthFixed
                     });
 
@@ -1654,9 +1659,17 @@ if (!jQuery.fn.drag) {
                     'width': '100%'
                 });
 
+                $headerContainerL.css({
+                    'width': '100%'
+                });
+
+                $secondHeaderContainerL.css({
+                    'width': '100%'
+                })
+
                 if ( options.frozenRow > -1 ) {
                     $paneBottomL.css({
-                        "top": totalFrozenHeight + $headerContainerL.outerHeight()
+                        "top": lowerPaneTop
                        ,'width': '100%'
                    });
                 }
