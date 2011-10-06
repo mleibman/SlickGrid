@@ -82,7 +82,9 @@ if (typeof Slick === "undefined") {
             cellFlashingCssClass: "flashing",
             selectedCellCssClass: "selected",
             multiSelect: true,
-            enableTextSelectionOnCells: false
+            enableTextSelectionOnCells: false,
+            frozenColumn: -1,
+            frozenRow: -1
         };
 
         var columnDefaults = {
@@ -163,6 +165,36 @@ if (typeof Slick === "undefined") {
         var counter_rows_removed = 0;
 
 
+        var $paneTopL;
+        var $paneTopR;
+        var $paneBottomL;
+        var $paneBottomR;
+
+        var $headerScrollerL;
+        var $headerScrollerR;
+
+        var $headerRowScrollerL;
+        var $headerRowScrollerR;
+
+        var $topPanelScrollerL;
+        var $topPanelScrollerR;
+
+        var $topPanelL;
+        var $topPanelR;
+
+        var $viewportTopL;
+        var $viewportTopR;
+        var $viewportBottomL;
+        var $viewportBottomR;
+
+        var $canvasTopL;
+        var $canvasTopR;
+        var $canvasBottomL;
+        var $canvasBottomR;
+
+        var $viewportScrollContainer;
+
+
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Initialization
 
@@ -206,14 +238,59 @@ if (typeof Slick === "undefined") {
             if (!/relative|absolute|fixed/.test($container.css("position")))
                 $container.css("position","relative");
 
-            $headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-            $headers = $("<div class='slick-header-columns' style='width:10000px; left:-1000px' />").appendTo($headerScroller);
+            // Containers used for scrolling frozen columns and rows
+            $paneTopL    = $("<div class='slick-pane slick-pane-top slick-pane-left' tabIndex='0' />").appendTo( $container );
+            $paneTopR    = $("<div class='slick-pane slick-pane-top slick-pane-right' tabIndex='0' />").appendTo( $container );
+            $paneBottomL = $("<div class='slick-pane slick-pane-bottom slick-pane-left' tabIndex='0' />").appendTo( $container );
+            $paneBottomR = $("<div class='slick-pane slick-pane-bottom slick-pane-right' tabIndex='0' />").appendTo( $container );
 
-            $headerRowScroller = $("<div class='slick-headerrow ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-            $headerRow = $("<div class='slick-headerrow-columns' style='width:10000px;' />").appendTo($headerRowScroller);
+            setPaneVisibility();
 
-            $topPanelScroller = $("<div class='slick-top-panel-scroller ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-            $topPanel = $("<div class='slick-top-panel' style='width:10000px' />").appendTo($topPanelScroller);
+            //$headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+
+            // Append the header scroller containers
+            $headerScrollerL = $("<div class='slick-header slick-header-left ui-state-default' />").appendTo( $paneTopL );
+            $headerScrollerR = $("<div class='slick-header slick-header-right ui-state-default' />").appendTo( $paneTopR );
+
+            // Cache the header scroller containers
+            $headerScroller = $().add( $headerScrollerL ).add( $headerScrollerR );
+
+            //$headers = $("<div class='slick-header-columns' style='width:10000px; left:-1000px' />").appendTo($headerScroller);
+
+            // Append the columnn containers to the headers
+            $headerL = $("<div class='slick-header-columns slick-header-columns-left' />").appendTo( $headerScrollerL );
+            $headerR = $("<div class='slick-header-columns slick-header-columns-right' />").appendTo( $headerScrollerR );
+
+            // Cache the header columns
+            $headers = $().add( $headerL ).add( $headerR );
+
+            //$headerRowScroller = $("<div class='slick-headerrow ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+            $headerRowScrollerL = $("<div class='slick-headerrow ui-state-default' />").appendTo( $paneTopL );
+            $headerRowScrollerR = $("<div class='slick-headerrow ui-state-default' />").appendTo( $paneTopR );
+
+            $headerRowScroller = $().add( $headerRowScrollerL ).add( $headerRowScrollerR )
+
+            //$headerRow = $("<div class='slick-headerrow-columns' style='width:10000px;' />").appendTo($headerRowScroller);
+            $headerRowL = $("<div class='slick-headerrow-columns slick-headerrow-columns-left' />").appendTo( $headerRowScrollerL );
+            $headerRowR = $("<div class='slick-headerrow-columns slick-headerrow-columns-right' />").appendTo( $headerRowScrollerR );
+
+            $headerRow = $().add( $headerRowL ).add( $headerRowR );
+
+            //$topPanelScroller = $("<div class='slick-top-panel-scroller ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+
+            // Append the top panel scroller
+            $topPanelScrollerL = $("<div class='slick-top-panel-scroller ui-state-default' style='overflow:hidden;position:relative;' />").appendTo( $paneTopL );
+            $topPanelScrollerR = $("<div class='slick-top-panel-scroller ui-state-default' style='overflow:hidden;position:relative;' />").appendTo( $paneTopR );
+
+            $topPanelScroller = $().add( $topPanelScrollerL ).add( $topPanelScrollerR );
+
+            //$topPanel = $("<div class='slick-top-panel' style='width:10000px' />").appendTo($topPanelScroller);
+
+            // Append the top panel
+            $topPanelL = $("<div class='slick-top-panel' />").appendTo( $topPanelScrollerL );
+            $topPanelR = $("<div class='slick-top-panel' />").appendTo( $topPanelScrollerR );
+
+            $topPanel = $().add( $topPanelL ).add( $topPanelR );
 
             if (!options.showTopPanel) {
                 $topPanelScroller.hide();
@@ -223,8 +300,31 @@ if (typeof Slick === "undefined") {
                 $headerRowScroller.hide();
             }
 
-            $viewport = $("<div class='slick-viewport' tabIndex='0' hideFocus style='width:100%;overflow-x:auto;outline:0;position:relative;overflow-y:auto;'>").appendTo($container);
-            $canvas = $("<div class='grid-canvas' tabIndex='0' hideFocus />").appendTo($viewport);
+            //$viewport = $("<div class='slick-viewport' tabIndex='0' hideFocus>").appendTo($container);
+
+            // Append the viewport containers
+            $viewportTopL    = $("<div class='slick-viewport slick-viewport-top slick-viewport-left' tabIndex='0' hideFocus />").appendTo( $paneTopL );
+            $viewportTopR    = $("<div class='slick-viewport slick-viewport-top slick-viewport-right' tabIndex='0' hideFocus' />").appendTo( $paneTopR );
+            $viewportBottomL = $("<div class='slick-viewport slick-viewport-bottom slick-viewport-left' tabIndex='0' hideFocus />").appendTo( $paneBottomL );
+            $viewportBottomR = $("<div class='slick-viewport slick-viewport-bottom slick-viewport-right' tabIndex='0' hideFocus />").appendTo( $paneBottomR );
+
+            // Cache the viewports
+            $viewport = $().add( $viewportTopL ).add( $viewportTopR ).add( $viewportBottomL ).add( $viewportBottomR );
+
+            setOverflow();
+
+            //$canvas = $("<div class='grid-canvas' tabIndex='0' hideFocus />").appendTo($viewport);
+
+            // Append the canvas containers
+            $canvasTopL    = $("<div class='grid-canvas grid-canvas-top grid-canvas-left' tabIndex='0' hideFocus />").appendTo( $viewportTopL );
+            $canvasTopR    = $("<div class='grid-canvas grid-canvas-top grid-canvas-right' tabIndex='0' hideFocus />").appendTo( $viewportTopR );
+            $canvasBottomL = $("<div class='grid-canvas grid-canvas-bottom grid-canvas-left' tabIndex='0' hideFocus />").appendTo( $viewportBottomL );
+            $canvasBottomR = $("<div class='grid-canvas grid-canvas-bottom grid-canvas-right' tabIndex='0' hideFocus />").appendTo( $viewportBottomR );
+
+            // Cache the canvases
+            $canvas = $().add( $canvasTopL ).add( $canvasTopR ).add( $canvasBottomL ).add( $canvasBottomR );
+
+            setScroller();
 
             // header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
             // calculate the diff so we can set consistent sizes
@@ -682,6 +782,128 @@ if (typeof Slick === "undefined") {
             var delta = 0;
             $.each(p, function(n,val) { delta += parseFloat($el.css(val)) || 0; });
             return delta;
+        }
+
+        function setPaneVisibility() {
+            if ( options.frozenColumn > -1 ) {
+                $paneTopR.show();
+
+                if ( options.frozenRow > -1 ) {
+                    $paneBottomL.show();
+                    $paneBottomR.show();
+                } else {
+                    $paneBottomR.hide();
+                    $paneBottomL.hide();
+                }
+            } else {
+                $paneTopR.hide();
+                $paneBottomR.hide();
+
+                if ( options.frozenRow > -1 ) {
+                    $paneBottomL.show();
+                } else {
+                    $paneBottomR.hide();
+                    $paneBottomL.hide();
+                }
+            }
+        }
+
+        function setOverflow() {
+            $viewportTopL
+                .css({
+                     'overflow-x':
+                        ( options.frozenColumn > -1 )
+                            ? ( options.frozenRow > -1 )
+                                ? 'hidden'
+                                : 'scroll'
+                            : ( options.frozenRow > -1 )
+                                ? 'hidden'
+                                : 'auto'
+                    ,'overflow-y':
+                        ( options.frozenColumn > -1 )
+                            ? ( options.frozenRow > -1 )
+                                ? 'hidden'
+                                : 'hidden'
+                            : ( options.frozenRow > -1 )
+                                ? 'scroll'
+                                : 'auto'
+                });
+
+            $viewportTopR
+                .css({
+                     'overflow-x':
+                        ( options.frozenColumn > -1 )
+                            ? ( options.frozenRow > -1 )
+                                ? 'hidden'
+                                : 'scroll'
+                            : ( options.frozenRow > -1 )
+                                ? 'hidden'
+                                : 'auto'
+                    ,'overflow-y':
+                        ( options.frozenColumn > -1 )
+                            ? ( options.frozenRow > -1 )
+                                ? 'scroll'
+                                : 'scroll'
+                            : ( options.frozenRow > -1 )
+                                ? 'scroll'
+                                : 'auto'
+                });
+
+            $viewportBottomL
+                .css({
+                     'overflow-x':
+                        ( options.frozenColumn > -1 )
+                            ? ( options.frozenRow > -1 )
+                                ? 'scroll'
+                                : 'auto'
+                            : ( options.frozenRow > -1 )
+                                ? 'auto'
+                                : 'auto'
+                    ,'overflow-y':
+                        ( options.frozenColumn > -1 )
+                            ? ( options.frozenRow > -1 )
+                                ? 'hidden'
+                                : 'hidden'
+                            : ( options.frozenRow > -1 )
+                                ? 'scroll'
+                                : 'auto'
+                });
+
+            $viewportBottomR
+                .css({
+                     'overflow-x':
+                        ( options.frozenColumn > -1 )
+                            ? ( options.frozenRow > -1 )
+                                ? 'auto'
+                                : 'auto'
+                            : ( options.frozenRow > -1 )
+                                ? 'auto'
+                                : 'auto'
+                    ,'overflow-y':
+                        ( options.frozenColumn > -1 )
+                            ? ( options.frozenRow > -1 )
+                                ? 'auto'
+                                : 'auto'
+                            : ( options.frozenRow > -1 )
+                                ? 'auto'
+                                : 'auto'
+                });
+        }
+
+        function setScroller() {
+            if ( options.frozenColumn > -1 ) {
+                if ( options.frozenRow > -1 ) {
+                    $viewportScrollContainer = $viewportBottomR;
+                } else {
+                    $viewportScrollContainer = $viewportTopR;
+                }
+            } else {
+                if ( options.frozenRow > -1 ) {
+                    $viewportScrollContainer = $viewportBottomL;
+                } else {
+                    $viewportScrollContainer = $viewportTopL;
+                }
+            }
         }
 
         function measureCellPaddingAndBorder() {
