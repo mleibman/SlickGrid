@@ -443,10 +443,11 @@ if (typeof Slick === "undefined") {
 
         function setCanvasWidth( widthL, widthR ) {
             $canvasTopL.width( widthL );
-            $headerScrollerL.width( widthL );
-            $headerRowScrollerL.width( widthL );
 
             if ( options.frozenColumn > -1 ) {
+                $headerScrollerL.width( widthL );
+                $headerRowScrollerL.width( widthL );
+
                 $canvasTopR.width( widthR );
                 $headerScrollerR.width( widthR );
                 $headerRowScrollerR.width( widthR );
@@ -1518,10 +1519,10 @@ if (typeof Slick === "undefined") {
             var widthL = 0, widthR = 0, i = columns.length;
 
             while (i--) {
-                if ( ( options.frozenColumn > -1 ) && ( options.frozenColumn >= i ) ) {
-                    widthL += columns[i].width;
-                } else {
+                if ( ( options.frozenColumn > -1 ) && ( i > options.frozenColumn ) ) {
                     widthR += columns[i].width;
+                } else {
+                    widthL += columns[i].width;
                 }
             }
 
@@ -1547,9 +1548,11 @@ if (typeof Slick === "undefined") {
 
             var viewportBottomH = viewportH - viewportTopH;
 
+            $viewportTopL.width( viewportW );
+            $viewportTopL.height( viewportH );
+
             if ( options.frozenColumn > -1 ) {
                 $paneTopR.css( "left", widthL );
-                $viewportTopL.width( widthL );
 
                 if ( options.frozenRow > -1 ) {
                     $paneBottomL.css({
