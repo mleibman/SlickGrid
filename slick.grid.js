@@ -441,9 +441,26 @@ if (typeof Slick === "undefined") {
             return rowWidth;
         }
 
-        function setCanvasWidth(width) {
-            //$canvas.width(width);
-            viewportHasHScroll = (width > viewportW - scrollbarDimensions.width);
+        function setCanvasWidth( widthL, widthR ) {
+            $canvasTopL.width( widthL );
+            $headerScrollerL.width( widthL );
+            $headerRowScrollerL.width( widthL );
+
+            if ( options.frozenColumn > -1 ) {
+                $canvasTopR.width( widthR );
+                $headerScrollerR.width( widthR );
+                $headerRowScrollerR.width( widthR );
+            }
+
+            if ( options.frozenRow > -1 ) {
+                $canvasBottomL.width( widthL );
+
+                if ( options.frozenColumn > -1 ) {
+                    $canvasBottomR.width( widthR );
+                }
+            }
+
+            viewportHasHScroll = (widthL > viewportW - scrollbarDimensions.width);
         }
 
         function disableSelection($target) {
@@ -723,6 +740,7 @@ if (typeof Slick === "undefined") {
                                     }
                                 }
                             } else if (options.syncColumnCellResize) {
+                                // TODO: Hanlde frozen columns
                                 setCanvasWidth(originalCanvasWidth + d);
                             }
                         } else { // stretch column
@@ -756,6 +774,7 @@ if (typeof Slick === "undefined") {
                                     }
                                 }
                             } else if (options.syncColumnCellResize) {
+                                // TODO: Hanlde frozen columns
                                 setCanvasWidth(originalCanvasWidth + d);
                             }
                         }
@@ -1185,7 +1204,10 @@ if (typeof Slick === "undefined") {
 
             options = $.extend(options,args);
 
-            render();
+            setScroller();
+
+            setColumns( columns );
+            //render();
         }
 
         function setData(newData,scrollToTop) {
@@ -1326,9 +1348,9 @@ if (typeof Slick === "undefined") {
                 rowCss += " " + metadata.cssClasses;
             }
 
-            var frozenOffset = ( options.frozenRow > -1 && row >= options.frozenRow ) ?  options.rowHeight * options.frozenRow : 0;
+            var frozenRowOffset = ( options.frozenRow > -1 && row >= options.frozenRow ) ?  options.rowHeight * options.frozenRow : 0;
 
-            var rowHtml = "<div class='ui-widget-content " + rowCss + "' row='" + row + "' style='top:" + (options.rowHeight*row - offset - frozenOffset) + "px'>";
+            var rowHtml = "<div class='ui-widget-content " + rowCss + "' row='" + row + "' style='top:" + (options.rowHeight*row - offset - frozenRowOffset) + "px'>";
 
             stringArrayL.push( rowHtml );
 
@@ -1342,7 +1364,7 @@ if (typeof Slick === "undefined") {
             for (var i=0, cols=columns.length; i<cols; i++) {
                 var m = columns[i];
                 colspan = getColspan(row, i);  // TODO:  don't calc unless we have to
-                cellCss = "slick-cell lr l" + i + " r" + Math.min(columns.length -1, i + colspan - 1) + (m.cssClass ? " " + m.cssClass : "");
+                cellCss = "slick-cell lr l" + i + " r" + Math.min(columns.length - 1, i + colspan - 1) + (m.cssClass ? " " + m.cssClass : "");
                 if (row === activeRow && i === activeCell) {
                     cellCss += (" active");
                 }
@@ -1354,25 +1376,25 @@ if (typeof Slick === "undefined") {
                     }
                 }
 
-                if ( i <= options.frozenColumn ) {
-                    stringArrayL.push("<div class='" + cellCss + "'>");
-                } else {
+                if ( ( options.frozenColumn > -1 ) && ( i > options.frozenColumn ) ) {
                     stringArrayR.push("<div class='" + cellCss + "'>");
+                } else {
+                    stringArrayL.push("<div class='" + cellCss + "'>");
                 }
 
                 // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
                 if (d) {
-                    if ( i <= options.frozenColumn ) {
-                        stringArrayL.push(getFormatter(row, m)(row, i, d[m.field], m, d));
-                    } else {
+                    if ( ( options.frozenColumn > -1 ) && ( i > options.frozenColumn ) ) {
                         stringArrayR.push(getFormatter(row, m)(row, i, d[m.field], m, d));
+                    } else {
+                        stringArrayL.push(getFormatter(row, m)(row, i, d[m.field], m, d));
                     }
                 }
 
-                if ( i <= options.frozenColumn ) {
-                    stringArrayL.push("</div>");
-                } else {
+                if ( ( options.frozenColumn > -1 ) && ( i > options.frozenColumn ) ) {
                     stringArrayR.push("</div>");
+                } else {
+                    stringArrayL.push("</div>");
                 }
 
                 if (colspan)
@@ -1486,20 +1508,97 @@ if (typeof Slick === "undefined") {
         function resizeCanvas() {
             if (options.autoHeight) {
                 viewportH = options.rowHeight * (getDataLength() + (options.enableAddRow ? 1 : 0) + (options.leaveSpaceForNewRows? numVisibleRows - 1 : 0));
-            }
-            else {
+            } else {
                 viewportH = getViewportHeight();
             }
 
             numVisibleRows = Math.ceil(viewportH / options.rowHeight);
             viewportW = parseFloat($.css($container[0], "width", true));
-            $viewport.height(viewportH);
 
-            var w = 0, i = columns.length;
+            var widthL = 0, widthR = 0, i = columns.length;
+
             while (i--) {
-                w += columns[i].width;
+                if ( ( options.frozenColumn > -1 ) && ( options.frozenColumn >= i ) ) {
+                    widthL += columns[i].width;
+                } else {
+                    widthR += columns[i].width;
+                }
             }
-            setCanvasWidth(w);
+
+            var paneTopH = ( options.frozenRow > -1 )
+                ? ( options.rowHeight * options.frozenRow ) +
+                  options.headerHeight +
+                  getVBoxDelta($headerScrollerL) +
+                  (options.showTopPanel ? options.topPanelHeight + getVBoxDelta($topPanelScroller) : 0) +
+                  (options.showHeaderRow ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0)
+                : viewportH;
+
+            var viewportTopH = ( options.frozenRow > -1 )
+                ? ( options.rowHeight * options.frozenRow )
+                : viewportH;
+
+            var paneBottomH =
+                viewportH -
+                viewportTopH +
+                options.headerHeight +
+                getVBoxDelta($headerScrollerL) +
+                (options.showTopPanel ? options.topPanelHeight + getVBoxDelta($topPanelScroller) : 0) +
+                (options.showHeaderRow ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0);
+
+            var viewportBottomH = viewportH - viewportTopH;
+
+            if ( options.frozenColumn > -1 ) {
+                $paneTopR.css( "left", widthL );
+                $viewportTopL.width( widthL );
+
+                if ( options.frozenRow > -1 ) {
+                    $paneBottomL.css({
+                        "top": paneTopH
+                    });
+
+                    $paneBottomR.css({
+                         "top": paneTopH
+                        ,"left": widthL
+                    });
+
+                    $canvasTopR.height( viewportTopH );
+
+                    $viewportTopR.width( viewportW - widthL );
+                    $viewportTopR.height( viewportTopH );
+
+                    $viewportBottomL.width( widthL );
+
+                    $viewportBottomR.width( viewportW - widthL );
+                    $viewportBottomR.height( viewportBottomH );
+                }
+            } else {
+                $paneTopL.css({
+                    'width': '100%'
+                });
+
+                $headerScrollerL.css({
+                    'width': '100%'
+                });
+
+                $headerRowScrollerL.css({
+                    'width': '100%'
+                })
+
+                if ( options.frozenRow > -1 ) {
+                    $paneBottomL.css({
+                        "top": viewportTopH
+                       ,'width': '100%'
+                   });
+                }
+            }
+
+            if ( options.frozenRow > -1 ) {
+                $canvasTopL.height( viewportTopH );
+                $viewportTopL.height( viewportTopH );
+                $viewportBottomL.height( viewportBottomH );
+            }
+
+            setCanvasWidth( widthL, widthR );
 
             updateRowCount();
             render();
@@ -1541,8 +1640,25 @@ if (typeof Slick === "undefined") {
             }
 
             if (h !== oldH) {
-                $canvas.css("height",h);
-                scrollTop = $viewport[0].scrollTop;
+                //$canvas.css("height",h);
+                //scrollTop = $viewport[0].scrollTop;
+
+                if ( options.frozenRow > -1 ) {
+                    $canvasBottomL.height( h );
+                    $canvasBottomR.height( h );
+                } else {
+                    $canvasTopL.height( h );
+                }
+
+                if ( options.frozenColumn > -1 )  {
+                    if ( options.frozenRow > -1 ) {
+                        $canvasBottomR.height( h );
+                    } else {
+                        $canvasTopR.height( h );
+                    }
+                }
+
+                scrollTop = $viewportScrollContainer.scrollTop();
             }
 
             var oldScrollTopInRange = (scrollTop + offset <= th - viewportH);
@@ -1628,7 +1744,7 @@ if (typeof Slick === "undefined") {
             for (i = 0, l = x.childNodes.length; i < l; i++) {
                 //rowsCache[rows[i]] = parentNode.appendChild(x.firstChild);
 
-                if ( rows[i] >= options.frozenRow ) {
+                if ( ( options.frozenRow > -1 ) && ( rows[i] >= options.frozenRow ) ) {
                     rowsCache[rows[i]] = $().add($(x.firstChild).appendTo($canvasBottomL));
 
                     if ( options.frozenColumn > -1 ) {
