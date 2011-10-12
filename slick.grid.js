@@ -1751,17 +1751,17 @@ if (typeof Slick === "undefined") {
 
             for (i = 0, l = x.childNodes.length; i < l; i++) {
                 if ( ( options.frozenRow > -1 ) && ( rows[i] >= options.frozenRow ) ) {
-                    rowsCache[rows[i]] = $().add($(x.firstChild).appendTo($canvasBottomL));
-
                     if ( options.frozenColumn > -1 ) {
-                        rowsCache[rows[i]].add( $(xRight.firstChild).appendTo($canvasBottomR) );
+                        rowsCache[rows[i]] = $().add( $(x.firstChild).appendTo($canvasBottomL) )
+                                                .add( $(xRight.firstChild).appendTo($canvasBottomR) );
+                    } else {
+                        rowsCache[rows[i]] = $().add($(x.firstChild).appendTo($canvasBottomL));
                     }
+                } else if ( options.frozenColumn > -1 ) {
+                    rowsCache[rows[i]] = $().add( $(x.firstChild).appendTo($canvasTopL) )
+                                            .add( $(xRight.firstChild).appendTo($canvasTopR) );
                 } else {
                     rowsCache[rows[i]] = $().add($(x.firstChild).appendTo($canvasTopL));
-
-                    if ( options.frozenColumn > -1 ) {
-                        rowsCache[rows[i]].add( $(xRight.firstChild).appendTo($canvasTopR) );
-                    }
                 }
             }
 
