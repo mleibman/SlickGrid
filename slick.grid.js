@@ -1812,15 +1812,31 @@ if (typeof Slick === "undefined") {
         }
 
         function handleScroll() {
-            scrollTop = $viewport[0].scrollTop;
-            var scrollLeft = $viewport[0].scrollLeft;
+            var $headerScrollContainer = ( options.frozenColumn > -1 ) ? $headerScrollerR : $headerScrollerL;
+            var $headerRowScrollContainer = (options.frozenColumn > -1 ) ? $headerRowScrollerR : $headerRowScrollerL;
+
+            scrollTop = $viewportScrollContainer[0].scrollTop;
+
+            var scrollLeft = $viewportScrollContainer[0].scrollLeft;
+
             var scrollDist = Math.abs(scrollTop - prevScrollTop);
 
             if (scrollLeft !== prevScrollLeft) {
                 prevScrollLeft = scrollLeft;
-                $headerScroller[0].scrollLeft = scrollLeft;
+
+                $headerScrollContainer[0].scrollLeft = scrollLeft;
                 $topPanelScroller[0].scrollLeft = scrollLeft;
-                $headerRowScroller[0].scrollLeft = scrollLeft;
+                $headerRowScrollContainer[0].scrollLeft = scrollLeft;
+
+                if ( options.frozenColumn > -1 ) {
+                    if ( options.frozenRow > -1 ) {
+                        $viewportTopR[0].scrollLeft = scrollLeft;
+                    }
+                } else {
+                    if ( options.frozenRow > -1 ) {
+                        $viewportTopL[0].scrollLeft = scrollLeft;
+                    }
+                }
             }
 
             if (scrollDist) {
@@ -1837,6 +1853,12 @@ if (typeof Slick === "undefined") {
                     offset = Math.round(page * cj);
                     if (oldOffset != offset)
                         invalidateAllRows();
+                }
+
+                if ( ( options.frozenColumn > -1 ) && ( options.frozenRow == -1 ) ) {
+                    $viewportTopL[0].scrollTop = scrollTop;
+                } else if ( options.frozenRow > -1 ) {
+                    $viewportBottomL[0].scrollTop = scrollTop;
                 }
 
                 if (h_render)
