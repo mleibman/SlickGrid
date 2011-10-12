@@ -971,7 +971,12 @@ if (typeof Slick === "undefined") {
                 w = columns[i].width;
                 rules.push("." + uid + " .l" + i + " { left: " + x + "px; }");
                 rules.push("." + uid + " .r" + i + " { right: " + (rowWidth - x - w) + "px; }");
-                x += columns[i].width;
+
+                if ( options.frozenColumn == i ) {
+                    x = 0;
+                } else {
+                    x += columns[i].width;
+                }
             }
 
             if ($style[0].styleSheet) { // IE
@@ -1745,8 +1750,6 @@ if (typeof Slick === "undefined") {
             xRight.innerHTML = stringArrayR.join("");
 
             for (i = 0, l = x.childNodes.length; i < l; i++) {
-                //rowsCache[rows[i]] = parentNode.appendChild(x.firstChild);
-
                 if ( ( options.frozenRow > -1 ) && ( rows[i] >= options.frozenRow ) ) {
                     rowsCache[rows[i]] = $().add($(x.firstChild).appendTo($canvasBottomL));
 
@@ -1754,7 +1757,7 @@ if (typeof Slick === "undefined") {
                         rowsCache[rows[i]].add( $(xRight.firstChild).appendTo($canvasBottomR) );
                     }
                 } else {
-                    rowsCache[rows[i]] = $().add($(x.firstChild).appendTo($canvasTopL))
+                    rowsCache[rows[i]] = $().add($(x.firstChild).appendTo($canvasTopL));
 
                     if ( options.frozenColumn > -1 ) {
                         rowsCache[rows[i]].add( $(xRight.firstChild).appendTo($canvasTopR) );
