@@ -1213,12 +1213,12 @@ if (typeof Slick === "undefined") {
             setScroller();
 
             setColumns( columns );
-            //render();
         }
 
         function setData(newData,scrollToTop) {
             invalidateAllRows();
             data = newData;
+
             if (scrollToTop)
                 scrollTo(0);
         }
@@ -1645,7 +1645,6 @@ if (typeof Slick === "undefined") {
             }
 
             if (h !== oldH) {
-                //$canvas.css("height",h);
                 if ( options.frozenRow > -1 ) {
                     $canvasBottomL.height( h );
                     $canvasBottomR.height( h );
