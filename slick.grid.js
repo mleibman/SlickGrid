@@ -1287,16 +1287,13 @@ if (typeof Slick === "undefined") {
 
             if (prevScrollTop != newScrollTop) {
                 scrollDir = (prevScrollTop + oldOffset < newScrollTop + offset) ? 1 : -1;
-                //$viewport[0].scrollTop = (lastRenderedScrollTop = scrollTop = prevScrollTop = newScrollTop);
 
                 if ( options.frozenColumn > -1 ) {
                     var newTop = options.rowHeight * currentRow;
 
                     if ( options.frozenRow > -1 ) {
-                        //$viewportBottomR.scrollTop( newTop - ( options.rowHeight * options.frozenRow ) );
                         $viewportBottomR[0].scrollTop = newTop - ( options.rowHeight * options.frozenRow );
                     } else {
-                        //$viewportTopR.scrollTop( newTop );
                         $viewportTopR[0].scrollTop = newTop;
                     }
                 }
@@ -1649,8 +1646,6 @@ if (typeof Slick === "undefined") {
 
             if (h !== oldH) {
                 //$canvas.css("height",h);
-                //scrollTop = $viewport[0].scrollTop;
-
                 if ( options.frozenRow > -1 ) {
                     $canvasBottomL.height( h );
                     $canvasBottomR.height( h );
@@ -1666,7 +1661,7 @@ if (typeof Slick === "undefined") {
                     }
                 }
 
-                scrollTop = $viewportScrollContainer.scrollTop();
+                scrollTop = $viewportScrollContainer[0].scrollTop;
             }
 
             var oldScrollTopInRange = (scrollTop + offset <= th - viewportH);
