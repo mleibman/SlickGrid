@@ -985,6 +985,14 @@ if (typeof Slick === "undefined") {
             }
         }
 
+        function getValueOnItem(field, item) {
+            if (item.get) {
+                return item.get(field);
+            } else {
+                return item[field];
+            }
+        }
+
         function getTopPanel() {
             return $topPanel[0];
         }
@@ -1105,7 +1113,7 @@ if (typeof Slick === "undefined") {
 
                 // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
                 if (d) {
-                    stringArray.push(getFormatter(row, m)(row, i, d[m.field], m, d));
+                    stringArray.push(getFormatter(row, m)(row, i, getValueOnItem(m.field, d), m, d));
                 }
 
                 stringArray.push("</div>");
@@ -1181,7 +1189,7 @@ if (typeof Slick === "undefined") {
                 currentEditor.loadValue(d);
             }
             else {
-                cellNode.innerHTML = d ? getFormatter(row, m)(row, cell, d[m.field], m, d) : "";
+                cellNode.innerHTML = d ? getFormatter(row, m)(row, cell, getValueOnItem(m.field, d), m, d) : "";
                 invalidatePostProcessingResults(row);
             }
         }
@@ -1195,7 +1203,7 @@ if (typeof Slick === "undefined") {
                     currentEditor.loadValue(getDataItem(activeRow));
                 }
                 else if (getDataItem(row)) {
-                    this.innerHTML = getFormatter(row, m)(row, i, getDataItem(row)[m.field], m, getDataItem(row));
+                    this.innerHTML = getFormatter(row, m)(row, i, getValueOnItem(m.field, getDataItem(row)), m, getDataItem(row));
                 }
                 else {
                     this.innerHTML = "";
@@ -1869,7 +1877,7 @@ if (typeof Slick === "undefined") {
 
                 if (getDataItem(activeRow)) {
                     var column = columns[activeCell];
-                    activeCellNode.innerHTML = getFormatter(activeRow, column)(activeRow, activeCell, getDataItem(activeRow)[column.field], column, getDataItem(activeRow));
+                    activeCellNode.innerHTML = getFormatter(activeRow, column)(activeRow, activeCell, getValueOnItem(column.field, getDataItem(activeRow)), column, getDataItem(activeRow));
                     invalidatePostProcessingResults(activeRow);
                 }
             }
