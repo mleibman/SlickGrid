@@ -173,8 +173,14 @@ if (typeof Slick === "undefined") {
         var $headerScrollerL;
         var $headerScrollerR;
 
+        var $headerL;
+        var $headerR;
+
         var $headerRowScrollerL;
         var $headerRowScrollerR;
+
+        var $headerRowL;
+        var $headerRowR;
 
         var $topPanelScrollerL;
         var $topPanelScrollerR;
