@@ -2254,7 +2254,7 @@ if (typeof Slick === "undefined") {
             }
 
             if (activeCellChanged) {
-                scrollActiveCellIntoView();
+                setTimeout( scrollActiveCellIntoView, 50 );
                 trigger(self.onActiveCellChanged, getActiveCell());
             }
         }
