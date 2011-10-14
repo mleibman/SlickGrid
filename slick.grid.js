@@ -362,7 +362,12 @@ if (typeof Slick === "undefined") {
             resizeAndRender();
 
             bindAncestorScrollEvents();
-            $viewport.bind("scroll.slickgrid", handleScroll);
+            //$viewport.bind("scroll.slickgrid", handleScroll);
+
+            $( '.slick-viewport' ).bind({
+                 "scroll.slickgrid": handleScroll
+            });
+
             $container.bind("resize.slickgrid", resizeAndRender);
             $headerScroller.bind({
                 "contextmenu.slickgrid": handleHeaderContextMenu,
@@ -504,16 +509,22 @@ if (typeof Slick === "undefined") {
 
         // TODO:  this is static.  need to handle page mutation.
         function bindAncestorScrollEvents() {
-            var elem = $canvas[0];
+            //var elem = $canvas[0];
+            var elem = ( options.frozenRow > -1 ) ? $canvasBottomL[0] : $canvasTopL[0];
+
             while ((elem = elem.parentNode) != document.body) {
                 // bind to scroll containers only
-                if (elem == $viewport[0] || elem.scrollWidth != elem.clientWidth || elem.scrollHeight != elem.clientHeight)
+                //if (elem == $viewport[0] || elem.scrollWidth != elem.clientWidth || elem.scrollHeight != elem.clientHeight)
+                if (elem == $viewportTopL[0] || elem.scrollWidth != elem.clientWidth || elem.scrollHeight != elem.clientHeight)
                     $(elem).bind("scroll.slickgrid", handleActiveCellPositionChange);
             }
         }
 
         function unbindAncestorScrollEvents() {
-            $canvas.parents().unbind("scroll.slickgrid");
+            //$canvas.parents().unbind("scroll.slickgrid");
+            var $tmp = ( options.frozenRow > -1 ) ? $canvasBottomL : $canvasTopL;
+
+            $tmp.parents().unbind("scroll.slickgrid");
         }
 
         function updateColumnHeader(columnId, title, toolTip) {
@@ -1295,7 +1306,7 @@ if (typeof Slick === "undefined") {
                 scrollDir = (prevScrollTop + oldOffset < newScrollTop + offset) ? 1 : -1;
 
                 if ( options.frozenColumn > -1 ) {
-                    var newTop = options.rowHeight * currentRow;
+                    var newTop = options.rowHeight * activeRow;
 
                     if ( options.frozenRow > -1 ) {
                         $viewportBottomR[0].scrollTop = newTop - ( options.rowHeight * options.frozenRow );
@@ -1626,6 +1637,7 @@ if (typeof Slick === "undefined") {
         function updateRowCount() {
             var newRowCount = getDataLength() + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0);
             var oldH = h;
+            //var oldH = ( options.frozenRow > -1 ) ? $canvasBottomL.height() : $canvasTopL.height();`
 
             // remove the rows that are now outside of the data range
             // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
@@ -2208,15 +2220,40 @@ if (typeof Slick === "undefined") {
 
         function scrollActiveCellIntoView() {
             if (activeCellNode) {
+                //var left = $(activeCellNode).position().left,
+                //    right = left + $(activeCellNode).outerWidth(),
+                //    scrollLeft = $viewport.scrollLeft(),
+                //    scrollRight = scrollLeft + $viewport.width();
+
+                //if (left < scrollLeft)
+                //    $viewport.scrollLeft(left);
+                //else if (right > scrollRight)
+                //    $viewport.scrollLeft(Math.min(left, right - $viewport[0].clientWidth));
+
+                if ( options.frozenRow > -1 ) {
+                    if ( options.frozenColumn > -1 ) {
+                        $viewportBottomR[0].scrollTop = $viewportBottomL[0].scrollTop;
+                    }
+                }
+
+                // Don't scroll the right viewport if the current cell is in the left viewport
+                if ( options.frozenColumn > -1 ) {
+                    if ( $(activeCellNode).parents('.slick-viewport-right').length == 0 ) {
+                        return;
+                    }
+                }
+
+                var scrollLeft = $viewportScrollContainer[0].scrollLeft;
+
                 var left = $(activeCellNode).position().left,
                     right = left + $(activeCellNode).outerWidth(),
-                    scrollLeft = $viewport.scrollLeft(),
-                    scrollRight = scrollLeft + $viewport.width();
+                    scrollRight = scrollLeft + $viewportScrollContainer.width();
 
-                if (left < scrollLeft)
-                    $viewport.scrollLeft(left);
-                else if (right > scrollRight)
-                    $viewport.scrollLeft(Math.min(left, right - $viewport[0].clientWidth));
+                if ( left < scrollLeft )
+                    $viewportScrollContainer[0].scrollLeft = left;
+                else if ( right > scrollRight ) {
+                    $viewportScrollContainer[0].scrollLeft = Math.min( left, right - $viewportTopR[0].clientWidth );
+                }
             }
         }
 
