@@ -255,16 +255,12 @@ if (typeof Slick === "undefined") {
 
             setPaneVisibility();
 
-            //$headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-
             // Append the header scroller containers
             $headerScrollerL = $("<div class='ui-state-default slick-header slick-header-left' />").appendTo( $paneTopL );
             $headerScrollerR = $("<div class='ui-state-default slick-header slick-header-right' />").appendTo( $paneTopR );
 
             // Cache the header scroller containers
             $headerScroller = $().add( $headerScrollerL ).add( $headerScrollerR );
-
-            //$headers = $("<div class='slick-header-columns' style='width:10000px; left:-1000px' />").appendTo($headerScroller);
 
             // Append the columnn containers to the headers
             $headerL = $("<div class='slick-header-columns slick-header-columns-left' style='width:10000px; left:-1000px' />").appendTo( $headerScrollerL );
@@ -273,27 +269,21 @@ if (typeof Slick === "undefined") {
             // Cache the header columns
             $headers = $().add( $headerL ).add( $headerR );
 
-            //$headerRowScroller = $("<div class='slick-headerrow ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
             $headerRowScrollerL = $("<div class='ui-state-default slick-headerrow' />").appendTo( $paneTopL );
             $headerRowScrollerR = $("<div class='ui-state-default slick-headerrow' />").appendTo( $paneTopR );
 
             $headerRowScroller = $().add( $headerRowScrollerL ).add( $headerRowScrollerR )
 
-            //$headerRow = $("<div class='slick-headerrow-columns' style='width:10000px;' />").appendTo($headerRowScroller);
             $headerRowL = $("<div class='slick-headerrow-columns slick-headerrow-columns-left' style='width:10000px;' />").appendTo( $headerRowScrollerL );
             $headerRowR = $("<div class='slick-headerrow-columns slick-headerrow-columns-right' style='width:10000px;' />").appendTo( $headerRowScrollerR );
 
             $headerRow = $().add( $headerRowL ).add( $headerRowR );
-
-            //$topPanelScroller = $("<div class='slick-top-panel-scroller ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
 
             // Append the top panel scroller
             $topPanelScrollerL = $("<div class='ui-state-default slick-top-panel-scroller' />").appendTo( $paneTopL );
             $topPanelScrollerR = $("<div class='ui-state-default slick-top-panel-scroller' />").appendTo( $paneTopR );
 
             $topPanelScroller = $().add( $topPanelScrollerL ).add( $topPanelScrollerR );
-
-            //$topPanel = $("<div class='slick-top-panel' style='width:10000px' />").appendTo($topPanelScroller);
 
             // Append the top panel
             $topPanelL = $("<div class='slick-top-panel' style='width:10000px' />").appendTo( $topPanelScrollerL );
@@ -309,8 +299,6 @@ if (typeof Slick === "undefined") {
                 $headerRowScroller.hide();
             }
 
-            //$viewport = $("<div class='slick-viewport' tabIndex='0' hideFocus>").appendTo($container);
-
             // Append the viewport containers
             $viewportTopL    = $("<div class='slick-viewport slick-viewport-top slick-viewport-left' tabIndex='0' hideFocus />").appendTo( $paneTopL );
             $viewportTopR    = $("<div class='slick-viewport slick-viewport-top slick-viewport-right' tabIndex='0' hideFocus' />").appendTo( $paneTopR );
@@ -321,8 +309,6 @@ if (typeof Slick === "undefined") {
             $viewport = $().add( $viewportTopL ).add( $viewportTopR ).add( $viewportBottomL ).add( $viewportBottomR );
 
             setOverflow();
-
-            //$canvas = $("<div class='grid-canvas' tabIndex='0' hideFocus />").appendTo($viewport);
 
             // Append the canvas containers
             $canvasTopL    = $("<div class='grid-canvas grid-canvas-top grid-canvas-left' tabIndex='0' hideFocus />").appendTo( $viewportTopL );
@@ -362,9 +348,8 @@ if (typeof Slick === "undefined") {
             resizeAndRender();
 
             bindAncestorScrollEvents();
-            //$viewport.bind("scroll.slickgrid", handleScroll);
 
-            $( '.slick-viewport' ).bind({
+            $viewport.bind({
                  "scroll.slickgrid": handleScroll
             });
 
@@ -509,19 +494,16 @@ if (typeof Slick === "undefined") {
 
         // TODO:  this is static.  need to handle page mutation.
         function bindAncestorScrollEvents() {
-            //var elem = $canvas[0];
             var elem = ( options.frozenRow > -1 ) ? $canvasBottomL[0] : $canvasTopL[0];
 
             while ((elem = elem.parentNode) != document.body) {
                 // bind to scroll containers only
-                //if (elem == $viewport[0] || elem.scrollWidth != elem.clientWidth || elem.scrollHeight != elem.clientHeight)
                 if (elem == $viewportTopL[0] || elem.scrollWidth != elem.clientWidth || elem.scrollHeight != elem.clientHeight)
                     $(elem).bind("scroll.slickgrid", handleActiveCellPositionChange);
             }
         }
 
         function unbindAncestorScrollEvents() {
-            //$canvas.parents().unbind("scroll.slickgrid");
             var $tmp = ( options.frozenRow > -1 ) ? $canvasBottomL : $canvasTopL;
 
             $tmp.parents().unbind("scroll.slickgrid");
