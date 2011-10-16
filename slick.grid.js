@@ -1201,6 +1201,7 @@ if (typeof Slick === "undefined") {
             columns = columnDefinitions;
 
             setPaneVisibility();
+            setOverflow();
 
             invalidateAllRows();
             createColumnHeaders();
@@ -1454,7 +1455,6 @@ if (typeof Slick === "undefined") {
         function removeRowFromCache(row) {
             var node = rowsCache[row];
             if (!node) { return; }
-            //$canvas[0].removeChild(node);
             $canvas.find(".slick-row[row=" + row + "]").detach();
 
             delete rowsCache[row];
@@ -1532,9 +1532,6 @@ if (typeof Slick === "undefined") {
                 viewportH = getViewportHeight();
             }
 
-            numVisibleRows = Math.ceil(viewportH / options.rowHeight);
-            viewportW = parseFloat($.css($container[0], "width", true));
-
             var widthL = 0, widthR = 0, i = columns.length;
 
             while (i--) {
@@ -1545,17 +1542,26 @@ if (typeof Slick === "undefined") {
                 }
             }
 
+            numVisibleRows = Math.ceil(viewportH / options.rowHeight);
+            viewportW = parseFloat($.css($container[0], "width", true));
+
+            $viewportTopL.width( viewportW );
+
             var paneTopH = ( options.frozenRow > -1 )
                 ? ( options.rowHeight * options.frozenRow ) +
                   options.headerHeight +
                   getVBoxDelta($headerScrollerL) +
                   (options.showTopPanel ? options.topPanelHeight + getVBoxDelta($topPanelScroller) : 0) +
                   (options.showHeaderRow ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0)
-                : viewportH;
+                : parseFloat($.css($container[0], "height", true));
+
+            $paneTopL.height( paneTopH );
 
             var viewportTopH = ( options.frozenRow > -1 )
                 ? ( options.rowHeight * options.frozenRow )
                 : viewportH;
+
+            $viewportTopL.height( viewportTopH );
 
             var paneBottomH =
                 viewportH -
@@ -1567,28 +1573,25 @@ if (typeof Slick === "undefined") {
 
             var viewportBottomH = viewportH - viewportTopH;
 
-            $viewportTopL.width( viewportW );
-            $viewportTopL.height( viewportH );
-
             if ( options.frozenColumn > -1 ) {
                 $paneTopR.css( "left", widthL );
+                $viewportTopL.width( widthL );
+                $paneTopR.height( paneTopH );
 
                 if ( options.frozenRow > -1 ) {
                     $paneBottomL.css({
                         "top": paneTopH
                     });
 
+                    $paneTopR.height( paneTopH );
+
                     $paneBottomR.css({
                          "top": paneTopH
                         ,"left": widthL
                     });
 
-                    $canvasTopR.height( viewportTopH );
-
-                    $viewportTopR.width( viewportW - widthL );
                     $viewportTopR.height( viewportTopH );
-
-                    $viewportBottomL.width( widthL );
+                    $viewportTopR.width( viewportW - widthL );
 
                     $viewportBottomR.width( viewportW - widthL );
                     $viewportBottomR.height( viewportBottomH );
@@ -1608,16 +1611,21 @@ if (typeof Slick === "undefined") {
 
                 if ( options.frozenRow > -1 ) {
                     $paneBottomL.css({
-                        "top": viewportTopH
+                        "top": paneTopH
                        ,'width': '100%'
                    });
                 }
             }
 
             if ( options.frozenRow > -1 ) {
-                $canvasTopL.height( viewportTopH );
-                $viewportTopL.height( viewportTopH );
+                $paneTopR.height( paneTopH );
                 $viewportBottomL.height( viewportBottomH );
+
+                $canvasTopL.height( options.frozenRow * options.rowHeight );
+                $canvasTopR.height( options.frozenRow * options.rowHeight );
+            } else {
+                $paneTopR.height( paneTopH );
+                $viewportTopR.height( viewportTopH );
             }
 
             setCanvasWidth( widthL, widthR );
@@ -1636,8 +1644,7 @@ if (typeof Slick === "undefined") {
 
         function updateRowCount() {
             var newRowCount = getDataLength() + (options.enableAddRow?1:0) + (options.leaveSpaceForNewRows?numVisibleRows-1:0);
-            var oldH = h;
-            //var oldH = ( options.frozenRow > -1 ) ? $canvasBottomL.height() : $canvasTopL.height();`
+            var oldH = ( options.frozenRow > -1 ) ? $canvasBottomL.height() : $canvasTopL.height();
 
             // remove the rows that are now outside of the data range
             // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
@@ -1668,14 +1675,7 @@ if (typeof Slick === "undefined") {
                     $canvasBottomR.height( h );
                 } else {
                     $canvasTopL.height( h );
-                }
-
-                if ( options.frozenColumn > -1 )  {
-                    if ( options.frozenRow > -1 ) {
-                        $canvasBottomR.height( h );
-                    } else {
-                        $canvasTopR.height( h );
-                    }
+                    $canvasTopR.height( h );
                 }
 
                 scrollTop = $viewportScrollContainer[0].scrollTop;
