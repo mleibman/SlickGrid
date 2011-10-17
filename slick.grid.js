@@ -1285,19 +1285,29 @@ if (typeof Slick === "undefined") {
                 updateRowPositions();
             }
 
+            var currentRow = Math.ceil( Math.abs( y / options.rowHeight ) );
+
+            if ( options.frozenRow > -1 && currentRow < options.frozenRow ) {
+                return;
+            }
+
             if (prevScrollTop != newScrollTop) {
                 scrollDir = (prevScrollTop + oldOffset < newScrollTop + offset) ? 1 : -1;
 
-                if ( options.frozenColumn > -1 ) {
-                    var newTop = options.rowHeight * activeRow;
+                lastRenderedScrollTop = scrollTop = prevScrollTop = newScrollTop;
 
-                    if ( options.frozenRow > -1 ) {
-                        $viewportBottomR[0].scrollTop = newTop - ( options.rowHeight * options.frozenRow );
-                    } else {
-                        $viewportTopR[0].scrollTop = newTop;
-                    }
+                var newTop = options.rowHeight * currentRow;
+
+                if ( options.frozenColumn > -1 ) {
+                    $viewportTopR[0].scrollTop = newTop;
                 }
 
+                if ( options.frozenRow > -1 ) {
+                    $viewportBottomL[0].scrollTop = newTop - ( options.rowHeight * options.frozenRow );
+                    $viewportBottomR[0].scrollTop = newTop - ( options.rowHeight * options.frozenRow );
+                }
+
+                $viewportTopL[0].scrollTop = newScrollTop;
 
                 trigger(self.onViewportChanged, {});
             }
@@ -2202,19 +2212,13 @@ if (typeof Slick === "undefined") {
 
         function scrollActiveCellIntoView() {
             if (activeCellNode) {
-                //var left = $(activeCellNode).position().left,
-                //    right = left + $(activeCellNode).outerWidth(),
-                //    scrollLeft = $viewport.scrollLeft(),
-                //    scrollRight = scrollLeft + $viewport.width();
+                if ( options.frozenRow > -1 && activeRow >= options.frozenRow ) {
+                    var tmpScrollTop = $viewportScrollContainer[0].scrollTop;
 
-                //if (left < scrollLeft)
-                //    $viewport.scrollLeft(left);
-                //else if (right > scrollRight)
-                //    $viewport.scrollLeft(Math.min(left, right - $viewport[0].clientWidth));
+                    var top = ( activeRow - options.frozenRow ) * options.rowHeight;
 
-                if ( options.frozenRow > -1 ) {
-                    if ( options.frozenColumn > -1 ) {
-                        $viewportBottomR[0].scrollTop = $viewportBottomL[0].scrollTop;
+                    if ( top < tmpScrollTop ) {
+                        $viewportScrollContainer[0].scrollTop = top;
                     }
                 }
 
@@ -2475,6 +2479,10 @@ if (typeof Slick === "undefined") {
         function scrollRowIntoView(row, doPaging) {
             var rowAtTop = row * options.rowHeight;
             var rowAtBottom = (row + 1) * options.rowHeight - viewportH + (viewportHasHScroll?scrollbarDimensions.height:0);
+
+            if ( options.frozenRow > -1 && row < options.frozenRow ) {
+                return;
+            }
 
             // need to page down?
             if ((row + 1) * options.rowHeight > scrollTop + viewportH + offset) {
