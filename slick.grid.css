@@ -70,6 +70,10 @@ classes should alter those!
 	height: 100%;
 }
 
+.slick-resizable-handle-hover {
+	background-color: #ccc;
+}
+
 .slick-sortable-placeholder {
 	background: silver;
 }

@@ -657,6 +657,14 @@ if (typeof Slick === "undefined") {
                 $col = $(e);
                 $("<div class='slick-resizable-handle' />")
                     .appendTo(e)
+                    .hover(
+                        function() {
+                            $(this).toggleClass( 'slick-resizable-handle-hover' );
+                        },
+                        function() {
+                            $(this).toggleClass( 'slick-resizable-handle-hover' );
+                        }
+                    )
                     .bind("dragstart", function(e,dd) {
                         if (!getEditorLock().commitCurrentEdit()) { return false; }
                         pageX = e.pageX;
