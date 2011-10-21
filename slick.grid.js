@@ -699,6 +699,7 @@ if (typeof Slick === "undefined") {
                                 shrinkLeewayOnLeft += c.previousWidth - Math.max(c.minWidth || 0, absoluteColumnMinWidth);
                             }
                         }
+
                         if (shrinkLeewayOnRight === null) { shrinkLeewayOnRight = 100000; }
                         if (shrinkLeewayOnLeft === null) { shrinkLeewayOnLeft = 100000; }
                         if (stretchLeewayOnRight === null) { stretchLeewayOnRight = 100000; }
@@ -1130,7 +1131,13 @@ if (typeof Slick === "undefined") {
                 rule = findCssRule("." + uid + " .r" + i);
                 rule.style.right = (rowWidth - x - w) + "px";
 
-                x += columns[i].width;
+                // If this column is frozen, reset the css left value since the
+                // column starts in a new viewport.
+                if ( options.frozenColumn == i ) {
+                    x = 0;
+                } else {
+                    x += columns[i].width;
+                }
             }
 
             rule = findCssRule("." + uid + " .slick-row");
