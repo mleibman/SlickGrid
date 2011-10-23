@@ -14,7 +14,8 @@
  *     or data associated with any cell/row DOM nodes.  Cell editors must make sure they implement .destroy()
  *     and do proper cleanup.
  *
- * TODO: Fix column resizing with frozen columns
+ * TODO: Fix column resizing with frozen columns (resizing the columns on either
+ *  side of the frozen column doesn't look right)
  *
  */
 
