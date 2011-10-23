@@ -13,6 +13,8 @@
  *     This increases the speed dramatically, but can only be done safely because there are no event handlers
  *     or data associated with any cell/row DOM nodes.  Cell editors must make sure they implement .destroy()
  *     and do proper cleanup.
+ *
+ * TODO: Scroll the viewport during column reorder
  */
 
 // make sure required JavaScript modules are loaded

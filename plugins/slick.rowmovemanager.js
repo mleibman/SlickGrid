@@ -1,3 +1,7 @@
+/**
+ * TODO: Scroll the viewport during row move
+ */
+
 (function($) {
     // register namespace
     $.extend(true, window, {
