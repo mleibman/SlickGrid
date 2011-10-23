@@ -15,7 +15,6 @@
  *     and do proper cleanup.
  *
  * TODO: Fix column resizing with frozen columns
- * TODO: Fix column re-order with frozen columns
  *
  */
 
@@ -629,7 +628,11 @@ if (typeof Slick === "undefined") {
                         return;
                     }
 
-                    var reorderedIds = $headers.sortable("toArray");
+                    var reorderedIds;
+
+                    reorderedIds = $headerL.sortable("toArray");
+                    reorderedIds = reorderedIds.concat( $headerR.sortable("toArray") );
+
                     var reorderedColumns = [];
                     for (var i=0; i<reorderedIds.length; i++) {
                         reorderedColumns.push(columns[getColumnIndex(reorderedIds[i].replace(uid,""))]);
