@@ -74,6 +74,15 @@
 		var grid;
 		var data = [];
 		var loader = new Slick.Data.RemoteModel();
+		var search_query = 'apple';
+		loader.setUrlBuilder(function(fromPage, toPage, PAGESIZE) {
+			return "http://services.digg.com/search/stories?"
+				+"query="   + search_query
+				+"&offset=" + (fromPage * PAGESIZE)
+				+"&count="  + (((toPage - fromPage) * PAGESIZE) + PAGESIZE)
+				+"&appkey=http://slickgrid.googlecode.com&type=javascript";
+		});
+		loader.setResponseItemListName('stories');
 
 		var storyTitleFormatter = function(row, cell, value, columnDef, dataContext) {
 		    return "<b><a href='" + dataContext["link"] + "' target=_blank>" + dataContext["title"] + "</a></b><br/>" + dataContext["description"];
@@ -107,9 +116,19 @@
             });
 
 			grid.onSort.subscribe(function(e,args) {
-                loader.setSort(args.sortCol.field, args.sortAsc ? 1 : -1);
-                var vp = grid.getViewport();
-                loader.ensureData(vp.top, vp.bottom);
+				if(e.sortCol.field == 'diggs') {
+					loader.setUrlBuilder(function(fromPage, toPage, PAGESIZE) {
+						return "http://services.digg.com/search/stories?"
+							+"query="   + search_query
+							+"&offset=" + (fromPage * PAGESIZE)
+							+"&count="  + (((toPage - fromPage) * PAGESIZE) + PAGESIZE)
+							+"&sort="   + (args.sortAsc ? "digg_count-asc" : "digg_count-desc")
+							+"&appkey=http://slickgrid.googlecode.com"
+							+"&type=javascript";
+					}).clear();
+                	var vp = grid.getViewport();
+                	loader.ensureData(vp.top, vp.bottom);
+				}
             });
 
 			loader.onDataLoading.subscribe(function() {
@@ -139,8 +158,15 @@
 			});
 
 			$("#txtSearch").keyup(function(e) {
+				var search_query = $(this).val();
                 if (e.which == 13) {
-                    loader.setSearch($(this).val());
+					loader.setUrlBuilder(function(fromPage, toPage, PAGESIZE, sortcol, sortdir) {
+						return "http://services.digg.com/search/stories?"
+							+"query="   + search_query
+							+"&offset=" + (fromPage * PAGESIZE)
+							+"&count="  + (((toPage - fromPage) * PAGESIZE) + PAGESIZE)
+							+"&appkey=http://slickgrid.googlecode.com&type=javascript";
+					}).clear();
                     var vp = grid.getViewport();
                     loader.ensureData(vp.top, vp.bottom);
                 }
