@@ -1,7 +1,7 @@
 (function($) {
 	/***
 	 * A simple, sample AJAX data store implementation.
-	 * 
+	 *
 	 * This can be used as is for a basic JSONP-compatible backend that accepts paging parameters.
 	 */
 	function RemoteModel(options) {
@@ -9,7 +9,7 @@
 		var data = {length:0};
 		var req = null;
 		var h_req = null;
-		
+
 		var defaults = {
 		  pagesize: 50,
 		  url: '',
@@ -43,7 +43,7 @@
 			if(req) {
 				req.abort();
 				for(var i=req.fromPage; i<=req.toPage; i++) {
-				  data[i * opts.pagesize] = undefined; 
+				  data[i * opts.pagesize] = undefined;
 				}
 			}
 
@@ -56,7 +56,7 @@
 
 			while(data[fromPage * opts.pagesize] !== undefined && fromPage < toPage) {
 				fromPage++;
-		  }
+		  	}
 
 			while(data[toPage * opts.pagesize] !== undefined && fromPage < toPage) {
 				toPage--;
@@ -66,15 +66,15 @@
 				// TODO:  look-ahead
 				return;
 			}
-			
+
 			if(opts.url == undefined || opts.url == null) {
 				return;
 			}
-			
+
 			var url = opts.url(fromPage, toPage, opts.pagesize);
 
 			if(h_req != null) {
-			  clearTimeout(h_req); 
+			  clearTimeout(h_req);
 			}
 
 			h_req = setTimeout(function() {
@@ -119,7 +119,7 @@
 			if (typeof resp.total !== "undefined" && !isNaN(resp.total)) {
 				data.length = resp.total;
 			}
-			
+
 			for (var i = 0; i < resp[opts.response_item].length; i++) {
 				data[resp.offset + i] = resp[opts.response_item][i];
 				data[resp.offset + i].index = resp.offset + i;
@@ -137,6 +137,15 @@
 			ensureData(from,to);
 		}
 
+		function getOptions() {
+            return options;
+        }
+
+		function setOptions(options) {
+			opts = $.extend(defaults, options);
+			return this;
+		}
+
 		init();
 
 		return {
@@ -148,6 +157,8 @@
 			"isDataLoaded": isDataLoaded,
 			"ensureData": ensureData,
 			"reloadData": reloadData,
+			"getOptions": getOptions,
+			"setOptions": setOptions,
 
 			// Events
 			"onDataLoading": onDataLoading,
