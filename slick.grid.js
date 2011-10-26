@@ -934,6 +934,7 @@ if (typeof Slick === "undefined") {
             createCssRules();
             resizeAndRender();
             handleScroll();
+            trigger(self.onColumnsChanged, {});
         }
 
         function getOptions() {
@@ -2513,6 +2514,7 @@ if (typeof Slick === "undefined") {
             "onViewportChanged":            new Slick.Event(),
             "onColumnsReordered":           new Slick.Event(),
             "onColumnsResized":             new Slick.Event(),
+            "onColumnsChanged":             new Slick.Event(),
             "onCellChange":                 new Slick.Event(),
             "onBeforeEditCell":             new Slick.Event(),
             "onBeforeCellEditorDestroy":    new Slick.Event(),
