@@ -6,13 +6,13 @@ classes should alter those!
 */
 
 
-.slick-header.ui-state-default {
+.slick-header.ui-state-default, .slick-headerrow.ui-state-default {
 	width: 100%;
 	overflow: hidden;
 	border-left: 0px;
 }
 
-.slick-header-columns {
+.slick-header-columns, .slick-headerrow-columns {
 	width: 999999px;
 	position: relative;
 	white-space: nowrap;
@@ -34,6 +34,10 @@ classes should alter those!
 	border-top: 0px;
 	border-bottom: 0px;
 	float: left;
+}
+
+.slick-headerrow-column.ui-state-default {
+    padding: 4px;
 }
 
 .slick-header-column-sorted {
@@ -66,6 +70,10 @@ classes should alter those!
 	height: 100%;
 }
 
+.slick-resizable-handle-hover {
+	background-color: #ccc;
+}
+
 .slick-sortable-placeholder {
 	background: silver;
 }
@@ -73,7 +81,7 @@ classes should alter those!
 .grid-canvas {
 	position: relative;
 	outline: 0;
-	height: 100%;
+	overflow: hidden;
 }
 
 .slick-row.ui-widget-content, .slick-row.ui-state-active {
@@ -81,7 +89,7 @@ classes should alter those!
 	border: 0px;
 }
 
-.slick-cell {
+.slick-cell, .slick-headerrow-column {
 	float: left;
 
 	border: 1px solid transparent;
@@ -96,9 +104,17 @@ classes should alter those!
 	padding: 1px 2px 2px 1px;
     margin: 0;
 
+
 	white-space: nowrap;
 
 	cursor: default;
+}
+
+.slick-group {
+}
+
+.slick-group-toggle {
+    display: inline-block;
 }
 
 .slick-cell.highlighted {
@@ -144,24 +160,42 @@ classes should alter those!
 .slick-selection {
     z-index: 10;
     position: absolute;
-    background: gray;
-    border: 1px solid black;
-    opacity: 0.3;
-    filter: alpha(opacity=30);
-    -webkit-box-shadow: 0px 0px 10px black;
-    -moz-box-shadow: 0px 0px 10px black;
-    box-shadow: 0px 0px 10px black;
-}
-
-.slick-viewport {
-	position: relative;
-	outline: 0;
-	width: 100%;
+    border: 2px dashed black;
 }
 
 .slick-pane {
 	position: absolute;
 	outline: 0;
 	overflow: hidden;
+	width: 100%;
+}
+
+.slick-header {
+	overflow: hidden;
+	position: relative;
+}
+
+.slick-headerrow {
+	overflow: hidden;
+	position: relative;
+}
+
+.slick-headerrow-columns {
+	width:100000px;
+	left:-10000px
+}
+
+.slick-top-panel-scroller {
+	overflow: hidden;
+	position: relative;
+}
+
+.slick-top-panel {
+	width:10000px
+}
+
+.slick-viewport {
+	position: relative;
+	outline: 0;
 	width: 100%;
 }

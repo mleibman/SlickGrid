@@ -7,6 +7,8 @@
 
 body {
     background: beige;
+    padding: 0;
+    margin: 8;
 }
 
 h2 {
@@ -26,7 +28,7 @@ li {
 
     list-style: none;
     margin: 0;
-} 
+}
 
 #myGrid {
     background: white;
@@ -42,7 +44,7 @@ li {
 	color: black;
 	height: 24px;
 	line-height: 24px;
-}	
+}
 
 .grid-header label {
 	display: inline-block;
@@ -72,12 +74,16 @@ li {
 	-moz-border-radius: 6px;
 	-webkit-border-radius: 6px;
 	border: 1px solid silver;
-	background: #f0f0f0;	
-	padding: 4px;		
+	background: #f0f0f0;
+	padding: 4px;
 	margin-bottom: 20px;
+    width:400px;
+    position:absolute;
+    top:0px;
+    left:650px;
 }
 
- 
+
 
 /* Individual cell styles */
 .slick-cell.task-name {
@@ -137,7 +143,7 @@ input.editor-text {
 
 }
 
-.slick-cell .ui-datepicker-trigger {
+.ui-datepicker-trigger {
 	margin-top: 2px;
 	padding: 0;
 	vertical-align: top;
@@ -161,12 +167,12 @@ input.editor-percentcomplete {
     display: inline-block;
     width: 16px;
     height: 100%;
-    background: url("../images/pencil.gif") no-repeat center center;	
+    background: url("../images/pencil.gif") no-repeat center center;
 	overflow: visible;
 	z-index: 1000;
 	float: right;
 }
-	
+
 .editor-percentcomplete-helper {
     border: 0 solid gray;
     position: absolute;
@@ -177,7 +183,7 @@ input.editor-percentcomplete {
 
     width: 120px;
     height: 140px;
-    display: none;	
+    display: none;
 	overflow: visible;
 }
 
@@ -193,16 +199,16 @@ input.editor-percentcomplete {
 }
 
 .editor-percentcomplete-buttons {
-	float: right;	
+	float: right;
 }
 
 .editor-percentcomplete-buttons button {
-	width: 80px;	
+	width: 80px;
 }
 
 
 .editor-percentcomplete-slider {
-	float: left;	
+	float: left;
 }
 
  .editor-percentcomplete-picker:hover .editor-percentcomplete-helper {
@@ -219,7 +225,7 @@ input.editor-percentcomplete {
 select.editor-yesno {
 	width: 100%;
 	margin: 0;
-	vertical-align: middle;		
+	vertical-align: middle;
 }
 
 /* YesNoCheckboxCellEditor */
@@ -229,5 +235,3 @@ input.editor-checkbox {
 	padding: 0;
 	border: 0;
 }
-
-

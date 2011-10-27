@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE HTML>
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
@@ -14,12 +14,12 @@
 	</head>
 	<body>
 
-
-		<div style="width:600px;float:left;">
+        <div style="position:relative">
+		<div style="width:600px;">
 			<div id="myGrid" style="width:100%;height:500px;"></div>
 		</div>
 
-		<div class="options-panel" style="width:320px;margin-left:650px;">
+		<div class="options-panel">
             <h2>Demonstrates:</h2>
             <ul>
                 <li>compound cell editors driving multiple fields from one cell</li>
@@ -27,15 +27,17 @@
                 <li>hooking into validation events</li>
             </ul>
 		</div>
+        </div>
 
-		<script language="JavaScript" src="../lib/firebugx.js"></script>
+		<script src="../lib/firebugx.js"></script>
 
-		<script language="JavaScript" src="../lib/jquery-1.6.4.min.js"></script>
+		<script src="../lib/jquery-1.6.4.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
-		<script language="JavaScript" src="../lib/jquery.event.drag-2.0.min.js"></script>
+		<script src="../lib/jquery.event.drag-2.0.min.js"></script>
 
-		<script language="JavaScript" src="../slick.editors.js"></script>
-		<script language="JavaScript" src="../slick.grid.js"></script>
+		<script src="../slick.core.js"></script>
+		<script src="../slick.editors.js"></script>
+		<script src="../slick.grid.js"></script>
 
 		<script>
 		var grid;
@@ -120,8 +122,6 @@
             this.init();
         }
 
-
-        
 		$(function()
 		{
 			for (var i=0; i<500; i++) {
@@ -132,14 +132,12 @@
                 d["to"] = d["from"] + Math.round(Math.random() * 100);
 			}
 
-			grid = new Slick.Grid($("#myGrid"), data, columns, options);
+			grid = new Slick.Grid("#myGrid", data, columns, options);
 
-            grid.onValidationError = function(currentCellNode, validationResults, currentRow, currentCell, column) {
-                alert(validationResults.msg);
-            }
+            grid.onValidationError.subscribe(function(e,args) {
+                alert(args.validationResults.msg);
+            });
 		})
-
 		</script>
-
 	</body>
 </html>

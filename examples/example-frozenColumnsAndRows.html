@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-		<title>SlickGrid example 4: Model</title>
+		<title>SlickGrid example: Frozen Columns</title>
 		<link rel="stylesheet" href="../slick.grid.css" type="text/css" media="screen" charset="utf-8" />
 		<link rel="stylesheet" href="../controls/slick.pager.css" type="text/css" media="screen" charset="utf-8" />
         <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" media="screen" charset="utf-8" />
@@ -32,13 +32,13 @@
 	</style>
 	</head>
 	<body>
-        <div style="position:relative">
+		<div style="position:relative">
 		<div style="width:600px;">
 			<div class="grid-header" style="width:100%">
 				<label>SlickGrid</label>
                 <span style="float:right" class="ui-icon ui-icon-search" title="Toggle search panel" onclick="toggleFilterRow()"></span>
 			</div>
-			<div id="myGrid" style="width:100%;height:500px;"></div>
+			<div id="myGrid" style="width:100%;height:350px;"></div>
 			<div id="pager" style="width:100%;height:20px;"></div>
 		</div>
 
@@ -54,8 +54,16 @@
 				<label style="width:200px;float:left">And title including:</label>
 				<input type=text id="txtSearch" style="width:100px;">
 				<br/><br/>
+				<label style="width:200px;float:left">Frozen Row:</label>
+				<input type=text id="frozenRow" style="width:100px;" value=5>
+				<button id="setFrozenRow">Set</button>
+				<br/><br/>
+				<label style="width:200px;float:left">Frozen Column:</label>
+				<input type=text id="frozenColumn" style="width:100px;" value=-1>
+				<button id="setFrozenColumn">Set</button>
+				<br/><br/>
 				<button id="btnSelectRows">Select first 10 rows</button>
-    
+
                 <br/>
                 <h2>Demonstrates:</h2>
                 <ul>
@@ -75,14 +83,16 @@
 			    </ul>
 			</div>
 		</div>
-        </div>
 
-        <div id="inlineFilterPanel" style="display:none;background:#dddddd;padding:3px;color:black;">
+        <div id="inlineFilterPanelL" style="display:none;background:#dddddd;padding:3px;color:black;">
             Show tasks with title including <input type="text" id="txtSearch2">
-            and % at least &nbsp; <div style="width:100px;display:inline-block;" id="pcSlider2"></div>
         </div>
 
-		<script src="../lib/firebugx.js"></script>
+		<div id="inlineFilterPanelR" style="display:none;background:#dddddd;padding:6px;color:black;">
+			and % at least &nbsp; <div style="width:100px;display:inline-block;" id="pcSlider2"></div>
+		</div>
+
+		<script language="JavaScript" src="../lib/firebugx.js"></script>
 
 		<script src="../lib/jquery-1.6.4.min.js"></script>
 		<script language="JavaScript" src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
@@ -97,28 +107,40 @@
 		<script src="../controls/slick.columnpicker.js"></script>
 
 		<script>
+		$(function() {
+			$( '#frozenColumn' ).val( options.frozenColumn );
+		});
+
+
 		var dataView;
 		var grid;
 		var data = [];
 		var selectedRowIds = [];
 
 		var columns = [
-			{id:"sel", name:"#", field:"num", behavior:"select", cssClass:"cell-selection", width:40, cannotTriggerInsert:true, resizable:false, selectable:false },
-			{id:"title", name:"Title", field:"title", width:120, minWidth:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, sortable:true},
-			{id:"duration", name:"Duration", field:"duration", editor:TextCellEditor, sortable:true},
-			{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter, editor:PercentCompleteCellEditor, sortable:true},
-			{id:"start", name:"Start", field:"start", minWidth:60, editor:DateCellEditor, sortable:true},
-			{id:"finish", name:"Finish", field:"finish", minWidth:60, editor:DateCellEditor, sortable:true},
-			{id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter, editor:YesNoCheckboxCellEditor, cannotTriggerInsert:true, sortable:true}
+			 {id:"sel", name:"#", field:"num", behavior:"select", cssClass:"cell-selection", width:40, cannotTriggerInsert:true, resizable:false, unselectable:true }
+			,{id:"title", name:"Title", field:"title", width:120, minWidth:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, sortable:true}
+			,{id:"duration", name:"Duration", field:"duration", editor:TextCellEditor, sortable:true}
+			,{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter, editor:PercentCompleteCellEditor, sortable:true}
+			,{id:"start", name:"Start", field:"start", minWidth:60, editor:DateCellEditor, sortable:true}
+			,{id:"finish", name:"Finish", field:"finish", minWidth:60, editor:DateCellEditor, sortable:true}
+			,{id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter, editor:YesNoCheckboxCellEditor, cannotTriggerInsert:true, sortable:true}
+			,{id:"title1", name:"Title1", field:"title1", width:120, minWidth:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, sortable:true}
+			,{id:"title2", name:"Title2", field:"title2", width:120, minWidth:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, sortable:true}
+			,{id:"title3", name:"Title3", field:"title3", width:120, minWidth:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, sortable:true}
+			,{id:"title4", name:"Title4", field:"title4", width:120, minWidth:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, sortable:true}
 		];
 
 		var options = {
-			editable: true,
-			enableAddRow: true,
-			enableCellNavigation: true,
-			asyncEditorLoading: true,
-			forceFitColumns: false,
-            topPanelHeight: 25
+		 	 editable: true
+		    ,enableAddRow: true
+			,enableCellNavigation: true
+			,asyncEditorLoading: true
+			,forceFitColumns: false
+			,autoEdit: false
+			,topPanelHeight: 25
+			,frozenColumn: 2
+			,frozenRow: 5
 		};
 
 		var sortcol = "title";
@@ -152,6 +174,13 @@
 			return (x == y ? 0 : (x > y ? 1 : -1));
 		}
 
+		function addItem(newItem,columnDef) {
+			var item = {"num": data.length, "id": "new_" + (Math.round(Math.random()*10000)), "title":"New task", "duration":"1 day", "percentComplete":0, "start":"01/01/2009", "finish":"01/01/2009", "effortDriven":false};
+			$.extend(item,newItem);
+			dataView.addItem(item);
+		}
+
+
         function toggleFilterRow() {
             if ($(grid.getTopPanel()).is(":visible"))
                 grid.hideTopPanel();
@@ -183,6 +212,10 @@
 				d["start"] = "01/01/2009";
 				d["finish"] = "01/05/2009";
 				d["effortDriven"] = (i % 5 == 0);
+				d["title1"] = i;
+				d["title2"] = i;
+				d["title3"] = i;
+				d["title4"] = i;
 			}
 
 
@@ -194,9 +227,15 @@
 			var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
 
 
-            // move the filter panel defined in a hidden div into grid top panel
-            $("#inlineFilterPanel")
-                .appendTo(grid.getTopPanel())
+            // move the filter panel defined in a hidden div into an inline secondary grid header row
+            var $secondaryRow = grid.getTopPanel();
+
+            $("#inlineFilterPanelL")
+                .appendTo($secondaryRow[0])
+                .show();
+
+			$("#inlineFilterPanelR")
+                .appendTo($secondaryRow[1])
                 .show();
 
             grid.onCellChange.subscribe(function(e,args) {
@@ -303,6 +342,7 @@
 			var h_runfilters = null;
 
 			// wire up the slider to apply the filter to the model
+			// wire up the slider to apply the filter to the model
 			$("#pcSlider,#pcSlider2").slider({
 				"range":	"min",
 				"slide":	function(event,ui) {
@@ -352,6 +392,26 @@
 			dataView.endUpdate();
 
 			$("#gridContainer").resizable();
+
+			$( '#setFrozenRow' ).click(function() {
+				var val = -1;
+
+				if ( $('#frozenRow').val() != '' ) {
+					val = parseInt( $('#frozenRow').val() );
+				}
+
+				grid.setOptions({ 'frozenRow': val });
+			});
+
+			$( '#setFrozenColumn' ).click(function() {
+				var val = -1;
+
+				if ( $( '#frozenColumn' ).val() != '' ) {
+					val = parseInt( $( '#frozenColumn' ).val() );
+				}
+
+				grid.setOptions({ 'frozenColumn': val });
+			});
 		})
 
 		</script>
