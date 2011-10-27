@@ -26,7 +26,7 @@
             groupItemMetadataProvider: null
         };
 
-        
+
         // private
         var idProperty = "id";  // property holding a unique row id
         var items = [];			// data by index
@@ -268,6 +268,10 @@
             // overrides for totals rows
             if (item.__groupTotals) {
                 return options.groupItemMetadataProvider.getTotalsRowMetadata(item);
+            }
+
+            if (options.groupItemMetadataProvider) {
+                return options.groupItemMetadataProvider.getRowMetadata(item);
             }
 
             return null;
