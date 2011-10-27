@@ -1,7 +1,3 @@
-/**
- * TODO: Scroll the viewport during row move
- */
-
 (function($) {
     // register namespace
     $.extend(true, window, {
@@ -103,6 +99,9 @@
                 }
 
                 dd.insertBefore = insertBefore;
+
+                // TODO: Implement in a timer
+                grid.scrollRowIntoView( insertBefore );
             }
         }
 
@@ -132,6 +131,7 @@
 
             "init":             init,
             "destroy":          destroy
+
         });
     }
 })(jQuery);
