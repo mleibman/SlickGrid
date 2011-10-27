@@ -180,11 +180,6 @@ classes should alter those!
 	position: relative;
 }
 
-.slick-headerrow-columns {
-	width:100000px;
-	left:-10000px
-}
-
 .slick-top-panel-scroller {
 	overflow: hidden;
 	position: relative;
