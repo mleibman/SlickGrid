@@ -100,7 +100,7 @@
 
 
 		function onError(fromPage,toPage) {
-			alert("Error loading pages " + fromPage + " to " + toPage);
+			throw "Error loading pages " + fromPage + " to " + toPage;
 		}
 
 		function onSuccess(resp) {
@@ -113,15 +113,44 @@
 			if (typeof resp.offset == "undefined" || resp.offset == null) {
 				resp.offset = this.fromPage * opts.pagesize;
 			}
-			if (typeof resp.count == "undefined" || resp.count == null) {
-				resp.count = resp[opts.response_item].length;
-			}
 			if (typeof resp.total !== "undefined" && !isNaN(resp.total)) {
 				data.length = resp.total;
 			}
 
-			for (var i = 0; i < resp[opts.response_item].length; i++) {
-				data[resp.offset + i] = resp[opts.response_item][i];
+			var shape;
+
+			if ($.isArray(resp) && typeof resp[0][opts.response_item] == "object") {
+				shape = 'object in array';
+			} else if ($.isArray(resp[opts.response_item])) {
+				shape = 'array in object';
+			} else {
+				throw "Could not find '" + opts.response_item + "' in JSONP response!"
+			}
+
+			if (typeof resp.count == "undefined" || resp.count == null) {
+				switch(shape) {
+					case 'object in array':
+						resp.count = resp[length];
+						break;
+					case 'array in object':
+						resp.count = resp[opts.response_item].length;
+						break;
+					default:
+						throw "Unknown response shape " + shape;
+				}
+			}
+
+			for (var i = 0; i < resp.count; i++) {
+				switch(shape) {
+					case 'object in array':
+						data[resp.offset + i] = resp[i][opts.response_item];
+						break;
+					case 'array in object':
+						data[resp.offset + i] = resp[opts.response_item][i];
+						break;
+					default:
+						throw "Unknown response shape " + shape;
+				}
 				data[resp.offset + i].index = resp.offset + i;
 			}
 
