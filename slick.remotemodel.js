@@ -127,40 +127,20 @@
 				resp.offset = this.fromPage * opts.pagesize;
 			}
 
-			var shape;
-
 			if ($.isArray(resp) && typeof resp[0][opts.response_item] == "object") {
-				shape = 'object in array';
+				var strategy = objInArray;
 			} else if ($.isArray(resp[opts.response_item])) {
-				shape = 'array in object';
+				var strategy = arrayInObj;
 			} else {
 				throw "Could not find '" + opts.response_item + "' in JSONP response!"
 			}
 
 			if (typeof resp.count == "undefined" || resp.count == null) {
-				switch(shape) {
-					case 'object in array':
-						resp.count = resp.length;
-						break;
-					case 'array in object':
-						resp.count = resp[opts.response_item].length;
-						break;
-					default:
-						throw "Unknown response shape " + shape;
-				}
+				resp.count = strategy.count(resp);
 			}
 
 			for (var i = 0; i < resp.count; i++) {
-				switch(shape) {
-					case 'object in array':
-						data[resp.offset + i] = resp[i][opts.response_item];
-						break;
-					case 'array in object':
-						data[resp.offset + i] = resp[opts.response_item][i];
-						break;
-					default:
-						throw "Unknown response shape " + shape;
-				}
+				data[resp.offset + i] = strategy.find(resp, i);
 				data[resp.offset + i].index = resp.offset + i;
 			}
 
@@ -190,6 +170,16 @@
 			opts = $.extend(defaults, options);
 			return this;
 		}
+
+		var objInArray = {
+			find: function(resp, i) {return resp[i][opts.response_item];},
+			count: function(resp) {return resp.length;}
+		};
+
+		var arrayInObj = {
+			find: function(resp, i) {return resp[opts.response_item][i];},
+			count: function(resp) {return resp[opts.response_item].length;}
+		};
 
 		init();
 
