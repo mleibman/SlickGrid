@@ -55,7 +55,7 @@
 				<input type=text id="txtSearch" style="width:100px;">
 				<br/><br/>
 				<button id="btnSelectRows">Select first 10 rows</button>
-    
+
                 <br/>
                 <h2>Demonstrates:</h2>
                 <ul>
@@ -192,6 +192,10 @@
 
 			var pager = new Slick.Controls.Pager(dataView, grid, $("#pager"));
 			var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
+
+			columnpicker.onColumnChanged.subscribe(function(e,data) {
+				return true;
+			});
 
 
             // move the filter panel defined in a hidden div into grid top panel

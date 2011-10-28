@@ -1,6 +1,17 @@
 (function($) {
+	// register namespace
+	$.extend(true, window, {
+		"Slick": {
+			"Controls": {
+				"ColumnPicker": SlickColumnPicker
+			}
+		}
+	});
+
 	function SlickColumnPicker(columns,grid,options)
 	{
+		var _self = this;
+
 		var $menu;
 
 		var defaults = {
@@ -93,13 +104,16 @@
                     }
                 });
                 grid.setColumns(visibleColumns);
+
+				_self.onColumnChanged.notify();
 			}
 		}
+
+		$.extend(this, {
+            "onColumnChanged": new Slick.Event()
+        });
 
 
 		init();
 	}
-
-	// Slick.Controls.ColumnPicker
-	$.extend(true, window, { Slick: { Controls: { ColumnPicker: SlickColumnPicker }}});
 })(jQuery);
