@@ -13,6 +13,7 @@
 		var defaults = {
 		  pagesize: 50,
 		  url: '',
+		  method: 'jsonp',
 		  response_item: ''
 		};
 		var opts = $.extend(defaults, options);
@@ -20,6 +21,22 @@
 		// Events
 		var onDataLoading = new Slick.Event();
 		var onDataLoaded = new Slick.Event();
+
+		var request_params = {
+			jsonp: {
+				callbackParameter: "callback",
+				cache: true,
+			},
+			ajax: {
+				dataType: 'json',
+			},
+			'*': {
+				success: onSuccess,
+				error: function() {
+					onError(fromPage, toPage)
+				}
+			}
+		}
 
 		function init() {}
 
@@ -84,17 +101,13 @@
 
 				onDataLoading.notify({from:from, to:to});
 
-				req = $.jsonp({
+				// Make the AJAX/JSONP call with both the general and specific parameters we need
+				$[opts.method]($.extend(request_params['*'], request_params[opts.method], {
 					url: url,
-					callbackParameter: "callback",
-					cache: true,
-					success: onSuccess,
-					error: function() {
-						onError(fromPage, toPage)
-					}
-				});
-				req.fromPage = fromPage;
-				req.toPage = toPage;
+					context: {
+						fromPage: fromPage,
+						toPage: toPage
+					}}));
 			}, 50);
 		}
 
@@ -113,9 +126,6 @@
 			if (typeof resp.offset == "undefined" || resp.offset == null) {
 				resp.offset = this.fromPage * opts.pagesize;
 			}
-			if (typeof resp.total !== "undefined" && !isNaN(resp.total)) {
-				data.length = resp.total;
-			}
 
 			var shape;
 
@@ -130,7 +140,7 @@
 			if (typeof resp.count == "undefined" || resp.count == null) {
 				switch(shape) {
 					case 'object in array':
-						resp.count = resp[length];
+						resp.count = resp.length;
 						break;
 					case 'array in object':
 						resp.count = resp[opts.response_item].length;
@@ -152,6 +162,12 @@
 						throw "Unknown response shape " + shape;
 				}
 				data[resp.offset + i].index = resp.offset + i;
+			}
+
+			if (typeof resp.total !== "undefined" && !isNaN(resp.total)) {
+				data.length = resp.total;
+			} else {
+				data.length = Math.max(data.length, resp.offset + resp.count);
 			}
 
 			req = null;
