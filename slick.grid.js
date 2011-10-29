@@ -1610,6 +1610,9 @@ if (typeof Slick === "undefined") {
                 $viewportTopL.width( widthL );
                 $paneTopR.height( paneTopH );
 
+                $viewportTopR.height( viewportTopH );
+                $viewportTopR.width( viewportW - widthL );
+
                 if ( options.frozenRow > -1 ) {
                     $paneBottomL.css({
                         "top": paneTopH
@@ -1621,9 +1624,6 @@ if (typeof Slick === "undefined") {
                          "top": paneTopH
                         ,"left": widthL
                     });
-
-                    $viewportTopR.height( viewportTopH );
-                    $viewportTopR.width( viewportW - widthL );
 
                     $viewportBottomR.width( viewportW - widthL );
                     $viewportBottomR.height( viewportBottomH );
