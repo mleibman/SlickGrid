@@ -10,6 +10,7 @@
         "Slick": {
             "Event":        Event,
             "EventData":    EventData,
+            "EventHandler": EventHandler,
             "Range":        Range,
             "NonDataRow":   NonDataItem,
             "Group":        Group,
@@ -127,6 +128,38 @@
 
             return returnValue;
         };
+    }
+
+    function EventHandler() {
+        var handlers = [];
+
+        this.subscribe = function(event, handler) {
+            handlers.push({
+                event: event,
+                handler: handler
+            });
+            event.subscribe(handler);
+        };
+
+        this.unsubscribe = function(event, handler) {
+            var i = handlers.length;
+            while (i--) {
+                if (handlers[i].event === event &&
+                    handlers[i].handler === handler) {
+                    handlers.splice(i, 1);
+                    event.unsubscribe(handler);
+                    return;
+                }
+            }
+        };
+
+        this.unsubscribeAll = function() {
+            var i = handlers.length;
+            while (i--) {
+                handlers[i].event.unsubscribe(handlers[i].handler);
+            }
+            handlers = [];
+        }
     }
 
     /***
