@@ -23,22 +23,27 @@
         var self = this;
 
         var defaults = {
-            groupItemMetadataProvider: null
+            groupItemMetadataProvider: null,
+            batchFilter: false
         };
 
-        
+
         // private
         var idProperty = "id";  // property holding a unique row id
-        var items = [];			// data by index
-        var rows = [];			// data by row
-        var idxById = {};		// indexes by id
-        var rowsById = null;	// rows by id; lazy-calculated
-        var filter = null;		// filter function
-        var updated = null; 	// updated item ids
-        var suspend = false;	// suspends the recalculation
+        var items = [];         // data by index
+        var rows = [];          // data by row
+        var idxById = {};       // indexes by id
+        var rowsById = null;    // rows by id; lazy-calculated
+        var filter = null;      // filter function
+        var updated = null;     // updated item ids
+        var suspend = false;    // suspends the recalculation
         var sortAsc = true;
         var fastSortField;
         var sortComparer;
+        var refreshHints = {};
+        var prevRefreshHints = {};
+        var filterArgs;
+        var filteredItems = [];
 
         // grouping
         var groupingGetter;
@@ -66,9 +71,17 @@
             suspend = true;
         }
 
-        function endUpdate(hints) {
+        function endUpdate() {
             suspend = false;
-            refresh(hints);
+            refresh();
+        }
+
+        function setRefreshHints(hints){
+            refreshHints = hints;
+        }
+
+        function setFilterArgs(args) {
+            filterArgs = args;
         }
 
         function updateIdxById(startingIndex) {
@@ -99,7 +112,7 @@
 
         function setItems(data, objectIdProperty) {
             if (objectIdProperty !== undefined) idProperty = objectIdProperty;
-            items = data;
+            items = filteredItems = data;
             idxById = {};
             updateIdxById();
             ensureIdUniqueness();
@@ -198,15 +211,17 @@
             return idxById[id];
         }
 
-        // calculate the lookup table on first call
-        function getRowById(id) {
+        function ensureRowsByIdCache() {
             if (!rowsById) {
-                rowsById = {};
-                for (var i = 0, l = rows.length; i < l; ++i) {
-                    rowsById[rows[i][idProperty]] = i;
-                }
-            }
+                 rowsById = {};
+                 for (var i = 0, l = rows.length; i < l; i++) {
+                     rowsById[rows[i][idProperty]] = i;
+                 }
+             }
+        }
 
+        function getRowById(id) {
+            ensureRowsByIdCache();
             return rowsById[id];
         }
 
@@ -378,37 +393,64 @@
             return groupedRows;
         }
 
-        function getFilteredAndPagedItems(items, filter) {
-            var pageStartRow = pagesize * pagenum;
-            var pageEndRow = pageStartRow + pagesize;
-            var itemIdx = 0, rowIdx = 0, item;
-            var newRows = [];
-
-            // filter the data and get the current page if paging
-            if (filter) {
-                for (var i = 0, il = items.length; i < il; ++i) {
-                    item = items[i];
-
-                    if (!filter || filter(item)) {
-                        if (!pagesize || (itemIdx >= pageStartRow && itemIdx < pageEndRow)) {
-                            newRows[rowIdx] = item;
-                            rowIdx++;
-                        }
-                        itemIdx++;
+        function getBatchFilteringFn() {
+            return function(data, args) {
+                var item, retval = [], idx = 0;
+                for (var i = 0, il = data.length; i < il; i++) {
+                    item = data[i];
+                    if (filter(item)) {
+                        retval[idx++] = item;
                     }
                 }
-            }
-            else {
-                newRows = pagesize ? items.slice(pageStartRow, pageEndRow) : items.concat();
-                itemIdx = items.length;
+                return retval;
+            };
+        }
+
+        function getFilteredAndPagedItems(items) {
+            if (filter && !refreshHints.isFilterUnchanged) {
+                var filterFn = options.batchFilter ? filter : getBatchFilteringFn();
+
+                if (refreshHints.isFilterNarrowing) {
+                    filteredItems = filterFn(filteredItems, filterArgs);
+                } else {
+                    filteredItems = filterFn(items, filterArgs);
+                }
+            } else {
+                // special case:  if not filtering and not paging, the resulting
+                // rows collection needs to be a copy so that changes due to sort
+                // can be caught
+                filteredItems = pagesize ? items : items.concat();
             }
 
-            return {totalRows:itemIdx, rows:newRows};
+            // get the current page
+            var paged;
+            if (pagesize) {
+                if (filteredItems.length < pagenum * pagesize) {
+                    pagenum = Math.floor(filteredItems.length / pagesize);
+                }
+                paged = filteredItems.slice(pagesize * pagenum, pagesize * pagenum + pagesize);
+            } else {
+                paged = filteredItems;
+            }
+
+            return {totalRows:filteredItems.length, rows:paged};
         }
 
         function getRowDiffs(rows, newRows) {
             var item, r, eitherIsNonData, diff = [];
-            for (var i = 0, rl = rows.length, nrl = newRows.length; i < nrl; i++) {
+            var from = 0, to = newRows.length;
+
+            if (refreshHints && refreshHints.ignoreDiffsBefore) {
+                from = Math.max(0,
+                    Math.min(newRows.length, refreshHints.ignoreDiffsBefore));
+            }
+
+            if (refreshHints && refreshHints.ignoreDiffsAfter) {
+                to = Math.min(newRows.length,
+                    Math.max(0, refreshHints.ignoreDiffsAfter));
+            }
+
+            for (var i = from, rl = rows.length; i < to; i++) {
                 if (i >= rl) {
                     diff[diff.length] = i;
                 }
@@ -435,14 +477,12 @@
             return diff;
         }
 
-        function recalc(_items, _rows, _filter) {
+        function recalc(_items) {
             rowsById = null;
 
-            var newRows = [];
-
-            var filteredItems = getFilteredAndPagedItems(_items, _filter);
+            var filteredItems = getFilteredAndPagedItems(_items);
             totalRows = filteredItems.totalRows;
-            newRows = filteredItems.rows;
+            var newRows = filteredItems.rows;
 
             groups = [];
             if (groupingGetter != null) {
@@ -455,9 +495,11 @@
                     groups.sort(groupingComparer);
                     newRows = flattenGroupedRows(groups);
                 }
+            } else {
+                //newRows = newRows.concat();
             }
 
-            var diff = getRowDiffs(_rows, newRows);
+            var diff = getRowDiffs(rows, newRows);
 
             rows = newRows;
 
@@ -470,16 +512,18 @@
             var countBefore = rows.length;
             var totalRowsBefore = totalRows;
 
-            var diff = recalc(items, rows, filter); // pass as direct refs to avoid closure perf hit
+            var diff = recalc(items, filter); // pass as direct refs to avoid closure perf hit
 
             // if the current page is no longer valid, go to last page and recalc
             // we suffer a performance penalty here, but the main loop (recalc) remains highly optimized
             if (pagesize && totalRows < pagenum * pagesize) {
                 pagenum = Math.floor(totalRows / pagesize);
-                diff = recalc(items, rows, filter);
+                diff = recalc(items, filter);
             }
 
             updated = null;
+            prevRefreshHints = refreshHints;
+            refreshHints = {};
 
             if (totalRowsBefore != totalRows) onPagingInfoChanged.notify(getPagingInfo(), null, self);
             if (countBefore != rows.length) onRowCountChanged.notify({previous:countBefore, current:rows.length}, null, self);
@@ -508,6 +552,8 @@
             "getRowById":       getRowById,
             "getItemById":      getItemById,
             "getItemByIdx":     getItemByIdx,
+            "setRefreshHints":  setRefreshHints,
+            "setFilterArgs":    setFilterArgs,
             "refresh":          refresh,
             "updateItem":       updateItem,
             "insertItem":       insertItem,
