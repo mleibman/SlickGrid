@@ -526,12 +526,27 @@ if (typeof Slick === "undefined") {
         }
 
         function getHeaderRow() {
-            return $headerRow[0];
+            return ( options.frozenColumn > -1 ) ? $headerRow : $headerRow[0];
         }
 
         function getHeaderRowColumn(columnId) {
             var idx = getColumnIndex(columnId);
-            var $header = $headerRow.children().eq(idx);
+
+            var $headerRowTarget;
+
+            if (options.frozenColumn > -1 ) {
+                if (idx <= options.frozenColumn) {
+                    $headerRowTarget = $headerRowL;
+                } else {
+                    $headerRowTarget = $headerRowR;
+
+                    idx -= options.frozenColumn + 1;
+                }
+            } else {
+                $headerRowTarget = $headerRowL;
+            }
+
+            var $header = $headerRowTarget.children().eq(idx);
             return $header && $header[0];
         }
 
@@ -545,8 +560,10 @@ if (typeof Slick === "undefined") {
                 $(this).removeClass("ui-state-hover");
             }
 
-            $headers.empty();
-            $headerRow.empty();
+            $headerL.empty();
+            $headerR.empty();
+            $headerRowL.empty();
+            $headerRowL.empty();
             columnsById = {};
 
             for (i = 0; i < columns.length; i++) {
@@ -554,6 +571,7 @@ if (typeof Slick === "undefined") {
                 columnsById[m.id] = i;
 
                 var $headerTarget = (options.frozenColumn > -1 ) ? ((i <= options.frozenColumn) ? $headerL: $headerR) : $headerL;
+                var $headerRowTarget = (options.frozenColumn > -1 ) ? ((i <= options.frozenColumn) ? $headerRowL: $headerRowR) : $headerRowL;
 
                 var header = $("<div class='ui-state-default slick-header-column' id='" + uid + m.id + "' />")
                     .html("<span class='slick-column-name'>" + m.name + "</span>")
@@ -572,7 +590,7 @@ if (typeof Slick === "undefined") {
                 }
 
                 if (options.showHeaderRow) {
-                    $("<div class='ui-state-default slick-headerrow-column c" + i + "'></div>").appendTo($headerRow);
+                    $("<div class='ui-state-default slick-headerrow-column c" + i + "'></div>").appendTo($headerRowTarget);
                 }
             }
 
@@ -985,6 +1003,7 @@ if (typeof Slick === "undefined") {
                 w = columns[i].width;
                 rules.push("." + uid + " .l" + i + " { left: " + x + "px; }");
                 rules.push("." + uid + " .r" + i + " { right: " + (rowWidth - x - w) + "px; }");
+                rules.push("." + uid + " .c" + i + " { width:" + (w - cellWidthDiff) + "px; }");
 
                 if ( options.frozenColumn == i ) {
                     x = 0;
@@ -1591,6 +1610,9 @@ if (typeof Slick === "undefined") {
                 $viewportTopL.width( widthL );
                 $paneTopR.height( paneTopH );
 
+                $viewportTopR.height( viewportTopH );
+                $viewportTopR.width( viewportW - widthL );
+
                 if ( options.frozenRow > -1 ) {
                     $paneBottomL.css({
                         "top": paneTopH
@@ -1602,9 +1624,6 @@ if (typeof Slick === "undefined") {
                          "top": paneTopH
                         ,"left": widthL
                     });
-
-                    $viewportTopR.height( viewportTopH );
-                    $viewportTopR.width( viewportW - widthL );
 
                     $viewportBottomR.width( viewportW - widthL );
                     $viewportBottomR.height( viewportBottomH );
