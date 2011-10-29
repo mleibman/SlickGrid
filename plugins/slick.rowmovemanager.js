@@ -99,6 +99,9 @@
                 }
 
                 dd.insertBefore = insertBefore;
+
+                // TODO: Implement in a timer
+                grid.scrollRowIntoView( insertBefore );
             }
         }
 
@@ -128,6 +131,7 @@
 
             "init":             init,
             "destroy":          destroy
+
         });
     }
 })(jQuery);
