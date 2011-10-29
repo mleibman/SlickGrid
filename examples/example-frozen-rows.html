@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-		<title>SlickGrid example: Frozen Columns</title>
+		<title>SlickGrid example: Frozen Rows</title>
 		<link rel="stylesheet" href="../slick.grid.css" type="text/css" media="screen" charset="utf-8" />
 		<link rel="stylesheet" href="../controls/slick.pager.css" type="text/css" media="screen" charset="utf-8" />
         <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" media="screen" charset="utf-8" />
@@ -29,15 +29,6 @@
         .slick-row.selected .cell-selection {
             background-color: transparent; /* show default selected row background */
         }
-
-		.slick-headerrow-column {
-			background: #87ceeb;
-		}
-
-		.slick-headerrow-column input {
-			margin: 0;
-			padding: 0;
-		}
 	</style>
 	</head>
 	<body>
@@ -55,13 +46,17 @@
 			<b>Search:</b>
 			<hr/>
 			<div style="padding:6px;">
+				<label style="width:200px;float:left">Show tasks with % at least: </label>
+				<div style="padding:2px;">
+					<div style="width:100px;display:inline-block;" id="pcSlider"></div>
+				</div>
+				<br/>
+				<label style="width:200px;float:left">And title including:</label>
+				<input type=text id="txtSearch" style="width:100px;">
+				<br/><br/>
 				<label style="width:200px;float:left">Frozen Row:</label>
 				<input type=text id="frozenRow" style="width:100px;" value=5>
 				<button id="setFrozenRow">Set</button>
-				<br/><br/>
-				<label style="width:200px;float:left">Frozen Column:</label>
-				<input type=text id="frozenColumn" style="width:100px;" value=-1>
-				<button id="setFrozenColumn">Set</button>
 				<br/><br/>
 				<button id="btnSelectRows">Select first 10 rows</button>
 
@@ -109,7 +104,7 @@
 
 		<script>
 		$(function() {
-			$( '#frozenColumn' ).val( options.frozenColumn );
+			$( '#frozenRow' ).val( options.frozenRow );
 		});
 
 
@@ -132,8 +127,6 @@
 			,{id:"title4", name:"Title4", field:"title4", width:120, minWidth:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, sortable:true}
 		];
 
-		var columnFilters = {};
-
 		var options = {
 		 	 editable: true
 		    ,enableAddRow: true
@@ -142,9 +135,7 @@
 			,forceFitColumns: false
 			,autoEdit: false
 			,topPanelHeight: 25
-			,frozenColumn: 2
 			,frozenRow: 5
-			,showHeaderRow: true
 		};
 
 		var sortcol = "title";
@@ -159,31 +150,14 @@
 				return {valid:true, msg:null};
 		}
 
-		function updateHeaderRow() {
-            for (var i = 0; i < columns.length; i++) {
-                if (columns[i].id !== "selector") {
-                    var header = grid.getHeaderRowColumn(columns[i].id);
-                    $(header).empty();
-                    $("<input type='text'>")
-                        .data("columnId", columns[i].id)
-                        .width($(header).width() - 4)
-                        .val(columnFilters[columns[i].id])
-                        .appendTo(header);
-                }
-            }
-        }
-
 		function myFilter(item) {
-			for (var columnId in columnFilters) {
-                if (columnId !== undefined && columnFilters[columnId] !== "") {
-                    var c = grid.getColumns()[grid.getColumnIndex(columnId)];
-                    if (item[c.field] != columnFilters[columnId]) {
-                        return false;
-                    }
-                }
-            }
+			if (item["percentComplete"] < percentCompleteThreshold)
+				return false;
 
-            return true;
+			if (searchString != "" && item["title"].indexOf(searchString) == -1)
+				return false;
+
+			return true;
 		}
 
 		function percentCompleteSort(a,b) {
@@ -358,20 +332,6 @@
     				grid.setOptions({enableAddRow:enableAddRow});
 			});
 
-			$(grid.getHeaderRow()).delegate(":input", "change keyup", function(e) {
-                columnFilters[$(this).data("columnId")] = $.trim($(this).val());
-                dataView.refresh();
-            });
-
-
-            grid.onColumnsReordered.subscribe(function(e, args) {
-                updateHeaderRow();
-            });
-
-            grid.onColumnsResized.subscribe(function(e, args) {
-                updateHeaderRow();
-            });
-
 
 
 			var h_runfilters = null;
@@ -426,8 +386,6 @@
 			dataView.setFilter(myFilter);
 			dataView.endUpdate();
 
-			updateHeaderRow();
-
 			$("#gridContainer").resizable();
 
 			$( '#setFrozenRow' ).click(function() {
@@ -438,16 +396,6 @@
 				}
 
 				grid.setOptions({ 'frozenRow': val });
-			});
-
-			$( '#setFrozenColumn' ).click(function() {
-				var val = -1;
-
-				if ( $( '#frozenColumn' ).val() != '' ) {
-					val = parseInt( $( '#frozenColumn' ).val() );
-				}
-
-				grid.setOptions({ 'frozenColumn': val });
 			});
 		})
 
