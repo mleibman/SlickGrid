@@ -3052,6 +3052,7 @@ if (typeof Slick === "undefined") {
             "updateCell":                   updateCell,
             "updateRow":                    updateRow,
             "getViewport":                  getVisibleRange,
+            "getRenderedRange":             getRenderedRange,
             "resizeCanvas":                 resizeCanvas,
             "updateRowCount":               updateRowCount,
             "scrollRowIntoView":            scrollRowIntoView,
