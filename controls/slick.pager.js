@@ -1,7 +1,7 @@
 (function($) {
     function SlickGridPager(dataView, grid, $container)
     {
-        var $status, $contextMenu;
+        var $status;
 
         function init()
         {
@@ -31,6 +31,9 @@
 
         function setPageSize(n)
         {
+            dataView.setRefreshHints({
+                isFilterUnchanged: true
+            });
             dataView.setPagingOptions({pageSize:n});
         }
 
