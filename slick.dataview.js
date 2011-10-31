@@ -54,6 +54,7 @@
         var collapsedGroups = {};
         var aggregators;
         var aggregateCollapsed = false;
+        var compiledAccumulators;
 
         var pagesize = 0;
         var pagenum = 0;
@@ -199,7 +200,16 @@
 
         function setAggregators(groupAggregators, includeCollapsed) {
             aggregators = groupAggregators;
-            aggregateCollapsed = includeCollapsed !== undefined ? includeCollapsed : aggregateCollapsed;
+            aggregateCollapsed = (includeCollapsed !== undefined)
+                ? includeCollapsed : aggregateCollapsed;
+
+            // pre-compile accumulator loops
+            compiledAccumulators = [];
+            var idx = aggregators.length;
+            while (idx--) {
+                compiledAccumulators[idx] = compileAccumulatorLoop(aggregators[idx]);
+            }
+
             refresh();
         }
 
@@ -312,6 +322,7 @@
             for (var i = 0, l = rows.length; i < l; i++) {
                 r = rows[i];
                 val = (groupingGetterIsAFn) ? groupingGetter(r) : r[groupingGetter];
+                val = val || 0;
                 group = groupsByVal[val];
                 if (!group) {
                     group = new Slick.Group();
@@ -328,34 +339,37 @@
             return groups;
         }
 
+        function compileAccumulatorLoop(aggregator) {
+            var fnRegex = /^function[^(]*\(([^)]*)\)\s*{([\s\S]*)}$/;
+            var fnParts = aggregator.accumulate.toString().match(fnRegex);
+            var itemParamName = fnParts[1], body = fnParts[2];
+
+            return new Function(
+                "_items",
+                "for (var " + itemParamName + ", _i=0, _il=_items.length; _i<_il; _i++) {" +
+                itemParamName + " = _items[_i]; " +
+                body +
+                "}"
+            );
+        }
+
         // TODO:  lazy totals calculation
         function calculateGroupTotals(group) {
-            var r, idx;
-
             if (group.collapsed && !aggregateCollapsed) {
                 return;
             }
 
-            idx = aggregators.length;
+            // TODO:  try moving iterating over groups into compiled accumulator
+            var totals = new Slick.GroupTotals();
+            var agg, idx = aggregators.length;
             while (idx--) {
-                aggregators[idx].init();
+                agg = aggregators[idx];
+                agg.init();
+                compiledAccumulators[idx].call(agg, group.rows);
+                agg.storeResult(totals);
             }
-
-            for (var j = 0, jj = group.rows.length; j < jj; j++) {
-                r = group.rows[j];
-                idx = aggregators.length;
-                while (idx--) {
-                    aggregators[idx].accumulate(r);
-                }
-            }
-
-            var t = new Slick.GroupTotals();
-            idx = aggregators.length;
-            while (idx--) {
-                aggregators[idx].storeResult(t);
-            }
-            t.group = group;
-            group.totals = t;
+            totals.group = group;
+            group.totals = totals;
         }
 
         function calculateTotals(groups) {
@@ -375,7 +389,7 @@
         }
 
         function flattenGroupedRows(groups) {
-            var groupedRows = [], gl = 0, idx, t, g, r;
+            var groupedRows = [], gl = 0, g;
             for (var i = 0, l = groups.length; i < l; i++) {
                 g = groups[i];
                 groupedRows[gl++] = g;
@@ -393,6 +407,7 @@
             return groupedRows;
         }
 
+        // TODO:  inline filter execution similar to accumulators
         function getBatchFilteringFn() {
             return function(data, args) {
                 var item, retval = [], idx = 0;
@@ -495,8 +510,6 @@
                     groups.sort(groupingComparer);
                     newRows = flattenGroupedRows(groups);
                 }
-            } else {
-                //newRows = newRows.concat();
             }
 
             var diff = getRowDiffs(rows, newRows);
@@ -572,26 +585,21 @@
         };
     }
 
-
-
-
     function AvgAggregator(field) {
-        var count;
-        var nonNullCount;
-        var sum;
+        this.field_ = field;
 
         this.init = function() {
-            count = 0;
-            nonNullCount = 0;
-            sum = 0;
+            this.count_ = 0;
+            this.nonNullCount_ = 0;
+            this.sum_ = 0;
         };
 
         this.accumulate = function(item) {
-            var val = item[field];
-            count++;
+            var val = item[this.field_];
+            this.count_++;
             if (val != null && val != NaN) {
-                nonNullCount++;
-                sum += 1 * val;
+                this.nonNullCount_++;
+                this.sum_ += 1 * val;
             }
         };
 
@@ -599,24 +607,24 @@
             if (!groupTotals.avg) {
                 groupTotals.avg = {};
             }
-            if (nonNullCount != 0) {
-                groupTotals.avg[field] = sum / nonNullCount;
+            if (this.nonNullCount_ != 0) {
+                groupTotals.avg[this.field_] = this.sum_ / this.nonNullCount_;
             }
         };
     }
 
     function MinAggregator(field) {
-        var min;
+        this.field_ = field;
 
         this.init = function() {
-            min = null;
+            this.min_ = null;
         };
 
         this.accumulate = function(item) {
-            var val = item[field];
+            var val = item[this.field_];
             if (val != null && val != NaN) {
-                if (min == null ||val < min) {
-                    min = val;
+                if (this.min_ == null ||val < this.min_) {
+                    this.min_ = val;
                 }
             }
         };
@@ -625,22 +633,22 @@
             if (!groupTotals.min) {
                 groupTotals.min = {};
             }
-            groupTotals.min[field] = min;
+            groupTotals.min[this.field_] = this.min_;
         }
     }
 
     function MaxAggregator(field) {
-        var max;
+        this.field_ = field;
 
         this.init = function() {
-            max = null;
+            this.max_ = null;
         };
 
         this.accumulate = function(item) {
-            var val = item[field];
+            var val = item[this.field_];
             if (val != null && val != NaN) {
-                if (max == null ||val > max) {
-                    max = val;
+                if (this.max_ == null ||val > this.max_) {
+                    this.max_ = val;
                 }
             }
         };
@@ -649,7 +657,7 @@
             if (!groupTotals.max) {
                 groupTotals.max = {};
             }
-            groupTotals.max[field] = max;
+            groupTotals.max[this.field_] = this.max_;
         }
     }
 
