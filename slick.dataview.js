@@ -23,8 +23,7 @@
         var self = this;
 
         var defaults = {
-            groupItemMetadataProvider: null,
-            batchFilter: false
+            groupItemMetadataProvider: null
         };
 
 
@@ -44,6 +43,9 @@
         var prevRefreshHints = {};
         var filterArgs;
         var filteredItems = [];
+        var compiledFilter;
+        var compiledFilterWithCaching;
+        var filterCache = [];
 
         // grouping
         var groupingGetter;
@@ -181,6 +183,8 @@
 
         function setFilter(filterFn) {
             filter = filterFn;
+            compiledFilter = compileFilter();
+            compiledFilterWithCaching = compileFilterWithCaching();
             refresh();
         }
 
@@ -316,7 +320,7 @@
             var group;
             var val;
             var groups = [];
-            var groupsByVal = {};
+            var groupsByVal = [];
             var r;
 
             for (var i = 0, l = rows.length; i < l; i++) {
@@ -337,20 +341,6 @@
             }
 
             return groups;
-        }
-
-        function compileAccumulatorLoop(aggregator) {
-            var fnRegex = /^function[^(]*\(([^)]*)\)\s*{([\s\S]*)}$/;
-            var fnParts = aggregator.accumulate.toString().match(fnRegex);
-            var itemParamName = fnParts[1], body = fnParts[2];
-
-            return new Function(
-                "_items",
-                "for (var " + itemParamName + ", _i=0, _il=_items.length; _i<_il; _i++) {" +
-                itemParamName + " = _items[_i]; " +
-                body +
-                "}"
-            );
         }
 
         // TODO:  lazy totals calculation
@@ -407,28 +397,87 @@
             return groupedRows;
         }
 
-        // TODO:  inline filter execution similar to accumulators
-        function getBatchFilteringFn() {
-            return function(data, args) {
-                var item, retval = [], idx = 0;
-                for (var i = 0, il = data.length; i < il; i++) {
-                    item = data[i];
-                    if (filter(item)) {
-                        retval[idx++] = item;
-                    }
-                }
-                return retval;
+        function getFunctionInfo(fn) {
+            var fnRegex = /^function[^(]*\(([^)]*)\)\s*{([\s\S]*)}$/;
+            var matches = fn.toString().match(fnRegex);
+            return {
+                params: matches[1].split(","),
+                body: matches[2]
             };
+        }
+
+        function compileAccumulatorLoop(aggregator) {
+            var accumulatorInfo = getFunctionInfo(aggregator.accumulate);
+
+            return new Function(
+                "_items",
+                "for (var " + accumulatorInfo.params[0] + ", _i=0, _il=_items.length; _i<_il; _i++) {" +
+                accumulatorInfo.params[0] + " = _items[_i]; " +
+                accumulatorInfo.body +
+                "}"
+            );
+        }
+        
+        function compileFilter() {
+            var filterInfo = getFunctionInfo(filter);
+
+            var filterBody = filterInfo.body.replace(/return ([^;]+?);/gi,
+                "if ($1) { _retval[_idx++] = $item$; }; continue;");
+
+            var fnTemplate = function(_items, _args) {
+                var _retval = [], _idx = 0;
+                var $item$, $args$ = _args;
+                for (var _i = 0, _il = _items.length; _i < _il; _i++) {
+                    $item$ = _items[_i];
+                    $filter$;
+                }
+                return _retval;
+            };
+
+            var tpl = getFunctionInfo(fnTemplate).body;
+            tpl = tpl.replace(/\$filter\$/gi, filterBody);
+            tpl = tpl.replace(/\$item\$/gi, filterInfo.params[0]);
+            tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
+
+            return new Function("_items,_args", tpl);
+        }
+
+        function compileFilterWithCaching() {
+            var filterInfo = getFunctionInfo(filter);
+            
+            var filterBody = filterInfo.body.replace(/return ([^;]+?);/gi,
+                "if ((_cache[_i] = $1)) { _retval[_idx++] = $item$; }; continue;");
+
+            var fnTemplate = function(_items, _args, _cache) {
+                var _retval = [], _idx = 0;
+                var $item$, $args$ = _args;
+                for (var _i = 0, _il = _items.length; _i < _il; _i++) {
+                    $item$ = _items[_i];
+                    if (_cache[_i]) {
+                        _retval[_idx++] = $item$;
+                        continue;
+                    }
+                    $filter$;
+                }
+                return _retval;
+            };
+
+            var tpl = getFunctionInfo(fnTemplate).body;
+            tpl = tpl.replace(/\$filter\$/gi, filterBody);
+            tpl = tpl.replace(/\$item\$/gi, filterInfo.params[0]);
+            tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
+
+            return new Function("_items,_args,_cache", tpl);
         }
 
         function getFilteredAndPagedItems(items) {
             if (filter && !refreshHints.isFilterUnchanged) {
-                var filterFn = options.batchFilter ? filter : getBatchFilteringFn();
-
                 if (refreshHints.isFilterNarrowing) {
-                    filteredItems = filterFn(filteredItems, filterArgs);
+                    filteredItems = compiledFilter(filteredItems, filterArgs);
+                } else if (refreshHints.isFilterExpanding) {
+                    filteredItems = compiledFilterWithCaching(items, filterArgs, filterCache);
                 } else {
-                    filteredItems = filterFn(items, filterArgs);
+                    filteredItems = compiledFilter(items, filterArgs);
                 }
             } else {
                 // special case:  if not filtering and not paging, the resulting
@@ -494,6 +543,11 @@
 
         function recalc(_items) {
             rowsById = null;
+
+            if (refreshHints.isFilterNarrowing != prevRefreshHints.isFilterNarrowing ||
+                refreshHints.isFilterExpanding != prevRefreshHints.isFilterExpanding) {
+              filterCache = [];
+            }
 
             var filteredItems = getFilteredAndPagedItems(_items);
             totalRows = filteredItems.totalRows;
