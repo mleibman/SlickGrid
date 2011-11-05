@@ -133,11 +133,11 @@
 				return {valid:true, msg:null};
 		}
 
-		function myFilter(item) {
-			if (item["percentComplete"] < percentCompleteThreshold)
+		function myFilter(item, args) {
+			if (item["percentComplete"] < args.percentCompleteThreshold)
 				return false;
 
-			if (searchString != "" && item["title"].indexOf(searchString) == -1)
+			if (args.searchString != "" && item["title"].indexOf(args.searchString) == -1)
 				return false;
 
 			return true;
@@ -311,7 +311,7 @@
 					if (percentCompleteThreshold != ui.value)
 					{
 						window.clearTimeout(h_runfilters);
-						h_runfilters = window.setTimeout(dataView.refresh, 10);
+						h_runfilters = window.setTimeout(updateFilter, 10);
 						percentCompleteThreshold = ui.value;
 					}
 				}
@@ -327,8 +327,16 @@
 					this.value = "";
 
 				searchString = this.value;
-				dataView.refresh();
+				updateFilter();
 			});
+
+            function updateFilter() {
+                dataView.setFilterArgs({
+                    percentCompleteThreshold: percentCompleteThreshold,
+                    searchString: searchString
+                });
+                dataView.refresh();
+            }
 
 			$("#btnSelectRows").click(function() {
 				if (!Slick.GlobalEditorLock.commitCurrentEdit()) { return; }
@@ -348,6 +356,10 @@
 			// initialize the model after all the events have been hooked up
 			dataView.beginUpdate();
 			dataView.setItems(data);
+            dataView.setFilterArgs({
+                percentCompleteThreshold: percentCompleteThreshold,
+                searchString: searchString
+            });
 			dataView.setFilter(myFilter);
 			dataView.endUpdate();
 

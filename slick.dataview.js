@@ -422,7 +422,7 @@
             var filterInfo = getFunctionInfo(filter);
 
             var filterBody = filterInfo.body.replace(/return ([^;]+?);/gi,
-                "if ($1) { _retval[_idx++] = $item$; }; continue;");
+                "{ if ($1) { _retval[_idx++] = $item$; }; continue; }");
 
             var fnTemplate = function(_items, _args) {
                 var _retval = [], _idx = 0;
@@ -446,7 +446,7 @@
             var filterInfo = getFunctionInfo(filter);
             
             var filterBody = filterInfo.body.replace(/return ([^;]+?);/gi,
-                "if ((_cache[_i] = $1)) { _retval[_idx++] = $item$; }; continue;");
+                "{ if ((_cache[_i] = $1)) { _retval[_idx++] = $item$; }; continue; }");
 
             var fnTemplate = function(_items, _args, _cache) {
                 var _retval = [], _idx = 0;
