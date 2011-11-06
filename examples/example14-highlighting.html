@@ -66,7 +66,7 @@
         var currentServer;
 
         function cpuUtilizationFormatter(row, cell, value, columnDef, dataContext) {
-            if (value > 90) 
+            if (value > 90)
                 return "<span class='load-hi'>" + value + "%</span>";
             else if (value > 70)
                 return "<span class='load-medium'>" + value + "%</span>";
@@ -97,15 +97,14 @@
 		$(function()
 		{
 			for (var i=0; i<500; i++) {
-				var d = (data[i] = {});
-                d.server = "Server " + i;
-                for (var j=0; j<columns.length; j++) {
-                    d[j] = Math.round(Math.random()*100);
-                }
+			var d = (data[i] = {});
+            d.server = "Server " + i;
+			for (var j=0; j<columns.length; j++) {
+				d[j] = Math.round(Math.random()*100);
 			}
+		}
 
-			grid = new Slick.Grid("#myGrid", data, columns, options);
-
+		grid = new Slick.Grid("#myGrid", data, columns, options);
             currentServer = Math.round(Math.random()*(data.length-1));
 		});
 
@@ -124,8 +123,8 @@
 
                 data[server][col] = val;
 
-                if (!changes[data[server].id])
-                    changes[data[server].id] = {};
+                if (!changes[server])
+                    changes[server] = {};
 
                 changes[server]["cpu" + cpu] = "changed";
 
