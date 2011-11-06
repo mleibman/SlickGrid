@@ -275,13 +275,13 @@
 
 
             $("#dropzone")
-                .bind("dropstart", function(e,dd) {
+                .on("dropstart", function(e,dd) {
                     $(this).css("background","yellow");
                 })
-                .bind("dropend", function(e,dd) {
+                .on("dropend", function(e,dd) {
                     $(dd.available).css("background","pink");
                 })
-                .bind("drop", function(e,dd) {
+                .on("drop", function(e,dd) {
                     var rowsToDelete = dd.rows.sort().reverse();
                     for (var i=0; i<rowsToDelete.length; i++) {
                         data.splice(rowsToDelete[i],1);
