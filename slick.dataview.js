@@ -421,12 +421,16 @@
         function compileFilter() {
             var filterInfo = getFunctionInfo(filter);
 
-            var filterBody = filterInfo.body.replace(/return ([^;]+?);/gi,
-                "{ if ($1) { _retval[_idx++] = $item$; }; continue; }");
+            var filterBody = filterInfo.body
+                .replace(/return false;/gi, "{ continue _coreloop; }")
+                .replace(/return true;/gi, "{ _retval[_idx++] = $item$; continue _coreloop; }")
+                .replace(/return ([^;]+?);/gi,
+                    "{ if ($1) { _retval[_idx++] = $item$; }; continue _coreloop; }");
 
             var fnTemplate = function(_items, _args) {
                 var _retval = [], _idx = 0;
                 var $item$, $args$ = _args;
+                _coreloop:
                 for (var _i = 0, _il = _items.length; _i < _il; _i++) {
                     $item$ = _items[_i];
                     $filter$;
@@ -445,12 +449,16 @@
         function compileFilterWithCaching() {
             var filterInfo = getFunctionInfo(filter);
             
-            var filterBody = filterInfo.body.replace(/return ([^;]+?);/gi,
-                "{ if ((_cache[_i] = $1)) { _retval[_idx++] = $item$; }; continue; }");
+            var filterBody = filterInfo.body
+                .replace(/return false;/gi, "{ continue _coreloop; }")
+                .replace(/return true;/gi, "{ _retval[_idx++] = $item$; continue _coreloop; }")
+                .replace(/return ([^;]+?);/gi,
+                    "{ if ((_cache[_i] = $1)) { _retval[_idx++] = $item$; }; continue _coreloop; }");
 
             var fnTemplate = function(_items, _args, _cache) {
                 var _retval = [], _idx = 0;
                 var $item$, $args$ = _args;
+                _coreloop:
                 for (var _i = 0, _il = _items.length; _i < _il; _i++) {
                     $item$ = _items[_i];
                     if (_cache[_i]) {
