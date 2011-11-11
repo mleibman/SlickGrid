@@ -23,8 +23,7 @@
         var self = this;
 
         var defaults = {
-            groupItemMetadataProvider: null,
-            batchFilter: false
+            groupItemMetadataProvider: null
         };
 
 
@@ -44,6 +43,9 @@
         var prevRefreshHints = {};
         var filterArgs;
         var filteredItems = [];
+        var compiledFilter;
+        var compiledFilterWithCaching;
+        var filterCache = [];
 
         // grouping
         var groupingGetter;
@@ -54,6 +56,7 @@
         var collapsedGroups = {};
         var aggregators;
         var aggregateCollapsed = false;
+        var compiledAccumulators;
 
         var pagesize = 0;
         var pagenum = 0;
@@ -180,6 +183,8 @@
 
         function setFilter(filterFn) {
             filter = filterFn;
+            compiledFilter = compileFilter();
+            compiledFilterWithCaching = compileFilterWithCaching();
             refresh();
         }
 
@@ -199,7 +204,16 @@
 
         function setAggregators(groupAggregators, includeCollapsed) {
             aggregators = groupAggregators;
-            aggregateCollapsed = includeCollapsed !== undefined ? includeCollapsed : aggregateCollapsed;
+            aggregateCollapsed = (includeCollapsed !== undefined)
+                ? includeCollapsed : aggregateCollapsed;
+
+            // pre-compile accumulator loops
+            compiledAccumulators = [];
+            var idx = aggregators.length;
+            while (idx--) {
+                compiledAccumulators[idx] = compileAccumulatorLoop(aggregators[idx]);
+            }
+
             refresh();
         }
 
@@ -310,12 +324,13 @@
             var group;
             var val;
             var groups = [];
-            var groupsByVal = {};
+            var groupsByVal = [];
             var r;
 
             for (var i = 0, l = rows.length; i < l; i++) {
                 r = rows[i];
                 val = (groupingGetterIsAFn) ? groupingGetter(r) : r[groupingGetter];
+                val = val || 0;
                 group = groupsByVal[val];
                 if (!group) {
                     group = new Slick.Group();
@@ -334,32 +349,21 @@
 
         // TODO:  lazy totals calculation
         function calculateGroupTotals(group) {
-            var r, idx;
-
             if (group.collapsed && !aggregateCollapsed) {
                 return;
             }
 
-            idx = aggregators.length;
+            // TODO:  try moving iterating over groups into compiled accumulator
+            var totals = new Slick.GroupTotals();
+            var agg, idx = aggregators.length;
             while (idx--) {
-                aggregators[idx].init();
+                agg = aggregators[idx];
+                agg.init();
+                compiledAccumulators[idx].call(agg, group.rows);
+                agg.storeResult(totals);
             }
-
-            for (var j = 0, jj = group.rows.length; j < jj; j++) {
-                r = group.rows[j];
-                idx = aggregators.length;
-                while (idx--) {
-                    aggregators[idx].accumulate(r);
-                }
-            }
-
-            var t = new Slick.GroupTotals();
-            idx = aggregators.length;
-            while (idx--) {
-                aggregators[idx].storeResult(t);
-            }
-            t.group = group;
-            group.totals = t;
+            totals.group = group;
+            group.totals = totals;
         }
 
         function calculateTotals(groups) {
@@ -379,7 +383,7 @@
         }
 
         function flattenGroupedRows(groups) {
-            var groupedRows = [], gl = 0, idx, t, g, r;
+            var groupedRows = [], gl = 0, g;
             for (var i = 0, l = groups.length; i < l; i++) {
                 g = groups[i];
                 groupedRows[gl++] = g;
@@ -397,27 +401,87 @@
             return groupedRows;
         }
 
-        function getBatchFilteringFn() {
-            return function(data, args) {
-                var item, retval = [], idx = 0;
-                for (var i = 0, il = data.length; i < il; i++) {
-                    item = data[i];
-                    if (filter(item)) {
-                        retval[idx++] = item;
-                    }
-                }
-                return retval;
+        function getFunctionInfo(fn) {
+            var fnRegex = /^function[^(]*\(([^)]*)\)\s*{([\s\S]*)}$/;
+            var matches = fn.toString().match(fnRegex);
+            return {
+                params: matches[1].split(","),
+                body: matches[2]
             };
+        }
+
+        function compileAccumulatorLoop(aggregator) {
+            var accumulatorInfo = getFunctionInfo(aggregator.accumulate);
+
+            return new Function(
+                "_items",
+                "for (var " + accumulatorInfo.params[0] + ", _i=0, _il=_items.length; _i<_il; _i++) {" +
+                accumulatorInfo.params[0] + " = _items[_i]; " +
+                accumulatorInfo.body +
+                "}"
+            );
+        }
+        
+        function compileFilter() {
+            var filterInfo = getFunctionInfo(filter);
+
+            var filterBody = filterInfo.body.replace(/return ([^;]+?);/gi,
+                "{ if ($1) { _retval[_idx++] = $item$; }; continue; }");
+
+            var fnTemplate = function(_items, _args) {
+                var _retval = [], _idx = 0;
+                var $item$, $args$ = _args;
+                for (var _i = 0, _il = _items.length; _i < _il; _i++) {
+                    $item$ = _items[_i];
+                    $filter$;
+                }
+                return _retval;
+            };
+
+            var tpl = getFunctionInfo(fnTemplate).body;
+            tpl = tpl.replace(/\$filter\$/gi, filterBody);
+            tpl = tpl.replace(/\$item\$/gi, filterInfo.params[0]);
+            tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
+
+            return new Function("_items,_args", tpl);
+        }
+
+        function compileFilterWithCaching() {
+            var filterInfo = getFunctionInfo(filter);
+            
+            var filterBody = filterInfo.body.replace(/return ([^;]+?);/gi,
+                "{ if ((_cache[_i] = $1)) { _retval[_idx++] = $item$; }; continue; }");
+
+            var fnTemplate = function(_items, _args, _cache) {
+                var _retval = [], _idx = 0;
+                var $item$, $args$ = _args;
+                for (var _i = 0, _il = _items.length; _i < _il; _i++) {
+                    $item$ = _items[_i];
+                    if (_cache[_i]) {
+                        _retval[_idx++] = $item$;
+                        continue;
+                    }
+                    $filter$;
+                }
+                return _retval;
+            };
+
+            var tpl = getFunctionInfo(fnTemplate).body;
+            tpl = tpl.replace(/\$filter\$/gi, filterBody);
+            tpl = tpl.replace(/\$item\$/gi, filterInfo.params[0]);
+            tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
+
+            return new Function("_items,_args,_cache", tpl);
         }
 
         function getFilteredAndPagedItems(items) {
             if (filter && !refreshHints.isFilterUnchanged) {
-                var filterFn = options.batchFilter ? filter : getBatchFilteringFn();
-
                 if (refreshHints.isFilterNarrowing) {
-                    filteredItems = filterFn(filteredItems, filterArgs);
+                    filteredItems = compiledFilter(filteredItems, filterArgs);
+                } else if (refreshHints.isFilterExpanding) {
+                    filteredItems = compiledFilterWithCaching(items, filterArgs, filterCache);
                 } else {
-                    filteredItems = filterFn(items, filterArgs);
+                    filteredItems = compiledFilter(items, filterArgs);
                 }
             } else {
                 // special case:  if not filtering and not paging, the resulting
@@ -484,6 +548,11 @@
         function recalc(_items) {
             rowsById = null;
 
+            if (refreshHints.isFilterNarrowing != prevRefreshHints.isFilterNarrowing ||
+                refreshHints.isFilterExpanding != prevRefreshHints.isFilterExpanding) {
+              filterCache = [];
+            }
+
             var filteredItems = getFilteredAndPagedItems(_items);
             totalRows = filteredItems.totalRows;
             var newRows = filteredItems.rows;
@@ -499,8 +568,6 @@
                     groups.sort(groupingComparer);
                     newRows = flattenGroupedRows(groups);
                 }
-            } else {
-                //newRows = newRows.concat();
             }
 
             var diff = getRowDiffs(rows, newRows);
@@ -576,26 +643,21 @@
         };
     }
 
-
-
-
     function AvgAggregator(field) {
-        var count;
-        var nonNullCount;
-        var sum;
+        this.field_ = field;
 
         this.init = function() {
-            count = 0;
-            nonNullCount = 0;
-            sum = 0;
+            this.count_ = 0;
+            this.nonNullCount_ = 0;
+            this.sum_ = 0;
         };
 
         this.accumulate = function(item) {
-            var val = item[field];
-            count++;
+            var val = item[this.field_];
+            this.count_++;
             if (val != null && val != NaN) {
-                nonNullCount++;
-                sum += 1 * val;
+                this.nonNullCount_++;
+                this.sum_ += 1 * val;
             }
         };
 
@@ -603,24 +665,24 @@
             if (!groupTotals.avg) {
                 groupTotals.avg = {};
             }
-            if (nonNullCount != 0) {
-                groupTotals.avg[field] = sum / nonNullCount;
+            if (this.nonNullCount_ != 0) {
+                groupTotals.avg[this.field_] = this.sum_ / this.nonNullCount_;
             }
         };
     }
 
     function MinAggregator(field) {
-        var min;
+        this.field_ = field;
 
         this.init = function() {
-            min = null;
+            this.min_ = null;
         };
 
         this.accumulate = function(item) {
-            var val = item[field];
+            var val = item[this.field_];
             if (val != null && val != NaN) {
-                if (min == null ||val < min) {
-                    min = val;
+                if (this.min_ == null ||val < this.min_) {
+                    this.min_ = val;
                 }
             }
         };
@@ -629,22 +691,22 @@
             if (!groupTotals.min) {
                 groupTotals.min = {};
             }
-            groupTotals.min[field] = min;
+            groupTotals.min[this.field_] = this.min_;
         }
     }
 
     function MaxAggregator(field) {
-        var max;
+        this.field_ = field;
 
         this.init = function() {
-            max = null;
+            this.max_ = null;
         };
 
         this.accumulate = function(item) {
-            var val = item[field];
+            var val = item[this.field_];
             if (val != null && val != NaN) {
-                if (max == null ||val > max) {
-                    max = val;
+                if (this.max_ == null ||val > this.max_) {
+                    this.max_ = val;
                 }
             }
         };
@@ -653,7 +715,7 @@
             if (!groupTotals.max) {
                 groupTotals.max = {};
             }
-            groupTotals.max[field] = max;
+            groupTotals.max[this.field_] = this.max_;
         }
     }
 

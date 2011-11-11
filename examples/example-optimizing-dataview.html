@@ -100,19 +100,9 @@
     var searchString = "";
     var h_runfilters = null;
 
-
-    function myFilter(items, args) {
-        var item, idx = 0;
-        var out = [];
-        for (var i = 0, il = items.length; i < il; i++) {
-            item = items[i];
-            if (item["percentComplete"] >= args) {
-                out[idx++] = item;
-            }
-        }
-        return out;
+    function myFilter(item, args) {
+        return item["percentComplete"] >= args;
     }
-
 
     function DataItem(i) {
         this.num = i;
@@ -132,9 +122,7 @@
             data[i] = new DataItem(i);
         }
 
-        dataView = new Slick.Data.DataView({
-                batchFilter: true
-            });
+        dataView = new Slick.Data.DataView();
         grid = new Slick.Grid("#myGrid", dataView, columns, options);
         var pager = new Slick.Controls.Pager(dataView, grid, $("#pager"));
 
