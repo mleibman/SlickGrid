@@ -55,7 +55,7 @@
 				<input type=text id="txtSearch" style="width:100px;">
 				<br/><br/>
 				<button id="btnSelectRows">Select first 10 rows</button>
-
+    
                 <br/>
                 <h2>Demonstrates:</h2>
                 <ul>
@@ -84,8 +84,8 @@
 
 		<script src="../lib/firebugx.js"></script>
 
-		<script src="../lib/jquery-1.6.4.min.js"></script>
-		<script language="JavaScript" src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
+		<script src="../lib/jquery-1.7.min.js"></script>
+		<script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
 		<script src="../lib/jquery.event.drag-2.0.min.js"></script>
 
 		<script src="../slick.core.js"></script>
@@ -192,10 +192,6 @@
 
 			var pager = new Slick.Controls.Pager(dataView, grid, $("#pager"));
 			var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
-
-			columnpicker.onColumnChanged.subscribe(function(e,data) {
-				return true;
-			});
 
 
             // move the filter panel defined in a hidden div into grid top panel
