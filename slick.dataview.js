@@ -408,14 +408,15 @@
 
         function compileAccumulatorLoop(aggregator) {
             var accumulatorInfo = getFunctionInfo(aggregator.accumulate);
-
-            return new Function(
+            var fn = new Function(
                 "_items",
                 "for (var " + accumulatorInfo.params[0] + ", _i=0, _il=_items.length; _i<_il; _i++) {" +
                 accumulatorInfo.params[0] + " = _items[_i]; " +
                 accumulatorInfo.body +
                 "}"
             );
+            fn.displayName = fn.name = "compiledAccumulatorLoop";
+            return fn;
         }
         
         function compileFilter() {
@@ -443,7 +444,9 @@
             tpl = tpl.replace(/\$item\$/gi, filterInfo.params[0]);
             tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
 
-            return new Function("_items,_args", tpl);
+            var fn = new Function("_items,_args", tpl);
+            fn.displayName = fn.name = "compiledFilter";
+            return fn;
         }
 
         function compileFilterWithCaching() {
@@ -451,7 +454,7 @@
             
             var filterBody = filterInfo.body
                 .replace(/return false;/gi, "{ continue _coreloop; }")
-                .replace(/return true;/gi, "{ _retval[_idx++] = $item$; continue _coreloop; }")
+                .replace(/return true;/gi, "{ _cache[_i] = true;_retval[_idx++] = $item$; continue _coreloop; }")
                 .replace(/return ([^;]+?);/gi,
                     "{ if ((_cache[_i] = $1)) { _retval[_idx++] = $item$; }; continue _coreloop; }");
 
@@ -463,7 +466,7 @@
                     $item$ = _items[_i];
                     if (_cache[_i]) {
                         _retval[_idx++] = $item$;
-                        continue;
+                        continue _coreloop;
                     }
                     $filter$;
                 }
@@ -475,7 +478,9 @@
             tpl = tpl.replace(/\$item\$/gi, filterInfo.params[0]);
             tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
 
-            return new Function("_items,_args,_cache", tpl);
+            var fn = new Function("_items,_args,_cache", tpl);
+            fn.displayName = fn.name = "compiledFilterWithCaching";
+            return fn;
         }
 
         function getFilteredAndPagedItems(items) {
