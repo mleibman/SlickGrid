@@ -2243,9 +2243,9 @@ if (typeof Slick === "undefined") {
             // IE tries to scroll the viewport so that the item being focused is aligned to the left border
             // IE-specific .setActive() sets the focus, but doesn't scroll
             if ($.browser.msie) {
-                $(activeCellNode).parents( '.gid-canvas' ).setActive();
+                $(activeCellNode).closest( '.grid-canvas' )[0].setActive();
             } else {
-                $(activeCellNode).parents( '.gid-canvas' ).focus();
+                $(activeCellNode).closest( '.grid-canvas' )[0].focus();
             }
         }
 
