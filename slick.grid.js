@@ -489,6 +489,17 @@ if (typeof Slick === "undefined") {
         }
 
         function setupColumnReorder() {
+            var columnScrollTimer = null;
+            var viewportLeft = $viewport.offset().left;
+
+            function scrollColumnsRight() {
+                $viewport[0].scrollLeft = $viewport[0].scrollLeft + 10;
+            }
+
+            function scrollColumnsLeft() {
+                $viewport[0].scrollLeft = $viewport[0].scrollLeft - 10;
+            }
+
             $headers.sortable({
                 containment: "parent",
                 axis: "x",
@@ -499,7 +510,24 @@ if (typeof Slick === "undefined") {
                 forcePlaceholderSize: true,
                 start: function(e, ui) { $(ui.helper).addClass("slick-header-column-active"); },
                 beforeStop: function(e, ui) { $(ui.helper).removeClass("slick-header-column-active"); },
+                sort: function(e, ui) {
+                    if ( e.originalEvent.pageX > $viewport[0].clientWidth ) {
+                        if ( !( columnScrollTimer ) ) {
+                            columnScrollTimer = setInterval(scrollColumnsRight, 100);
+                        }
+                    } else if ( e.originalEvent.pageX < viewportLeft ) {
+                        if ( !( columnScrollTimer ) ) {
+                            columnScrollTimer = setInterval(scrollColumnsLeft, 100);
+                        }
+                    } else {
+                        clearInterval(columnScrollTimer);
+                        columnScrollTimer = null;
+                    }
+                },
                 stop: function(e) {
+                    clearInterval( columnScrollTimer );
+                    columnScrollTimer = null;
+
                     if (!getEditorLock().commitCurrentEdit()) {
                         $(this).sortable("cancel");
                         return;
