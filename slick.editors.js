@@ -73,7 +73,7 @@
             this.init = function() {
                 $input = $("<INPUT type=text class='editor-text' />")
                     .appendTo(args.container)
-                    .bind("keydown.nav", function(e) {
+                    .on("keydown.nav", function(e) {
                         if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
                             e.stopImmediatePropagation();
                         }
@@ -141,7 +141,7 @@
             this.init = function() {
                 $input = $("<INPUT type=text class='editor-text' />");
 
-                $input.bind("keydown.nav", function(e) {
+                $input.on("keydown.nav", function(e) {
                     if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
                         e.stopImmediatePropagation();
                     }
@@ -304,7 +304,7 @@
             this.applyValue = function(item,state) {
                 item[args.column.field] = state;
             };
-           
+
             this.isValueChanged = function() {
                 return ($select.val() != defaultValue);
             };
@@ -394,7 +394,7 @@
                     }
                 });
 
-                $picker.find(".editor-percentcomplete-buttons button").bind("click", function(e) {
+                $picker.find(".editor-percentcomplete-buttons button").on("click", function(e) {
                     $input.val($(this).attr("val"));
                     $picker.find(".editor-percentcomplete-slider").slider("value", $(this).attr("val"));
                 })
@@ -462,13 +462,13 @@
 
             this.init = function() {
                 $input = $("<IMG src='../images/bullet_star.png' align=absmiddle tabIndex=0 title='Click or press Space to toggle' />")
-                    .bind("click keydown", toggle)
+                    .on("click keydown", toggle)
                     .appendTo(args.container)
                     .focus();
             };
 
             this.destroy = function() {
-                $input.unbind("click keydown", toggle);
+                $input.off("click keydown", toggle);
                 $input.remove();
             };
 
@@ -525,9 +525,9 @@
                 $("<DIV style='text-align:right'><BUTTON>Save</BUTTON><BUTTON>Cancel</BUTTON></DIV>")
                     .appendTo($wrapper);
 
-                $wrapper.find("button:first").bind("click", this.save);
-                $wrapper.find("button:last").bind("click", this.cancel);
-                $input.bind("keydown", this.handleKeyDown);
+                $wrapper.find("button:first").on("click", this.save);
+                $wrapper.find("button:last").on("click", this.cancel);
+                $input.on("keydown", this.handleKeyDown);
 
                 scope.position(args.position);
                 $input.focus().select();

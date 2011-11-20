@@ -242,7 +242,7 @@ if (typeof Slick === "undefined") {
             if (!options.enableTextSelectionOnCells) {
                 // disable text selection in grid cells except in input and textarea elements
                 // (this is IE-specific, because selectstart event will only fire in IE)
-                $viewport.bind("selectstart.ui", function (event) {
+                $viewport.on("selectstart.ui", function (event) {
                     return $(event.target).is("input,textarea");
                 });
             }
@@ -255,14 +255,14 @@ if (typeof Slick === "undefined") {
             resizeAndRender();
 
             bindAncestorScrollEvents();
-            $viewport.bind("scroll.slickgrid", handleScroll);
-            $container.bind("resize.slickgrid", resizeAndRender);
-            $headerScroller.bind({
+            $viewport.on("scroll.slickgrid", handleScroll);
+            $container.on("resize.slickgrid", resizeAndRender);
+            $headerScroller.on({
                 "contextmenu.slickgrid": handleHeaderContextMenu,
                 "click.slickgrid": handleHeaderClick
             });
 
-            $canvas.bind({
+            $canvas.on({
                 "keydown.slickgrid": handleKeyDown,
                 "click.slickgrid": handleClick,
                 "dblclick.slickgrid": handleDblClick,
@@ -354,7 +354,7 @@ if (typeof Slick === "undefined") {
                 $target
                     .attr('unselectable', 'on')
                     .css('MozUserSelect', 'none')
-                    .bind('selectstart.ui', function() { return false; }); // from jquery:ui.core.js 1.7.2
+                    .on('selectstart.ui', function() { return false; }); // from jquery:ui.core.js 1.7.2
             }
         }
 
@@ -383,12 +383,12 @@ if (typeof Slick === "undefined") {
             while ((elem = elem.parentNode) != document.body) {
                 // bind to scroll containers only
                 if (elem == $viewport[0] || elem.scrollWidth != elem.clientWidth || elem.scrollHeight != elem.clientHeight)
-                    $(elem).bind("scroll.slickgrid", handleActiveCellPositionChange);
+                    $(elem).on("scroll.slickgrid", handleActiveCellPositionChange);
             }
         }
 
         function unbindAncestorScrollEvents() {
-            $canvas.parents().unbind("scroll.slickgrid");
+            $canvas.parents().off("scroll.slickgrid");
         }
 
         function updateColumnHeader(columnId, title, toolTip) {
@@ -565,7 +565,7 @@ if (typeof Slick === "undefined") {
                 $col = $(e);
                 $("<div class='slick-resizable-handle' />")
                     .appendTo(e)
-                    .bind("dragstart", function(e,dd) {
+                    .on("dragstart", function(e,dd) {
                         if (!getEditorLock().commitCurrentEdit()) { return false; }
                         pageX = e.pageX;
                         $(this).parent().addClass("slick-header-column-active");
@@ -615,7 +615,7 @@ if (typeof Slick === "undefined") {
                         minPageX = pageX - Math.min(shrinkLeewayOnLeft, stretchLeewayOnRight);
                         originalCanvasWidth = $canvas.width();
                     })
-                    .bind("drag", function(e,dd) {
+                    .on("drag", function(e,dd) {
                         var actualMinWidth, d = Math.min(maxPageX, Math.max(minPageX, e.pageX)) - pageX, x, ci;
                         if (d < 0) { // shrink column
                             x = d;
@@ -689,7 +689,7 @@ if (typeof Slick === "undefined") {
                             applyColumnWidths();
                         }
                     })
-                    .bind("dragend", function(e,dd) {
+                    .on("dragend", function(e,dd) {
                         var newWidth;
                         $(this).parent().removeClass("slick-header-column-active");
                         for (j = 0; j < columnElements.length; j++) {
@@ -801,10 +801,10 @@ if (typeof Slick === "undefined") {
                 $headers.sortable("destroy");
 
             unbindAncestorScrollEvents();
-            $container.unbind(".slickgrid");
+            $container.off(".slickgrid");
             removeCssRules();
 
-            $canvas.unbind("draginit dragstart dragend drag");
+            $canvas.off("draginit dragstart dragend drag");
             $container.empty().removeClass(uid);
         }
 
