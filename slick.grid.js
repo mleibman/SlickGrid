@@ -805,18 +805,30 @@ if (typeof Slick === "undefined") {
                 shrinkLeeway = 0,
                 availWidth = (options.autoHeight ? viewportW : viewportW - scrollbarDimensions.width), // with AutoHeight, we do not need to accomodate the vertical scroll bar
                 total = 0,
-                existingTotal = 0;
+                existingTotal = 0,
+				autoWidthColIndex;
 
             for (i = 0; i < columns.length; i++) {
                 c = columns[i];
                 widths.push(c.width);
-                existingTotal += c.width;
                 shrinkLeeway += c.width - Math.max(c.minWidth || 0, absoluteColumnMinWidth);
+				if (c.autoWidth){
+					if (autoWidthColIndex) throw "Only 1 column can use autoWidth";
+					autoWidthColIndex = i;
+				}
+				else {
+					existingTotal += c.width;
+				}
             }
 
-            total = existingTotal;
+			total = existingTotal;
 
             invalidateAllRows();
+
+			if (autoWidthColIndex) {
+				widths[autoWidthColIndex] = Math.max(columns[autoWidthColIndex].minWidth || 0, Math.floor(availWidth - total));
+				total = availWidth;
+			}
 
             // shrink
             while (total > availWidth) {
