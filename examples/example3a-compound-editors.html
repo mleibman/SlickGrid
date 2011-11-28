@@ -31,8 +31,8 @@
 
 		<script src="../lib/firebugx.js"></script>
 
-		<script src="../lib/jquery-1.6.4.min.js"></script>
-		<script language="JavaScript" src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
+		<script src="../lib/jquery-1.7.min.js"></script>
+		<script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
 		<script src="../lib/jquery.event.drag-2.0.min.js"></script>
 
 		<script src="../slick.core.js"></script>
@@ -66,13 +66,13 @@
             this.init = function() {
                 $from = $("<INPUT type=text style='width:40px' />")
                             .appendTo(args.container)
-                            .bind("keydown", scope.handleKeyDown);
+                            .on("keydown", scope.handleKeyDown);
 
                 $(args.container).append("&nbsp; to &nbsp;");
 
                 $to = $("<INPUT type=text style='width:40px' />")
                             .appendTo(args.container)
-                            .bind("keydown", scope.handleKeyDown);
+                            .on("keydown", scope.handleKeyDown);
 
                 scope.focus();
             };

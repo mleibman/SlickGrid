@@ -1,6 +1,17 @@
 (function($) {
+	// register namespace
+	$.extend(true, window, {
+		"Slick": {
+			"Controls": {
+				"ColumnPicker": SlickColumnPicker
+			}
+		}
+	});
+
 	function SlickColumnPicker(columns,grid,options)
 	{
+		var _self = this;
+
 		var $menu;
 
 		var defaults = {
@@ -13,8 +24,8 @@
 
 			$menu = $("<span class='slick-columnpicker' style='display:none;position:absolute;z-index:20;' />").appendTo(document.body);
 
-			$menu.bind("mouseleave", function(e) { $(this).fadeOut(options.fadeSpeed) });
-			$menu.bind("click", updateColumn);
+			$menu.on("mouseleave", function(e) { $(this).fadeOut(options.fadeSpeed) });
+			$menu.on("click", updateColumn);
 
 		}
 
@@ -93,13 +104,16 @@
                     }
                 });
                 grid.setColumns(visibleColumns);
+
+				_self.onColumnChanged.notify();
 			}
 		}
+
+		$.extend(this, {
+            "onColumnChanged": new Slick.Event()
+        });
 
 
 		init();
 	}
-
-	// Slick.Controls.ColumnPicker
-	$.extend(true, window, { Slick: { Controls: { ColumnPicker: SlickColumnPicker }}});
 })(jQuery);

@@ -155,7 +155,7 @@ test("refresh fires after resume", function() {
     dv.beginUpdate();
     dv.setItems([{id:0},{id:1}]);
     same(dv.getItems().length, 2, "items updated immediately");
-    dv.setFilter(function(o) { return true });
+    dv.setFilter(function(o) { return true; });
     dv.refresh();
 
     var count = 0;
@@ -259,7 +259,7 @@ test("applied immediately", function() {
         same(args.totalRows, 1, "totalRows arg");
         count++;
     });
-    dv.setFilter(function(o) { return o.val === 1 });
+    dv.setFilter(function(o) { return o.val === 1; });
     equal(count, 3, "events fired");
     same(dv.getItems().length, 3, "original data is still there");
     same(dv.getLength(), 1, "rows are filtered");
@@ -268,10 +268,10 @@ test("applied immediately", function() {
 
 test("re-applied on refresh", function() {
     var count = 0;
-    var filterVal = 0;
     var dv = new Slick.Data.DataView();
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
-    dv.setFilter(function(o) { return o.val >= filterVal });
+    dv.setFilterArgs(0);
+    dv.setFilter(function(o, args) { return o.val >= args; });
     same(dv.getLength(), 3, "nothing is filtered out");
     assertConsistency(dv);
 
@@ -293,7 +293,7 @@ test("re-applied on refresh", function() {
         same(args.totalRows, 1, "totalRows arg");
         count++;
     });
-    filterVal = 2;
+    dv.setFilterArgs(2);
     dv.refresh();
     equal(count, 3, "events fired");
     same(dv.getItems().length, 3, "original data is still there");
@@ -304,13 +304,13 @@ test("re-applied on refresh", function() {
 test("re-applied on sort", function() {
     var dv = new Slick.Data.DataView();
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
-    dv.setFilter(function(o) { return o.val === 1 });
+    dv.setFilter(function(o) { return o.val === 1; });
     same(dv.getLength(), 1, "one row is remaining");
 
     dv.onRowsChanged.subscribe(function() { ok(false, "onRowsChanged called") });
     dv.onRowCountChanged.subscribe(function() { ok(false, "onRowCountChanged called") });
     dv.onPagingInfoChanged.subscribe(function() { ok(false, "onPagingInfoChanged called") });
-    dv.sort(function(x,y) { return x.val-y.val }, false);
+    dv.sort(function(x,y) { return x.val-y.val; }, false);
     same(dv.getItems().length, 3, "original data is still there");
     same(dv.getLength(), 1, "rows are filtered");
     assertConsistency(dv);
@@ -336,7 +336,7 @@ test("all", function() {
         same(args.totalRows, 0, "totalRows arg");
         count++;
     });
-    dv.setFilter(function(o) { return false });
+    dv.setFilter(function(o) { return false; });
     equal(count, 2, "events fired");
     same(dv.getItems().length, 3, "original data is still there");
     same(dv.getLength(), 0, "rows are filtered");
@@ -344,11 +344,11 @@ test("all", function() {
 });
 
 test("all then none", function() {
-    var filterResult = false;
     var count = 0;
     var dv = new Slick.Data.DataView();
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
-    dv.setFilter(function(o) { return filterResult });
+    dv.setFilterArgs(false);
+    dv.setFilter(function(o, args) { return args; });
     same(dv.getLength(), 0, "all rows are filtered out");
 
     dv.onRowsChanged.subscribe(function(e,args) {
@@ -369,7 +369,7 @@ test("all then none", function() {
         same(args.totalRows, 3, "totalRows arg");
         count++;
     });
-    filterResult = true;
+    dv.setFilterArgs(true);
     dv.refresh();
     equal(count, 3, "events fired");
     same(dv.getItems().length, 3, "original data is still there");
@@ -405,7 +405,7 @@ test("basic", function() {
 test("updating an item not passing the filter", function() {
     var dv = new Slick.Data.DataView();
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2},{id:3,val:1337}]);
-    dv.setFilter(function(o) { return o["val"] !== 1337 });
+    dv.setFilter(function(o) { return o["val"] !== 1337; });
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(false, "onRowsChanged called");
     });
@@ -424,7 +424,7 @@ test("updating an item to pass the filter", function() {
     var count = 0;
     var dv = new Slick.Data.DataView();
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2},{id:3,val:1337}]);
-    dv.setFilter(function(o) { return o["val"] !== 1337 });
+    dv.setFilter(function(o) { return o["val"] !== 1337; });
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
         same(args, {rows:[3]}, "args");
@@ -453,7 +453,7 @@ test("updating an item to not pass the filter", function() {
     var count = 0;
     var dv = new Slick.Data.DataView();
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2},{id:3,val:3}]);
-    dv.setFilter(function(o) { return o["val"] !== 1337 });
+    dv.setFilter(function(o) { return o["val"] !== 1337; });
     dv.onRowsChanged.subscribe(function(e,args) {
         console.log(args)
         ok(false, "onRowsChanged called");
@@ -534,7 +534,7 @@ test("basic", function() {
 test("add an item not passing the filter", function() {
     var dv = new Slick.Data.DataView();
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
-    dv.setFilter(function(o) { return o["val"] !== 1337 });
+    dv.setFilter(function(o) { return o["val"] !== 1337; });
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(false, "onRowsChanged called");
     });

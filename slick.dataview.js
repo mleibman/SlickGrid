@@ -26,19 +26,26 @@
             groupItemMetadataProvider: null
         };
 
-        
+
         // private
         var idProperty = "id";  // property holding a unique row id
-        var items = [];			// data by index
-        var rows = [];			// data by row
-        var idxById = {};		// indexes by id
-        var rowsById = null;	// rows by id; lazy-calculated
-        var filter = null;		// filter function
-        var updated = null; 	// updated item ids
-        var suspend = false;	// suspends the recalculation
+        var items = [];         // data by index
+        var rows = [];          // data by row
+        var idxById = {};       // indexes by id
+        var rowsById = null;    // rows by id; lazy-calculated
+        var filter = null;      // filter function
+        var updated = null;     // updated item ids
+        var suspend = false;    // suspends the recalculation
         var sortAsc = true;
         var fastSortField;
         var sortComparer;
+        var refreshHints = {};
+        var prevRefreshHints = {};
+        var filterArgs;
+        var filteredItems = [];
+        var compiledFilter;
+        var compiledFilterWithCaching;
+        var filterCache = [];
 
         // grouping
         var groupingGetter;
@@ -49,6 +56,7 @@
         var collapsedGroups = {};
         var aggregators;
         var aggregateCollapsed = false;
+        var compiledAccumulators;
 
         var pagesize = 0;
         var pagenum = 0;
@@ -66,9 +74,17 @@
             suspend = true;
         }
 
-        function endUpdate(hints) {
+        function endUpdate() {
             suspend = false;
-            refresh(hints);
+            refresh();
+        }
+
+        function setRefreshHints(hints){
+            refreshHints = hints;
+        }
+
+        function setFilterArgs(args) {
+            filterArgs = args;
         }
 
         function updateIdxById(startingIndex) {
@@ -99,7 +115,7 @@
 
         function setItems(data, objectIdProperty) {
             if (objectIdProperty !== undefined) idProperty = objectIdProperty;
-            items = data;
+            items = filteredItems = data;
             idxById = {};
             updateIdxById();
             ensureIdUniqueness();
@@ -167,6 +183,8 @@
 
         function setFilter(filterFn) {
             filter = filterFn;
+            compiledFilter = compileFilter();
+            compiledFilterWithCaching = compileFilterWithCaching();
             refresh();
         }
 
@@ -186,7 +204,16 @@
 
         function setAggregators(groupAggregators, includeCollapsed) {
             aggregators = groupAggregators;
-            aggregateCollapsed = includeCollapsed !== undefined ? includeCollapsed : aggregateCollapsed;
+            aggregateCollapsed = (includeCollapsed !== undefined)
+                ? includeCollapsed : aggregateCollapsed;
+
+            // pre-compile accumulator loops
+            compiledAccumulators = [];
+            var idx = aggregators.length;
+            while (idx--) {
+                compiledAccumulators[idx] = compileAccumulatorLoop(aggregators[idx]);
+            }
+
             refresh();
         }
 
@@ -198,15 +225,17 @@
             return idxById[id];
         }
 
-        // calculate the lookup table on first call
-        function getRowById(id) {
+        function ensureRowsByIdCache() {
             if (!rowsById) {
-                rowsById = {};
-                for (var i = 0, l = rows.length; i < l; ++i) {
-                    rowsById[rows[i][idProperty]] = i;
-                }
-            }
+                 rowsById = {};
+                 for (var i = 0, l = rows.length; i < l; i++) {
+                     rowsById[rows[i][idProperty]] = i;
+                 }
+             }
+        }
 
+        function getRowById(id) {
+            ensureRowsByIdCache();
             return rowsById[id];
         }
 
@@ -270,6 +299,10 @@
                 return options.groupItemMetadataProvider.getTotalsRowMetadata(item);
             }
 
+            if (options.groupItemMetadataProvider) {
+                return options.groupItemMetadataProvider.getRowMetadata(item);
+            }
+
             return null;
         }
 
@@ -291,12 +324,13 @@
             var group;
             var val;
             var groups = [];
-            var groupsByVal = {};
+            var groupsByVal = [];
             var r;
 
             for (var i = 0, l = rows.length; i < l; i++) {
                 r = rows[i];
                 val = (groupingGetterIsAFn) ? groupingGetter(r) : r[groupingGetter];
+                val = val || 0;
                 group = groupsByVal[val];
                 if (!group) {
                     group = new Slick.Group();
@@ -315,32 +349,21 @@
 
         // TODO:  lazy totals calculation
         function calculateGroupTotals(group) {
-            var r, idx;
-
             if (group.collapsed && !aggregateCollapsed) {
                 return;
             }
 
-            idx = aggregators.length;
+            // TODO:  try moving iterating over groups into compiled accumulator
+            var totals = new Slick.GroupTotals();
+            var agg, idx = aggregators.length;
             while (idx--) {
-                aggregators[idx].init();
+                agg = aggregators[idx];
+                agg.init();
+                compiledAccumulators[idx].call(agg, group.rows);
+                agg.storeResult(totals);
             }
-
-            for (var j = 0, jj = group.rows.length; j < jj; j++) {
-                r = group.rows[j];
-                idx = aggregators.length;
-                while (idx--) {
-                    aggregators[idx].accumulate(r);
-                }
-            }
-
-            var t = new Slick.GroupTotals();
-            idx = aggregators.length;
-            while (idx--) {
-                aggregators[idx].storeResult(t);
-            }
-            t.group = group;
-            group.totals = t;
+            totals.group = group;
+            group.totals = totals;
         }
 
         function calculateTotals(groups) {
@@ -360,7 +383,7 @@
         }
 
         function flattenGroupedRows(groups) {
-            var groupedRows = [], gl = 0, idx, t, g, r;
+            var groupedRows = [], gl = 0, g;
             for (var i = 0, l = groups.length; i < l; i++) {
                 g = groups[i];
                 groupedRows[gl++] = g;
@@ -378,37 +401,137 @@
             return groupedRows;
         }
 
-        function getFilteredAndPagedItems(items, filter) {
-            var pageStartRow = pagesize * pagenum;
-            var pageEndRow = pageStartRow + pagesize;
-            var itemIdx = 0, rowIdx = 0, item;
-            var newRows = [];
+        function getFunctionInfo(fn) {
+            var fnRegex = /^function[^(]*\(([^)]*)\)\s*{([\s\S]*)}$/;
+            var matches = fn.toString().match(fnRegex);
+            return {
+                params: matches[1].split(","),
+                body: matches[2]
+            };
+        }
 
-            // filter the data and get the current page if paging
-            if (filter) {
-                for (var i = 0, il = items.length; i < il; ++i) {
-                    item = items[i];
+        function compileAccumulatorLoop(aggregator) {
+            var accumulatorInfo = getFunctionInfo(aggregator.accumulate);
+            var fn = new Function(
+                "_items",
+                "for (var " + accumulatorInfo.params[0] + ", _i=0, _il=_items.length; _i<_il; _i++) {" +
+                accumulatorInfo.params[0] + " = _items[_i]; " +
+                accumulatorInfo.body +
+                "}"
+            );
+            fn.displayName = fn.name = "compiledAccumulatorLoop";
+            return fn;
+        }
+        
+        function compileFilter() {
+            var filterInfo = getFunctionInfo(filter);
 
-                    if (!filter || filter(item)) {
-                        if (!pagesize || (itemIdx >= pageStartRow && itemIdx < pageEndRow)) {
-                            newRows[rowIdx] = item;
-                            rowIdx++;
-                        }
-                        itemIdx++;
-                    }
+            var filterBody = filterInfo.body
+                .replace(/return false;/gi, "{ continue _coreloop; }")
+                .replace(/return true;/gi, "{ _retval[_idx++] = $item$; continue _coreloop; }")
+                .replace(/return ([^;]+?);/gi,
+                    "{ if ($1) { _retval[_idx++] = $item$; }; continue _coreloop; }");
+
+            var fnTemplate = function(_items, _args) {
+                var _retval = [], _idx = 0;
+                var $item$, $args$ = _args;
+                _coreloop:
+                for (var _i = 0, _il = _items.length; _i < _il; _i++) {
+                    $item$ = _items[_i];
+                    $filter$;
                 }
-            }
-            else {
-                newRows = pagesize ? items.slice(pageStartRow, pageEndRow) : items.concat();
-                itemIdx = items.length;
+                return _retval;
+            };
+
+            var tpl = getFunctionInfo(fnTemplate).body;
+            tpl = tpl.replace(/\$filter\$/gi, filterBody);
+            tpl = tpl.replace(/\$item\$/gi, filterInfo.params[0]);
+            tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
+
+            var fn = new Function("_items,_args", tpl);
+            fn.displayName = fn.name = "compiledFilter";
+            return fn;
+        }
+
+        function compileFilterWithCaching() {
+            var filterInfo = getFunctionInfo(filter);
+            
+            var filterBody = filterInfo.body
+                .replace(/return false;/gi, "{ continue _coreloop; }")
+                .replace(/return true;/gi, "{ _cache[_i] = true;_retval[_idx++] = $item$; continue _coreloop; }")
+                .replace(/return ([^;]+?);/gi,
+                    "{ if ((_cache[_i] = $1)) { _retval[_idx++] = $item$; }; continue _coreloop; }");
+
+            var fnTemplate = function(_items, _args, _cache) {
+                var _retval = [], _idx = 0;
+                var $item$, $args$ = _args;
+                _coreloop:
+                for (var _i = 0, _il = _items.length; _i < _il; _i++) {
+                    $item$ = _items[_i];
+                    if (_cache[_i]) {
+                        _retval[_idx++] = $item$;
+                        continue _coreloop;
+                    }
+                    $filter$;
+                }
+                return _retval;
+            };
+
+            var tpl = getFunctionInfo(fnTemplate).body;
+            tpl = tpl.replace(/\$filter\$/gi, filterBody);
+            tpl = tpl.replace(/\$item\$/gi, filterInfo.params[0]);
+            tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
+
+            var fn = new Function("_items,_args,_cache", tpl);
+            fn.displayName = fn.name = "compiledFilterWithCaching";
+            return fn;
+        }
+
+        function getFilteredAndPagedItems(items) {
+            if (filter && !refreshHints.isFilterUnchanged) {
+                if (refreshHints.isFilterNarrowing) {
+                    filteredItems = compiledFilter(filteredItems, filterArgs);
+                } else if (refreshHints.isFilterExpanding) {
+                    filteredItems = compiledFilterWithCaching(items, filterArgs, filterCache);
+                } else {
+                    filteredItems = compiledFilter(items, filterArgs);
+                }
+            } else {
+                // special case:  if not filtering and not paging, the resulting
+                // rows collection needs to be a copy so that changes due to sort
+                // can be caught
+                filteredItems = pagesize ? items : items.concat();
             }
 
-            return {totalRows:itemIdx, rows:newRows};
+            // get the current page
+            var paged;
+            if (pagesize) {
+                if (filteredItems.length < pagenum * pagesize) {
+                    pagenum = Math.floor(filteredItems.length / pagesize);
+                }
+                paged = filteredItems.slice(pagesize * pagenum, pagesize * pagenum + pagesize);
+            } else {
+                paged = filteredItems;
+            }
+
+            return {totalRows:filteredItems.length, rows:paged};
         }
 
         function getRowDiffs(rows, newRows) {
             var item, r, eitherIsNonData, diff = [];
-            for (var i = 0, rl = rows.length, nrl = newRows.length; i < nrl; i++) {
+            var from = 0, to = newRows.length;
+
+            if (refreshHints && refreshHints.ignoreDiffsBefore) {
+                from = Math.max(0,
+                    Math.min(newRows.length, refreshHints.ignoreDiffsBefore));
+            }
+
+            if (refreshHints && refreshHints.ignoreDiffsAfter) {
+                to = Math.min(newRows.length,
+                    Math.max(0, refreshHints.ignoreDiffsAfter));
+            }
+
+            for (var i = from, rl = rows.length; i < to; i++) {
                 if (i >= rl) {
                     diff[diff.length] = i;
                 }
@@ -435,14 +558,17 @@
             return diff;
         }
 
-        function recalc(_items, _rows, _filter) {
+        function recalc(_items) {
             rowsById = null;
 
-            var newRows = [];
+            if (refreshHints.isFilterNarrowing != prevRefreshHints.isFilterNarrowing ||
+                refreshHints.isFilterExpanding != prevRefreshHints.isFilterExpanding) {
+              filterCache = [];
+            }
 
-            var filteredItems = getFilteredAndPagedItems(_items, _filter);
+            var filteredItems = getFilteredAndPagedItems(_items);
             totalRows = filteredItems.totalRows;
-            newRows = filteredItems.rows;
+            var newRows = filteredItems.rows;
 
             groups = [];
             if (groupingGetter != null) {
@@ -457,7 +583,7 @@
                 }
             }
 
-            var diff = getRowDiffs(_rows, newRows);
+            var diff = getRowDiffs(rows, newRows);
 
             rows = newRows;
 
@@ -470,16 +596,18 @@
             var countBefore = rows.length;
             var totalRowsBefore = totalRows;
 
-            var diff = recalc(items, rows, filter); // pass as direct refs to avoid closure perf hit
+            var diff = recalc(items, filter); // pass as direct refs to avoid closure perf hit
 
             // if the current page is no longer valid, go to last page and recalc
             // we suffer a performance penalty here, but the main loop (recalc) remains highly optimized
             if (pagesize && totalRows < pagenum * pagesize) {
                 pagenum = Math.floor(totalRows / pagesize);
-                diff = recalc(items, rows, filter);
+                diff = recalc(items, filter);
             }
 
             updated = null;
+            prevRefreshHints = refreshHints;
+            refreshHints = {};
 
             if (totalRowsBefore != totalRows) onPagingInfoChanged.notify(getPagingInfo(), null, self);
             if (countBefore != rows.length) onRowCountChanged.notify({previous:countBefore, current:rows.length}, null, self);
@@ -508,6 +636,8 @@
             "getRowById":       getRowById,
             "getItemById":      getItemById,
             "getItemByIdx":     getItemByIdx,
+            "setRefreshHints":  setRefreshHints,
+            "setFilterArgs":    setFilterArgs,
             "refresh":          refresh,
             "updateItem":       updateItem,
             "insertItem":       insertItem,
@@ -526,26 +656,21 @@
         };
     }
 
-
-
-
     function AvgAggregator(field) {
-        var count;
-        var nonNullCount;
-        var sum;
+        this.field_ = field;
 
         this.init = function() {
-            count = 0;
-            nonNullCount = 0;
-            sum = 0;
+            this.count_ = 0;
+            this.nonNullCount_ = 0;
+            this.sum_ = 0;
         };
 
         this.accumulate = function(item) {
-            var val = item[field];
-            count++;
+            var val = item[this.field_];
+            this.count_++;
             if (val != null && val != NaN) {
-                nonNullCount++;
-                sum += 1 * val;
+                this.nonNullCount_++;
+                this.sum_ += 1 * val;
             }
         };
 
@@ -553,24 +678,24 @@
             if (!groupTotals.avg) {
                 groupTotals.avg = {};
             }
-            if (nonNullCount != 0) {
-                groupTotals.avg[field] = sum / nonNullCount;
+            if (this.nonNullCount_ != 0) {
+                groupTotals.avg[this.field_] = this.sum_ / this.nonNullCount_;
             }
         };
     }
 
     function MinAggregator(field) {
-        var min;
+        this.field_ = field;
 
         this.init = function() {
-            min = null;
+            this.min_ = null;
         };
 
         this.accumulate = function(item) {
-            var val = item[field];
+            var val = item[this.field_];
             if (val != null && val != NaN) {
-                if (min == null ||val < min) {
-                    min = val;
+                if (this.min_ == null ||val < this.min_) {
+                    this.min_ = val;
                 }
             }
         };
@@ -579,22 +704,22 @@
             if (!groupTotals.min) {
                 groupTotals.min = {};
             }
-            groupTotals.min[field] = min;
+            groupTotals.min[this.field_] = this.min_;
         }
     }
 
     function MaxAggregator(field) {
-        var max;
+        this.field_ = field;
 
         this.init = function() {
-            max = null;
+            this.max_ = null;
         };
 
         this.accumulate = function(item) {
-            var val = item[field];
+            var val = item[this.field_];
             if (val != null && val != NaN) {
-                if (max == null ||val > max) {
-                    max = val;
+                if (this.max_ == null ||val > this.max_) {
+                    this.max_ = val;
                 }
             }
         };
@@ -603,7 +728,7 @@
             if (!groupTotals.max) {
                 groupTotals.max = {};
             }
-            groupTotals.max[field] = max;
+            groupTotals.max[this.field_] = this.max_;
         }
     }
 

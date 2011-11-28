@@ -5,7 +5,7 @@
 		<title>SlickGrid example: Grouping</title>
 		<link rel="stylesheet" href="../slick.grid.css" type="text/css" media="screen" charset="utf-8" />
 		<link rel="stylesheet" href="../controls/slick.pager.css" type="text/css" media="screen" charset="utf-8" />
-        <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.5.custom.css" type="text/css" media="screen" charset="utf-8" />
+        <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" media="screen" charset="utf-8" />
 		<link rel="stylesheet" href="examples.css" type="text/css" media="screen" charset="utf-8" />
 		<link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css" media="screen" charset="utf-8" />
 		<style>
@@ -15,6 +15,10 @@
 
 		.cell-effort-driven {
 			text-align: center;
+		}
+
+		.row-green {
+			background-color: #C3FDB8
 		}
 	</style>
 	</head>
@@ -49,24 +53,22 @@
                     <button onclick="collapseAllGroups()">Collapse all groups</button><br/>
                     <button onclick="expandAllGroups()">Expand all groups</button><br/>
                 </div>
+                <hr/>
+                <h2>Demonstrates:</h2>
+                <ul>
+                <li>
+                 Fully dynamic and interactive grouping with filtering and aggregates over <b>50'000</b> items<br>
+                 Personally, this is just the coolest slickest thing I've ever seen done with DHTML grids!
+                </li>
+                </ul>
             </div>
         </div>
 
-		<div style="margin-left:650px;margin-top:40px;;">
-			<h2>Demonstrates:</h2>
-
-			<ul>
-                <li>
-                    Fully dynamic and interactive grouping with filtering and aggregates over 10'000 items<br>
-                    Personally, this is just the coolest slickest thing I've ever seen done with DHTML grids!
-                </li>
-			</ul>
-		</div>
 
 		<script src="../lib/firebugx.js"></script>
 
-		<script src="../lib/jquery-1.6.4.min.js"></script>
-		<script src="../lib/jquery-ui-1.8.5.custom.min.js"></script>
+		<script src="../lib/jquery-1.7.min.js"></script>
+		<script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
 		<script src="../lib/jquery.event.drag-2.0.min.js"></script>
 
 		<script src="../slick.core.js"></script>
@@ -103,21 +105,18 @@
 		var sortcol = "title";
 		var sortdir = 1;
 		var percentCompleteThreshold = 0;
+        var prevPercentCompleteThreshold = 0;
 		var searchString = "";
 
         function avgTotalsFormatter(totals, columnDef) {
             return "avg: " + Math.round(totals.avg[columnDef.field]) + "%";
         }
 
-		function myFilter(item) {
-			if (item["percentComplete"] < percentCompleteThreshold)
-				return false;
-
-			if (searchString != "" && item["title"].indexOf(searchString) == -1)
-				return false;
-
-			return true;
-		}
+        function myFilter(item, args) {
+            return item["percentComplete"] >= args.percentComplete &&
+                (args.searchString == "" ||
+                item["title"].indexOf(args.searchString) == -1);
+        }
 
 		function percentCompleteSort(a,b) {
 			return a["percentComplete"] - b["percentComplete"];
@@ -218,7 +217,17 @@
 				d["effortDriven"] = (i % 5 == 0);
 			}
 
-            var groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
+			function myRowCss(item) {
+				if (item.effortDriven) {
+					return {
+						cssClasses: "row-green"
+					}
+				}
+			}
+
+            var groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider({
+				getRowMetadata: myRowCss
+			});
 			dataView = new Slick.Data.DataView({
                 groupItemMetadataProvider: groupItemMetadataProvider
             });
@@ -226,7 +235,6 @@
 
             // register the group item metadata provider to add expand/collapse group handlers
             grid.registerPlugin(groupItemMetadataProvider);
-
             grid.setSelectionModel(new Slick.CellSelectionModel());
 
 			var pager = new Slick.Controls.Pager(dataView, grid, $("#pager"));
@@ -284,7 +292,7 @@
 					if (percentCompleteThreshold != ui.value)
 					{
 						window.clearTimeout(h_runfilters);
-						h_runfilters = window.setTimeout(function() { dataView.refresh() }, 10);
+						h_runfilters = window.setTimeout(filterAndUpdate, 10);
 						percentCompleteThreshold = ui.value;
 					}
 				}
@@ -304,10 +312,34 @@
 			});
 
 
+            function filterAndUpdate() {
+                var isNarrowing = percentCompleteThreshold > prevPercentCompleteThreshold;
+                var isExpanding = percentCompleteThreshold < prevPercentCompleteThreshold;
+                var renderedRange = grid.getRenderedRange();
+
+                dataView.setFilterArgs({
+                    percentComplete: percentCompleteThreshold,
+                    searchString: searchString
+                });
+                dataView.setRefreshHints({
+                    ignoreDiffsBefore:renderedRange.top,
+                    ignoreDiffsAfter:renderedRange.bottom + 1,
+                    isFilterNarrowing:isNarrowing,
+                    isFilterExpanding:isExpanding
+                });
+                dataView.refresh();
+
+                prevPercentCompleteThreshold = percentCompleteThreshold;
+            }
+
 			// initialize the model after all the events have been hooked up
 			dataView.beginUpdate();
 			dataView.setItems(data);
 			dataView.setFilter(myFilter);
+            dataView.setFilterArgs({
+                percentComplete: percentCompleteThreshold,
+                searchString: searchString
+            });
             dataView.groupBy(
                 "duration",
                 function (g) {

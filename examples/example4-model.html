@@ -84,8 +84,8 @@
 
 		<script src="../lib/firebugx.js"></script>
 
-		<script src="../lib/jquery-1.6.4.min.js"></script>
-		<script language="JavaScript" src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
+		<script src="../lib/jquery-1.7.min.js"></script>
+		<script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
 		<script src="../lib/jquery.event.drag-2.0.min.js"></script>
 
 		<script src="../slick.core.js"></script>
@@ -133,11 +133,11 @@
 				return {valid:true, msg:null};
 		}
 
-		function myFilter(item) {
-			if (item["percentComplete"] < percentCompleteThreshold)
+		function myFilter(item, args) {
+			if (item["percentComplete"] < args.percentCompleteThreshold)
 				return false;
 
-			if (searchString != "" && item["title"].indexOf(searchString) == -1)
+			if (args.searchString != "" && item["title"].indexOf(args.searchString) == -1)
 				return false;
 
 			return true;
@@ -311,7 +311,7 @@
 					if (percentCompleteThreshold != ui.value)
 					{
 						window.clearTimeout(h_runfilters);
-						h_runfilters = window.setTimeout(dataView.refresh, 10);
+						h_runfilters = window.setTimeout(updateFilter, 10);
 						percentCompleteThreshold = ui.value;
 					}
 				}
@@ -327,8 +327,16 @@
 					this.value = "";
 
 				searchString = this.value;
-				dataView.refresh();
+				updateFilter();
 			});
+
+            function updateFilter() {
+                dataView.setFilterArgs({
+                    percentCompleteThreshold: percentCompleteThreshold,
+                    searchString: searchString
+                });
+                dataView.refresh();
+            }
 
 			$("#btnSelectRows").click(function() {
 				if (!Slick.GlobalEditorLock.commitCurrentEdit()) { return; }
@@ -348,6 +356,10 @@
 			// initialize the model after all the events have been hooked up
 			dataView.beginUpdate();
 			dataView.setItems(data);
+            dataView.setFilterArgs({
+                percentCompleteThreshold: percentCompleteThreshold,
+                searchString: searchString
+            });
 			dataView.setFilter(myFilter);
 			dataView.endUpdate();
 

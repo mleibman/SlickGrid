@@ -49,8 +49,8 @@
 
 		<script src="../lib/firebugx.js"></script>
 
-		<script src="../lib/jquery-1.6.4.min.js"></script>
-		<script language="JavaScript" src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
+		<script src="../lib/jquery-1.7.min.js"></script>
+		<script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
 		<script src="../lib/jquery.event.drag-2.0.min.js"></script>
 
         <script src="../slick.core.js"></script>
@@ -124,8 +124,8 @@
 
                 data[server][col] = val;
 
-                if (!changes[data[server].id])
-                    changes[data[server].id] = {};
+                if (!changes[server])
+                    changes[server] = {};
 
                 changes[server]["cpu" + cpu] = "changed";
 
