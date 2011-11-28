@@ -316,6 +316,10 @@ if (typeof Slick === "undefined") {
         function getCanvasNode() {
             return $canvas[0];
         }
+        
+        function getViewportNode() {
+        	return $viewport[0];
+        }
 
         function measureScrollbar() {
             /// <summary>
@@ -2590,6 +2594,7 @@ if (typeof Slick === "undefined") {
             "updateRowCount":               updateRowCount,
             "scrollRowIntoView":            scrollRowIntoView,
             "getCanvasNode":                getCanvasNode,
+            "getViewportNode":              getViewportNode,
 
             "getCellFromPoint":             getCellFromPoint,
             "getCellFromEvent":             getCellFromEvent,
