@@ -82,7 +82,7 @@ if (typeof Slick === "undefined") {
             selectedCellCssClass: "selected",
             multiSelect: true,
             enableTextSelectionOnCells: false,
-            dataItemColumnValueExtractor: null,
+            dataItemColumnValueExtractor: null
         };
 
         var columnDefaults = {
