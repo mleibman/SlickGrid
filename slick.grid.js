@@ -804,7 +804,8 @@ if (typeof Slick === "undefined") {
             var i, c,
                 widths = [],
                 shrinkLeeway = 0,
-                availWidth = (options.autoHeight ? viewportW : viewportW - scrollbarDimensions.width), // with AutoHeight, we do not need to accomodate the vertical scroll bar
+                containerW = parseFloat($.css($container[0], "width", true)), // get current width - resizeCanvas below will reset viewport 
+                availWidth = (options.autoHeight ? containerW : containerW - scrollbarDimensions.width), // with AutoHeight, we do not need to accomodate the vertical scroll bar
                 total = 0,
                 existingTotal = 0;
 
