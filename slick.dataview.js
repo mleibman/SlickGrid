@@ -428,18 +428,20 @@
                 .replace(/return ([^;]+?);/gi,
                     "{ if ($1) { _retval[_idx++] = $item$; }; continue _coreloop; }");
 
-            var fnTemplate = function(_items, _args) {
-                var _retval = [], _idx = 0;
-                var $item$, $args$ = _args;
-                _coreloop:
-                for (var _i = 0, _il = _items.length; _i < _il; _i++) {
-                    $item$ = _items[_i];
-                    $filter$;
-                }
-                return _retval;
-            };
-
-            var tpl = getFunctionInfo(fnTemplate).body;
+            // This preserves the function template code after JS compression,
+            // so that replace() commands still work as expected.
+            var tpl = [
+                //"function(_items, _args) { ",
+                    "var _retval = [], _idx = 0; ",
+                    "var $item$, $args$ = _args; ",
+                    "_coreloop: ",
+                    "for (var _i = 0, _il = _items.length; _i < _il; _i++) { ",
+                        "$item$ = _items[_i]; ",
+                        "$filter$; ",
+                    "} ",
+                    "return _retval; "
+                //"}"
+            ].join("");
             tpl = tpl.replace(/\$filter\$/gi, filterBody);
             tpl = tpl.replace(/\$item\$/gi, filterInfo.params[0]);
             tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
@@ -458,22 +460,24 @@
                 .replace(/return ([^;]+?);/gi,
                     "{ if ((_cache[_i] = $1)) { _retval[_idx++] = $item$; }; continue _coreloop; }");
 
-            var fnTemplate = function(_items, _args, _cache) {
-                var _retval = [], _idx = 0;
-                var $item$, $args$ = _args;
-                _coreloop:
-                for (var _i = 0, _il = _items.length; _i < _il; _i++) {
-                    $item$ = _items[_i];
-                    if (_cache[_i]) {
-                        _retval[_idx++] = $item$;
-                        continue _coreloop;
-                    }
-                    $filter$;
-                }
-                return _retval;
-            };
-
-            var tpl = getFunctionInfo(fnTemplate).body;
+            // This preserves the function template code after JS compression,
+            // so that replace() commands still work as expected.
+            var tpl = [
+                //"function(_items, _args, _cache) { ",
+                    "var _retval = [], _idx = 0; ",
+                    "var $item$, $args$ = _args; ",
+                    "_coreloop: ",
+                    "for (var _i = 0, _il = _items.length; _i < _il; _i++) { ",
+                        "$item$ = _items[_i]; ",
+                        "if (_cache[_i]) { ",
+                            "_retval[_idx++] = $item$; ",
+                            "continue _coreloop; ",
+                        "} ",
+                        "$filter$; ",
+                    "} ",
+                    "return _retval; "
+                //"}"
+            ].join("");
             tpl = tpl.replace(/\$filter\$/gi, filterBody);
             tpl = tpl.replace(/\$item\$/gi, filterInfo.params[0]);
             tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
