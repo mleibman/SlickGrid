@@ -706,7 +706,7 @@ if (typeof Slick === "undefined") {
         }
 
         function createCssRules() {
-            $style = $("<style type='text/css' rel='stylesheet' />").appendTo($("head"));
+            $style = $("<style type='text/css' rel='stylesheet' />").appendTo($container);
             var rowHeight = (options.rowHeight - cellHeightDiff);
 
             var rules = [
