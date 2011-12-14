@@ -1188,7 +1188,7 @@ if (typeof Slick === "undefined") {
                 currentEditor.loadValue(d);
             }
             else {
-                cellNode.innerHTML = d ? getFormatter(row, m)(row, cell, d[m.field], m, d) : "";
+                cellNode.innerHTML = d ? getFormatter(row, m)(row, cell, getDataItemValueForColumn(d, m), m, d) : "";
                 invalidatePostProcessingResults(row);
             }
         }
@@ -1197,12 +1197,12 @@ if (typeof Slick === "undefined") {
             if (!rowsCache[row]) { return; }
 
             $(rowsCache[row]).children().each(function(i) {
-                var m = columns[i];
+                var m = columns[i], d = getDataItem(row);
                 if (row === activeRow && i === activeCell && currentEditor) {
                     currentEditor.loadValue(getDataItem(activeRow));
                 }
-                else if (getDataItem(row)) {
-                    this.innerHTML = getFormatter(row, m)(row, i, getDataItem(row)[m.field], m, getDataItem(row));
+                else if (d) {
+                    this.innerHTML = getFormatter(row, m)(row, i, getDataItemValueForColumn(d, m), m, getDataItem(row));
                 }
                 else {
                     this.innerHTML = "";
@@ -1872,11 +1872,13 @@ if (typeof Slick === "undefined") {
             currentEditor = null;
 
             if (activeCellNode) {
+                var d = getDataItem(activeRow);
+
                 $(activeCellNode).removeClass("editable invalid");
 
-                if (getDataItem(activeRow)) {
+                if (d) {
                     var column = columns[activeCell];
-                    activeCellNode.innerHTML = getFormatter(activeRow, column)(activeRow, activeCell, getDataItem(activeRow)[column.field], column, getDataItem(activeRow));
+                    activeCellNode.innerHTML = getFormatter(activeRow, column)(activeRow, activeCell, getDataItemValueForColumn(d, column), column, getDataItem(activeRow));
                     invalidatePostProcessingResults(activeRow);
                 }
             }
