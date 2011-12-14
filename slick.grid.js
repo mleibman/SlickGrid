@@ -1872,7 +1872,7 @@ if (typeof Slick === "undefined") {
             currentEditor = null;
 
             if (activeCellNode) {
-		var d = getDataItem(activeRow);
+                var d = getDataItem(activeRow);
 
                 $(activeCellNode).removeClass("editable invalid");
 
