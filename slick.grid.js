@@ -1072,7 +1072,15 @@ if (typeof Slick === "undefined") {
             if (options.dataItemColumnValueExtractor) {
                 return options.dataItemColumnValueExtractor(item, columnDef);
             }
-            return item[columnDef.field];
+            
+            var value = item[columnDef.field];
+            //check if value is a function
+            // Pure duck-typing implementation taken from Underscore.js.
+            if(!!(value && value.constructor && value.call && value.apply)) {
+                return value(); //if so invoke it
+            }
+
+            return value;
         }
 
         function appendRowHtml(stringArray, row) {
