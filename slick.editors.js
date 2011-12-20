@@ -1,6 +1,21 @@
 /* THESE FORMATTERS & EDITORS ARE JUST SAMPLES! */
 
 (function($) {
+    function getItemValue(item, column)
+    {
+      var val = item[ column.field ];
+      if ( typeof val == 'object' && column.fieldIdx )
+        val = val[ column.fieldIdx ];
+      return val;
+    }
+    
+    function setItemValue(item, column, newValue)
+    {
+      if ( typeof item[ column.field ]  == 'object' && column.fieldIdx )
+        item[ column.field ][ column.fieldIdx ] = newValue;
+      else
+        item[ column.field ] = newValue;
+    }
 
     var SlickEditor = {
 
@@ -99,7 +114,8 @@
             };
 
             this.loadValue = function(item) {
-                defaultValue = item[args.column.field] || "";
+                defaultValue = getItemValue(item, column) || "";
+                
                 $input.val(defaultValue);
                 $input[0].defaultValue = defaultValue;
                 $input.select();
@@ -110,7 +126,7 @@
             };
 
             this.applyValue = function(item,state) {
-                item[args.column.field] = state;
+                setItemValue(item, args.column, state);
             };
 
             this.isValueChanged = function() {
@@ -160,7 +176,7 @@
             };
 
             this.loadValue = function(item) {
-                defaultValue = item[args.column.field];
+                defaultValue = getItemValue(item, column);
                 $input.val(defaultValue);
                 $input[0].defaultValue = defaultValue;
                 $input.select();
@@ -171,7 +187,7 @@
             };
 
             this.applyValue = function(item,state) {
-                item[args.column.field] = state;
+                setItemValue(item, args.column, state);
             };
 
             this.isValueChanged = function() {
@@ -245,7 +261,7 @@
             };
 
             this.loadValue = function(item) {
-                defaultValue = item[args.column.field];
+                defaultValue = getItemValue(item, column);
                 $input.val(defaultValue);
                 $input[0].defaultValue = defaultValue;
                 $input.select();
@@ -256,7 +272,7 @@
             };
 
             this.applyValue = function(item,state) {
-                item[args.column.field] = state;
+                setItemValue(item, args.column, state);
             };
 
             this.isValueChanged = function() {
@@ -293,7 +309,9 @@
             };
 
             this.loadValue = function(item) {
-                $select.val((defaultValue = item[args.column.field]) ? "yes" : "no");
+                defaultValue = getItemValue(item, column);
+
+                $select.val((defaultValue ? "yes" : "no");
                 $select.select();
             };
 
@@ -302,7 +320,7 @@
             };
 
             this.applyValue = function(item,state) {
-                item[args.column.field] = state;
+                setItemValue(item, args.column, state);
             };
            
             this.isValueChanged = function() {
@@ -339,7 +357,7 @@
             };
 
             this.loadValue = function(item) {
-                defaultValue = item[args.column.field];
+                defaultValue = getItemValue(item, column);
                 if (defaultValue)
                     $select.attr("checked", "checked");
                 else
@@ -351,7 +369,7 @@
             };
 
             this.applyValue = function(item,state) {
-                item[args.column.field] = state;
+                setItemValue(item, args.column, state);
             };
 
             this.isValueChanged = function() {
@@ -410,7 +428,9 @@
             };
 
             this.loadValue = function(item) {
-                $input.val(defaultValue = item[args.column.field]);
+                defaultValue = getItemValue(item, column);
+
+                $input.val(defaultValue);
                 $input.select();
             };
 
@@ -419,7 +439,7 @@
             };
 
             this.applyValue = function(item,state) {
-                item[args.column.field] = state;
+                setItemValue(item, args.column, state);
             };
 
             this.isValueChanged = function() {
@@ -477,7 +497,7 @@
             };
 
             this.loadValue = function(item) {
-                defaultValue = item[args.column.field];
+                defaultValue = getItemValue(item, column);
                 $input.css("opacity", defaultValue ? 1 : 0.2);
             };
 
@@ -486,7 +506,7 @@
             };
 
             this.applyValue = function(item,state) {
-                item[args.column.field] = state;
+                setItemValue(item, args.column, state);
             };
 
             this.isValueChanged = function() {
@@ -583,7 +603,9 @@
             };
 
             this.loadValue = function(item) {
-                $input.val(defaultValue = item[args.column.field]);
+                defaultValue = getItemValue(item, column);
+
+                $input.val(defaultValue);
                 $input.select();
             };
 
@@ -592,7 +614,7 @@
             };
 
             this.applyValue = function(item,state) {
-                item[args.column.field] = state;
+                setItemValue(item, args.column, state);
             };
 
             this.isValueChanged = function() {
