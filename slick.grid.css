@@ -156,3 +156,43 @@ classes should alter those!
     position: absolute;
     border: 2px dashed black;
 }
+
+
+
+/* ------------------- RTL ------------------- */
+
+.rtl .slick-header.ui-state-default {
+	border-left: auto;
+	border-right: 0px;
+}
+
+
+.rtl .slick-header-column.ui-state-default {
+	border-right: 0px;
+	border-left: 1px solid silver;
+	float: right;
+}
+
+.rtl .slick-sort-indicator {
+	margin-left: auto;
+	margin-right: 4px;
+}
+
+
+.rtl .slick-resizable-handle {
+	right: auto;
+	left: 0px;
+}
+
+
+
+.rtl .slick-cell, .rtl .slick-headerrow-column  {
+
+	border: 1px solid transparent;
+	border-right: 1px solid transparent;
+	border-left: 1px dotted silver;
+	padding: 1px 1px 2px 2px;
+}
+
+
+
