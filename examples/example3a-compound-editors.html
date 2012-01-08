@@ -66,13 +66,13 @@
             this.init = function() {
                 $from = $("<INPUT type=text style='width:40px' />")
                             .appendTo(args.container)
-                            .bind("keydown", scope.handleKeyDown);
+                            .on("keydown", scope.handleKeyDown);
 
                 $(args.container).append("&nbsp; to &nbsp;");
 
                 $to = $("<INPUT type=text style='width:40px' />")
                             .appendTo(args.container)
-                            .bind("keydown", scope.handleKeyDown);
+                            .on("keydown", scope.handleKeyDown);
 
                 scope.focus();
             };
