@@ -23,7 +23,8 @@
         var self = this;
 
         var defaults = {
-            groupItemMetadataProvider: null
+            groupItemMetadataProvider: null,
+            dataItemFieldValueExtractor: null
         };
 
 
@@ -69,6 +70,17 @@
 
         options = $.extend(true, {}, defaults, options);
 
+        function getDataItemValueForField(item, field) {
+            if (item.__nonDataRow) {
+                return item[field];
+            }
+
+            if (options.dataItemFieldValueExtractor) {
+                return options.dataItemFieldValueExtractor(item, field);
+            }
+
+            return item[field];
+        }
 
         function beginUpdate() {
             suspend = true;
@@ -91,7 +103,7 @@
             startingIndex = startingIndex || 0;
             var id;
             for (var i = startingIndex, l = items.length; i < l; i++) {
-                id = items[i][idProperty];
+                id = getDataItemValueForField(items[i], idProperty);
                 if (id === undefined) {
                     throw "Each data element must implement a unique 'id' property";
                 }
@@ -102,7 +114,7 @@
         function ensureIdUniqueness() {
             var id;
             for (var i = 0, l = items.length; i < l; i++) {
-                id = items[i][idProperty];
+                id = getDataItemValueForField(items[i], idProperty);
                 if (id === undefined || idxById[id] !== i) {
                     throw "Each data element must implement a unique 'id' property";
                 }
@@ -229,7 +241,9 @@
             if (!rowsById) {
                  rowsById = {};
                  for (var i = 0, l = rows.length; i < l; i++) {
-                     rowsById[rows[i][idProperty]] = i;
+                     var id = getDataItemValueForField(rows[i], idProperty);
+
+                     rowsById[id] = i;
                  }
              }
         }
@@ -244,7 +258,7 @@
         }
 
         function updateItem(id, item) {
-            if (idxById[id] === undefined || id !== item[idProperty])
+            if (idxById[id] === undefined || id !== getDataItemValueForField(item, idProperty))
                 throw "Invalid or non-matching id";
             items[idxById[id]] = item;
             if (!updated) updated = {};
@@ -539,6 +553,9 @@
                     item = newRows[i];
                     r = rows[i];
 
+                    var itemId = getDataItemValueForField(item, idProperty);
+                    var rId = getDataItemValueForField(r, idProperty);
+
                     if ((groupingGetter && (eitherIsNonData = (item.__nonDataRow) || (r.__nonDataRow)) &&
                             item.__group !== r.__group ||
                             item.__updated ||
@@ -548,8 +565,8 @@
                             // deep object comparison is pretty expensive
                             // always considering them 'dirty' seems easier for the time being
                             (item.__groupTotals || r.__groupTotals))
-                        || item[idProperty] != r[idProperty]
-                        || (updated && updated[item[idProperty]])
+                        || itemId != rId
+                        || (updated && updated[itemId])
                         ) {
                         diff[diff.length] = i;
                     }
