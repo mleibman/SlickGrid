@@ -2266,6 +2266,8 @@ if (typeof Slick === "undefined") {
                 scrollRowIntoView(pos.row, !isAddNewRow);
                 setActiveCellInternal(getCellNode(pos.row, pos.cell), isAddNewRow || options.autoEdit);
                 activePosX = pos.posX;
+            } else {
+                setActiveCellInternal(getCellNode(activeRow, activeCell), isAddNewRow || options.autoEdit);
             }
         }
 
