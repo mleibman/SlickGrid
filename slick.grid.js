@@ -35,7 +35,9 @@ if (typeof Slick === "undefined") {
         }
     });
 
-    var scrollbarDimensions; // shared across all grids on this page
+    // shared across all grids on the page
+    var scrollbarDimensions;
+    var maxSupportedCssHeight;  // browser's breaking point
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // SlickGrid class implementation (available as Slick.Grid)
@@ -95,7 +97,6 @@ if (typeof Slick === "undefined") {
         };
 
         // scroller
-        var maxSupportedCssHeight;      // browser's breaking point
         var th;                         // virtual height
         var h;                          // real scrollable height
         var ph;                         // page height
@@ -356,6 +357,11 @@ if (typeof Slick === "undefined") {
         }
 
         function getMaxSupportedCssHeight() {
+            // return cached value if already calculated
+            if (maxSupportedCssHeight) {
+              return maxSupportedCssHeight;
+            }
+
             var increment = 1000000;
             var supportedHeight = increment;
             // FF reports the height back but still renders blank after ~6M px
