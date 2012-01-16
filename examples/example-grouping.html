@@ -16,6 +16,10 @@
 		.cell-effort-driven {
 			text-align: center;
 		}
+
+		.row-green {
+			background-color: #C3FDB8
+		}
 	</style>
 	</head>
 	<body>
@@ -213,7 +217,17 @@
 				d["effortDriven"] = (i % 5 == 0);
 			}
 
-            var groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
+			function myRowCss(item) {
+				if (item.effortDriven) {
+					return {
+						cssClasses: "row-green"
+					}
+				}
+			}
+
+            var groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider({
+				getRowMetadata: myRowCss
+			});
 			dataView = new Slick.Data.DataView({
                 groupItemMetadataProvider: groupItemMetadataProvider
             });
