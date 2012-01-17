@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" />
-  <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
-  <link rel="stylesheet" href="examples.css" type="text/css" />
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
   <style>
     .slick-headerrow-column {
       background: #87ceeb;
@@ -46,18 +46,18 @@
   var grid;
   var data = [];
   var options = {
-    enableCellNavigation:true,
-    showHeaderRow:true
+    enableCellNavigation: true,
+    showHeaderRow: true
   };
   var columns = [];
   var columnFilters = {};
 
   for (var i = 0; i < 10; i++) {
     columns.push({
-      id:i,
-      name:String.fromCharCode("A".charCodeAt(0) + i),
-      field:i,
-      width:60
+      id: i,
+      name: String.fromCharCode("A".charCodeAt(0) + i),
+      field: i,
+      width: 60
     });
   }
 
@@ -68,10 +68,10 @@
         var header = grid.getHeaderRowColumn(columns[i].id);
         $(header).empty();
         $("<input type='text'>")
-                .data("columnId", columns[i].id)
-                .width($(header).width() - 4)
-                .val(columnFilters[columns[i].id])
-                .appendTo(header);
+            .data("columnId", columns[i].id)
+            .width($(header).width() - 4)
+            .val(columnFilters[columns[i].id])
+            .appendTo(header);
       }
     }
   }
@@ -131,7 +131,6 @@
     dataView.endUpdate();
 
     updateHeaderRow();
-
   })
 </script>
 </body>

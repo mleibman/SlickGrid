@@ -7,15 +7,15 @@
 (function ($) {
   // register namespace
   $.extend(true, window, {
-    "Slick":{
-      "Event":Event,
-      "EventData":EventData,
-      "EventHandler":EventHandler,
-      "Range":Range,
-      "NonDataRow":NonDataItem,
-      "Group":Group,
-      "GroupTotals":GroupTotals,
-      "EditorLock":EditorLock,
+    "Slick": {
+      "Event": Event,
+      "EventData": EventData,
+      "EventHandler": EventHandler,
+      "Range": Range,
+      "NonDataRow": NonDataItem,
+      "Group": Group,
+      "GroupTotals": GroupTotals,
+      "EditorLock": EditorLock,
 
       /***
        * A global singleton editor lock.
@@ -23,7 +23,7 @@
        * @static
        * @constructor
        */
-      "GlobalEditorLock":new EditorLock()
+      "GlobalEditorLock": new EditorLock()
     }
   });
 
@@ -135,8 +135,8 @@
 
     this.subscribe = function (event, handler) {
       handlers.push({
-        event:event,
-        handler:handler
+        event: event,
+        handler: handler
       });
       event.subscribe(handler);
     };

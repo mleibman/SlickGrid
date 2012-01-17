@@ -3,9 +3,9 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <title>SlickGrid example 9: Row reordering</title>
-  <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" />
-  <link rel="stylesheet" href="examples.css" type="text/css" />
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
   <style>
     .cell-title {
       zfont-weight: bold;
@@ -98,62 +98,60 @@
 <script>
 var grid;
 var data = [];
-
 var columns = [
   {
-    id:"#",
-    name:"",
-    width:40,
-    behavior:"selectAndMove",
-    selectable:false,
-    resizable:false,
-    cssClass:"cell-reorder dnd"
+    id: "#",
+    name: "",
+    width: 40,
+    behavior: "selectAndMove",
+    selectable: false,
+    resizable: false,
+    cssClass: "cell-reorder dnd"
   },
   {
-    id:"name",
-    name:"Name",
-    field:"name",
-    width:500,
-    cssClass:"cell-title",
-    editor:TextCellEditor,
-    validator:requiredFieldValidator
+    id: "name",
+    name: "Name",
+    field: "name",
+    width: 500,
+    cssClass: "cell-title",
+    editor: TextCellEditor,
+    validator: requiredFieldValidator
   },
   {
-    id:"complete",
-    name:"Complete",
-    width:60,
-    cssClass:"cell-effort-driven",
-    field:"complete",
-    cannotTriggerInsert:true,
-    formatter:BoolCellFormatter,
-    editor:YesNoCheckboxCellEditor
+    id: "complete",
+    name: "Complete",
+    width: 60,
+    cssClass: "cell-effort-driven",
+    field: "complete",
+    cannotTriggerInsert: true,
+    formatter: BoolCellFormatter,
+    editor: YesNoCheckboxCellEditor
   }
 ];
 
 var options = {
-  editable:true,
-  enableAddRow:true,
-  enableRowReordering:true,
-  enableCellNavigation:true,
-  forceFitColumns:true,
-  autoEdit:false
+  editable: true,
+  enableAddRow: true,
+  enableRowReordering: true,
+  enableCellNavigation: true,
+  forceFitColumns: true,
+  autoEdit: false
 };
 
 function requiredFieldValidator(value) {
   if (value == null || value == undefined || !value.length) {
-    return {valid:false, msg:"This is a required field"};
-  }
-  else {
-    return {valid:true, msg:null};
+    return {valid: false, msg: "This is a required field"};
+  } else {
+    return {valid: true, msg: null};
   }
 }
 
 $(function () {
   data = [
-    { name:"Make a list", complete:true},
-    { name:"Check it twice", complete:false},
-    { name:"Find out who's naughty", complete:false},
-    { name:"Find out who's nice", complete:false}
+    { name: "Make a list", complete: true},
+    { name: "Check it twice", complete: false},
+    { name: "Find out who's naughty", complete: false},
+    { name: "Find out who's nice", complete: false}
   ];
 
   grid = new Slick.Grid("#myGrid", data, columns, options);
@@ -170,7 +168,6 @@ $(function () {
         return false;
       }
     }
-
     return true;
   });
 
@@ -191,8 +188,7 @@ $(function () {
       var row = rows[i];
       if (row < insertBefore) {
         left.splice(row, 1);
-      }
-      else {
+      } else {
         right.splice(row - insertBefore, 1);
       }
     }
@@ -245,18 +241,18 @@ $(function () {
     dd.count = selectedRows.length;
 
     var proxy = $("<span></span>")
-            .css({
-              position:"absolute",
-              display:"inline-block",
-              padding:"4px 10px",
-              background:"#e0e0e0",
-              border:"1px solid gray",
-              "z-index":99999,
-              "-moz-border-radius":"8px",
-              "-moz-box-shadow":"2px 2px 6px silver"
-            })
-            .text("Drag to Recycle Bin to delete " + dd.count + " selected row(s)")
-            .appendTo("body");
+        .css({
+          position: "absolute",
+          display: "inline-block",
+          padding: "4px 10px",
+          background: "#e0e0e0",
+          border: "1px solid gray",
+          "z-index": 99999,
+          "-moz-border-radius": "8px",
+          "-moz-box-shadow": "2px 2px 6px silver"
+        })
+        .text("Drag to Recycle Bin to delete " + dd.count + " selected row(s)")
+        .appendTo("body");
 
     dd.helper = proxy;
 
@@ -270,7 +266,7 @@ $(function () {
       return;
     }
     e.stopImmediatePropagation();
-    dd.helper.css({top:e.pageY + 5, left:e.pageX + 5});
+    dd.helper.css({top: e.pageY + 5, left: e.pageX + 5});
   });
 
   grid.onDragEnd.subscribe(function (e, dd) {
@@ -284,24 +280,24 @@ $(function () {
 
 
   $("#dropzone")
-          .bind("dropstart", function (e, dd) {
-            $(this).css("background", "yellow");
-          })
-          .bind("dropend", function (e, dd) {
-            $(dd.available).css("background", "pink");
-          })
-          .bind("drop", function (e, dd) {
-            var rowsToDelete = dd.rows.sort().reverse();
-            for (var i = 0; i < rowsToDelete.length; i++) {
-              data.splice(rowsToDelete[i], 1);
-            }
-            grid.invalidate();
-            grid.setSelectedRows([]);
-          });
+      .bind("dropstart", function (e, dd) {
+        $(this).css("background", "yellow");
+      })
+      .bind("dropend", function (e, dd) {
+        $(dd.available).css("background", "pink");
+      })
+      .bind("drop", function (e, dd) {
+        var rowsToDelete = dd.rows.sort().reverse();
+        for (var i = 0; i < rowsToDelete.length; i++) {
+          data.splice(rowsToDelete[i], 1);
+        }
+        grid.invalidate();
+        grid.setSelectedRows([]);
+      });
 
 
   grid.onAddNewRow.subscribe(function (e, args) {
-    var item = {name:"New task", complete:false};
+    var item = {name: "New task", complete: false};
     $.extend(item, args.item);
     data.push(item);
     grid.invalidateRows([data.length - 1]);

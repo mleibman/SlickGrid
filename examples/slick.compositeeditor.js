@@ -1,8 +1,8 @@
 ;
 (function ($) {
   $.extend(true, window, {
-    Slick:{
-      CompositeEditor:CompositeEditor
+    Slick: {
+      CompositeEditor: CompositeEditor
     }
   });
 
@@ -34,11 +34,11 @@
    */
   function CompositeEditor(columns, containers, options) {
     var defaultOptions = {
-      validationFailedMsg:"Some of the fields have failed validation",
-      show:null,
-      hide:null,
-      position:null,
-      destroy:null
+      validationFailedMsg: "Some of the fields have failed validation",
+      show: null,
+      hide: null,
+      position: null,
+      destroy: null
     };
 
     var noop = function () {
@@ -56,13 +56,13 @@
       var h = $(c).height();
 
       return {
-        top:offset.top,
-        left:offset.left,
-        bottom:offset.top + h,
-        right:offset.left + w,
-        width:w,
-        height:h,
-        visible:true
+        top: offset.top,
+        left: offset.left,
+        bottom: offset.top + h,
+        right: offset.left + w,
+        width: w,
+        height: h,
+        visible: true
       };
     }
 
@@ -154,24 +154,24 @@
           if (!validationResults.valid) {
             firstInvalidEditor = editors[idx];
             errors.push({
-              index:idx,
-              editor:editors[idx],
-              container:containers[idx],
-              msg:validationResults.msg
+              index: idx,
+              editor: editors[idx],
+              container: containers[idx],
+              msg: validationResults.msg
             });
           }
         }
 
         if (errors.length) {
           return {
-            valid:false,
-            msg:options.validationFailedMsg,
-            errors:errors
+            valid: false,
+            msg: options.validationFailedMsg,
+            errors: errors
           };
         } else {
           return {
-            valid:true,
-            msg:""
+            valid: true,
+            msg: ""
           };
         }
       };

@@ -3,9 +3,9 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <title>SlickGrid example 1: Basic grid</title>
-  <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" />
-  <link rel="stylesheet" href="examples.css" type="text/css" />
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
 </head>
 <body>
 <table width="100%">
@@ -29,21 +29,19 @@
 <script src="../slick.grid.js"></script>
 
 <script>
-
   var grid;
-
   var columns = [
-    {id:"title", name:"Title", field:"title"},
-    {id:"duration", name:"Duration", field:"duration"},
-    {id:"%", name:"% Complete", field:"percentComplete"},
-    {id:"start", name:"Start", field:"start"},
-    {id:"finish", name:"Finish", field:"finish"},
-    {id:"effort-driven", name:"Effort Driven", field:"effortDriven"}
+    {id: "title", name: "Title", field: "title"},
+    {id: "duration", name: "Duration", field: "duration"},
+    {id: "%", name: "% Complete", field: "percentComplete"},
+    {id: "start", name: "Start", field: "start"},
+    {id: "finish", name: "Finish", field: "finish"},
+    {id: "effort-driven", name: "Effort Driven", field: "effortDriven"}
   ];
 
   var options = {
-    enableCellNavigation:true,
-    enableColumnReorder:false
+    enableCellNavigation: true,
+    enableColumnReorder: false
   };
 
   $(function () {

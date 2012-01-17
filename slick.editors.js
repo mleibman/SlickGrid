@@ -1,11 +1,11 @@
 /* THESE FORMATTERS & EDITORS ARE JUST SAMPLES! */
 (function ($) {
   var SlickEditor = {
-    SelectorCellFormatter:function (row, cell, value, columnDef, dataContext) {
+    SelectorCellFormatter: function (row, cell, value, columnDef, dataContext) {
       return (!dataContext ? "" : row);
     },
 
-    PercentCompleteCellFormatter:function (row, cell, value, columnDef, dataContext) {
+    PercentCompleteCellFormatter: function (row, cell, value, columnDef, dataContext) {
       if (value == null || value === "") {
         return "-";
       } else if (value < 50) {
@@ -15,7 +15,7 @@
       }
     },
 
-    GraphicalPercentCompleteCellFormatter:function (row, cell, value, columnDef, dataContext) {
+    GraphicalPercentCompleteCellFormatter: function (row, cell, value, columnDef, dataContext) {
       if (value == null || value === "") {
         return "";
       }
@@ -33,21 +33,21 @@
       return "<span class='percent-complete-bar' style='background:" + color + ";width:" + value + "%'></span>";
     },
 
-    YesNoCellFormatter:function (row, cell, value, columnDef, dataContext) {
+    YesNoCellFormatter: function (row, cell, value, columnDef, dataContext) {
       return value ? "Yes" : "No";
     },
 
-    BoolCellFormatter:function (row, cell, value, columnDef, dataContext) {
+    BoolCellFormatter: function (row, cell, value, columnDef, dataContext) {
       return value ? "<img src='../images/tick.png'>" : "";
     },
 
-    TaskNameFormatter:function (row, cell, value, columnDef, dataContext) {
+    TaskNameFormatter: function (row, cell, value, columnDef, dataContext) {
       // todo:  html encode
       var spacer = "<span style='display:inline-block;height:1px;width:" + (2 + 15 * dataContext["indent"]) + "px'></span>";
       return spacer + " <img src='../images/expand.gif'>&nbsp;" + value;
     },
 
-    ResourcesFormatter:function (row, cell, value, columnDef, dataContext) {
+    ResourcesFormatter: function (row, cell, value, columnDef, dataContext) {
       var resources = dataContext["resources"];
 
       if (!resources || resources.length == 0) {
@@ -62,12 +62,12 @@
       }
     },
 
-    StarFormatter:function (row, cell, value, columnDef, dataContext) {
+    StarFormatter: function (row, cell, value, columnDef, dataContext) {
       return (value) ? "<img src='../images/bullet_star.png' align='absmiddle'>" : "";
     },
 
 
-    TextCellEditor:function (args) {
+    TextCellEditor: function (args) {
       var $input;
       var defaultValue;
       var scope = this;
@@ -128,15 +128,15 @@
         }
 
         return {
-          valid:true,
-          msg:null
+          valid: true,
+          msg: null
         };
       };
 
       this.init();
     },
 
-    IntegerCellEditor:function (args) {
+    IntegerCellEditor: function (args) {
       var $input;
       var defaultValue;
       var scope = this;
@@ -184,21 +184,21 @@
       this.validate = function () {
         if (isNaN($input.val())) {
           return {
-            valid:false,
-            msg:"Please enter a valid integer"
+            valid: false,
+            msg: "Please enter a valid integer"
           };
         }
 
         return {
-          valid:true,
-          msg:null
+          valid: true,
+          msg: null
         };
       };
 
       this.init();
     },
 
-    DateCellEditor:function (args) {
+    DateCellEditor: function (args) {
       var $input;
       var defaultValue;
       var scope = this;
@@ -209,13 +209,13 @@
         $input.appendTo(args.container);
         $input.focus().select();
         $input.datepicker({
-          showOn:"button",
-          buttonImageOnly:true,
-          buttonImage:"../images/calendar.gif",
-          beforeShow:function () {
+          showOn: "button",
+          buttonImageOnly: true,
+          buttonImage: "../images/calendar.gif",
+          beforeShow: function () {
             calendarOpen = true
           },
-          onClose:function () {
+          onClose: function () {
             calendarOpen = false
           }
         });
@@ -275,15 +275,15 @@
 
       this.validate = function () {
         return {
-          valid:true,
-          msg:null
+          valid: true,
+          msg: null
         };
       };
 
       this.init();
     },
 
-    YesNoSelectCellEditor:function (args) {
+    YesNoSelectCellEditor: function (args) {
       var $select;
       var defaultValue;
       var scope = this;
@@ -321,15 +321,15 @@
 
       this.validate = function () {
         return {
-          valid:true,
-          msg:null
+          valid: true,
+          msg: null
         };
       };
 
       this.init();
     },
 
-    YesNoCheckboxCellEditor:function (args) {
+    YesNoCheckboxCellEditor: function (args) {
       var $select;
       var defaultValue;
       var scope = this;
@@ -371,15 +371,15 @@
 
       this.validate = function () {
         return {
-          valid:true,
-          msg:null
+          valid: true,
+          msg: null
         };
       };
 
       this.init();
     },
 
-    PercentCompleteCellEditor:function (args) {
+    PercentCompleteCellEditor: function (args) {
       var $input, $picker;
       var defaultValue;
       var scope = this;
@@ -397,10 +397,10 @@
         $input.focus().select();
 
         $picker.find(".editor-percentcomplete-slider").slider({
-          orientation:"vertical",
-          range:"min",
-          value:defaultValue,
-          slide:function (event, ui) {
+          orientation: "vertical",
+          range: "min",
+          value: defaultValue,
+          slide: function (event, ui) {
             $input.val(ui.value)
           }
         });
@@ -440,21 +440,21 @@
       this.validate = function () {
         if (isNaN(parseInt($input.val(), 10))) {
           return {
-            valid:false,
-            msg:"Please enter a valid positive number"
+            valid: false,
+            msg: "Please enter a valid positive number"
           };
         }
 
         return {
-          valid:true,
-          msg:null
+          valid: true,
+          msg: null
         };
       };
 
       this.init();
     },
 
-    StarCellEditor:function (args) {
+    StarCellEditor: function (args) {
       var $input;
       var defaultValue;
       var scope = this;
@@ -510,8 +510,8 @@
 
       this.validate = function () {
         return {
-          valid:true,
-          msg:null
+          valid: true,
+          msg: null
         };
       };
 
@@ -523,7 +523,7 @@
      * The UI is added onto document BODY and .position(), .show() and .hide() are implemented.
      * KeyDown events are also handled to provide handling for Tab, Shift-Tab, Esc and Ctrl-Enter.
      */
-    LongTextCellEditor:function (args) {
+    LongTextCellEditor: function (args) {
       var $input, $wrapper;
       var defaultValue;
       var scope = this;
@@ -613,8 +613,8 @@
 
       this.validate = function () {
         return {
-          valid:true,
-          msg:null
+          valid: true,
+          msg: null
         };
       };
 

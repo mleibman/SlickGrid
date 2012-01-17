@@ -3,11 +3,11 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <title>SlickGrid example: Grouping</title>
-  <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
-  <link rel="stylesheet" href="../controls/slick.pager.css" type="text/css" />
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" />
-  <link rel="stylesheet" href="examples.css" type="text/css" />
-  <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css" />
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../controls/slick.pager.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css"/>
   <style>
     .cell-title {
       font-weight: bold;
@@ -91,20 +91,19 @@
 var dataView;
 var grid;
 var data = [];
-
 var columns = [
-  {id:"sel", name:"#", field:"num", cssClass:"cell-selection", width:40, resizable:false, selectable:false, focusable:false },
-  {id:"title", name:"Title", field:"title", width:120, minWidth:120, cssClass:"cell-title", sortable:true, editor:TextCellEditor},
-  {id:"duration", name:"Duration", field:"duration", sortable:true},
-  {id:"%", name:"% Complete", field:"percentComplete", width:80, formatter:GraphicalPercentCompleteCellFormatter, sortable:true, groupTotalsFormatter:avgTotalsFormatter},
-  {id:"start", name:"Start", field:"start", minWidth:60, sortable:true},
-  {id:"finish", name:"Finish", field:"finish", minWidth:60, sortable:true},
-  {id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter, sortable:true}
+  {id: "sel", name: "#", field: "num", cssClass: "cell-selection", width: 40, resizable: false, selectable: false, focusable: false },
+  {id: "title", name: "Title", field: "title", width: 120, minWidth: 120, cssClass: "cell-title", sortable: true, editor: TextCellEditor},
+  {id: "duration", name: "Duration", field: "duration", sortable: true},
+  {id: "%", name: "% Complete", field: "percentComplete", width: 80, formatter: GraphicalPercentCompleteCellFormatter, sortable: true, groupTotalsFormatter: avgTotalsFormatter},
+  {id: "start", name: "Start", field: "start", minWidth: 60, sortable: true},
+  {id: "finish", name: "Finish", field: "finish", minWidth: 60, sortable: true},
+  {id: "effort-driven", name: "Effort Driven", width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: BoolCellFormatter, sortable: true}
 ];
 
 var options = {
-  enableCellNavigation:true,
-  editable:true
+  enableCellNavigation: true,
+  editable: true
 };
 
 var sortcol = "title";
@@ -119,8 +118,7 @@ function avgTotalsFormatter(totals, columnDef) {
 
 function myFilter(item, args) {
   return item["percentComplete"] >= args.percentComplete &&
-          (args.searchString == "" ||
-                  item["title"].indexOf(args.searchString) == -1);
+      (args.searchString == "" || item["title"].indexOf(args.searchString) == -1);
 }
 
 function percentCompleteSort(a, b) {
@@ -154,13 +152,13 @@ function clearGrouping() {
 
 function groupByDuration() {
   dataView.groupBy(
-          "duration",
-          function (g) {
-            return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
-          },
-          function (a, b) {
-            return a.value - b.value;
-          }
+      "duration",
+      function (g) {
+        return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+      },
+      function (a, b) {
+        return a.value - b.value;
+      }
   );
   dataView.setAggregators([
     new Slick.Data.Aggregators.Avg("percentComplete")
@@ -169,13 +167,13 @@ function groupByDuration() {
 
 function groupByDurationOrderByCount() {
   dataView.groupBy(
-          "duration",
-          function (g) {
-            return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
-          },
-          function (a, b) {
-            return a.count - b.count;
-          }
+      "duration",
+      function (g) {
+        return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+      },
+      function (a, b) {
+        return a.count - b.count;
+      }
   );
   dataView.setAggregators([
     new Slick.Data.Aggregators.Avg("percentComplete")
@@ -184,13 +182,13 @@ function groupByDurationOrderByCount() {
 
 function groupByDurationOrderByCountGroupCollapsed() {
   dataView.groupBy(
-          "duration",
-          function (g) {
-            return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
-          },
-          function (a, b) {
-            return a.count - b.count;
-          }
+      "duration",
+      function (g) {
+        return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+      },
+      function (a, b) {
+        return a.count - b.count;
+      }
   );
   dataView.setAggregators([
     new Slick.Data.Aggregators.Avg("percentComplete")
@@ -198,13 +196,13 @@ function groupByDurationOrderByCountGroupCollapsed() {
 }
 
 $(".grid-header .ui-icon")
-        .addClass("ui-state-default ui-corner-all")
-        .mouseover(function (e) {
-          $(e.target).addClass("ui-state-hover")
-        })
-        .mouseout(function (e) {
-          $(e.target).removeClass("ui-state-hover")
-        });
+    .addClass("ui-state-default ui-corner-all")
+    .mouseover(function (e) {
+      $(e.target).addClass("ui-state-hover")
+    })
+    .mouseout(function (e) {
+      $(e.target).removeClass("ui-state-hover")
+    });
 
 $(function () {
   // prepare the data
@@ -223,7 +221,7 @@ $(function () {
 
   var groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
   dataView = new Slick.Data.DataView({
-    groupItemMetadataProvider:groupItemMetadataProvider
+    groupItemMetadataProvider: groupItemMetadataProvider
   });
   grid = new Slick.Grid("#myGrid", dataView, columns, options);
 
@@ -247,11 +245,9 @@ $(function () {
         var val = this["percentComplete"];
         if (val < 10) {
           return "00" + val;
-        }
-        else if (val < 100) {
+        } else if (val < 100) {
           return "0" + val;
-        }
-        else {
+        } else {
           return val;
         }
       };
@@ -282,8 +278,8 @@ $(function () {
 
   // wire up the slider to apply the filter to the model
   $("#pcSlider,#pcSlider2").slider({
-    "range":"min",
-    "slide":function (event, ui) {
+    "range": "min",
+    "slide": function (event, ui) {
       Slick.GlobalEditorLock.cancelCurrentEdit();
 
       if (percentCompleteThreshold != ui.value) {
@@ -315,14 +311,14 @@ $(function () {
     var renderedRange = grid.getRenderedRange();
 
     dataView.setFilterArgs({
-      percentComplete:percentCompleteThreshold,
-      searchString:searchString
+      percentComplete: percentCompleteThreshold,
+      searchString: searchString
     });
     dataView.setRefreshHints({
-      ignoreDiffsBefore:renderedRange.top,
-      ignoreDiffsAfter:renderedRange.bottom + 1,
-      isFilterNarrowing:isNarrowing,
-      isFilterExpanding:isExpanding
+      ignoreDiffsBefore: renderedRange.top,
+      ignoreDiffsAfter: renderedRange.bottom + 1,
+      isFilterNarrowing: isNarrowing,
+      isFilterExpanding: isExpanding
     });
     dataView.refresh();
 
@@ -334,17 +330,17 @@ $(function () {
   dataView.setItems(data);
   dataView.setFilter(myFilter);
   dataView.setFilterArgs({
-    percentComplete:percentCompleteThreshold,
-    searchString:searchString
+    percentComplete: percentCompleteThreshold,
+    searchString: searchString
   });
   dataView.groupBy(
-          "duration",
-          function (g) {
-            return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
-          },
-          function (a, b) {
-            return a.value - b.value;
-          }
+      "duration",
+      function (g) {
+        return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+      },
+      function (a, b) {
+        return a.value - b.value;
+      }
   );
   dataView.setAggregators([
     new Slick.Data.Aggregators.Avg("percentComplete")
@@ -354,8 +350,6 @@ $(function () {
 
   $("#gridContainer").resizable();
 })
-
 </script>
-
 </body>
 </html>

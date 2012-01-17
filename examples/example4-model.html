@@ -3,11 +3,11 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <title>SlickGrid example 4: Model</title>
-  <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
-  <link rel="stylesheet" href="../controls/slick.pager.css" type="text/css" />
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" />
-  <link rel="stylesheet" href="examples.css" type="text/css" />
-  <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css" />
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../controls/slick.pager.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css"/>
   <style>
     .cell-title {
       font-weight: bold;
@@ -108,22 +108,22 @@ var data = [];
 var selectedRowIds = [];
 
 var columns = [
-  {id:"sel", name:"#", field:"num", behavior:"select", cssClass:"cell-selection", width:40, cannotTriggerInsert:true, resizable:false, selectable:false },
-  {id:"title", name:"Title", field:"title", width:120, minWidth:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, sortable:true},
-  {id:"duration", name:"Duration", field:"duration", editor:TextCellEditor, sortable:true},
-  {id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter, editor:PercentCompleteCellEditor, sortable:true},
-  {id:"start", name:"Start", field:"start", minWidth:60, editor:DateCellEditor, sortable:true},
-  {id:"finish", name:"Finish", field:"finish", minWidth:60, editor:DateCellEditor, sortable:true},
-  {id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter, editor:YesNoCheckboxCellEditor, cannotTriggerInsert:true, sortable:true}
+  {id: "sel", name: "#", field: "num", behavior: "select", cssClass: "cell-selection", width: 40, cannotTriggerInsert: true, resizable: false, selectable: false },
+  {id: "title", name: "Title", field: "title", width: 120, minWidth: 120, cssClass: "cell-title", editor: TextCellEditor, validator: requiredFieldValidator, sortable: true},
+  {id: "duration", name: "Duration", field: "duration", editor: TextCellEditor, sortable: true},
+  {id: "%", name: "% Complete", field: "percentComplete", width: 80, resizable: false, formatter: GraphicalPercentCompleteCellFormatter, editor: PercentCompleteCellEditor, sortable: true},
+  {id: "start", name: "Start", field: "start", minWidth: 60, editor: DateCellEditor, sortable: true},
+  {id: "finish", name: "Finish", field: "finish", minWidth: 60, editor: DateCellEditor, sortable: true},
+  {id: "effort-driven", name: "Effort Driven", width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: BoolCellFormatter, editor: YesNoCheckboxCellEditor, cannotTriggerInsert: true, sortable: true}
 ];
 
 var options = {
-  editable:true,
-  enableAddRow:true,
-  enableCellNavigation:true,
-  asyncEditorLoading:true,
-  forceFitColumns:false,
-  topPanelHeight:25
+  editable: true,
+  enableAddRow: true,
+  enableCellNavigation: true,
+  asyncEditorLoading: true,
+  forceFitColumns: false,
+  topPanelHeight: 25
 };
 
 var sortcol = "title";
@@ -133,10 +133,10 @@ var searchString = "";
 
 function requiredFieldValidator(value) {
   if (value == null || value == undefined || !value.length) {
-    return {valid:false, msg:"This is a required field"};
+    return {valid: false, msg: "This is a required field"};
   }
   else {
-    return {valid:true, msg:null};
+    return {valid: true, msg: null};
   }
 }
 
@@ -171,13 +171,13 @@ function toggleFilterRow() {
 
 
 $(".grid-header .ui-icon")
-    .addClass("ui-state-default ui-corner-all")
-    .mouseover(function (e) {
-      $(e.target).addClass("ui-state-hover")
-    })
-    .mouseout(function (e) {
-      $(e.target).removeClass("ui-state-hover")
-    });
+        .addClass("ui-state-default ui-corner-all")
+        .mouseover(function (e) {
+          $(e.target).addClass("ui-state-hover")
+        })
+        .mouseout(function (e) {
+          $(e.target).removeClass("ui-state-hover")
+        });
 
 $(function () {
   // prepare the data
@@ -213,7 +213,7 @@ $(function () {
   });
 
   grid.onAddNewRow.subscribe(function (e, args) {
-    var item = {"num":data.length, "id":"new_" + (Math.round(Math.random() * 10000)), "title":"New task", "duration":"1 day", "percentComplete":0, "start":"01/01/2009", "finish":"01/01/2009", "effortDriven":false};
+    var item = {"num": data.length, "id": "new_" + (Math.round(Math.random() * 10000)), "title": "New task", "duration": "1 day", "percentComplete": 0, "start": "01/01/2009", "finish": "01/01/2009", "effortDriven": false};
     $.extend(item, args.item);
     dataView.addItem(item);
   });
@@ -306,7 +306,7 @@ $(function () {
     var options = grid.getOptions();
 
     if (options.enableAddRow != enableAddRow) {
-      grid.setOptions({enableAddRow:enableAddRow});
+      grid.setOptions({enableAddRow: enableAddRow});
     }
   });
 
@@ -343,8 +343,8 @@ $(function () {
 
   function updateFilter() {
     dataView.setFilterArgs({
-      percentCompleteThreshold:percentCompleteThreshold,
-      searchString:searchString
+      percentCompleteThreshold: percentCompleteThreshold,
+      searchString: searchString
     });
     dataView.refresh();
   }
@@ -370,8 +370,8 @@ $(function () {
   dataView.beginUpdate();
   dataView.setItems(data);
   dataView.setFilterArgs({
-    percentCompleteThreshold:percentCompleteThreshold,
-    searchString:searchString
+    percentCompleteThreshold: percentCompleteThreshold,
+    searchString: searchString
   });
   dataView.setFilter(myFilter);
   dataView.endUpdate();

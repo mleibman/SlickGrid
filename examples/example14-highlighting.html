@@ -3,9 +3,9 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <title>SlickGrid example 14: Highlighting and Flashing cells</title>
-  <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" />
-  <link rel="stylesheet" href="examples.css" type="text/css" />
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
   <style>
     .load-medium {
       color: orange;
@@ -66,7 +66,7 @@
   var grid;
   var data = [];
   var columns = [
-    {id:"server", name:"Server", field:"server", width:180}
+    {id: "server", name: "Server", field: "server", width: 180}
   ];
   var currentServer;
 
@@ -84,20 +84,20 @@
 
   for (var i = 0; i < 4; i++) {
     columns.push({
-      id:"cpu" + i,
-      name:"CPU" + i,
-      field:i,
-      width:80,
-      formatter:cpuUtilizationFormatter
+      id: "cpu" + i,
+      name: "CPU" + i,
+      field: i,
+      width: 80,
+      formatter: cpuUtilizationFormatter
     });
   }
 
   var options = {
-    editable:false,
-    enableAddRow:false,
-    enableCellNavigation:true,
-    cellHighlightCssClass:"changed",
-    cellFlashingCssClass:"current-server"
+    editable: false,
+    enableAddRow: false,
+    enableCellNavigation: true,
+    cellHighlightCssClass: "changed",
+    cellFlashingCssClass: "current-server"
   };
 
 
@@ -149,8 +149,6 @@
     grid.scrollRowIntoView(currentServer);
     grid.flashCell(currentServer, grid.getColumnIndex("server"), 100);
   }
-
 </script>
-
 </body>
 </html>

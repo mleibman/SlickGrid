@@ -3,9 +3,9 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <title>SlickGrid example: CompositeEditor</title>
-  <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" />
-  <link rel="stylesheet" href="examples.css" type="text/css" />
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
   <style>
     .cell-title {
       font-weight: bold;
@@ -33,10 +33,6 @@
 
     .item-details-form-buttons {
       float: right;
-    }
-
-    .item-details-row {
-
     }
 
     .item-details-label {
@@ -112,30 +108,29 @@
 <script>
   function requiredFieldValidator(value) {
     if (value == null || value == undefined || !value.length) {
-      return {valid:false, msg:"This is a required field"};
-    }
-    else {
-      return {valid:true, msg:null};
+      return {valid: false, msg: "This is a required field"};
+    } else {
+      return {valid: true, msg: null};
     }
   }
 
   var grid;
   var data = [];
   var columns = [
-    {id:"title", name:"Title", field:"title", width:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator},
-    {id:"desc", name:"Description", field:"description", width:100, editor:TextCellEditor},
-    {id:"duration", name:"Duration", field:"duration", editor:TextCellEditor},
-    {id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter, editor:PercentCompleteCellEditor},
-    {id:"start", name:"Start", field:"start", minWidth:60, editor:DateCellEditor},
-    {id:"finish", name:"Finish", field:"finish", minWidth:60, editor:DateCellEditor},
-    {id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter, editor:YesNoCheckboxCellEditor}
+    {id: "title", name: "Title", field: "title", width: 120, cssClass: "cell-title", editor: TextCellEditor, validator: requiredFieldValidator},
+    {id: "desc", name: "Description", field: "description", width: 100, editor: TextCellEditor},
+    {id: "duration", name: "Duration", field: "duration", editor: TextCellEditor},
+    {id: "percent", name: "% Complete", field: "percentComplete", width: 80, resizable: false, formatter: GraphicalPercentCompleteCellFormatter, editor: PercentCompleteCellEditor},
+    {id: "start", name: "Start", field: "start", minWidth: 60, editor: DateCellEditor},
+    {id: "finish", name: "Finish", field: "finish", minWidth: 60, editor: DateCellEditor},
+    {id: "effort-driven", name: "Effort Driven", width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: BoolCellFormatter, editor: YesNoCheckboxCellEditor}
   ];
   var options = {
-    editable:true,
-    enableAddRow:true,
-    enableCellNavigation:true,
-    asyncEditorLoading:false,
-    autoEdit:false
+    editable: true,
+    enableAddRow: true,
+    enableCellNavigation: true,
+    asyncEditorLoading: false,
+    autoEdit: false
   };
 
 
@@ -147,19 +142,18 @@
     var $modal = $("<div class='item-details-form'></div>");
 
     $modal = $("#itemDetailsTemplate")
-            .tmpl({
-              context:grid.getDataItem(grid.getActiveCell().row),
-              columns:columns
-            })
-            .appendTo("body");
+        .tmpl({
+          context: grid.getDataItem(grid.getActiveCell().row),
+          columns: columns
+        })
+        .appendTo("body");
 
     $modal.keydown(function (e) {
       if (e.which == $.ui.keyCode.ENTER) {
         grid.getEditController().commitCurrentEdit();
         e.stopPropagation();
         e.preventDefault();
-      }
-      else if (e.which == $.ui.keyCode.ESCAPE) {
+      } else if (e.which == $.ui.keyCode.ESCAPE) {
         grid.getEditController().cancelCurrentEdit();
         e.stopPropagation();
         e.preventDefault();
@@ -180,13 +174,13 @@
     });
 
     var compositeEditor = new Slick.CompositeEditor(
-            columns,
-            containers,
-            {
-              destroy:function () {
-                $modal.remove();
-              }
-            }
+        columns,
+        containers,
+        {
+          destroy: function () {
+            $modal.remove();
+          }
+        }
     );
 
     grid.editActiveCell(compositeEditor);
@@ -224,7 +218,7 @@
         var idx = args.validationResults.errors.length;
         while (idx--) {
           err = args.validationResults.errors[idx];
-          $(err.container).stop(true, true).effect("highlight", {color:"red"});
+          $(err.container).stop(true, true).effect("highlight", {color: "red"});
         }
       }
     });

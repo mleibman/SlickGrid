@@ -3,9 +3,9 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <title>SlickGrid example 3: Editing</title>
-  <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" />
-  <link rel="stylesheet" href="examples.css" type="text/css" />
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
   <style>
     .slick-cell.copied {
       background: blue;
@@ -50,29 +50,29 @@
   var grid;
   var data = [];
   var options = {
-    editable:true,
-    enableAddRow:true,
-    enableCellNavigation:true,
-    asyncEditorLoading:false,
-    autoEdit:false
+    editable: true,
+    enableAddRow: true,
+    enableCellNavigation: true,
+    asyncEditorLoading: false,
+    autoEdit: false
   };
 
   var columns = [
     {
-      id:"selector",
-      name:"",
-      field:"num",
-      width:30
+      id: "selector",
+      name: "",
+      field: "num",
+      width: 30
     }
   ];
 
   for (var i = 0; i < 26; i++) {
     columns.push({
-      id:i,
-      name:String.fromCharCode("A".charCodeAt(0) + i),
-      field:i,
-      width:60,
-      editor:FormulaEditor
+      id: i,
+      name: String.fromCharCode("A".charCodeAt(0) + i),
+      field: i,
+      width: 60,
+      editor: FormulaEditor
     });
   }
 
@@ -104,12 +104,12 @@
 
     this.handleCellRangeSelected = function (e, args) {
       _editor.setValue(
-              _editor.getValue() +
-                      grid.getColumns()[args.range.fromCell].name +
-                      args.range.fromRow +
-                      ":" +
-                      grid.getColumns()[args.range.toCell].name +
-                      args.range.toRow
+          _editor.getValue() +
+              grid.getColumns()[args.range.fromCell].name +
+              args.range.fromRow +
+              ":" +
+              grid.getColumns()[args.range.toCell].name +
+              args.range.toRow
       );
     };
 

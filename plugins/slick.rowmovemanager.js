@@ -1,8 +1,8 @@
 (function ($) {
   // register namespace
   $.extend(true, window, {
-    "Slick":{
-      "RowMoveManager":RowMoveManager
+    "Slick": {
+      "RowMoveManager": RowMoveManager
     }
   });
 
@@ -85,8 +85,8 @@
       var insertBefore = Math.max(0, Math.min(Math.round(top / _grid.getOptions().rowHeight), _grid.getDataLength()));
       if (insertBefore !== dd.insertBefore) {
         var eventData = {
-          "rows":dd.selectedRows,
-          "insertBefore":insertBefore
+          "rows": dd.selectedRows,
+          "insertBefore": insertBefore
         };
 
         if (_self.onBeforeMoveRows.notify(eventData) === false) {
@@ -113,8 +113,8 @@
 
       if (dd.canMove) {
         var eventData = {
-          "rows":dd.selectedRows,
-          "insertBefore":dd.insertBefore
+          "rows": dd.selectedRows,
+          "insertBefore": dd.insertBefore
         };
         // TODO:  _grid.remapCellCssClasses ?
         _self.onMoveRows.notify(eventData);
@@ -122,11 +122,11 @@
     }
 
     $.extend(this, {
-      "onBeforeMoveRows":new Slick.Event(),
-      "onMoveRows":new Slick.Event(),
+      "onBeforeMoveRows": new Slick.Event(),
+      "onMoveRows": new Slick.Event(),
 
-      "init":init,
-      "destroy":destroy
+      "init": init,
+      "destroy": destroy
     });
   }
 })(jQuery);

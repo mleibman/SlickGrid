@@ -1,8 +1,8 @@
 (function ($) {
   $.extend(true, window, {
-    Slick:{
-      Data:{
-        GroupItemMetadataProvider:GroupItemMetadataProvider
+    Slick: {
+      Data: {
+        GroupItemMetadataProvider: GroupItemMetadataProvider
       }
     }
   });
@@ -25,14 +25,14 @@
   function GroupItemMetadataProvider(options) {
     var _grid;
     var _defaults = {
-      groupCssClass:"slick-group",
-      totalsCssClass:"slick-group-totals",
-      groupFocusable:true,
-      totalsFocusable:false,
-      toggleCssClass:"slick-group-toggle",
-      toggleExpandedCssClass:"expanded",
-      toggleCollapsedCssClass:"collapsed",
-      enableExpandCollapse:true
+      groupCssClass: "slick-group",
+      totalsCssClass: "slick-group-totals",
+      groupFocusable: true,
+      totalsFocusable: false,
+      toggleCssClass: "slick-group-toggle",
+      toggleExpandedCssClass: "expanded",
+      toggleCollapsedCssClass: "collapsed",
+      enableExpandCollapse: true
     };
 
     options = $.extend(true, {}, _defaults, options);
@@ -105,14 +105,14 @@
 
     function getGroupRowMetadata(item) {
       return {
-        selectable:false,
-        focusable:options.groupFocusable,
-        cssClasses:options.groupCssClass,
-        columns:{
-          0:{
-            colspan:"*",
-            formatter:defaultGroupCellFormatter,
-            editor:null
+        selectable: false,
+        focusable: options.groupFocusable,
+        cssClasses: options.groupCssClass,
+        columns: {
+          0: {
+            colspan: "*",
+            formatter: defaultGroupCellFormatter,
+            editor: null
           }
         }
       };
@@ -120,20 +120,20 @@
 
     function getTotalsRowMetadata(item) {
       return {
-        selectable:false,
-        focusable:options.totalsFocusable,
-        cssClasses:options.totalsCssClass,
-        formatter:defaultTotalsCellFormatter,
-        editor:null
+        selectable: false,
+        focusable: options.totalsFocusable,
+        cssClasses: options.totalsCssClass,
+        formatter: defaultTotalsCellFormatter,
+        editor: null
       };
     }
 
 
     return {
-      "init":init,
-      "destroy":destroy,
-      "getGroupRowMetadata":getGroupRowMetadata,
-      "getTotalsRowMetadata":getTotalsRowMetadata
+      "init": init,
+      "destroy": destroy,
+      "getGroupRowMetadata": getGroupRowMetadata,
+      "getTotalsRowMetadata": getTotalsRowMetadata
     };
   }
 })(jQuery);

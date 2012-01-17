@@ -3,9 +3,9 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <title>SlickGrid example 3a: Advanced Editing</title>
-  <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" />
-  <link rel="stylesheet" href="examples.css" type="text/css" />
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
   <style>
     .cell-title {
       font-weight: bold;
@@ -42,17 +42,16 @@
 <script>
   var grid;
   var data = [];
-
   var columns = [
-    {id:"title", name:"Title", field:"title", width:120, cssClass:"cell-title", editor:TextCellEditor},
-    {id:"range", name:"Range", width:120, formatter:NumericRangeFormatter, editor:NumericRangeEditor}
+    {id: "title", name: "Title", field: "title", width: 120, cssClass: "cell-title", editor: TextCellEditor},
+    {id: "range", name: "Range", width: 120, formatter: NumericRangeFormatter, editor: NumericRangeEditor}
   ];
 
   var options = {
-    editable:true,
-    enableAddRow:false,
-    enableCellNavigation:true,
-    asyncEditorLoading:false
+    editable: true,
+    enableAddRow: false,
+    enableCellNavigation: true,
+    asyncEditorLoading: false
   };
 
   function NumericRangeFormatter(row, cell, value, columnDef, dataContext) {
@@ -65,14 +64,14 @@
 
     this.init = function () {
       $from = $("<INPUT type=text style='width:40px' />")
-              .appendTo(args.container)
-              .bind("keydown", scope.handleKeyDown);
+          .appendTo(args.container)
+          .bind("keydown", scope.handleKeyDown);
 
       $(args.container).append("&nbsp; to &nbsp;");
 
       $to = $("<INPUT type=text style='width:40px' />")
-              .appendTo(args.container)
-              .bind("keydown", scope.handleKeyDown);
+          .appendTo(args.container)
+          .bind("keydown", scope.handleKeyDown);
 
       scope.focus();
     };
@@ -92,7 +91,7 @@
     };
 
     this.serializeValue = function () {
-      return {from:parseInt($from.val(), 10), to:parseInt($to.val(), 10)};
+      return {from: parseInt($from.val(), 10), to: parseInt($to.val(), 10)};
     };
 
     this.applyValue = function (item, state) {
@@ -111,14 +110,14 @@
 
     this.validate = function () {
       if (isNaN(parseInt($from.val(), 10)) || isNaN(parseInt($to.val(), 10))) {
-        return {valid:false, msg:"Please type in valid numbers."};
+        return {valid: false, msg: "Please type in valid numbers."};
       }
 
       if (parseInt($from.val(), 10) > parseInt($to.val(), 10)) {
-        return {valid:false, msg:"'from' cannot be greater than 'to'"};
+        return {valid: false, msg: "'from' cannot be greater than 'to'"};
       }
 
-      return {valid:true, msg:null};
+      return {valid: true, msg: null};
     };
 
     this.init();

@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" />
-  <link rel="stylesheet" href="examples.css" type="text/css"  />
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
   <style>
     .slick-cell-checkboxsel {
       background: #f0f0f0;
@@ -48,10 +48,10 @@
   var grid;
   var data = [];
   var options = {
-    editable:true,
-    enableCellNavigation:true,
-    asyncEditorLoading:false,
-    autoEdit:false
+    editable: true,
+    enableCellNavigation: true,
+    asyncEditorLoading: false,
+    autoEdit: false
   };
   var columns = [];
 
@@ -62,23 +62,23 @@
     }
 
     var checkboxSelector = new Slick.CheckboxSelectColumn({
-      cssClass:"slick-cell-checkboxsel"
+      cssClass: "slick-cell-checkboxsel"
     });
 
     columns.push(checkboxSelector.getColumnDefinition());
 
     for (var i = 0; i < 5; i++) {
       columns.push({
-        id:i,
-        name:String.fromCharCode("A".charCodeAt(0) + i),
-        field:i,
-        width:100,
-        editor:TextCellEditor
+        id: i,
+        name: String.fromCharCode("A".charCodeAt(0) + i),
+        field: i,
+        width: 100,
+        editor: TextCellEditor
       });
     }
 
     grid = new Slick.Grid("#myGrid", data, columns, options);
-    grid.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow:false}));
+    grid.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow: false}));
     grid.registerPlugin(checkboxSelector);
   })
 </script>

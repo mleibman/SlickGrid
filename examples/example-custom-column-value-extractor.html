@@ -3,9 +3,9 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <title>SlickGrid example: Custom column value extractor</title>
-  <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" />
-  <link rel="stylesheet" href="examples.css" type="text/css" />
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
 </head>
 <body>
 <table width="100%">
@@ -29,20 +29,18 @@
 <script src="../slick.grid.js"></script>
 
 <script>
-
   var grid;
-
   var columns = [
-    {id:"title", name:"Name", field:"name"},
-    {id:"field1", name:"Field1", field:"values", fieldIdx:0},
-    {id:"field2", name:"Field2", field:"values", fieldIdx:1},
-    {id:"field3", name:"Field3", field:"values", fieldIdx:2}
+    {id: "title", name: "Name", field: "name"},
+    {id: "field1", name: "Field1", field: "values", fieldIdx: 0},
+    {id: "field2", name: "Field2", field: "values", fieldIdx: 1},
+    {id: "field3", name: "Field3", field: "values", fieldIdx: 2}
   ];
 
   var options = {
-    enableCellNavigation:true,
-    enableColumnReorder:false,
-    dataItemColumnValueExtractor:getItemColumnValue
+    enableCellNavigation: true,
+    enableColumnReorder: false,
+    dataItemColumnValueExtractor: getItemColumnValue
   };
 
   // Get the item column value using a custom 'fieldIdx' column param
@@ -59,8 +57,8 @@
     var data = [];
     for (var i = 0; i < 500; i++) {
       data[i] = {
-        name:"Item " + i,
-        values:[
+        name: "Item " + i,
+        values: [
           Math.round(Math.random() * 100),
           Math.round(Math.random() * 100),
           Math.round(Math.random() * 100)
@@ -70,7 +68,6 @@
 
     grid = new Slick.Grid("#myGrid", data, columns, options);
   })
-
 </script>
 </body>
 </html>

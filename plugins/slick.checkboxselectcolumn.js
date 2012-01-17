@@ -1,8 +1,8 @@
 (function ($) {
   // register namespace
   $.extend(true, window, {
-    "Slick":{
-      "CheckboxSelectColumn":CheckboxSelectColumn
+    "Slick": {
+      "CheckboxSelectColumn": CheckboxSelectColumn
     }
   });
 
@@ -12,10 +12,10 @@
     var _self = this;
     var _selectedRowsLookup = {};
     var _defaults = {
-      columnId:"_checkbox_selector",
-      cssClass:null,
-      toolTip:"Select/Deselect All",
-      width:30
+      columnId: "_checkbox_selector",
+      cssClass: null,
+      toolTip: "Select/Deselect All",
+      width: 30
     };
 
     var _options = $.extend(true, {}, _defaults, options);
@@ -104,15 +104,15 @@
 
     function getColumnDefinition() {
       return {
-        id:_options.columnId,
-        name:"<input type='checkbox'>",
-        toolTip:_options.toolTip,
-        field:"sel",
-        width:_options.width,
-        resizable:false,
-        sortable:false,
-        cssClass:_options.cssClass,
-        formatter:checkboxSelectionFormatter
+        id: _options.columnId,
+        name: "<input type='checkbox'>",
+        toolTip: _options.toolTip,
+        field: "sel",
+        width: _options.width,
+        resizable: false,
+        sortable: false,
+        cssClass: _options.cssClass,
+        formatter: checkboxSelectionFormatter
       };
     }
 
@@ -126,10 +126,10 @@
     }
 
     $.extend(this, {
-      "init":init,
-      "destroy":destroy,
+      "init": init,
+      "destroy": destroy,
 
-      "getColumnDefinition":getColumnDefinition
+      "getColumnDefinition": getColumnDefinition
     });
   }
 })(jQuery);

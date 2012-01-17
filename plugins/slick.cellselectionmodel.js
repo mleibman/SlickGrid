@@ -1,8 +1,8 @@
 (function ($) {
   // register namespace
   $.extend(true, window, {
-    "Slick":{
-      "CellSelectionModel":CellSelectionModel
+    "Slick": {
+      "CellSelectionModel": CellSelectionModel
     }
   });
 
@@ -13,13 +13,13 @@
     var _ranges = [];
     var _self = this;
     var _selector = new Slick.CellRangeSelector({
-      "selectionCss":{
-        "border":"2px solid black"
+      "selectionCss": {
+        "border": "2px solid black"
       }
     });
     var _options;
     var _defaults = {
-      selectActiveCell:true
+      selectActiveCell: true
     };
 
 
@@ -80,13 +80,13 @@
     }
 
     $.extend(this, {
-      "getSelectedRanges":getSelectedRanges,
-      "setSelectedRanges":setSelectedRanges,
+      "getSelectedRanges": getSelectedRanges,
+      "setSelectedRanges": setSelectedRanges,
 
-      "init":init,
-      "destroy":destroy,
+      "init": init,
+      "destroy": destroy,
 
-      "onSelectedRangesChanged":new Slick.Event()
+      "onSelectedRangesChanged": new Slick.Event()
     });
   }
 })(jQuery);

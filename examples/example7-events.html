@@ -70,18 +70,17 @@
 <script>
   var grid;
   var data = [];
-
   var columns = [
-    {id:"title", name:"Title", field:"title", width:200, cssClass:"cell-title", editor:TextCellEditor},
-    {id:"priority", name:"Priority", field:"priority", width:80, selectable:false, resizable:false}
+    {id: "title", name: "Title", field: "title", width: 200, cssClass: "cell-title", editor: TextCellEditor},
+    {id: "priority", name: "Priority", field: "priority", width: 80, selectable: false, resizable: false}
   ];
 
   var options = {
-    editable:true,
-    enableAddRow:false,
-    enableCellNavigation:true,
-    asyncEditorLoading:false,
-    rowHeight:30
+    editable: true,
+    enableAddRow: false,
+    enableCellNavigation: true,
+    asyncEditorLoading: false,
+    rowHeight: 30
   };
 
   $(function () {
@@ -97,10 +96,10 @@
       e.preventDefault();
       var cell = grid.getCellFromEvent(e);
       $("#contextMenu")
-              .data("row", cell.row)
-              .css("top", e.pageY)
-              .css("left", e.pageX)
-              .show();
+          .data("row", cell.row)
+          .css("top", e.pageY)
+          .css("left", e.pageX)
+          .show();
 
       $("body").one("click", function () {
         $("#contextMenu").hide();
@@ -110,7 +109,7 @@
     grid.onClick.subscribe(function (e) {
       var cell = grid.getCellFromEvent(e);
       if (grid.getColumns()[cell.cell].id == "priority") {
-        var states = { "Low":"Medium", "Medium":"High", "High":"Low" };
+        var states = { "Low": "Medium", "Medium": "High", "High": "Low" };
         data[cell.row].priority = states[data[cell.row].priority];
         grid.updateRow(cell.row);
         e.stopPropagation();

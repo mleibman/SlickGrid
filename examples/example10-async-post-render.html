@@ -3,9 +3,9 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <title>SlickGrid example 10: Async post render</title>
-  <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" />
-  <link rel="stylesheet" href="examples.css" type="text/css" />
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
   <style>
     .cell-title {
       font-weight: bold;
@@ -68,10 +68,9 @@
 <script>
   function requiredFieldValidator(value) {
     if (value == null || value == undefined || !value.length) {
-      return {valid:false, msg:"This is a required field"};
-    }
-    else {
-      return {valid:true, msg:null};
+      return {valid: false, msg: "This is a required field"};
+    } else {
+      return {valid: true, msg: null};
     }
   }
 
@@ -88,29 +87,27 @@
       dataContext["n5"]
     ];
 
-    $(cellNode).empty().sparkline(vals, {width:"100%"});
+    $(cellNode).empty().sparkline(vals, {width: "100%"});
   }
 
   var grid;
-
   var data = [];
-
   var columns = [
-    {id:"title", name:"Title", field:"title", sortable:false, width:120, cssClass:"cell-title"},
-    {id:"n1", name:"1", field:"n1", sortable:false, editor:IntegerCellEditor, width:40, validator:requiredFieldValidator},
-    {id:"n2", name:"2", field:"n2", sortable:false, editor:IntegerCellEditor, width:40, validator:requiredFieldValidator},
-    {id:"n3", name:"3", field:"n3", sortable:false, editor:IntegerCellEditor, width:40, validator:requiredFieldValidator},
-    {id:"n4", name:"4", field:"n4", sortable:false, editor:IntegerCellEditor, width:40, validator:requiredFieldValidator},
-    {id:"n5", name:"5", field:"n5", sortable:false, editor:IntegerCellEditor, width:40, validator:requiredFieldValidator},
-    {id:"chart", name:"Chart", sortable:false, width:60, formatter:waitingFormatter, rerenderOnResize:true, asyncPostRender:renderSparkline}
+    {id: "title", name: "Title", field: "title", sortable: false, width: 120, cssClass: "cell-title"},
+    {id: "n1", name: "1", field: "n1", sortable: false, editor: IntegerCellEditor, width: 40, validator: requiredFieldValidator},
+    {id: "n2", name: "2", field: "n2", sortable: false, editor: IntegerCellEditor, width: 40, validator: requiredFieldValidator},
+    {id: "n3", name: "3", field: "n3", sortable: false, editor: IntegerCellEditor, width: 40, validator: requiredFieldValidator},
+    {id: "n4", name: "4", field: "n4", sortable: false, editor: IntegerCellEditor, width: 40, validator: requiredFieldValidator},
+    {id: "n5", name: "5", field: "n5", sortable: false, editor: IntegerCellEditor, width: 40, validator: requiredFieldValidator},
+    {id: "chart", name: "Chart", sortable: false, width: 60, formatter: waitingFormatter, rerenderOnResize: true, asyncPostRender: renderSparkline}
   ];
 
   var options = {
-    editable:true,
-    enableAddRow:false,
-    enableCellNavigation:true,
-    asyncEditorLoading:false,
-    enableAsyncPostRender:true
+    editable: true,
+    enableAddRow: false,
+    enableCellNavigation: true,
+    asyncEditorLoading: false,
+    enableAsyncPostRender: true
   };
 
 
@@ -125,7 +122,6 @@
       d["n4"] = Math.round(Math.random() * 10);
       d["n5"] = Math.round(Math.random() * 10);
     }
-
 
     grid = new Slick.Grid("#myGrid", data, columns, options);
   })

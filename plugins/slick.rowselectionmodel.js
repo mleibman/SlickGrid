@@ -1,8 +1,8 @@
 (function ($) {
   // register namespace
   $.extend(true, window, {
-    "Slick":{
-      "RowSelectionModel":RowSelectionModel
+    "Slick": {
+      "RowSelectionModel": RowSelectionModel
     }
   });
 
@@ -14,7 +14,7 @@
     var _inHandler;
     var _options;
     var _defaults = {
-      selectActiveRow:true
+      selectActiveRow: true
     };
 
     function init(grid) {
@@ -172,16 +172,16 @@
     }
 
     $.extend(this, {
-      "getSelectedRows":getSelectedRows,
-      "setSelectedRows":setSelectedRows,
+      "getSelectedRows": getSelectedRows,
+      "setSelectedRows": setSelectedRows,
 
-      "getSelectedRanges":getSelectedRanges,
-      "setSelectedRanges":setSelectedRanges,
+      "getSelectedRanges": getSelectedRanges,
+      "setSelectedRanges": setSelectedRanges,
 
-      "init":init,
-      "destroy":destroy,
+      "init": init,
+      "destroy": destroy,
 
-      "onSelectedRangesChanged":new Slick.Event()
+      "onSelectedRangesChanged": new Slick.Event()
     });
   }
 })(jQuery);

@@ -1,8 +1,8 @@
 (function ($) {
   // register namespace
   $.extend(true, window, {
-    "Slick":{
-      "CellRangeSelector":CellRangeSelector
+    "Slick": {
+      "CellRangeSelector": CellRangeSelector
     }
   });
 
@@ -14,8 +14,8 @@
     var _decorator;
     var _self = this;
     var _defaults = {
-      selectionCss:{
-        "border":"2px dashed blue"
+      selectionCss: {
+        "border": "2px dashed blue"
       }
     };
 
@@ -59,7 +59,7 @@
           dd.startX - $(_canvas).offset().left,
           dd.startY - $(_canvas).offset().top);
 
-      dd.range = {start:start, end:{}};
+      dd.range = {start: start, end: {}};
 
       return _decorator.show(new Slick.Range(start.row, start.cell));
     }
@@ -92,7 +92,7 @@
 
       _decorator.hide();
       _self.onCellRangeSelected.notify({
-        range:new Slick.Range(
+        range: new Slick.Range(
             dd.range.start.row,
             dd.range.start.cell,
             dd.range.end.row,
@@ -102,11 +102,11 @@
     }
 
     $.extend(this, {
-      "init":init,
-      "destroy":destroy,
+      "init": init,
+      "destroy": destroy,
 
-      "onBeforeCellRangeSelected":new Slick.Event(),
-      "onCellRangeSelected":new Slick.Event()
+      "onBeforeCellRangeSelected": new Slick.Event(),
+      "onCellRangeSelected": new Slick.Event()
     });
   }
 })(jQuery);

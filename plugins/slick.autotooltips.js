@@ -1,8 +1,8 @@
 (function ($) {
   // register namespace
   $.extend(true, window, {
-    "Slick":{
-      "AutoTooltips":AutoTooltips
+    "Slick": {
+      "AutoTooltips": AutoTooltips
     }
   });
 
@@ -11,7 +11,7 @@
     var _grid;
     var _self = this;
     var _defaults = {
-      maxToolTipLength:null
+      maxToolTipLength: null
     };
 
     function init(grid) {
@@ -41,8 +41,8 @@
     }
 
     $.extend(this, {
-      "init":init,
-      "destroy":destroy
+      "init": init,
+      "destroy": destroy
     });
   }
 })(jQuery);

@@ -1,12 +1,12 @@
 (function ($) {
   $.extend(true, window, {
-    Slick:{
-      Data:{
-        DataView:DataView,
-        Aggregators:{
-          Avg:AvgAggregator,
-          Min:MinAggregator,
-          Max:MaxAggregator
+    Slick: {
+      Data: {
+        DataView: DataView,
+        Aggregators: {
+          Avg: AvgAggregator,
+          Min: MinAggregator,
+          Max: MaxAggregator
         }
       }
     }
@@ -23,7 +23,7 @@
     var self = this;
 
     var defaults = {
-      groupItemMetadataProvider:null
+      groupItemMetadataProvider: null
     };
 
 
@@ -139,7 +139,7 @@
     }
 
     function getPagingInfo() {
-      return {pageSize:pagesize, pageNum:pagenum, totalRows:totalRows};
+      return {pageSize: pagesize, pageNum: pagenum, totalRows: totalRows};
     }
 
     function sort(comparer, ascending) {
@@ -189,8 +189,7 @@
     function reSort() {
       if (sortComparer) {
         sort(sortComparer, sortAsc);
-      }
-      else if (fastSortField) {
+      } else if (fastSortField) {
         fastSort(fastSortField, sortAsc);
       }
     }
@@ -418,8 +417,8 @@
       var fnRegex = /^function[^(]*\(([^)]*)\)\s*{([\s\S]*)}$/;
       var matches = fn.toString().match(fnRegex);
       return {
-        params:matches[1].split(","),
-        body:matches[2]
+        params: matches[1].split(","),
+        body: matches[2]
       };
     }
 
@@ -531,7 +530,7 @@
         paged = filteredItems;
       }
 
-      return {totalRows:filteredItems.length, rows:paged};
+      return {totalRows: filteredItems.length, rows: paged};
     }
 
     function getRowDiffs(rows, newRows) {
@@ -551,8 +550,7 @@
       for (var i = from, rl = rows.length; i < to; i++) {
         if (i >= rl) {
           diff[diff.length] = i;
-        }
-        else {
+        } else {
           item = newRows[i];
           r = rows[i];
 
@@ -561,9 +559,9 @@
               item.__updated ||
               item.__group && !item.equals(r))
               || (aggregators && eitherIsNonData &&
-            // no good way to compare totals since they are arbitrary DTOs
-            // deep object comparison is pretty expensive
-            // always considering them 'dirty' seems easier for the time being
+              // no good way to compare totals since they are arbitrary DTOs
+              // deep object comparison is pretty expensive
+              // always considering them 'dirty' seems easier for the time being
               (item.__groupTotals || r.__groupTotals))
               || item[idProperty] != r[idProperty]
               || (updated && updated[item[idProperty]])
@@ -632,52 +630,52 @@
         onPagingInfoChanged.notify(getPagingInfo(), null, self);
       }
       if (countBefore != rows.length) {
-        onRowCountChanged.notify({previous:countBefore, current:rows.length}, null, self);
+        onRowCountChanged.notify({previous: countBefore, current: rows.length}, null, self);
       }
       if (diff.length > 0) {
-        onRowsChanged.notify({rows:diff}, null, self);
+        onRowsChanged.notify({rows: diff}, null, self);
       }
     }
 
 
     return {
       // methods
-      "beginUpdate":beginUpdate,
-      "endUpdate":endUpdate,
-      "setPagingOptions":setPagingOptions,
-      "getPagingInfo":getPagingInfo,
-      "getItems":getItems,
-      "setItems":setItems,
-      "setFilter":setFilter,
-      "sort":sort,
-      "fastSort":fastSort,
-      "reSort":reSort,
-      "groupBy":groupBy,
-      "setAggregators":setAggregators,
-      "collapseGroup":collapseGroup,
-      "expandGroup":expandGroup,
-      "getGroups":getGroups,
-      "getIdxById":getIdxById,
-      "getRowById":getRowById,
-      "getItemById":getItemById,
-      "getItemByIdx":getItemByIdx,
-      "setRefreshHints":setRefreshHints,
-      "setFilterArgs":setFilterArgs,
-      "refresh":refresh,
-      "updateItem":updateItem,
-      "insertItem":insertItem,
-      "addItem":addItem,
-      "deleteItem":deleteItem,
+      "beginUpdate": beginUpdate,
+      "endUpdate": endUpdate,
+      "setPagingOptions": setPagingOptions,
+      "getPagingInfo": getPagingInfo,
+      "getItems": getItems,
+      "setItems": setItems,
+      "setFilter": setFilter,
+      "sort": sort,
+      "fastSort": fastSort,
+      "reSort": reSort,
+      "groupBy": groupBy,
+      "setAggregators": setAggregators,
+      "collapseGroup": collapseGroup,
+      "expandGroup": expandGroup,
+      "getGroups": getGroups,
+      "getIdxById": getIdxById,
+      "getRowById": getRowById,
+      "getItemById": getItemById,
+      "getItemByIdx": getItemByIdx,
+      "setRefreshHints": setRefreshHints,
+      "setFilterArgs": setFilterArgs,
+      "refresh": refresh,
+      "updateItem": updateItem,
+      "insertItem": insertItem,
+      "addItem": addItem,
+      "deleteItem": deleteItem,
 
       // data provider methods
-      "getLength":getLength,
-      "getItem":getItem,
-      "getItemMetadata":getItemMetadata,
+      "getLength": getLength,
+      "getItem": getItem,
+      "getItemMetadata": getItemMetadata,
 
       // events
-      "onRowCountChanged":onRowCountChanged,
-      "onRowsChanged":onRowsChanged,
-      "onPagingInfoChanged":onPagingInfoChanged
+      "onRowCountChanged": onRowCountChanged,
+      "onRowsChanged": onRowsChanged,
+      "onPagingInfoChanged": onPagingInfoChanged
     };
   }
 
