@@ -3,9 +3,9 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <title>SlickGrid example 7: Events</title>
-  <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" />
-  <link rel="stylesheet" href="examples.css" type="text/css" />
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
   <style>
     .cell-title {
       font-weight: bold;
@@ -97,10 +97,10 @@
       e.preventDefault();
       var cell = grid.getCellFromEvent(e);
       $("#contextMenu")
-          .data("row", cell.row)
-          .css("top", e.pageY)
-          .css("left", e.pageX)
-          .show();
+              .data("row", cell.row)
+              .css("top", e.pageY)
+              .css("left", e.pageX)
+              .show();
 
       $("body").one("click", function () {
         $("#contextMenu").hide();
@@ -119,8 +119,9 @@
   });
 
   $("#contextMenu").click(function (e) {
-    if (!$(e.target).is("li"))
+    if (!$(e.target).is("li")) {
       return;
+    }
 
     var row = $(this).data("row");
     data[row].priority = $(e.target).attr("data");
