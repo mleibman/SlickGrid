@@ -504,12 +504,12 @@
     }
 
     function getFilteredAndPagedItems(items) {
-      if (filter && !refreshHints.isFilterUnchanged) {
+      if (filter) {
         if (refreshHints.isFilterNarrowing) {
           filteredItems = compiledFilter(filteredItems, filterArgs);
         } else if (refreshHints.isFilterExpanding) {
           filteredItems = compiledFilterWithCaching(items, filterArgs, filterCache);
-        } else {
+        } else if (!refreshHints.isFilterUnchanged) {
           filteredItems = compiledFilter(items, filterArgs);
         }
       } else {
