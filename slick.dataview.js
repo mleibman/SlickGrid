@@ -127,6 +127,7 @@
     function setPagingOptions(args) {
       if (args.pageSize != undefined) {
         pagesize = args.pageSize;
+        pagenum = Math.min(pagenum, Math.ceil(totalRows / pagesize));
       }
 
       if (args.pageNum != undefined) {
