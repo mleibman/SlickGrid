@@ -826,6 +826,7 @@ if (typeof Slick === "undefined") {
       return columnsById[id];
     }
 
+    // TODO:  handle "rerenderOnResize"
     function autosizeColumns() {
       var i, c,
           widths = [],
@@ -961,6 +962,7 @@ if (typeof Slick === "undefined") {
       removeCssRules();
       createCssRules();
       resizeAndRender();
+      applyColumnWidths();
       handleScroll();
     }
 
@@ -1265,6 +1267,7 @@ if (typeof Slick === "undefined") {
     function resizeAndRender() {
       if (options.forceFitColumns) {
         autosizeColumns();
+        render();
       } else {
         resizeCanvas();
       }
