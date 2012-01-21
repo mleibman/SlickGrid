@@ -533,6 +533,9 @@ if (typeof Slick === "undefined") {
                     }
 
                     var reorderedIds = $headers.sortable("toArray");
+                    if (options.rtl) {
+                        reorderedIds.reverse();
+                    }
                     var reorderedColumns = [];
                     for (var i=0; i<reorderedIds.length; i++) {
                         reorderedColumns.push(columns[getColumnIndex(reorderedIds[i].replace(uid,""))]);
