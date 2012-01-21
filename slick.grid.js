@@ -2180,7 +2180,7 @@ if (typeof Slick === "undefined") {
             };
             var pos;
             while (true) {
-                pos = gotoRight(prev.row, prev.cell, prev.posX);
+                pos = gotoFront(prev.row, prev.cell, prev.posX);
                 if (!pos) {
                     return null;
                 }
