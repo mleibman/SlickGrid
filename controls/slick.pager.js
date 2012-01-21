@@ -14,49 +14,52 @@
     function getNavState() {
       var cannotLeaveEditMode = !Slick.GlobalEditorLock.commitCurrentEdit();
       var pagingInfo = dataView.getPagingInfo();
-      var lastPage = Math.floor(pagingInfo.totalRows / pagingInfo.pageSize);
+      var lastPage = Math.ceil(pagingInfo.totalRows / pagingInfo.pageSize) - 1;
+      if (lastPage < 0) {
+        lastPage = 0;
+      }
 
       return {
-        canGotoFirst:!cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum > 0,
-        canGotoLast:!cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum != lastPage,
-        canGotoPrev:!cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum > 0,
-        canGotoNext:!cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum < lastPage,
-        pagingInfo:pagingInfo,
-        lastPage:lastPage
+        canGotoFirst: !cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum > 0,
+        canGotoLast: !cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum != lastPage,
+        canGotoPrev: !cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum > 0,
+        canGotoNext: !cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum < lastPage,
+        pagingInfo: pagingInfo,
+        lastPage: lastPage
       }
     }
 
     function setPageSize(n) {
       dataView.setRefreshHints({
-        isFilterUnchanged:true
+        isFilterUnchanged: true
       });
-      dataView.setPagingOptions({pageSize:n});
+      dataView.setPagingOptions({pageSize: n});
     }
 
     function gotoFirst() {
       if (getNavState().canGotoFirst) {
-        dataView.setPagingOptions({pageNum:0});
+        dataView.setPagingOptions({pageNum: 0});
       }
     }
 
     function gotoLast() {
       var state = getNavState();
       if (state.canGotoLast) {
-        dataView.setPagingOptions({pageNum:state.lastPage});
+        dataView.setPagingOptions({pageNum: state.lastPage});
       }
     }
 
     function gotoPrev() {
       var state = getNavState();
       if (state.canGotoPrev) {
-        dataView.setPagingOptions({pageNum:state.pagingInfo.pageNum - 1});
+        dataView.setPagingOptions({pageNum: state.pagingInfo.pageNum - 1});
       }
     }
 
     function gotoNext() {
       var state = getNavState();
       if (state.canGotoNext) {
-        dataView.setPagingOptions({pageNum:state.pagingInfo.pageNum + 1});
+        dataView.setPagingOptions({pageNum: state.pagingInfo.pageNum + 1});
       }
     }
 
@@ -76,8 +79,7 @@
           if (pagesize == -1) {
             var vp = grid.getViewport();
             setPageSize(vp.bottom - vp.top);
-          }
-          else {
+          } else {
             setPageSize(parseInt(pagesize));
           }
         }
@@ -134,12 +136,10 @@
         $container.find(".ui-icon-seek-prev").addClass("ui-state-disabled");
       }
 
-
       if (pagingInfo.pageSize == 0) {
         $status.text("Showing all " + pagingInfo.totalRows + " rows");
-      }
-      else {
-        $status.text("Showing page " + (pagingInfo.pageNum + 1) + " of " + (Math.floor(pagingInfo.totalRows / pagingInfo.pageSize) + 1));
+      } else {
+        $status.text("Showing page " + (pagingInfo.pageNum + 1) + " of " + (state.lastPage + 1));
       }
     }
 
