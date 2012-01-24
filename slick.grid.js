@@ -703,6 +703,7 @@ if (typeof Slick === "undefined") {
                 }
               }
               updateCanvasWidth(true);
+              render();
               trigger(self.onColumnsResized, {});
             });
       });
@@ -839,13 +840,12 @@ if (typeof Slick === "undefined") {
       return columnsById[id];
     }
 
-    // TODO:  handle "rerenderOnResize"
     function autosizeColumns() {
       var i, c,
           widths = [],
           shrinkLeeway = 0,
           total = 0,
-          prevTotal = 0,
+          prevTotal,
           availWidth = viewportHasVScroll ? viewportW - scrollbarDimensions.width : viewportW;
 
       for (i = 0; i < columns.length; i++) {
@@ -899,12 +899,20 @@ if (typeof Slick === "undefined") {
         prevTotal = total;
       }
 
+      var reRender = false;
       for (i = 0; i < columns.length; i++) {
+        if (columns[i].rerenderOnResize && columns[i].width != widths[i]) {
+          reRender = true;
+        }
         columns[i].width = widths[i];
       }
 
       applyColumnHeaderWidths();
       updateCanvasWidth(true);
+      if (reRender) {
+        invalidateAllRows();
+        render();
+      }
     }
 
     function applyColumnHeaderWidths() {
