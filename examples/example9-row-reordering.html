@@ -92,6 +92,7 @@
 <script src="../plugins/slick.cellselectionmodel.js"></script>
 <script src="../plugins/slick.rowselectionmodel.js"></script>
 <script src="../plugins/slick.rowmovemanager.js"></script>
+<script src="../slick.formatters.js"></script>
 <script src="../slick.editors.js"></script>
 <script src="../slick.grid.js"></script>
 
@@ -114,7 +115,7 @@ var columns = [
     field: "name",
     width: 500,
     cssClass: "cell-title",
-    editor: TextCellEditor,
+    editor: Slick.Editors.Text,
     validator: requiredFieldValidator
   },
   {
@@ -124,8 +125,8 @@ var columns = [
     cssClass: "cell-effort-driven",
     field: "complete",
     cannotTriggerInsert: true,
-    formatter: BoolCellFormatter,
-    editor: YesNoCheckboxCellEditor
+    formatter: Slick.Formatters.Checkmark,
+    editor: Slick.Editors.Checkbox
   }
 ];
 

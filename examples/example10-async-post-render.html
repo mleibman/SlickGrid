@@ -94,11 +94,11 @@
   var data = [];
   var columns = [
     {id: "title", name: "Title", field: "title", sortable: false, width: 120, cssClass: "cell-title"},
-    {id: "n1", name: "1", field: "n1", sortable: false, editor: IntegerCellEditor, width: 40, validator: requiredFieldValidator},
-    {id: "n2", name: "2", field: "n2", sortable: false, editor: IntegerCellEditor, width: 40, validator: requiredFieldValidator},
-    {id: "n3", name: "3", field: "n3", sortable: false, editor: IntegerCellEditor, width: 40, validator: requiredFieldValidator},
-    {id: "n4", name: "4", field: "n4", sortable: false, editor: IntegerCellEditor, width: 40, validator: requiredFieldValidator},
-    {id: "n5", name: "5", field: "n5", sortable: false, editor: IntegerCellEditor, width: 40, validator: requiredFieldValidator},
+    {id: "n1", name: "1", field: "n1", sortable: false, editor: Slick.Editors.Integer, width: 40, validator: requiredFieldValidator},
+    {id: "n2", name: "2", field: "n2", sortable: false, editor: Slick.Editors.Integer, width: 40, validator: requiredFieldValidator},
+    {id: "n3", name: "3", field: "n3", sortable: false, editor: Slick.Editors.Integer, width: 40, validator: requiredFieldValidator},
+    {id: "n4", name: "4", field: "n4", sortable: false, editor: Slick.Editors.Integer, width: 40, validator: requiredFieldValidator},
+    {id: "n5", name: "5", field: "n5", sortable: false, editor: Slick.Editors.Integer, width: 40, validator: requiredFieldValidator},
     {id: "chart", name: "Chart", sortable: false, width: 60, formatter: waitingFormatter, rerenderOnResize: true, asyncPostRender: renderSparkline}
   ];
 

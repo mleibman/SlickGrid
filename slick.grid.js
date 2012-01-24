@@ -1086,7 +1086,11 @@ if (typeof Slick === "undefined") {
     }
 
     function defaultFormatter(row, cell, value, columnDef, dataContext) {
-      return (value === null || value === undefined) ? "" : value;
+      if (value == null) {
+        return "";
+      } else {
+        return value.toString().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+      }
     }
 
     function getFormatter(row, column) {

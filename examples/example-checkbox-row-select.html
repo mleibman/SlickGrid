@@ -41,7 +41,7 @@
 <script src="../plugins/slick.cellcopymanager.js"></script>
 <script src="../plugins/slick.cellselectionmodel.js"></script>
 <script src="../plugins/slick.rowselectionmodel.js"></script>
-<script src="../slick.editors.js"></script>
+<script src="../slick.formatters.js"></script>
 <script src="../slick.grid.js"></script>
 
 <script>
@@ -73,7 +73,7 @@
         name: String.fromCharCode("A".charCodeAt(0) + i),
         field: i,
         width: 100,
-        editor: TextCellEditor
+        editor: Slick.Editors.Text
       });
     }
 

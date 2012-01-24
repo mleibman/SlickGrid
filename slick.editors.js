@@ -1,73 +1,26 @@
-/* THESE FORMATTERS & EDITORS ARE JUST SAMPLES! */
+/***
+ * Contains basic SlickGrid editors.
+ * @module Formatters
+ * @namespace Slick
+ */
+
 (function ($) {
-  var SlickEditor = {
-    SelectorCellFormatter: function (row, cell, value, columnDef, dataContext) {
-      return (!dataContext ? "" : row);
-    },
-
-    PercentCompleteCellFormatter: function (row, cell, value, columnDef, dataContext) {
-      if (value == null || value === "") {
-        return "-";
-      } else if (value < 50) {
-        return "<span style='color:red;font-weight:bold;'>" + value + "%</span>";
-      } else {
-        return "<span style='color:green'>" + value + "%</span>";
+  // register namespace
+  $.extend(true, window, {
+    "Slick": {
+      "Editors": {
+        "Text": TextEditor,
+        "Integer": IntegerEditor,
+        "Date": DateEditor,
+        "YesNoSelect": YesNoSelectEditor,
+        "Checkbox": CheckboxEditor,
+        "PercentComplete": PercentCompleteEditor,
+        "LongText": LongTextEditor
       }
-    },
+    }
+  });
 
-    GraphicalPercentCompleteCellFormatter: function (row, cell, value, columnDef, dataContext) {
-      if (value == null || value === "") {
-        return "";
-      }
-
-      var color;
-
-      if (value < 30) {
-        color = "red";
-      } else if (value < 70) {
-        color = "silver";
-      } else {
-        color = "green";
-      }
-
-      return "<span class='percent-complete-bar' style='background:" + color + ";width:" + value + "%'></span>";
-    },
-
-    YesNoCellFormatter: function (row, cell, value, columnDef, dataContext) {
-      return value ? "Yes" : "No";
-    },
-
-    BoolCellFormatter: function (row, cell, value, columnDef, dataContext) {
-      return value ? "<img src='../images/tick.png'>" : "";
-    },
-
-    TaskNameFormatter: function (row, cell, value, columnDef, dataContext) {
-      // todo:  html encode
-      var spacer = "<span style='display:inline-block;height:1px;width:" + (2 + 15 * dataContext["indent"]) + "px'></span>";
-      return spacer + " <img src='../images/expand.gif'>&nbsp;" + value;
-    },
-
-    ResourcesFormatter: function (row, cell, value, columnDef, dataContext) {
-      var resources = dataContext["resources"];
-
-      if (!resources || resources.length == 0) {
-        return "";
-      }
-
-      if (columnDef.width < 50) {
-        return (resources.length > 1 ? "<center><img src='../images/user_identity_plus.gif' " : "<center><img src='../images/user_identity.gif' ") +
-            " title='" + resources.join(", ") + "'></center>";
-      } else {
-        return resources.join(", ");
-      }
-    },
-
-    StarFormatter: function (row, cell, value, columnDef, dataContext) {
-      return (value) ? "<img src='../images/bullet_star.png' align='absmiddle'>" : "";
-    },
-
-
-    TextCellEditor: function (args) {
+    function TextEditor(args) {
       var $input;
       var defaultValue;
       var scope = this;
@@ -134,9 +87,9 @@
       };
 
       this.init();
-    },
+    }
 
-    IntegerCellEditor: function (args) {
+    function IntegerEditor(args) {
       var $input;
       var defaultValue;
       var scope = this;
@@ -196,9 +149,9 @@
       };
 
       this.init();
-    },
+    }
 
-    DateCellEditor: function (args) {
+    function DateEditor(args) {
       var $input;
       var defaultValue;
       var scope = this;
@@ -281,9 +234,9 @@
       };
 
       this.init();
-    },
+    }
 
-    YesNoSelectCellEditor: function (args) {
+    function YesNoSelectEditor(args) {
       var $select;
       var defaultValue;
       var scope = this;
@@ -327,9 +280,9 @@
       };
 
       this.init();
-    },
+    }
 
-    YesNoCheckboxCellEditor: function (args) {
+    function CheckboxEditor(args) {
       var $select;
       var defaultValue;
       var scope = this;
@@ -377,9 +330,9 @@
       };
 
       this.init();
-    },
+    }
 
-    PercentCompleteCellEditor: function (args) {
+    function PercentCompleteEditor(args) {
       var $input, $picker;
       var defaultValue;
       var scope = this;
@@ -452,78 +405,14 @@
       };
 
       this.init();
-    },
-
-    StarCellEditor: function (args) {
-      var $input;
-      var defaultValue;
-      var scope = this;
-
-      function toggle(e) {
-        if (e.type == "keydown" && e.which != 32) {
-          return;
-        }
-
-        if ($input.css("opacity") == "1") {
-          $input.css("opacity", 0.5);
-        } else {
-          $input.css("opacity", 1);
-        }
-
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-
-      this.init = function () {
-        $input = $("<IMG src='../images/bullet_star.png' align=absmiddle tabIndex=0 title='Click or press Space to toggle' />")
-            .bind("click keydown", toggle)
-            .appendTo(args.container)
-            .focus();
-      };
-
-      this.destroy = function () {
-        $input.unbind("click keydown", toggle);
-        $input.remove();
-      };
-
-      this.focus = function () {
-        $input.focus();
-      };
-
-      this.loadValue = function (item) {
-        defaultValue = item[args.column.field];
-        $input.css("opacity", defaultValue ? 1 : 0.2);
-      };
-
-      this.serializeValue = function () {
-        return ($input.css("opacity") == "1");
-      };
-
-      this.applyValue = function (item, state) {
-        item[args.column.field] = state;
-      };
-
-      this.isValueChanged = function () {
-        return defaultValue != ($input.css("opacity") == "1");
-      };
-
-      this.validate = function () {
-        return {
-          valid: true,
-          msg: null
-        };
-      };
-
-      this.init();
-    },
+    }
 
     /*
      * An example of a "detached" editor.
      * The UI is added onto document BODY and .position(), .show() and .hide() are implemented.
      * KeyDown events are also handled to provide handling for Tab, Shift-Tab, Esc and Ctrl-Enter.
      */
-    LongTextCellEditor: function (args) {
+    function LongTextEditor(args) {
       var $input, $wrapper;
       var defaultValue;
       var scope = this;
@@ -620,7 +509,4 @@
 
       this.init();
     }
-  };
-
-  $.extend(window, SlickEditor);
 })(jQuery);

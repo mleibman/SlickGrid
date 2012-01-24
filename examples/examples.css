@@ -126,7 +126,7 @@ li {
   -webkit-border-radius: 3px;
 }
 
-/* TextCellEditor, DateCellEditor */
+/* Slick.Editors.Text, Slick.Editors.Date */
 input.editor-text {
   width: 100%;
   height: 100%;
@@ -144,7 +144,7 @@ input.editor-text {
   vertical-align: top;
 }
 
-/* PercentCompleteCellEditor */
+/* Slick.Editors.PercentComplete */
 input.editor-percentcomplete {
   width: 100%;
   height: 100%;
@@ -212,14 +212,14 @@ input.editor-percentcomplete {
   display: block;
 }
 
-/* YesNoSelectCellEditor */
+/* Slick.Editors.YesNoSelect */
 select.editor-yesno {
   width: 100%;
   margin: 0;
   vertical-align: middle;
 }
 
-/* YesNoCheckboxCellEditor */
+/* Slick.Editors.Checkbox */
 input.editor-checkbox {
   margin: 0;
   height: 100%;

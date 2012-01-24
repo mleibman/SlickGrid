@@ -77,6 +77,7 @@
 <script src="../lib/jquery.event.drag-2.0.min.js"></script>
 
 <script src="../slick.core.js"></script>
+<script src="../slick.formatters.js"></script>
 <script src="../slick.editors.js"></script>
 <script src="../plugins/slick.cellrangedecorator.js"></script>
 <script src="../plugins/slick.cellrangeselector.js"></script>
@@ -93,12 +94,12 @@ var grid;
 var data = [];
 var columns = [
   {id: "sel", name: "#", field: "num", cssClass: "cell-selection", width: 40, resizable: false, selectable: false, focusable: false },
-  {id: "title", name: "Title", field: "title", width: 120, minWidth: 120, cssClass: "cell-title", sortable: true, editor: TextCellEditor},
+  {id: "title", name: "Title", field: "title", width: 120, minWidth: 120, cssClass: "cell-title", sortable: true, editor: Slick.Editors.Text},
   {id: "duration", name: "Duration", field: "duration", sortable: true},
-  {id: "%", name: "% Complete", field: "percentComplete", width: 80, formatter: GraphicalPercentCompleteCellFormatter, sortable: true, groupTotalsFormatter: avgTotalsFormatter},
+  {id: "%", name: "% Complete", field: "percentComplete", width: 80, formatter: Slick.Formatters.PercentCompleteBar, sortable: true, groupTotalsFormatter: avgTotalsFormatter},
   {id: "start", name: "Start", field: "start", minWidth: 60, sortable: true},
   {id: "finish", name: "Finish", field: "finish", minWidth: 60, sortable: true},
-  {id: "effort-driven", name: "Effort Driven", width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: BoolCellFormatter, sortable: true}
+  {id: "effort-driven", name: "Effort Driven", width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark, sortable: true}
 ];
 
 var options = {

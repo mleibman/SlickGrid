@@ -43,7 +43,6 @@
 <script src="../plugins/slick.cellrangeselector.js"></script>
 <script src="../plugins/slick.cellcopymanager.js"></script>
 <script src="../plugins/slick.cellselectionmodel.js"></script>
-<script src="../slick.editors.js"></script>
 <script src="../slick.grid.js"></script>
 
 <script>
@@ -81,7 +80,7 @@
    */
   function FormulaEditor(args) {
     var _self = this;
-    var _editor = new TextCellEditor(args);
+    var _editor = new Slick.Editors.Text(args);
     var _selector;
 
     $.extend(this, _editor);
