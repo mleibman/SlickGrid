@@ -56,7 +56,6 @@ if (typeof Slick === "undefined") {
     // settings
     var defaults = {
       explicitInitialization: false,
-      headerHeight: 25,
       rowHeight: 25,
       defaultColumnWidth: 80,
       enableAddRow: false,
@@ -224,7 +223,9 @@ if (typeof Slick === "undefined") {
         $headerRowScroller.hide();
       }
 
-      $viewport = $("<div class='slick-viewport' tabIndex='0' hideFocus style='width:100%;overflow-x:auto;outline:0;position:relative;overflow-y:auto;'>").appendTo($container);
+      $viewport = $("<div class='slick-viewport' tabIndex='0' hideFocus style='width:100%;overflow:auto;outline:0;position:relative;;'>").appendTo($container);
+      $viewport.css("overflow-y", options.autoHeight ? "hidden" : "auto");
+
       $canvas = $("<div class='grid-canvas' tabIndex='0' hideFocus />").appendTo($viewport);
 
       if (!options.explicitInitialization) {
@@ -998,6 +999,7 @@ if (typeof Slick === "undefined") {
 
       options = $.extend(options, args);
 
+      $viewport.css("overflow-y", options.autoHeight ? "hidden" : "auto");
       render();
     }
 
@@ -1258,8 +1260,7 @@ if (typeof Slick === "undefined") {
 
     function getViewportHeight() {
       return parseFloat($.css($container[0], "height", true)) -
-          options.headerHeight -
-          getVBoxDelta($headers) -
+          parseFloat($.css($headers[0], "height")) - getVBoxDelta($headers) -
           (options.showTopPanel ? options.topPanelHeight + getVBoxDelta($topPanelScroller) : 0) -
           (options.showHeaderRow ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0);
     }
