@@ -257,6 +257,28 @@
       return items[idxById[id]];
     }
 
+    function mapIdsToRows(idArray) {
+      var rows = [];
+      ensureRowsByIdCache();
+      for (var i = 0; i < idArray.length; i++) {
+        var row = rowsById[idArray[i]];
+        if (row != null) {
+          rows[rows.length] = row;
+        }
+      }
+      return rows;
+    }
+
+    function mapRowsToIds(rowArray) {
+      var ids = [];
+      for (var i = 0; i < rowArray.length; i++) {
+        if (rowArray[i] < rows.length) {
+          ids[ids.length] = rows[rowArray[i]][idProperty];
+        }
+      }
+      return ids;
+    }
+
     function updateItem(id, item) {
       if (idxById[id] === undefined || id !== item[idProperty]) {
         throw "Invalid or non-matching id";
@@ -638,6 +660,69 @@
       }
     }
 
+    function syncGridSelection(grid, preserveHidden) {
+      var self = this;
+      var selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());;
+      var inHandler;
+
+      grid.onSelectedRowsChanged.subscribe(function(e, args) {
+        if (inHandler) { return; }
+        selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());
+      });
+
+      this.onRowsChanged.subscribe(function(e, args) {
+        if (selectedRowIds.length > 0) {
+          inHandler = true;
+          var selectedRows = self.mapIdsToRows(selectedRowIds);
+          if (!preserveHidden) {
+            selectedRowIds = self.mapRowsToIds(selectedRows);
+          }
+          grid.setSelectedRows(selectedRows);
+          inHandler = false;
+        }
+      });
+    }
+
+    function syncGridCellCssStyles(grid, key) {
+      var hashById;
+      var inHandler;
+
+      // since this method can be called after the cell styles have been set,
+      // get the existing ones right away
+      storeCellCssStyles(grid.getCellCssStyles(key));
+
+      function storeCellCssStyles(hash) {
+        hashById = {};
+        for (var row in hash) {
+          var id = rows[row][idProperty];
+          hashById[id] = hash[row];
+        }
+      }
+
+      grid.onCellCssStylesChanged.subscribe(function(e, args) {
+        if (inHandler) { return; }
+        if (key != args.key) { return; }
+        if (args.hash) {
+          storeCellCssStyles(args.hash);
+        }
+      });
+
+      this.onRowsChanged.subscribe(function(e, args) {
+        if (hashById) {
+          inHandler = true;
+          ensureRowsByIdCache();
+          var newHash = {};
+          for (var id in hashById) {
+            var row = rowsById[id];
+            if (row != undefined) {
+              newHash[row] = hashById[id];
+            }
+          }
+          grid.setCellCssStyles(key, newHash);
+          inHandler = false;
+        }
+      });
+    }
 
     return {
       // methods
@@ -660,6 +745,8 @@
       "getRowById": getRowById,
       "getItemById": getItemById,
       "getItemByIdx": getItemByIdx,
+      "mapRowsToIds": mapRowsToIds,
+      "mapIdsToRows": mapIdsToRows,
       "setRefreshHints": setRefreshHints,
       "setFilterArgs": setFilterArgs,
       "refresh": refresh,
@@ -667,6 +754,8 @@
       "insertItem": insertItem,
       "addItem": addItem,
       "deleteItem": deleteItem,
+      "syncGridSelection": syncGridSelection,
+      "syncGridCellCssStyles": syncGridCellCssStyles,
 
       // data provider methods
       "getLength": getLength,

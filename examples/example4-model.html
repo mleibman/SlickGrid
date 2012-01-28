@@ -106,8 +106,6 @@
 var dataView;
 var grid;
 var data = [];
-var selectedRowIds = [];
-
 var columns = [
   {id: "sel", name: "#", field: "num", behavior: "select", cssClass: "cell-selection", width: 40, cannotTriggerInsert: true, resizable: false, selectable: false },
   {id: "title", name: "Title", field: "title", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
@@ -206,8 +204,8 @@ $(function () {
 
   // move the filter panel defined in a hidden div into grid top panel
   $("#inlineFilterPanel")
-          .appendTo(grid.getTopPanel())
-          .show();
+      .appendTo(grid.getTopPanel())
+      .show();
 
   grid.onCellChange.subscribe(function (e, args) {
     dataView.updateItem(args.item.id, args.item);
@@ -226,26 +224,12 @@ $(function () {
     }
 
     var rows = [];
-    selectedRowIds = [];
-
     for (var i = 0; i < dataView.getLength(); i++) {
       rows.push(i);
-      selectedRowIds.push(dataView.getItem(i).id);
     }
 
     grid.setSelectedRows(rows);
     e.preventDefault();
-  });
-
-  grid.onSelectedRowsChanged.subscribe(function (e) {
-    selectedRowIds = [];
-    var rows = grid.getSelectedRows();
-    for (var i = 0, l = rows.length; i < l; i++) {
-      var item = dataView.getItem(rows[i]);
-      if (item) {
-        selectedRowIds.push(item.id);
-      }
-    }
   });
 
   grid.onSort.subscribe(function (e, args) {
@@ -285,20 +269,6 @@ $(function () {
   dataView.onRowsChanged.subscribe(function (e, args) {
     grid.invalidateRows(args.rows);
     grid.render();
-
-    if (selectedRowIds.length > 0) {
-      // since how the original data maps onto rows has changed,
-      // the selected rows in the grid need to be updated
-      var selRows = [];
-      for (var i = 0; i < selectedRowIds.length; i++) {
-        var idx = dataView.getRowById(selectedRowIds[i]);
-        if (idx != undefined) {
-          selRows.push(idx);
-        }
-      }
-
-      grid.setSelectedRows(selRows);
-    }
   });
 
   dataView.onPagingInfoChanged.subscribe(function (e, pagingInfo) {
@@ -356,11 +326,8 @@ $(function () {
     }
 
     var rows = [];
-    selectedRowIds = [];
-
     for (var i = 0; i < 10 && i < dataView.getLength(); i++) {
       rows.push(i);
-      selectedRowIds.push(dataView.getItem(i).id);
     }
 
     grid.setSelectedRows(rows);
@@ -376,6 +343,10 @@ $(function () {
   });
   dataView.setFilter(myFilter);
   dataView.endUpdate();
+
+  // if you don't want the items that are not visible (due to being filtered out
+  // or being on a different page) to stay selected, pass 'false' to the second arg
+  dataView.syncGridSelection(grid, true);
 
   $("#gridContainer").resizable();
 })

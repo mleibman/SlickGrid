@@ -1542,24 +1542,45 @@ if (typeof Slick === "undefined") {
       }
     }
 
+    function updateCellCssStylesOnRenderedRows(addedHash, removedHash) {
+      var node, columnId, addedRowHash, removedRowHash;
+      for (var row in rowsCache) {
+        removedRowHash = removedHash && removedHash[row];
+        addedRowHash = addedHash && addedHash[row];
+
+        if (removedRowHash) {
+          for (columnId in removedRowHash) {
+            if (!addedRowHash || removedRowHash[columnId] != addedRowHash[columnId]) {
+              node = getCellNode(row, getColumnIndex(columnId));
+              if (node) {
+                $(node).removeClass(removedRowHash[columnId]);
+              }
+            }
+          }
+        }
+
+        if (addedRowHash) {
+          for (columnId in addedRowHash) {
+            if (!removedRowHash || removedRowHash[columnId] != addedRowHash[columnId]) {
+              node = getCellNode(row, getColumnIndex(columnId));
+              if (node) {
+                $(node).addClass(addedRowHash[columnId]);
+              }
+            }
+          }
+        }
+      }
+    }
+
     function addCellCssStyles(key, hash) {
       if (cellCssClasses[key]) {
         throw "addCellCssStyles: cell CSS hash with key '" + key + "' already exists.";
       }
 
       cellCssClasses[key] = hash;
+      updateCellCssStylesOnRenderedRows(hash, null);
 
-      var node;
-      for (var row in rowsCache) {
-        if (hash[row]) {
-          for (var columnId in hash[row]) {
-            node = getCellNode(row, getColumnIndex(columnId));
-            if (node) {
-              $(node).addClass(hash[row][columnId]);
-            }
-          }
-        }
-      }
+      trigger(self.onCellCssStylesChanged, { "key": key, "hash": hash });
     }
 
     function removeCellCssStyles(key) {
@@ -1567,24 +1588,23 @@ if (typeof Slick === "undefined") {
         return;
       }
 
-      var node;
-      for (var row in rowsCache) {
-        if (cellCssClasses[key][row]) {
-          for (var columnId in cellCssClasses[key][row]) {
-            node = getCellNode(row, getColumnIndex(columnId));
-            if (node) {
-              $(node).removeClass(cellCssClasses[key][row][columnId]);
-            }
-          }
-        }
-      }
-
+      updateCellCssStylesOnRenderedRows(null, cellCssClasses[key]);
       delete cellCssClasses[key];
+
+      trigger(self.onCellCssStylesChanged, { "key": key, "hash": null });
     }
 
     function setCellCssStyles(key, hash) {
-      removeCellCssStyles(key);
-      addCellCssStyles(key, hash);
+      var prevHash = cellCssClasses[key];
+
+      cellCssClasses[key] = hash;
+      updateCellCssStylesOnRenderedRows(hash, prevHash);
+
+      trigger(self.onCellCssStylesChanged, { "key": key, "hash": hash });
+    }
+
+    function getCellCssStyles(key) {
+      return cellCssClasses[key];
     }
 
     function flashCell(row, cell, speed) {
@@ -2633,6 +2653,7 @@ if (typeof Slick === "undefined") {
       "onDrag": new Slick.Event(),
       "onDragEnd": new Slick.Event(),
       "onSelectedRowsChanged": new Slick.Event(),
+      "onCellCssStylesChanged": new Slick.Event(),
 
       // Methods
       "registerPlugin": registerPlugin,
@@ -2700,6 +2721,7 @@ if (typeof Slick === "undefined") {
       "addCellCssStyles": addCellCssStyles,
       "setCellCssStyles": setCellCssStyles,
       "removeCellCssStyles": removeCellCssStyles,
+      "getCellCssStyles": getCellCssStyles,
 
       "init": finishInitialization,
       "destroy": destroy,
