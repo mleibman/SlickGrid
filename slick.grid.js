@@ -7,7 +7,7 @@
  * Distributed under MIT license.
  * All rights reserved.
  *
- * SlickGrid v2.0 alpha
+ * SlickGrid v2.0
  *
  * NOTES:
  *     Cell/row DOM manipulations are done directly bypassing jQuery's DOM manipulation methods.
@@ -2624,7 +2624,7 @@ if (typeof Slick === "undefined") {
     // Public API
 
     $.extend(this, {
-      "slickGridVersion": "2.0a1",
+      "slickGridVersion": "2.0",
 
       // Events
       "onScroll": new Slick.Event(),
