@@ -1419,6 +1419,8 @@ if (typeof Slick === "undefined") {
         counter_rows_rendered++;
       }
 
+      if (!rows.length) { return; }
+
       var x = document.createElement("div");
       x.innerHTML = stringArray.join("");
 
