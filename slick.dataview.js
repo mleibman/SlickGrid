@@ -23,12 +23,12 @@
     var self = this;
 
     var defaults = {
+      idProperty: 'id',
       groupItemMetadataProvider: null
     };
 
 
     // private
-    var idProperty = "id";  // property holding a unique row id
     var items = [];         // data by index
     var rows = [];          // data by row
     var idxById = {};       // indexes by id
@@ -68,6 +68,7 @@
     var onPagingInfoChanged = new Slick.Event();
 
     options = $.extend(true, {}, defaults, options);
+    var idProperty = options.idProperty;  // property holding a unique row id
 
 
     function beginUpdate() {
