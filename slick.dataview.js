@@ -6,7 +6,8 @@
         Aggregators: {
           Avg: AvgAggregator,
           Min: MinAggregator,
-          Max: MaxAggregator
+          Max: MaxAggregator,
+          Sum: SumAggregator
         }
       }
     }
@@ -781,9 +782,9 @@
     this.accumulate = function (item) {
       var val = item[this.field_];
       this.count_++;
-      if (val != null && val != NaN) {
+      if (val != null && val != "" && val != NaN) {
         this.nonNullCount_++;
-        this.sum_ += 1 * val;
+        this.sum_ += parseFloat(val);
       }
     };
 
@@ -792,7 +793,7 @@
         groupTotals.avg = {};
       }
       if (this.nonNullCount_ != 0) {
-        groupTotals.avg[this.field_] = this.sum_ / this.nonNullCount_;
+        groupTotals.avg[this.field_] = (this.sum_ / this.nonNullCount_)*100/100;
       }
     };
   }
@@ -806,7 +807,7 @@
 
     this.accumulate = function (item) {
       var val = item[this.field_];
-      if (val != null && val != NaN) {
+      if (val != null && val != "" && val != NaN) {
         if (this.min_ == null || val < this.min_) {
           this.min_ = val;
         }
@@ -830,7 +831,7 @@
 
     this.accumulate = function (item) {
       var val = item[this.field_];
-      if (val != null && val != NaN) {
+      if (val != null && val != "" && val != NaN) {
         if (this.max_ == null || val > this.max_) {
           this.max_ = val;
         }
@@ -845,6 +846,27 @@
     }
   }
 
+  function SumAggregator(field) {
+        this.field_ = field;
+
+        this.init = function() {
+            this.sum_ = null;
+        };
+
+        this.accumulate = function(item) {
+            var val = item[this.field_];
+            if (val != null && val != "" && val != NaN) {
+  			this.sum_ += parseFloat(val);
+            }
+        };
+
+        this.storeResult = function(groupTotals) {
+            if (!groupTotals.sum) {
+                groupTotals.sum = {};
+            }
+            groupTotals.sum[this.field_] = this.sum_;
+        }
+    }
   // TODO:  add more built-in aggregators
   // TODO:  merge common aggregators in one to prevent needles iterating
 
