@@ -825,7 +825,7 @@
         groupTotals.avg = {};
       }
       if (this.nonNullCount_ != 0) {
-        groupTotals.avg[this.field_] = (this.sum_ / this.nonNullCount_)*100/100;
+        groupTotals.avg[this.field_] = this.sum_ / this.nonNullCount_;
       }
     };
   }
@@ -879,26 +879,27 @@
   }
 
   function SumAggregator(field) {
-        this.field_ = field;
+    this.field_ = field;
 
-        this.init = function() {
-            this.sum_ = null;
-        };
+    this.init = function () {
+      this.sum_ = null;
+    };
 
-        this.accumulate = function(item) {
-            var val = item[this.field_];
-            if (val != null && val != "" && val != NaN) {
-  			this.sum_ += parseFloat(val);
-            }
-        };
+    this.accumulate = function (item) {
+      var val = item[this.field_];
+      if (val != null && val != "" && val != NaN) {
+        this.sum_ += parseFloat(val);
+      }
+    };
 
-        this.storeResult = function(groupTotals) {
-            if (!groupTotals.sum) {
-                groupTotals.sum = {};
-            }
-            groupTotals.sum[this.field_] = this.sum_;
-        }
+    this.storeResult = function (groupTotals) {
+      if (!groupTotals.sum) {
+        groupTotals.sum = {};
+      }
+      groupTotals.sum[this.field_] = this.sum_;
     }
+  }
+
   // TODO:  add more built-in aggregators
   // TODO:  merge common aggregators in one to prevent needles iterating
 
