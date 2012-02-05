@@ -194,7 +194,7 @@ $(function () {
   }
 
 
-  dataView = new Slick.Data.DataView();
+  dataView = new Slick.Data.DataView({ inlineFilters: true });
   grid = new Slick.Grid("#myGrid", dataView, columns, options);
   grid.setSelectionModel(new Slick.RowSelectionModel());
 

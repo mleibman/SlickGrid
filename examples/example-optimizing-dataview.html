@@ -121,7 +121,7 @@
       data[i] = new DataItem(i);
     }
 
-    dataView = new Slick.Data.DataView();
+    dataView = new Slick.Data.DataView({ inlineFilters: true });
     grid = new Slick.Grid("#myGrid", dataView, columns, options);
     var pager = new Slick.Controls.Pager(dataView, grid, $("#pager"));
 

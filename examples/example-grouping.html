@@ -222,7 +222,8 @@ $(function () {
 
   var groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
   dataView = new Slick.Data.DataView({
-    groupItemMetadataProvider: groupItemMetadataProvider
+    groupItemMetadataProvider: groupItemMetadataProvider,
+    inlineFilters: true
   });
   grid = new Slick.Grid("#myGrid", dataView, columns, options);
 

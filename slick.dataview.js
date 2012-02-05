@@ -23,7 +23,8 @@
     var self = this;
 
     var defaults = {
-      groupItemMetadataProvider: null
+      groupItemMetadataProvider: null,
+      inlineFilters: false
     };
 
 
@@ -526,14 +527,45 @@
       return fn;
     }
 
+    function uncompiledFilter(items, args) {
+      var retval = [], idx = 0;
+
+      for (var i = 0, ii = items.length; i < ii; i++) {
+        if (filter(items[i], args)) {
+          retval[idx++] = items[i];
+        }
+      }
+
+      return retval;
+    }
+
+    function uncompiledFilterWithCaching(items, args, cache) {
+      var retval = [], idx = 0, item;
+
+      for (var i = 0, ii = items.length; i < ii; i++) {
+        item = items[i];
+        if (cache[i]) {
+          retval[idx++] = item;
+        } else if (filter(item, args)) {
+          retval[idx++] = item;
+          cache[i] = true;
+        }
+      }
+
+      return retval;
+    }
+
     function getFilteredAndPagedItems(items) {
       if (filter) {
+        var batchFilter = options.inlineFilters ? compiledFilter : uncompiledFilter;
+        var batchFilterWithCaching = options.inlineFilters ? compiledFilterWithCaching : uncompiledFilterWithCaching;
+
         if (refreshHints.isFilterNarrowing) {
-          filteredItems = compiledFilter(filteredItems, filterArgs);
+          filteredItems = batchFilter(filteredItems, filterArgs);
         } else if (refreshHints.isFilterExpanding) {
-          filteredItems = compiledFilterWithCaching(items, filterArgs, filterCache);
+          filteredItems = batchFilterWithCaching(items, filterArgs, filterCache);
         } else if (!refreshHints.isFilterUnchanged) {
-          filteredItems = compiledFilter(items, filterArgs);
+          filteredItems = batchFilter(items, filterArgs);
         }
       } else {
         // special case:  if not filtering and not paging, the resulting
