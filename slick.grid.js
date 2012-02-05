@@ -82,7 +82,8 @@ if (typeof Slick === "undefined") {
       multiSelect: true,
       enableTextSelectionOnCells: false,
       dataItemColumnValueExtractor: null,
-      fullWidthRows: false
+      fullWidthRows: false,
+      multiSort: false
     };
 
     var columnDefaults = {
@@ -150,8 +151,8 @@ if (typeof Slick === "undefined") {
     var cellCssClasses = {};
 
     var columnsById = {};
-    var sortColumnId;
-    var sortAsc = true;
+    var sortColumns = [];
+
 
     // async call handles
     var h_editorLoader = null;
@@ -468,7 +469,7 @@ if (typeof Slick === "undefined") {
         }
       }
 
-      setSortColumn(sortColumnId, sortAsc);
+      setSortColumn();
       setupColumnResize();
       if (options.enableColumnReorder) {
         setupColumnReorder();
@@ -492,15 +493,37 @@ if (typeof Slick === "undefined") {
             return;
           }
 
-          if (column.id === sortColumnId) {
-            sortAsc = !sortAsc;
-          } else {
-            sortColumnId = column.id;
-            sortAsc = true;
+          var sortOpts = null;
+
+          for (var i in sortColumns) {
+            if (sortColumns[i].id == column.id) {
+              sortOpts = sortColumns[i];
+              sortOpts.sortAsc = !sortOpts.sortAsc;
+              break;
+            }
           }
 
-          setSortColumn(sortColumnId, sortAsc);
-          trigger(self.onSort, {sortCol: column, sortAsc: sortAsc}, e);
+          if ((!e.shiftKey && !e.ctrlKey) || !options.multiSort) {
+            sortColumns.length = 0;
+          }
+
+          if (!sortOpts) {
+            sortOpts = { id: column.id, sortAsc: true };
+            sortColumns.push(sortOpts);
+          } else if (sortColumns.length == 0) {
+            sortColumns.push(sortOpts);
+          }
+
+          setSortColumn();
+
+          if (!options.multiSort) {
+            trigger(self.onSort, {sortCol: column, sortAsc: sortOpts.sortAsc}, e);
+          } else {
+            trigger(self.onSort, $.map(sortColumns, function(col) {
+              var colIndex = getColumnIndex(col.id);
+              return typeof colIndex === 'number' ? {column: columns[colIndex], sortAsc: col.sortAsc } : null;
+            }), e);
+          }
         }
       });
     }
@@ -942,19 +965,47 @@ if (typeof Slick === "undefined") {
     }
 
     function setSortColumn(columnId, ascending) {
-      sortColumnId = columnId;
-      sortAsc = ascending;
-      var columnIndex = getColumnIndex(sortColumnId);
+
+      // accept multiple columns as 1st arg
+      if (columnId instanceof Array) {
+        sortColumns.length = 0;
+
+        $.each(columnId, function(i, col) {
+          switch (typeof col) {
+            case 'string': // accept column ids instead of object ([id1, id2])
+              sortColumns.push({ id: col, sortAsc: true });
+              break;
+            case 'object':
+              if (typeof col.id !== 'string' || col.id.length == 0) {
+                throw new SyntaxError('setSortColumn: missing column id');
+              }
+              if (typeof col.sortAsc !== 'boolean') {
+                col.sortAsc = col.sortAsc ? true : false;
+              }
+              sortColumns.push(col);
+              break;
+          }
+        });
+
+      // allow old syntax too
+      } else if (typeof columnId === 'string') {
+          sortColumns.length = 0;
+          sortColumns.push({ id: columnId, sortAsc: (typeof ascending === 'boolean' ? ascending : (ascending ? true : false)) });
+      }
+      // else simply update from sortColumns
 
       $headers.children().removeClass("slick-header-column-sorted");
       $headers.find(".slick-sort-indicator").removeClass("slick-sort-indicator-asc slick-sort-indicator-desc");
 
-      if (columnIndex != null) {
-        $headers.children().eq(columnIndex)
+      $.each(sortColumns, function(i, col) {
+        var columnIndex = getColumnIndex(col.id);
+        if (columnIndex != null) {
+          $headers.children().eq(columnIndex)
             .addClass("slick-header-column-sorted")
             .find(".slick-sort-indicator")
-            .addClass(sortAsc ? "slick-sort-indicator-asc" : "slick-sort-indicator-desc");
-      }
+            .addClass(col.sortAsc ? "slick-sort-indicator-asc" : "slick-sort-indicator-desc");
+        }
+      });
     }
 
     function handleSelectedRangesChanged(e, ranges) {
