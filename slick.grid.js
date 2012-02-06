@@ -89,8 +89,7 @@ if (typeof Slick === "undefined") {
       multiSelect: true,
       enableTextSelectionOnCells: false,
       dataItemColumnValueExtractor: null,
-      fullWidthRows: false,
-      rtl: false
+      fullWidthRows: false
     };
 
     var columnDefaults = {
@@ -173,6 +172,8 @@ if (typeof Slick === "undefined") {
     var counter_rows_rendered = 0;
     var counter_rows_removed = 0;
 
+    var rtl = false;
+
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Initialization
@@ -189,17 +190,6 @@ if (typeof Slick === "undefined") {
 
       options = $.extend({}, defaults, options);
       columnDefaults.width = options.defaultColumnWidth;
-
-      if (options.rtl) {
-        rear            = 'right';
-        front           = 'left';
-        propScrollFront = 'scrollLeft';
-        gotoRight       = gotoRear;
-        gotoLeft        = gotoFront;
-        getOffsetRear   = getOffsetRight;
-        adjustX         = adjustXToRight;
-      }
-
 
       // validate loaded JavaScript modules against requested options
       if (options.enableColumnReorder && !$.fn.sortable) {
@@ -219,8 +209,17 @@ if (typeof Slick === "undefined") {
           .css("outline", 0)
           .addClass(uid)
           .addClass("ui-widget");
-      if (options.rtl) {
-        $container.addClass("rtl");
+      
+      if ($container.css('direction') == 'rtl') {
+        rtl             = true;
+        rear            = 'right';
+        front           = 'left';
+        propScrollFront = 'scrollLeft';
+        gotoRight       = gotoRear;
+        gotoLeft        = gotoFront;
+        getOffsetRear   = getOffsetRight;
+        adjustX         = adjustXToRight;
+        $container.addClass('rtl');
       }
 
       // set up a positioning container if needed
@@ -551,7 +550,7 @@ if (typeof Slick === "undefined") {
           }
 
           var reorderedIds = $headers.sortable("toArray");
-          if (options.rtl) {
+          if (rtl) {
             reorderedIds.reverse();
           }
           var reorderedColumns = [];
