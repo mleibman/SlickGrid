@@ -469,6 +469,12 @@ if (typeof Slick === "undefined") {
         }
       }
 
+      if (options.showHeaderRow) {
+        // add a spacer to let the container scroll beyond the header row columns width
+        $("<div style='display:block;height:1px;width:10000px;position:absolute;top:0;left:0;'></div>")
+            .appendTo($headerRowScroller);
+      }
+
       setSortColumns(sortColumns);
       setupColumnResize();
       if (options.enableColumnReorder) {
@@ -1315,7 +1321,7 @@ if (typeof Slick === "undefined") {
 
     function getViewportHeight() {
       return parseFloat($.css($container[0], "height", true)) -
-          parseFloat($.css($headers[0], "height")) - getVBoxDelta($headers) -
+          parseFloat($.css($headerScroller[0], "height")) - getVBoxDelta($headerScroller) -
           (options.showTopPanel ? options.topPanelHeight + getVBoxDelta($topPanelScroller) : 0) -
           (options.showHeaderRow ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0);
     }
