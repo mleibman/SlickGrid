@@ -64,7 +64,7 @@
 		<script src="../lib/jquery-1.4.3.min.js"></script>
 		<script src="../lib/jquery-ui-1.8.5.custom.min.js"></script>
 		<script src="../lib/jquery.event.drag-2.0.min.js"></script>
-		<script src="../lib/jquery.jsonp-1.1.0.min.js"></script>
+		<script src="../lib/jquery.jsonp-2.1.4.min.js"></script>
 
 		<script src="../slick.core.js"></script>
 		<script src="../slick.remotemodel.js"></script>
@@ -73,16 +73,17 @@
 		<script>
 		var grid;
 		var data = [];
-		var loader = new Slick.Data.RemoteModel();
-		var search_query = 'apple';
-		loader.setUrlBuilder(function(fromPage, toPage, PAGESIZE) {
+		var loader = new Slick.Data.RemoteModel({
+			url: function(fromPage, toPage, PAGESIZE) {
 			return "http://services.digg.com/search/stories?"
 				+"query="   + search_query
 				+"&offset=" + (fromPage * PAGESIZE)
 				+"&count="  + (((toPage - fromPage) * PAGESIZE) + PAGESIZE)
 				+"&appkey=http://slickgrid.googlecode.com&type=javascript";
+			},
+			response_item: 'stories',
 		});
-		loader.setResponseItemListName('stories');
+		var search_query = 'apple';
 
 		var storyTitleFormatter = function(row, cell, value, columnDef, dataContext) {
 		    return "<b><a href='" + dataContext["link"] + "' target=_blank>" + dataContext["title"] + "</a></b><br/>" + dataContext["description"];
@@ -116,16 +117,17 @@
             });
 
 			grid.onSort.subscribe(function(e,args) {
-				if(e.sortCol.field == 'diggs') {
-					loader.setUrlBuilder(function(fromPage, toPage, PAGESIZE) {
-						return "http://services.digg.com/search/stories?"
-							+"query="   + search_query
-							+"&offset=" + (fromPage * PAGESIZE)
-							+"&count="  + (((toPage - fromPage) * PAGESIZE) + PAGESIZE)
-							+"&sort="   + (args.sortAsc ? "digg_count-asc" : "digg_count-desc")
-							+"&appkey=http://slickgrid.googlecode.com"
-							+"&type=javascript";
-					}).clear();
+				if(args.sortCol.field == 'diggs') {
+					loader.setOptions({
+						url: function(fromPage, toPage, PAGESIZE) {
+							return "http://services.digg.com/search/stories?"
+								+"query="   + search_query
+								+"&offset=" + (fromPage * PAGESIZE)
+								+"&count="  + (((toPage - fromPage) * PAGESIZE) + PAGESIZE)
+								+"&sort="   + (args.sortAsc ? "digg_count-asc" : "digg_count-desc")
+								+"&appkey=http://slickgrid.googlecode.com"
+								+"&type=javascript";
+					}}).clear();
                 	var vp = grid.getViewport();
                 	loader.ensureData(vp.top, vp.bottom);
 				}
@@ -160,13 +162,14 @@
 			$("#txtSearch").keyup(function(e) {
 				var search_query = $(this).val();
                 if (e.which == 13) {
-					loader.setUrlBuilder(function(fromPage, toPage, PAGESIZE, sortcol, sortdir) {
-						return "http://services.digg.com/search/stories?"
-							+"query="   + search_query
-							+"&offset=" + (fromPage * PAGESIZE)
-							+"&count="  + (((toPage - fromPage) * PAGESIZE) + PAGESIZE)
-							+"&appkey=http://slickgrid.googlecode.com&type=javascript";
-					}).clear();
+					loader.setOptions({
+						url: function(fromPage, toPage, PAGESIZE, sortcol, sortdir) {
+							return "http://services.digg.com/search/stories?"
+								+"query="   + search_query
+								+"&offset=" + (fromPage * PAGESIZE)
+								+"&count="  + (((toPage - fromPage) * PAGESIZE) + PAGESIZE)
+								+"&appkey=http://slickgrid.googlecode.com&type=javascript";
+					}}).clear();
                     var vp = grid.getViewport();
                     loader.ensureData(vp.top, vp.bottom);
                 }
