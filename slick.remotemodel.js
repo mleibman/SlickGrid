@@ -37,6 +37,7 @@
 				delete data[key];
 			}
 			data.length = 0;
+			return this;
 		}
 
 		function ensureData(from, to) {
