@@ -229,7 +229,7 @@ if (typeof Slick === "undefined") {
 
       $headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
       $headers = $("<div class='slick-header-columns' style='width:10000px; ' />")
-      $headers.css(rear, '-1000px');
+      $headers.css(rear, (-1000 - getRearOffset()) + 'px');
       $headers.appendTo($headerScroller);
 
       $headerRowScroller = $("<div class='slick-headerrow ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
@@ -347,6 +347,21 @@ if (typeof Slick === "undefined") {
     function getCanvasNode() {
       return $canvas[0];
     }
+
+    function getRearOffset() {
+      var $outer = $("<div style='position:absolute; top:-1000px; left:-1000px; width:100px; height:100px; overflow:hidden;'></div>").appendTo("body");
+      var $inner = $("<div style='width:10px;'></div>").appendTo($outer);
+      var offsetWithoutBar = $inner.offset().left;
+
+      $outer.css('overflow','scroll');
+
+      var offsetWithBar = $inner.offset().left;
+
+      $outer.remove();
+
+      return offsetWithBar - offsetWithoutBar;
+    }
+
 
     function measureScrollbar() {
       var $c = $("<div style='position:absolute; top:-10000px; left:-10000px; width:100px; height:100px; overflow:scroll;'></div>").appendTo("body");
