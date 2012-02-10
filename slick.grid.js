@@ -501,7 +501,7 @@ if (typeof Slick === "undefined") {
 
           var sortOpts = null;
           for (var i = 0; i < sortColumns.length; i++) {
-            if (sortColumns[i].id == column.id) {
+            if (sortColumns[i].columnId == column.id) {
               sortOpts = sortColumns[i];
               sortOpts.sortAsc = !sortOpts.sortAsc;
               break;
@@ -513,7 +513,7 @@ if (typeof Slick === "undefined") {
           }
 
           if (!sortOpts) {
-            sortOpts = { id: column.id, sortAsc: true };
+            sortOpts = { columnId: column.id, sortAsc: true };
             sortColumns.push(sortOpts);
           } else if (sortColumns.length == 0) {
             sortColumns.push(sortOpts);
@@ -530,7 +530,7 @@ if (typeof Slick === "undefined") {
             trigger(self.onSort, {
               multiColumnSort: true,
               sortCols: $.map(sortColumns, function(col) {
-                return {sortCol: columns[getColumnIndex(col.id)], sortAsc: col.sortAsc };
+                return {sortCol: columns[getColumnIndex(col.columnId)], sortAsc: col.sortAsc };
               })}, e);
           }
         }
@@ -974,7 +974,7 @@ if (typeof Slick === "undefined") {
     }
 
     function setSortColumn(columnId, ascending) {
-      setSortColumns({ columnId: columnId, sortAsc: ascending});
+      setSortColumns([{ columnId: columnId, sortAsc: ascending}]);
     }
 
     function setSortColumns(cols) {
@@ -990,7 +990,7 @@ if (typeof Slick === "undefined") {
         if (col.sortAsc == null) {
           col.sortAsc = true;
         }
-        var columnIndex = getColumnIndex(col.id);
+        var columnIndex = getColumnIndex(col.columnId);
         if (columnIndex != null) {
           headerColumnEls.eq(columnIndex)
               .addClass("slick-header-column-sorted")
