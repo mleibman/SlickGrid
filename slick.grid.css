@@ -27,7 +27,7 @@ classes should alter those!
   height: 16px;
   line-height: 16px;
   margin: 0;
-  padding: 4px;
+  padding: 2px;
   border-right: 1px solid silver;
   border-left: 0px;
   border-top: 0px;
@@ -36,7 +36,7 @@ classes should alter those!
 }
 
 .slick-headerrow-column.ui-state-default {
-  padding: 4px;
+  padding: 2px 2px 4px 2px;
 }
 
 .slick-header-column-sorted {
@@ -92,7 +92,7 @@ classes should alter those!
   border-bottom-color: silver;
 
   overflow: hidden;
-  text-overflow: ellipsis;
+  /*text-overflow: ellipsis;*/
   white-space: nowrap;
   vertical-align: middle;
   z-index: 1;
