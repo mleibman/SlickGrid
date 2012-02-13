@@ -1,6 +1,10 @@
 (function ($) {
   function SlickColumnPicker(columns, grid, options) {
     var $menu;
+    
+    var uid = "columnpicker_" + Math.round(1000000 * Math.random());
+    var autoresizeId = uid + "_autoresize";
+    var syncresizeId = uid + "_syncresize";
 
     var defaults = {
       fadeSpeed:250
@@ -28,7 +32,7 @@
         $li = $("<li />").appendTo($menu);
 
         $input = $("<input type='checkbox' />")
-            .attr("id", "columnpicker_" + i)
+            .attr("id", uid + i)
             .data("id", columns[i].id)
             .appendTo($li);
 
@@ -36,22 +40,22 @@
           $input.attr("checked", "checked");
         }
 
-        $("<label for='columnpicker_" + i + "' />")
+        $("<label for='" + uid + i + "' />")
             .text(columns[i].name)
             .appendTo($li);
       }
 
       $("<hr/>").appendTo($menu);
       $li = $("<li />").appendTo($menu);
-      $input = $("<input type='checkbox' id='autoresize' />").appendTo($li);
-      $("<label for='autoresize'>Force Fit Columns</label>").appendTo($li);
+      $input = $("<input type='checkbox' id='" + autoresizeId + "' />").appendTo($li);
+      $("<label for='" + autoresizeId + "'>Force Fit Columns</label>").appendTo($li);
       if (grid.getOptions().forceFitColumns) {
         $input.attr("checked", "checked");
       }
 
       $li = $("<li />").appendTo($menu);
-      $input = $("<input type='checkbox' id='syncresize' />").appendTo($li);
-      $("<label for='syncresize'>Synchronous Resizing</label>").appendTo($li);
+      $input = $("<input type='checkbox' id='" + syncresizeId + "' />").appendTo($li);
+      $("<label for='" + syncresizeId + "'>Synchronous Resizing</label>").appendTo($li);
       if (grid.getOptions().syncColumnCellResize) {
         $input.attr("checked", "checked");
       }
