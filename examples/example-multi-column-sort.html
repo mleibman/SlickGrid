@@ -31,12 +31,12 @@
 <script>
   var grid;
   var columns = [
-    { id: "title", name: "Title", field: "title", sortable: true },
-    { id: "duration", name: "Duration", field: "duration", sortable: true, formatter: dayFormatter },
-    { id: "%", name: "% Complete", field: "percentComplete", sortable: true },
-    { id: "start", name: "Start", field: "start", formatter: dateFormatter, sortable: true },
-    { id: "finish", name: "Finish", field: "finish", formatter: dateFormatter, sortable: true },
-    { id: "effort-driven", name: "Effort Driven", field: "effortDriven", sortable: true }
+    { id: "title", name: "Title", field: "title", sortable: true, sorter: sorterStringCompare },
+    { id: "duration", name: "Duration", field: "duration", sortable: true, sorter: sorterStringCompare, formatter: dayFormatter },
+    { id: "%", name: "% Complete", field: "percentComplete", sortable: true, sorter: sorterNumeric },
+    { id: "start", name: "Start", field: "start", formatter: dateFormatter, sortable: true, sorter: sorterStringCompare },
+    { id: "finish", name: "Finish", field: "finish", formatter: dateFormatter, sortable: true, sorter: sorterStringCompare },
+    { id: "effort-driven", name: "Effort Driven", field: "effortDriven", sortable: true, sorter: sorterStringCompare }
   ];
 
   function dayFormatter(row, cell, value, columnDef, dataContext) {
@@ -46,6 +46,15 @@
   function dateFormatter(row, cell, value, columnDef, dataContext) {
       return value.getMonth() + '/' + value.getDate() + '/' + value.getFullYear();
   }
+  
+  function sorterStringCompare(a,b) {
+  	var x = a[sortcol], y = b[sortcol];
+		return sortdir * (x == y ? 0 : (x > y ? 1 : -1));
+	}
+	
+	function sorterNumeric(a, b) {
+		return sortdir *  (a[sortcol]-b[sortcol]);
+	}
 
   var options = {
     enableCellNavigation: true,
@@ -76,13 +85,13 @@
 
       data.sort(function (dataRow1, dataRow2) {
         for (var i = 0, l = cols.length; i < l; i++) {
-          var field = cols[i].sortCol.field;
-          var sign = cols[i].sortAsc ? 1 : -1;
-          var value1 = dataRow1[field], value2 = dataRow2[field];
-          var result = (value1 == value2 ? 0 : (value1 > value2 ? 1 : -1)) * sign;
-          if (result != 0) {
-            return result;
-          }
+          sortcol = cols[i].sortCol.field;
+  				sortdir = cols[i].sortAsc ? 1 : -1;
+					var value1 = dataRow1[sortcol], value2 = dataRow2[sortcol];
+					var result = args.sortCols[i].sortCol.sorter(dataRow1, dataRow2);                        
+					if (result != 0) {
+						return result;
+					}
         }
         return 0;
       });
