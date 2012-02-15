@@ -199,8 +199,10 @@
 
     function setFilter(filterFn) {
       filter = filterFn;
-      compiledFilter = compileFilter();
-      compiledFilterWithCaching = compileFilterWithCaching();
+      if (options.inlineFilters) {
+        compiledFilter = compileFilter();
+        compiledFilterWithCaching = compileFilterWithCaching();
+      }
       refresh();
     }
 
