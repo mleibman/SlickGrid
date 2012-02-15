@@ -83,7 +83,8 @@ if (typeof Slick === "undefined") {
       enableTextSelectionOnCells: false,
       dataItemColumnValueExtractor: null,
       fullWidthRows: false,
-      multiColumnSort: false
+      multiColumnSort: false,
+      defaultFormatter: defaultFormatter
     };
 
     var columnDefaults = {
@@ -1156,7 +1157,7 @@ if (typeof Slick === "undefined") {
           (rowMetadata && rowMetadata.formatter) ||
           column.formatter ||
           (options.formatterFactory && options.formatterFactory.getFormatter(column)) ||
-          defaultFormatter;
+          options.defaultFormatter;
     }
 
     function getEditor(row, cell) {
