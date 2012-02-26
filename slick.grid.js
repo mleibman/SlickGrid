@@ -1273,7 +1273,7 @@ if (typeof Slick === "undefined") {
       }
       scrollDir = 0;
       for (i = 0, rl = rows.length; i < rl; i++) {
-        if (currentEditor && activeRow === i) {
+        if (currentEditor && activeRow === rows[i]) {
           makeActiveCellNormal();
         }
         if (rowsCache[rows[i]]) {
