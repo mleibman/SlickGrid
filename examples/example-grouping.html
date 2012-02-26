@@ -37,9 +37,6 @@
       <div style="padding:2px;">
         <div style="width:100px;display:inline-block;" id="pcSlider"></div>
       </div>
-      <br/>
-      <label style="width:200px;float:left">And title including:</label>
-      <input type=text id="txtSearch" style="width:100px;">
       <br/><br/>
       <hr/>
       <button onclick="clearGrouping()">Clear grouping</button>
@@ -111,15 +108,13 @@ var sortcol = "title";
 var sortdir = 1;
 var percentCompleteThreshold = 0;
 var prevPercentCompleteThreshold = 0;
-var searchString = "";
 
 function avgTotalsFormatter(totals, columnDef) {
   return "avg: " + Math.round(totals.avg[columnDef.field]) + "%";
 }
 
 function myFilter(item, args) {
-  return item["percentComplete"] >= args.percentComplete &&
-      (args.searchString == "" || item["title"].indexOf(args.searchString) == -1);
+  return item["percentComplete"] >= args.percentComplete;
 }
 
 function percentCompleteSort(a, b) {
@@ -293,28 +288,13 @@ $(function () {
   });
 
 
-  // wire up the search textbox to apply the filter to the model
-  $("#txtSearch,#txtSearch2").keyup(function (e) {
-    Slick.GlobalEditorLock.cancelCurrentEdit();
-
-    // clear on Esc
-    if (e.which == 27) {
-      this.value = "";
-    }
-
-    searchString = this.value;
-    dataView.refresh();
-  });
-
-
   function filterAndUpdate() {
     var isNarrowing = percentCompleteThreshold > prevPercentCompleteThreshold;
     var isExpanding = percentCompleteThreshold < prevPercentCompleteThreshold;
     var renderedRange = grid.getRenderedRange();
 
     dataView.setFilterArgs({
-      percentComplete: percentCompleteThreshold,
-      searchString: searchString
+      percentComplete: percentCompleteThreshold
     });
     dataView.setRefreshHints({
       ignoreDiffsBefore: renderedRange.top,
@@ -332,8 +312,7 @@ $(function () {
   dataView.setItems(data);
   dataView.setFilter(myFilter);
   dataView.setFilterArgs({
-    percentComplete: percentCompleteThreshold,
-    searchString: searchString
+    percentComplete: percentCompleteThreshold
   });
   dataView.groupBy(
       "duration",
