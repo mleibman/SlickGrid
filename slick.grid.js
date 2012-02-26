@@ -501,7 +501,8 @@ if (typeof Slick === "undefined") {
           }
 
           var sortOpts = null;
-          for (var i = 0; i < sortColumns.length; i++) {
+          var i = 0;
+          for (; i < sortColumns.length; i++) {
             if (sortColumns[i].columnId == column.id) {
               sortOpts = sortColumns[i];
               sortOpts.sortAsc = !sortOpts.sortAsc;
@@ -509,15 +510,22 @@ if (typeof Slick === "undefined") {
             }
           }
 
-          if ((!e.shiftKey && !e.metaKey) || !options.multiColumnSort) {
-            sortColumns = [];
+          if (e.ctrlKey && options.multiColumnSort) {
+            if (sortOpts) {
+              sortColumns.splice(i, 1);
+            }
           }
+          else {
+            if ((!e.shiftKey && !e.metaKey) || !options.multiColumnSort) {
+              sortColumns = [];
+            }
 
-          if (!sortOpts) {
-            sortOpts = { columnId: column.id, sortAsc: true };
-            sortColumns.push(sortOpts);
-          } else if (sortColumns.length == 0) {
-            sortColumns.push(sortOpts);
+            if (!sortOpts) {
+              sortOpts = { columnId: column.id, sortAsc: true };
+              sortColumns.push(sortOpts);
+            } else if (sortColumns.length == 0) {
+              sortColumns.push(sortOpts);
+            }
           }
 
           setSortColumns(sortColumns);
@@ -999,6 +1007,10 @@ if (typeof Slick === "undefined") {
                   .addClass(col.sortAsc ? "slick-sort-indicator-asc" : "slick-sort-indicator-desc");
         }
       });
+    }
+
+    function getSortColumns() {
+      return sortColumns;
     }
 
     function handleSelectedRangesChanged(e, ranges) {
@@ -2710,6 +2722,7 @@ if (typeof Slick === "undefined") {
       "updateColumnHeader": updateColumnHeader,
       "setSortColumn": setSortColumn,
       "setSortColumns": setSortColumns,
+      "getSortColumns": getSortColumns,
       "autosizeColumns": autosizeColumns,
       "getOptions": getOptions,
       "setOptions": setOptions,
