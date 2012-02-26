@@ -267,23 +267,23 @@ if (typeof Slick === "undefined") {
         bindAncestorScrollEvents();
 
         $container
-            .on("resize.slickgrid", resizeCanvas);
+            .bind("resize.slickgrid", resizeCanvas);
         $viewport
-            .on("scroll.slickgrid", handleScroll);
+            .bind("scroll.slickgrid", handleScroll);
         $headerScroller
-            .on("contextmenu.slickgrid", handleHeaderContextMenu)
-            .on("click.slickgrid", handleHeaderClick);
+            .bind("contextmenu.slickgrid", handleHeaderContextMenu)
+            .bind("click.slickgrid", handleHeaderClick);
         $canvas
-            .on("keydown.slickgrid", handleKeyDown)
-            .on("click.slickgrid", handleClick)
-            .on("dblclick.slickgrid", handleDblClick)
-            .on("contextmenu.slickgrid", handleContextMenu)
-            .on("draginit", handleDragInit)
-            .on("dragstart", handleDragStart)
-            .on("drag", handleDrag)
-            .on("dragend", handleDragEnd)
-            .on("mouseenter", ".slick-cell", handleMouseEnter)
-            .on("mouseleave", ".slick-cell", handleMouseLeave);
+            .bind("keydown.slickgrid", handleKeyDown)
+            .bind("click.slickgrid", handleClick)
+            .bind("dblclick.slickgrid", handleDblClick)
+            .bind("contextmenu.slickgrid", handleContextMenu)
+            .bind("draginit", handleDragInit)
+            .bind("dragstart", handleDragStart)
+            .bind("drag", handleDrag)
+            .bind("dragend", handleDragEnd)
+            .delegate(".slick-cell", "mouseenter", handleMouseEnter)
+            .delegate(".slick-cell", "mouseleave", handleMouseLeave);
       }
     }
 
