@@ -1881,8 +1881,8 @@ if (typeof Slick === "undefined") {
     }
 
     function getCellFromNode(node) {
-      // read column number from .l1 or .c1 CSS classes
-      var cls = /l\d+/.exec(node.className) || /c\d+/.exec(node.className);
+      // read column number from .l<columnNumber> CSS class
+      var cls = /l\d+/.exec(node.className);
       if (!cls) {
         throw "getCellFromNode: cannot get cell - " + node.className;
       }
