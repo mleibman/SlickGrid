@@ -54,7 +54,7 @@
       500'000 rows with real-time filtering.<br/>
       This is achieved by:
     <ul>
-      <li>Using a batch filtering function to cut down on the cost of function calls.</li>
+      <li>Inlining filter function to cut down on the cost of function calls.</li>
       <li>Providing hints to indicate whether a filtering operation will result in
         narrowing or expanding scope or whether the scope is unchanged.
       </li>
