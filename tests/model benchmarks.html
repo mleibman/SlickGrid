@@ -36,7 +36,7 @@
         d["duration"] =  Math.round(Math.random() * 14);
     }
 
-    var dv = new Slick.Data.DataView();
+    var dv = new Slick.Data.DataView({inlineFilters: true});
     dv.beginUpdate();
     dv.setItems(data);
     dv.setFilter(filter);
