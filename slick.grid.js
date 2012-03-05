@@ -1321,15 +1321,18 @@ if (typeof Slick === "undefined") {
         return;
       }
 
+      var columnIndex = 0
       $(rowsCache[row]).children().each(function (i) {
-        var m = columns[i], d = getDataItem(row);
+        var m = columns[columnIndex], d = getDataItem(row);
         if (row === activeRow && i === activeCell && currentEditor) {
           currentEditor.loadValue(getDataItem(activeRow));
         } else if (d) {
-          this.innerHTML = getFormatter(row, m)(row, i, getDataItemValueForColumn(d, m), m, getDataItem(row));
+          this.innerHTML = getFormatter(row, m)(row, columnIndex, getDataItemValueForColumn(d, m), m, getDataItem(row));
         } else {
           this.innerHTML = "";
         }
+
+        columnIndex += getColspan(row, i);
       });
 
       invalidatePostProcessingResults(row);
