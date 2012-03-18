@@ -235,56 +235,58 @@ if (typeof Slick === "undefined") {
       }
     }
 
-    function finishInitialization() {
-      if (!initialized) {
-        initialized = true;
+    function finishInitialization(){
+		if (!initialized) {
+			initialized = true;
+			
+			viewportW = parseFloat($.css($container[0], "width", true));
+			
+			// header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
+			// calculate the diff so we can set consistent sizes
+			measureCellPaddingAndBorder();
+			
+			// for usability reasons, all text selection in SlickGrid is disabled
+			// with the exception of input and textarea elements (selection must
+			// be enabled there so that editors work as expected); note that
+			// selection in grid cells (grid body) is already unavailable in
+			// all browsers except IE
+			disableSelection($headers); // disable all text selection in header (including input and textarea)
+			if (!options.enableTextSelectionOnCells) {
+				// disable text selection in grid cells except in input and textarea elements
+				// (this is IE-specific, because selectstart event will only fire in IE)
+				$viewport.bind("selectstart.ui", function(event){
+					return $(event.target).is("input,textarea");
+				});
+			}
+			
+			createColumnHeaders();
+			setupColumnSort();
+			createCssRules();
+		}
+	}
+	
+    function finishInitialization2() {
+      resizeCanvas();
+      bindAncestorScrollEvents();
 
-        viewportW = parseFloat($.css($container[0], "width", true));
-
-        // header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
-        // calculate the diff so we can set consistent sizes
-        measureCellPaddingAndBorder();
-
-        // for usability reasons, all text selection in SlickGrid is disabled
-        // with the exception of input and textarea elements (selection must
-        // be enabled there so that editors work as expected); note that
-        // selection in grid cells (grid body) is already unavailable in
-        // all browsers except IE
-        disableSelection($headers); // disable all text selection in header (including input and textarea)
-
-        if (!options.enableTextSelectionOnCells) {
-          // disable text selection in grid cells except in input and textarea elements
-          // (this is IE-specific, because selectstart event will only fire in IE)
-          $viewport.bind("selectstart.ui", function (event) {
-            return $(event.target).is("input,textarea");
-          });
-        }
-
-        createColumnHeaders();
-        setupColumnSort();
-        createCssRules();
-        resizeCanvas();
-        bindAncestorScrollEvents();
-
-        $container
-            .bind("resize.slickgrid", resizeCanvas);
-        $viewport
-            .bind("scroll.slickgrid", handleScroll);
-        $headerScroller
-            .bind("contextmenu.slickgrid", handleHeaderContextMenu)
-            .bind("click.slickgrid", handleHeaderClick);
-        $canvas
-            .bind("keydown.slickgrid", handleKeyDown)
-            .bind("click.slickgrid", handleClick)
-            .bind("dblclick.slickgrid", handleDblClick)
-            .bind("contextmenu.slickgrid", handleContextMenu)
-            .bind("draginit", handleDragInit)
-            .bind("dragstart", handleDragStart)
-            .bind("drag", handleDrag)
-            .bind("dragend", handleDragEnd)
-            .delegate(".slick-cell", "mouseenter", handleMouseEnter)
-            .delegate(".slick-cell", "mouseleave", handleMouseLeave);
-      }
+      $container
+          .bind("resize.slickgrid", resizeCanvas);
+      $viewport
+          .bind("scroll.slickgrid", handleScroll);
+      $headerScroller
+          .bind("contextmenu.slickgrid", handleHeaderContextMenu)
+          .bind("click.slickgrid", handleHeaderClick);
+      $canvas
+          .bind("keydown.slickgrid", handleKeyDown)
+          .bind("click.slickgrid", handleClick)
+          .bind("dblclick.slickgrid", handleDblClick)
+          .bind("contextmenu.slickgrid", handleContextMenu)
+          .bind("draginit", handleDragInit)
+          .bind("dragstart", handleDragStart)
+          .bind("drag", handleDrag)
+          .bind("dragend", handleDragEnd)
+          .delegate(".slick-cell", "mouseenter", handleMouseEnter)
+          .delegate(".slick-cell", "mouseleave", handleMouseLeave);
     }
 
     function registerPlugin(plugin) {
@@ -791,9 +793,37 @@ if (typeof Slick === "undefined") {
       absoluteColumnMinWidth = Math.max(headerColumnWidthDiff, cellWidthDiff);
     }
 
+    function cacheStylesheet() {
+      var sheets = document.styleSheets;
+      for (var i = 0; i < sheets.length; i++) {
+        if ((sheets[i].ownerNode || sheets[i].owningElement) == $style[0]) {
+          stylesheet = sheets[i];
+
+		      // find and cache column CSS rules
+		      columnCssRulesL = [], columnCssRulesR = [];
+		      var cssRules = (stylesheet.cssRules || stylesheet.rules);
+		      var matches, columnIdx;
+		      for (var i = 0; i < cssRules.length; i++) {
+		        if (matches = /\.l\d+/.exec(cssRules[i].selectorText)) {
+		          columnIdx = parseInt(matches[0].substr(2, matches[0].length - 2), 10);
+		          columnCssRulesL[columnIdx] = cssRules[i];
+		        } else if (matches = /\.r\d+/.exec(cssRules[i].selectorText)) {
+		          columnIdx = parseInt(matches[0].substr(2, matches[0].length - 2), 10);
+		          columnCssRulesR[columnIdx] = cssRules[i];
+		        }
+		      }
+             finishInitialization2();
+ 			 return true;
+        }
+      }
+      
+      window.setTimeout( cacheStylesheet, 50 );
+	}
+
     function createCssRules() {
       $style = $("<style type='text/css' rel='stylesheet' />").appendTo($("head"));
-      var rowHeight = (options.rowHeight - cellHeightDiff);
+      
+			var rowHeight = (options.rowHeight - cellHeightDiff);
       var rules = [
         "." + uid + " .slick-header-column { left: 1000px; }",
         "." + uid + " .slick-top-panel { height:" + options.topPanelHeight + "px; }",
@@ -812,28 +842,8 @@ if (typeof Slick === "undefined") {
       } else {
         $style[0].appendChild(document.createTextNode(rules.join(" ")));
       }
-
-      var sheets = document.styleSheets;
-      for (var i = 0; i < sheets.length; i++) {
-        if ((sheets[i].ownerNode || sheets[i].owningElement) == $style[0]) {
-          stylesheet = sheets[i];
-          break;
-        }
-      }
-
-      // find and cache column CSS rules
-      columnCssRulesL = [], columnCssRulesR = [];
-      var cssRules = (stylesheet.cssRules || stylesheet.rules);
-      var matches, columnIdx;
-      for (var i = 0; i < cssRules.length; i++) {
-        if (matches = /\.l\d+/.exec(cssRules[i].selectorText)) {
-          columnIdx = parseInt(matches[0].substr(2, matches[0].length - 2), 10);
-          columnCssRulesL[columnIdx] = cssRules[i];
-        } else if (matches = /\.r\d+/.exec(cssRules[i].selectorText)) {
-          columnIdx = parseInt(matches[0].substr(2, matches[0].length - 2), 10);
-          columnCssRulesR[columnIdx] = cssRules[i];
-        }
-      }
+      
+			cacheStylesheet();
     }
 
     function removeCssRules() {
