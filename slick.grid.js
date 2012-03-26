@@ -733,6 +733,7 @@ if (typeof Slick === "undefined") {
               applyColumnHeaderWidths();
               if (options.syncColumnCellResize) {
                 applyColumnWidths();
+                handleScroll();
               }
             })
             .bind("dragend", function (e, dd) {
@@ -748,6 +749,7 @@ if (typeof Slick === "undefined") {
               }
               updateCanvasWidth(true);
               render();
+              handleScroll();
               trigger(self.onColumnsResized, {});
             });
       });
