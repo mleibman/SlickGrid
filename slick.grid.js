@@ -1510,14 +1510,15 @@ if (typeof Slick === "undefined") {
 
     function handleScroll() {
       scrollTop = $viewport[0].scrollTop;
-            var scrollRear = $viewport[0][propScrollRear];
+      var scrollRear = $viewport[0][propScrollRear];
       var scrollDist = Math.abs(scrollTop - prevScrollTop);
 
-            if (scrollRear !== prevScrollRear) {
-                prevScrollRear = scrollRear;
-                $headerScroller[0][propScrollRear] = scrollRear;
-                $topPanelScroller[0][propScrollRear] = scrollRear;
-                $headerRowScroller[0][propScrollRear] = scrollRear;
+      if (scrollRear !== prevScrollRear) {
+        var diff = scrollRear - prevScrollRear;
+        prevScrollRear = scrollRear;
+        $headerScroller[0][propScrollRear] = $headerScroller[0][propScrollRear] + diff;
+        $topPanelScroller[0][propScrollRear] = $topPanelScroller[0][propScrollRear] + diff;
+        $headerRowScroller[0][propScrollRear] = $headerRowScroller[0][propScrollRear] + diff;
       }
 
       if (scrollDist) {
