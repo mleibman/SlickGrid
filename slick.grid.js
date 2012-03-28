@@ -120,7 +120,7 @@ if (typeof Slick === "undefined") {
     var $viewport;
     var $canvas;
     var $style;
-    var stylesheet, columnCssRulesL = [], columnCssRulesR = [];
+    var stylesheet, columnCssRulesL, columnCssRulesR;
     var viewportH, viewportW;
     var canvasWidth;
     var viewportHasHScroll, viewportHasVScroll;
@@ -812,28 +812,43 @@ if (typeof Slick === "undefined") {
       } else {
         $style[0].appendChild(document.createTextNode(rules.join(" ")));
       }
+    }
 
-      var sheets = document.styleSheets;
-      for (var i = 0; i < sheets.length; i++) {
-        if ((sheets[i].ownerNode || sheets[i].owningElement) == $style[0]) {
-          stylesheet = sheets[i];
-          break;
+    function getColumnCssRules(idx) {
+      if (!stylesheet) {
+        var sheets = document.styleSheets;
+        for (var i = 0; i < sheets.length; i++) {
+          if ((sheets[i].ownerNode || sheets[i].owningElement) == $style[0]) {
+            stylesheet = sheets[i];
+            break;
+          }
+        }
+
+        if (!stylesheet) {
+          throw new Error("Cannot find stylesheet.");
+        }
+
+        // find and cache column CSS rules
+        columnCssRulesL = [];
+        columnCssRulesR = [];
+        var cssRules = (stylesheet.cssRules || stylesheet.rules);
+        var matches, columnIdx;
+        for (var i = 0; i < cssRules.length; i++) {
+          var selector = cssRules[i].selectorText;
+          if (matches = /\.l\d+/.exec(selector)) {
+            columnIdx = parseInt(matches[0].substr(2, matches[0].length - 2), 10);
+            columnCssRulesL[columnIdx] = cssRules[i];
+          } else if (matches = /\.r\d+/.exec(selector)) {
+            columnIdx = parseInt(matches[0].substr(2, matches[0].length - 2), 10);
+            columnCssRulesR[columnIdx] = cssRules[i];
+          }
         }
       }
 
-      // find and cache column CSS rules
-      columnCssRulesL = [], columnCssRulesR = [];
-      var cssRules = (stylesheet.cssRules || stylesheet.rules);
-      var matches, columnIdx;
-      for (var i = 0; i < cssRules.length; i++) {
-        if (matches = /\.l\d+/.exec(cssRules[i].selectorText)) {
-          columnIdx = parseInt(matches[0].substr(2, matches[0].length - 2), 10);
-          columnCssRulesL[columnIdx] = cssRules[i];
-        } else if (matches = /\.r\d+/.exec(cssRules[i].selectorText)) {
-          columnIdx = parseInt(matches[0].substr(2, matches[0].length - 2), 10);
-          columnCssRulesR[columnIdx] = cssRules[i];
-        }
-      }
+      return {
+        "left": columnCssRulesL[idx],
+        "right": columnCssRulesR[idx]
+      };
     }
 
     function removeCssRules() {
@@ -975,11 +990,9 @@ if (typeof Slick === "undefined") {
       for (var i = 0; i < columns.length; i++) {
         w = columns[i].width;
 
-        rule = columnCssRulesL[i];
-        rule.style.left = x + "px";
-
-        rule = columnCssRulesR[i];
-        rule.style.right = (canvasWidth - x - w) + "px";
+        rule = getColumnCssRules(i);
+        rule.left.style.left = x + "px";
+        rule.right.style.right = (canvasWidth - x - w) + "px";
 
         x += columns[i].width;
       }
