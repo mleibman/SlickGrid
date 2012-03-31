@@ -853,6 +853,7 @@ if (typeof Slick === "undefined") {
 
     function removeCssRules() {
       $style.remove();
+      stylesheet = null;
     }
 
     function destroy() {
