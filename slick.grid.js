@@ -210,7 +210,7 @@ if (typeof Slick === "undefined") {
 
       $headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
       $headers = $("<div class='slick-header-columns' style='left:-1000px' />").appendTo($headerScroller);
-      $headers.width(columns.length * columnDefaults.width + 1000);
+      $headers.width(getHeadersWidth());
 
       $headerRowScroller = $("<div class='slick-headerrow ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
       $headerRow = $("<div class='slick-headerrow-columns' />").appendTo($headerRowScroller);
@@ -338,6 +338,17 @@ if (typeof Slick === "undefined") {
       return dim;
     }
 
+    function getHeadersWidth() {
+      var headersWidth = 0;
+
+      for (var i = 0, length = columns.length; i < length; i++) {
+        var width = columns[i].width || columnDefaults.width;
+        headersWidth += width;
+      }
+
+      return headersWidth + 1000;
+    }
+
     function getCanvasWidth() {
       var availableWidth = viewportHasVScroll ? viewportW - scrollbarDimensions.width : viewportW;
       var rowWidth = 0;
@@ -442,6 +453,7 @@ if (typeof Slick === "undefined") {
       }
 
       $headers.empty();
+      $headers.width(getHeadersWidth());
       $headerRow.empty();
       columnsById = {};
 
