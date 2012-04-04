@@ -346,7 +346,7 @@ if (typeof Slick === "undefined") {
         headersWidth += width;
       }
 
-      return headersWidth + 1000;
+      return headersWidth + scrollbarDimensions.width + 1000;
     }
 
     function getCanvasWidth() {
@@ -365,6 +365,7 @@ if (typeof Slick === "undefined") {
 
       if (canvasWidth != oldCanvasWidth) {
         $canvas.width(canvasWidth);
+        $headers.width(getHeadersWidth());
         $headerRow.width(canvasWidth);
         viewportHasHScroll = (canvasWidth > viewportW - scrollbarDimensions.width);
       }
