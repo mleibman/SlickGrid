@@ -159,12 +159,14 @@
 
     this.init = function () {
       $input = $("<INPUT type=text class='editor-text' />");
+      date_format = args.column.editorDateFormat || 'dd/mm/yy'; 
       $input.appendTo(args.container);
       $input.focus().select();
       $input.datepicker({
         showOn: "button",
         buttonImageOnly: true,
         buttonImage: "../images/calendar.gif",
+        dateFormat: date_format,
         beforeShow: function () {
           calendarOpen = true
         },
