@@ -1865,7 +1865,9 @@ if (typeof Slick === "undefined") {
     function handleHeaderClick(e) {
       var $header = $(e.target).closest(".slick-header-column", ".slick-header-columns");
       var column = $header && columns[self.getColumnIndex($header.data("fieldId"))];
-      trigger(self.onHeaderClick, {column: column}, e);
+      if (column) {
+        trigger(self.onHeaderClick, {column: column}, e);
+      }
     }
 
     function handleMouseEnter(e) {
