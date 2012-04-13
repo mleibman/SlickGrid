@@ -279,7 +279,7 @@ $(function () {
     $(dd.available).css("background", "beige");
   });
 
-
+  $.drop({mode: "mouse"});
   $("#dropzone")
       .bind("dropstart", function (e, dd) {
         $(this).css("background", "yellow");

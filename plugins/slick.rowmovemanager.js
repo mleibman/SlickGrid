@@ -68,8 +68,6 @@
           .appendTo(_canvas);
 
       dd.insertBefore = -1;
-
-      return $("<div></div>").appendTo(_canvas);
     }
 
     function handleDrag(e, dd) {
