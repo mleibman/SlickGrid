@@ -129,11 +129,11 @@
     function setPagingOptions(args) {
       if (args.pageSize != undefined) {
         pagesize = args.pageSize;
-        pagenum = Math.min(pagenum, Math.ceil(totalRows / pagesize));
+        pagenum = pagesize ? Math.min(pagenum, Math.max(0, Math.ceil(totalRows / pagesize) - 1)) : 0;
       }
 
       if (args.pageNum != undefined) {
-        pagenum = Math.min(args.pageNum, Math.ceil(totalRows / pagesize));
+        pagenum = Math.min(args.pageNum, Math.max(0, Math.ceil(totalRows / pagesize) - 1));
       }
 
       onPagingInfoChanged.notify(getPagingInfo(), null, self);
@@ -142,7 +142,8 @@
     }
 
     function getPagingInfo() {
-      return {pageSize: pagesize, pageNum: pagenum, totalRows: totalRows};
+      var totalPages = pagesize ? Math.max(1, Math.ceil(totalRows / pagesize)) : 1;
+      return {pageSize: pagesize, pageNum: pagenum, totalRows: totalRows, totalPages: totalPages};
     }
 
     function sort(comparer, ascending) {
@@ -676,7 +677,7 @@
       // if the current page is no longer valid, go to last page and recalc
       // we suffer a performance penalty here, but the main loop (recalc) remains highly optimized
       if (pagesize && totalRows < pagenum * pagesize) {
-        pagenum = Math.floor(totalRows / pagesize);
+        pagenum = Math.max(0, Math.ceil(totalRows / pagesize) - 1);
         diff = recalc(items, filter);
       }
 
