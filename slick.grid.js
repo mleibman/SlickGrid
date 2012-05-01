@@ -491,7 +491,7 @@ if (typeof Slick === "undefined") {
         // temporary workaround for a bug in jQuery 1.7.1 (http://bugs.jquery.com/ticket/11328)
         e.metaKey = e.metaKey || e.ctrlKey;
 
-        if ($(e.target).hasClass("slick-resizable-handle")) {
+        if ($(e.target).hasClass("slick-resizable-handle") || $(e.target).hasClass("noSort")) {
           return;
         }
 
