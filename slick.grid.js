@@ -465,10 +465,9 @@ if (typeof Slick === "undefined") {
 
         if (m.sortable) {
           header.append("<span class='slick-sort-indicator' />");
-        }
-
-        if (options.multiColumnSort) {
-          header.append("<span class='slick-sort-order' />");
+          if (options.multiColumnSort) {
+            header.append("<span class='slick-sort-order' />");
+          }
         }
 
         if (options.showHeaderRow) {
