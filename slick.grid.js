@@ -129,6 +129,7 @@ if (typeof Slick === "undefined") {
         cellWidthDiff = 0, cellHeightDiff = 0;
     var absoluteColumnMinWidth;
     var numberOfRows = 0;
+    var disabled = false;
 
     var activePosX;
     var activeRow, activeCell;
@@ -470,6 +471,10 @@ if (typeof Slick === "undefined") {
         if (options.showHeaderRow) {
           $("<div class='ui-state-default slick-headerrow-column l" + i + " r" + i + "'></div>")
               .appendTo($headerRow);
+        }
+
+        if (disabled) {
+            header.addClass("ui-state-disabled");
         }
       }
 
@@ -1146,6 +1151,16 @@ if (typeof Slick === "undefined") {
       $headerRowScroller.slideUp("fast", resizeCanvas);
     }
 
+    function setDisabled(newVal) {
+        disabled = newVal;
+        invalidate();
+        createColumnHeaders();
+    }
+
+    function getDisabled() {
+        return disabled;
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Rendering / Scrolling
 
@@ -1238,6 +1253,10 @@ if (typeof Slick === "undefined") {
         cellCss = "slick-cell l" + i + " r" + Math.min(columns.length - 1, i + colspan - 1) + (m.cssClass ? " " + m.cssClass : "");
         if (row === activeRow && i === activeCell) {
           cellCss += (" active");
+        }
+
+        if (disabled) {
+            cellCss += " ui-state-disabled";
         }
 
         // TODO:  merge them together in the setter
@@ -2025,6 +2044,11 @@ if (typeof Slick === "undefined") {
     }
 
     function isCellPotentiallyEditable(row, cell) {
+      // is the grid 'disabled'
+      if (disabled) {
+        return false;
+      }
+
       // is the data for this row loaded?
       if (row < getDataLength() && !getDataItem(row)) {
         return false;
@@ -2759,6 +2783,8 @@ if (typeof Slick === "undefined") {
       "setSelectionModel": setSelectionModel,
       "getSelectedRows": getSelectedRows,
       "setSelectedRows": setSelectedRows,
+      "setDisabled": setDisabled,
+      "getDisabled": getDisabled,
 
       "render": render,
       "invalidate": invalidate,
