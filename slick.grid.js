@@ -121,6 +121,7 @@ if (typeof Slick === "undefined") {
         var $container;
         var uid = "slickgrid_" + Math.round(1000000 * Math.random());
         var self = this;
+    var $focusSink;
         var $headerScroller;
         var $headers;
         var $headerRow, $headerRowScroller;
@@ -249,9 +250,11 @@ if (typeof Slick === "undefined") {
             if (!/relative|absolute|fixed/.test($container.css("position"))) {
                 $container.css("position", "relative");
             }
+            
+            $focusSink = $("<div tabIndex='0' hideFocus style='position:fixed;width:0;height:0;top:0;left:0;outline:0;'></div>").appendTo($container);
 
             // Containers used for scrolling frozen columns and rows
-            $paneTopL = $("<div class='slick-pane slick-pane-top slick-pane-left' tabIndex='0' />").appendTo($container);
+            $paneTopL = $("<div class='slick-pane slick-pane-top slick-pane-left' tabIndex='0' />").appendTo($container);      
             $paneTopR = $("<div class='slick-pane slick-pane-top slick-pane-right' tabIndex='0' />").appendTo($container);
             $paneBottomL = $("<div class='slick-pane slick-pane-bottom slick-pane-left' tabIndex='0' />").appendTo($container);
             $paneBottomR = $("<div class='slick-pane slick-pane-bottom slick-pane-right' tabIndex='0' />").appendTo($container);
@@ -374,6 +377,7 @@ if (typeof Slick === "undefined") {
                 }
 
                 $container.bind("resize.slickgrid", resizeCanvas);
+                $focusSink.bind("keydown.slickgrid", handleKeyDown);
                 $viewport.bind("scroll.slickgrid", handleScroll);
                 $headerScroller.bind("contextmenu.slickgrid", handleHeaderContextMenu).bind("click.slickgrid", handleHeaderClick);
                 $canvas.bind("keydown.slickgrid", handleKeyDown).bind("click.slickgrid", handleClick).bind("dblclick.slickgrid", handleDblClick).bind("contextmenu.slickgrid", handleContextMenu).bind("draginit", handleDragInit).bind("dragstart", handleDragStart).bind("drag", handleDrag).bind("dragend", handleDragEnd).delegate(".slick-cell", "mouseenter", handleMouseEnter).delegate(".slick-cell", "mouseleave", handleMouseLeave);
@@ -1337,8 +1341,9 @@ if (typeof Slick === "undefined") {
         }
 
         function setData(newData, scrollToTop) {
-            invalidateAllRows();
             data = newData;
+      invalidateAllRows();
+      updateRowCount();
             if (scrollToTop) {
                 scrollTo(0);
             }
@@ -2247,6 +2252,10 @@ if (typeof Slick === "undefined") {
         }
 
         function handleClick(e) {
+      if (!currentEditor) {
+        setFocus();
+      }
+
             var cell = getCellFromEvent(e);
             if (!cell || (currentEditor !== null && activeRow == cell.row && activeCell == cell.cell)) {
                 return;
@@ -2317,10 +2326,10 @@ if (typeof Slick === "undefined") {
         function handleHeaderClick(e) {
             var $header = $(e.target).closest(".slick-header-column", ".slick-header-columns");
             var column = $header && columns[self.getColumnIndex($header.data("fieldId"))];
-            trigger(self.onHeaderClick, {
-                column: column
-            }, e);
-        }
+      if (column) {
+        trigger(self.onHeaderClick, {column: column}, e);
+      }
+    }
 
         function handleMouseEnter(e) {
             trigger(self.onMouseEnter, {}, e);
@@ -2404,14 +2413,8 @@ if (typeof Slick === "undefined") {
         }
 
         function setFocus() {
-            // IE tries to scroll the viewport so that the item being focused is
+      $focusSink[0].focus();
             // aligned to the left border
-            // IE-specific .setActive() sets the focus, but doesn't scroll
-            if ($.browser.msie) {
-                $(activeCellNode).closest('.grid-canvas')[0].setActive();
-            } else {
-                $(activeCellNode).closest('.grid-canvas')[0].focus();
-            }
         }
 
         function scrollActiveCellIntoView() {
@@ -2933,6 +2936,7 @@ if (typeof Slick === "undefined") {
             if (!getEditorLock().commitCurrentEdit()) {
                 return;
             }
+      setFocus();
 
             var stepFunctions = {
                 "up": gotoUp,
@@ -3276,8 +3280,8 @@ if (typeof Slick === "undefined") {
             "updateRowCount": updateRowCount,
             "scrollRowIntoView": scrollRowIntoView,
             "getCanvasNode": getCanvasNode,
-            "getViewportNode":              getViewportNode,
-
+            "getViewportNode": getViewportNode,            
+            "focus": setFocus,
             "getCellFromPoint": getCellFromPoint,
             "getCellFromEvent": getCellFromEvent,
             "getActiveCell": getActiveCell,

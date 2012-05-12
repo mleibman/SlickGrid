@@ -272,7 +272,7 @@ $(function () {
   });
 
   dataView.onPagingInfoChanged.subscribe(function (e, pagingInfo) {
-    var isLastPage = pagingInfo.pageSize * (pagingInfo.pageNum + 1) - 1 >= pagingInfo.totalRows;
+    var isLastPage = pagingInfo.pageNum == pagingInfo.totalPages - 1;
     var enableAddRow = isLastPage || pagingInfo.pageSize == 0;
     var options = grid.getOptions();
 

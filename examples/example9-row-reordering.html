@@ -179,11 +179,13 @@ $(function () {
     left = data.slice(0, insertBefore);
     right = data.slice(insertBefore, data.length);
 
+    rows.sort(function(a,b) { return a-b; });
+
     for (var i = 0; i < rows.length; i++) {
       extractedRows.push(data[rows[i]]);
     }
 
-    rows.sort().reverse();
+    rows.reverse();
 
     for (var i = 0; i < rows.length; i++) {
       var row = rows[i];
@@ -279,7 +281,7 @@ $(function () {
     $(dd.available).css("background", "beige");
   });
 
-
+  $.drop({mode: "mouse"});
   $("#dropzone")
       .bind("dropstart", function (e, dd) {
         $(this).css("background", "yellow");
