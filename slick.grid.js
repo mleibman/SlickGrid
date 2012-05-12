@@ -1310,6 +1310,7 @@ if (typeof Slick === "undefined") {
                 createColumnHeaders();
                 removeCssRules();
                 createCssRules();
+                updateCanvasWidth();
                 resizeCanvas();
                 applyColumnWidths();
                 handleScroll();
@@ -1341,8 +1342,9 @@ if (typeof Slick === "undefined") {
 
         function setData(newData, scrollToTop) {
             data = newData;
-      invalidateAllRows();
-      updateRowCount();
+            invalidateAllRows();
+            updateRowCount();
+
             if (scrollToTop) {
                 scrollTo(0);
             }
@@ -1756,7 +1758,6 @@ if (typeof Slick === "undefined") {
                 }
             }
 
-            var oldH = h;
             th = Math.max(options.rowHeight * numberOfRows, viewportH - scrollbarDimensions.height);
             if (th < maxSupportedCssHeight) {
                 // just one page
