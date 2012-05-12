@@ -266,7 +266,8 @@
 			if (columns[i].id !== "selector") {
 				var header = grid.getHeaderRowColumn(columns[i].id);
 				$(header).empty();
-				$("<input type='text'>").data("columnId", columns[i].id).val(columnFilters[columns[i].id]).appendTo(header);
+				$("<input type='text'>")
+					.data("columnId", columns[i].id).val(columnFilters[columns[i].id]).appendTo(header);
 			}
 		}
 	}

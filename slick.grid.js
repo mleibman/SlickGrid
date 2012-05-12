@@ -121,7 +121,7 @@ if (typeof Slick === "undefined") {
         var $container;
         var uid = "slickgrid_" + Math.round(1000000 * Math.random());
         var self = this;
-    var $focusSink;
+        var $focusSink;
         var $headerScroller;
         var $headers;
         var $headerRow, $headerRowScroller;
@@ -250,11 +250,11 @@ if (typeof Slick === "undefined") {
             if (!/relative|absolute|fixed/.test($container.css("position"))) {
                 $container.css("position", "relative");
             }
-            
+
             $focusSink = $("<div tabIndex='0' hideFocus style='position:fixed;width:0;height:0;top:0;left:0;outline:0;'></div>").appendTo($container);
 
             // Containers used for scrolling frozen columns and rows
-            $paneTopL = $("<div class='slick-pane slick-pane-top slick-pane-left' tabIndex='0' />").appendTo($container);      
+            $paneTopL = $("<div class='slick-pane slick-pane-top slick-pane-left' tabIndex='0' />").appendTo($container);
             $paneTopR = $("<div class='slick-pane slick-pane-top slick-pane-right' tabIndex='0' />").appendTo($container);
             $paneBottomL = $("<div class='slick-pane slick-pane-bottom slick-pane-left' tabIndex='0' />").appendTo($container);
             $paneBottomR = $("<div class='slick-pane slick-pane-bottom slick-pane-right' tabIndex='0' />").appendTo($container);
@@ -423,7 +423,7 @@ if (typeof Slick === "undefined") {
         function getCanvasNode() {
             return $canvas[0];
         }
-        
+
         function getViewportNode() {
         	return $viewport[0];
         }
@@ -702,14 +702,13 @@ if (typeof Slick === "undefined") {
 
         function setupColumnReorder() {
             var columnScrollTimer = null;
-            var viewportLeft = $viewport.offset().left;
 
             function scrollColumnsRight() {
-                $viewport[0].scrollLeft = $viewport[0].scrollLeft + 10;
+                $viewportScrollContainer[0].scrollLeft = $viewportScrollContainer[0].scrollLeft + 10;
             }
 
             function scrollColumnsLeft() {
-                $viewport[0].scrollLeft = $viewport[0].scrollLeft - 10;
+                $viewportScrollContainer[0].scrollLeft = $viewportScrollContainer[0].scrollLeft - 10;
             }
 
             $headers.sortable({
@@ -727,12 +726,12 @@ if (typeof Slick === "undefined") {
                     $(ui.helper).removeClass("slick-header-column-active");
                 },
                 sort: function(e, ui) {
-                    if (e.originalEvent.pageX > $viewport[0].clientWidth) {
+                    if (e.originalEvent.pageX > $container[0].clientWidth) {
                         if (!(columnScrollTimer)) {
                             columnScrollTimer = setInterval(
                             scrollColumnsRight, 100);
                         }
-                    } else if (e.originalEvent.pageX < viewportLeft) {
+                    } else if (e.originalEvent.pageX < $viewportScrollContainer.offset().left) {
                         if (!(columnScrollTimer)) {
                             columnScrollTimer = setInterval(
                             scrollColumnsLeft, 100);
@@ -3280,7 +3279,7 @@ if (typeof Slick === "undefined") {
             "updateRowCount": updateRowCount,
             "scrollRowIntoView": scrollRowIntoView,
             "getCanvasNode": getCanvasNode,
-            "getViewportNode": getViewportNode,            
+            "getViewportNode": getViewportNode,
             "focus": setFocus,
             "getCellFromPoint": getCellFromPoint,
             "getCellFromEvent": getCellFromEvent,
