@@ -10,11 +10,19 @@
     var _grid;
     var _canvas;
     var _dragging;
+        var _scrollTimer;
+        var _viewport;
+        var _viewportTop;
+        var _viewportBottom;
     var _self = this;
 
     function init(grid) {
       _grid = grid;
       _canvas = _grid.getCanvasNode();
+            _scrollTimer = null;
+            _viewport = _grid.getViewportNode();
+            _viewportTop = $(_viewport).offset().top;
+            _viewportBottom = _viewportTop + _viewport.clientHeight;
       _grid.onDragInit.subscribe(handleDragInit);
       _grid.onDragStart.subscribe(handleDragStart);
       _grid.onDrag.subscribe(handleDrag);
@@ -98,9 +106,19 @@
         }
 
         dd.insertBefore = insertBefore;
-
-                // TODO: Implement in a timer
-                grid.scrollRowIntoView( insertBefore );
+            }
+            
+            if (e.pageY > _viewportBottom) {
+                if (!(_scrollTimer)) {
+                	_scrollTimer = setInterval(scrollDown, 100);
+                }
+            } else if (e.pageY < _viewportTop) {
+                if (!(_scrollTimer)) {
+                	_scrollTimer = setInterval(scrollUp, 100);
+                }
+            } else {
+                clearInterval(_scrollTimer);
+                _scrollTimer = null;
       }
     }
 
@@ -109,6 +127,11 @@
         return;
       }
       _dragging = false;
+            
+            if (_scrollTimer) {
+            	clearInterval(_scrollTimer);
+            }
+            
       e.stopImmediatePropagation();
 
       dd.guide.remove();
@@ -122,6 +145,26 @@
         // TODO:  _grid.remapCellCssClasses ?
         _self.onMoveRows.notify(eventData);
       }
+        }
+        
+        function scrollDown() {
+        	var visibleRange = _grid.getViewport();
+        	
+        	if (visibleRange.bottom == _grid.getDataLength()) {
+        		return;
+        	}
+        	
+        	_grid.scrollRowIntoView(visibleRange.bottom);
+        }
+
+        function scrollUp() {
+        	var visibleRange = _grid.getViewport();
+        	
+        	if (visibleRange.top == 0) {
+        		return;
+        	}
+        	
+        	_grid.scrollRowIntoView(visibleRange.top - 1);
     }
 
     $.extend(this, {

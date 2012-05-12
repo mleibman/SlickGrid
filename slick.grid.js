@@ -15,8 +15,6 @@
  * TODO: Fix column resizing with frozen columns (resizing the columns on either
  * side of the frozen column doesn't look right)
  *
- * TODO: Switch back to bind/unbind jquery events
- *
  */
 
 // make sure required JavaScript modules are loaded
@@ -420,6 +418,10 @@ if (typeof Slick === "undefined") {
 
         function getCanvasNode() {
             return $canvas[0];
+        }
+        
+        function getViewportNode() {
+        	return $viewport[0];
         }
 
         function measureScrollbar() {
@@ -3274,6 +3276,7 @@ if (typeof Slick === "undefined") {
             "updateRowCount": updateRowCount,
             "scrollRowIntoView": scrollRowIntoView,
             "getCanvasNode": getCanvasNode,
+            "getViewportNode":              getViewportNode,
 
             "getCellFromPoint": getCellFromPoint,
             "getCellFromEvent": getCellFromEvent,
