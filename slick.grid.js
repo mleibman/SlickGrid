@@ -581,7 +581,7 @@ if (typeof Slick === "undefined") {
             $headerL.empty();
             $headerR.empty();
             $headerRowL.empty();
-            $headerRowL.empty();
+            $headerRowR.empty();
             columnsById = {};
 
             for (var i = 0; i < columns.length; i++) {

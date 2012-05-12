@@ -517,6 +517,8 @@
 			grid.setOptions({
 				'frozenRow': val
 			});
+
+			updateHeaderRow();
 		});
 
 		$('#setFrozenColumn').click(function() {
@@ -529,6 +531,8 @@
 			grid.setOptions({
 				'frozenColumn': val
 			});
+
+			updateHeaderRow();
 		});
 	})</script>
 
