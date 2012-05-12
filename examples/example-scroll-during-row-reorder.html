@@ -90,6 +90,7 @@
         <script src="../plugins/slick.rowselectionmodel.js"></script>
         <script src="../plugins/slick.rowmovemanager.js"></script>
 		<script src="../slick.editors.js"></script>
+		<script src="../slick.formatters.js"></script>
 		<script src="../slick.grid.js"></script>
 
 		<script>
@@ -112,7 +113,7 @@
                 field: "name",
                 width: 500,
                 cssClass: "cell-title",
-                editor: TextCellEditor,
+                editor: Slick.Editors.Text,
                 validator: requiredFieldValidator
             },
             {
@@ -122,8 +123,8 @@
                 cssClass: "cell-effort-driven",
                 field: "complete",
                 cannotTriggerInsert: true,
-                formatter: BoolCellFormatter,
-                editor: YesNoCheckboxCellEditor
+                formatter: Slick.Formatters.YesNo,
+                editor: Slick.Editors.YesNoSelect
             }
         ];
 

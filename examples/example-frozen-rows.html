@@ -96,6 +96,7 @@
 
 		<script src="../slick.core.js"></script>
 		<script src="../slick.editors.js"></script>
+		<script src="../slick.formatters.js"></script>
 		<script src="../plugins/slick.rowselectionmodel.js"></script>
 		<script src="../slick.grid.js"></script>
 		<script src="../slick.dataview.js"></script>
@@ -115,16 +116,16 @@
 
 		var columns = [
 			 {id:"sel", name:"#", field:"num", behavior:"select", cssClass:"cell-selection", width:40, cannotTriggerInsert:true, resizable:false, unselectable:true }
-			,{id:"title", name:"Title", field:"title", width:120, minWidth:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, sortable:true}
-			,{id:"duration", name:"Duration", field:"duration", editor:TextCellEditor, sortable:true}
-			,{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:GraphicalPercentCompleteCellFormatter, editor:PercentCompleteCellEditor, sortable:true}
-			,{id:"start", name:"Start", field:"start", minWidth:60, editor:DateCellEditor, sortable:true}
-			,{id:"finish", name:"Finish", field:"finish", minWidth:60, editor:DateCellEditor, sortable:true}
-			,{id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:BoolCellFormatter, editor:YesNoCheckboxCellEditor, cannotTriggerInsert:true, sortable:true}
-			,{id:"title1", name:"Title1", field:"title1", width:120, minWidth:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, sortable:true}
-			,{id:"title2", name:"Title2", field:"title2", width:120, minWidth:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, sortable:true}
-			,{id:"title3", name:"Title3", field:"title3", width:120, minWidth:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, sortable:true}
-			,{id:"title4", name:"Title4", field:"title4", width:120, minWidth:120, cssClass:"cell-title", editor:TextCellEditor, validator:requiredFieldValidator, sortable:true}
+			,{id:"title", name:"Title", field:"title", width:120, minWidth:120, cssClass:"cell-title", editor:Slick.Editors.Text, validator:requiredFieldValidator, sortable:true}
+			,{id:"duration", name:"Duration", field:"duration", editor:Slick.Editors.Text, sortable:true}
+			,{id:"%", name:"% Complete", field:"percentComplete", width:80, resizable:false, formatter:Slick.Formatters.PercentComplete, editor:Slick.Editors.PercentComplete, sortable:true}
+			,{id:"start", name:"Start", field:"start", minWidth:60, editor:Slick.Editors.Date, sortable:true}
+			,{id:"finish", name:"Finish", field:"finish", minWidth:60, editor:Slick.Editors.Date, sortable:true}
+			,{id:"effort-driven", name:"Effort Driven", width:80, minWidth:20, maxWidth:80, cssClass:"cell-effort-driven", field:"effortDriven", formatter:Slick.Formatters.YesNo, editor:Slick.Editors.YesNoSelect, cannotTriggerInsert:true, sortable:true}
+			,{id:"title1", name:"Title1", field:"title1", width:120, minWidth:120, cssClass:"cell-title", editor:Slick.Editors.Text, validator:requiredFieldValidator, sortable:true}
+			,{id:"title2", name:"Title2", field:"title2", width:120, minWidth:120, cssClass:"cell-title", editor:Slick.Editors.Text, validator:requiredFieldValidator, sortable:true}
+			,{id:"title3", name:"Title3", field:"title3", width:120, minWidth:120, cssClass:"cell-title", editor:Slick.Editors.Text, validator:requiredFieldValidator, sortable:true}
+			,{id:"title4", name:"Title4", field:"title4", width:120, minWidth:120, cssClass:"cell-title", editor:Slick.Editors.Text, validator:requiredFieldValidator, sortable:true}
 		];
 
 		var options = {
