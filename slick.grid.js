@@ -2195,6 +2195,7 @@ if (typeof Slick === "undefined") {
                 row: activeRow,
                 cell: activeCell
             }, e);
+
             var handled = e.isImmediatePropagationStopped();
 
             if (!handled) {
@@ -2252,9 +2253,9 @@ if (typeof Slick === "undefined") {
         }
 
         function handleClick(e) {
-      if (!currentEditor) {
-        setFocus();
-      }
+            if (!currentEditor) {
+              setFocus();
+            }
 
             var cell = getCellFromEvent(e);
             if (!cell || (currentEditor !== null && activeRow == cell.row && activeCell == cell.cell)) {
@@ -2936,7 +2937,8 @@ if (typeof Slick === "undefined") {
             if (!getEditorLock().commitCurrentEdit()) {
                 return;
             }
-      setFocus();
+
+            setFocus();
 
             var stepFunctions = {
                 "up": gotoUp,
@@ -2955,6 +2957,8 @@ if (typeof Slick === "undefined") {
                     if (pos.row >= options.frozenRow) {
                         scrollRowIntoView(pos.row, !isAddNewRow);
                     }
+                } else {
+                    scrollRowIntoView(pos.row, !isAddNewRow);
                 }
 
                 setActiveCellInternal(getCellNode(pos.row, pos.cell), isAddNewRow || options.autoEdit);
