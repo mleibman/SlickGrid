@@ -14,18 +14,14 @@
     function getNavState() {
       var cannotLeaveEditMode = !Slick.GlobalEditorLock.commitCurrentEdit();
       var pagingInfo = dataView.getPagingInfo();
-      var lastPage = Math.ceil(pagingInfo.totalRows / pagingInfo.pageSize) - 1;
-      if (lastPage < 0) {
-        lastPage = 0;
-      }
+      var lastPage = pagingInfo.totalPages - 1;
 
       return {
         canGotoFirst: !cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum > 0,
         canGotoLast: !cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum != lastPage,
         canGotoPrev: !cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum > 0,
         canGotoNext: !cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum < lastPage,
-        pagingInfo: pagingInfo,
-        lastPage: lastPage
+        pagingInfo: pagingInfo
       }
     }
 
@@ -45,7 +41,7 @@
     function gotoLast() {
       var state = getNavState();
       if (state.canGotoLast) {
-        dataView.setPagingOptions({pageNum: state.lastPage});
+        dataView.setPagingOptions({pageNum: state.pagingInfo.totalPages - 1});
       }
     }
 
@@ -139,7 +135,7 @@
       if (pagingInfo.pageSize == 0) {
         $status.text("Showing all " + pagingInfo.totalRows + " rows");
       } else {
-        $status.text("Showing page " + (pagingInfo.pageNum + 1) + " of " + (state.lastPage + 1));
+        $status.text("Showing page " + (pagingInfo.pageNum + 1) + " of " + pagingInfo.totalPages);
       }
     }
 
