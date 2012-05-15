@@ -7,20 +7,101 @@
   });
 
 
-  function CellExternalCopyManager() {
+  function CellExternalCopyManager(options) {
+    /*
+      This manager enables users to copy/paste data from/to an external Spreadsheet application
+      such as MS-Excel® or OpenOffice-Spreadsheet.
+      
+      Since it is not possible to access directly the clipboard in javascript, the plugin uses
+      a trick to do it's job. After detecting the keystroke, we dynamically create a textarea
+      where the browser copies/pastes the serialized data. 
+      
+      options:
+        copiedCellStyle : sets the css className used for copied cells. default : "copy-manager"
+        dataItemColumnValueExtractor : option to specify a custom column value extractor function
+     
+    */
     var _grid;
     var _self = this;
     var _copiedRanges;
+    var _options = options || {};
+    var _copiedCellStyle = _options.copiedCellStyle || "copy-manager";
+    
+    
+    var keyCodes = {
+      'C':67,
+      'V':86
+    }
 
     function init(grid) {
       _grid = grid;
-      _grid.onKeyDown.subscribe(handleKeyDown);
+      _grid.onKeyDown.subscribe(handleKeyDown);      
     }
 
     function destroy() {
       _grid.onKeyDown.unsubscribe(handleKeyDown);
     }
+    
+    function getDataItemValueForColumn(item, columnDef) {
+      if (_options.dataItemColumnValueExtractor) {
+        return _options.dataItemColumnValueExtractor(item, columnDef);
+      }
+      return item[columnDef.field];
+    }
+    
+    function setDataItemValueForColumn(item, columnDef, value) {
+      if (_options.dataItemColumnValueSetter) {
+        return _options.dataItemColumnValueSetter(item, columnDef, value);
+      }
+      return item[columnDef.field] = value;
+    }
+    
+    
+    function _createTextBox(innerText){
+      var ta = document.createElement('textarea');
+      ta.style.position = 'absolute';
+      ta.style.left = '-1000px';
+      ta.style.top = '-1000px';
+      ta.innerHTML = innerText;
+      document.body.appendChild(ta);
+      document.designMode = 'off';
+      ta.focus();
+      
+      return ta;
+    }
+    
+    function _decodeTabularData(_grid, ta){
+      var columns = _grid.getColumns();
+      var clipText = ta.value;
+      var clipRows = clipText.split(String.fromCharCode(10));
+      var clippeds = [];
+      
+      document.body.removeChild(ta);
 
+      for (var i=0; i<clipRows.length; i++) {
+        clippeds[i] = clipRows[i].split(String.fromCharCode(9));
+      }
+      
+      var activeCell = _grid.getActiveCell();
+      var activeRow = activeCell.row;
+      var activeCell = activeCell.cell;
+      var desty = activeRow;
+      var destx = activeCell;
+
+      for (var y = 0; y < clippeds.length; y++){
+        for (var x = 0; x < clippeds[y].length; x++){
+          var desty = activeRow + y;
+          var destx = activeCell + x;
+
+          var nd = _grid.getCellNode(desty, destx);
+          var dt = _grid.getDataItem(desty);
+          setDataItemValueForColumn(dt, columns[destx], clippeds[y][x]);
+          _grid.updateCell(desty, destx);
+        }
+      }
+    }
+    
+    
     function handleKeyDown(e, args) {
       var ranges;
       if (!_grid.getEditorLock().isActive()) {
@@ -32,8 +113,8 @@
             _copiedRanges = null;
           }
         }
-
-        if (e.which == 67 && (e.ctrlKey || e.metaKey)) {    // CTRL + C
+        
+        if (e.which == keyCodes.C && (e.ctrlKey || e.metaKey)) {    // CTRL + C
           ranges = _grid.getSelectionModel().getSelectedRanges();
           if (ranges.length != 0) {
             _copiedRanges = ranges;
@@ -51,21 +132,14 @@
                     var dt = _grid.getDataItem(i);
                     
                     for (var j=range.fromCell; j< range.toCell+1 ; j++){
-                        clipTextCells.push(dt[columns[j].id]);
+                        clipTextCells.push(getDataItemValueForColumn(dt, columns[j]));
                     }
                     clipTextRows.push(clipTextCells.join("\t"));
                 }
                 clipTextArr.push(clipTextRows.join("\n"));
             }
             var clipText = clipTextArr.join("\n");
-            var ta = document.createElement('textarea');
-            ta.style.position = 'absolute';
-            ta.style.left = '-1000px';
-            ta.style.top = '-1000px';
-            ta.innerHTML = clipText;
-            document.body.appendChild(ta);
-            document.designMode = 'off';
-            ta.focus();
+            var ta = _createTextBox(clipText);
             $(ta).select();
             
             setTimeout(function(){
@@ -76,45 +150,11 @@
           }
         }
 
-        if (e.which == 86 && (e.ctrlKey || e.metaKey)) {    // CTRL + V
-            var ta = document.createElement('textarea');
-            ta.style.position = 'absolute';
-            ta.style.left = '-1000px';
-            ta.style.top = '-1000px';
-            document.body.appendChild(ta);
-            document.designMode = 'off';
-            ta.focus();
+        if (e.which == keyCodes.V && (e.ctrlKey || e.metaKey)) {    // CTRL + V
+            var ta = _createTextBox('');
             
             setTimeout(function(){
-                var columns = _grid.getColumns();
-                var clipText = ta.value;
-                var clipRows = clipText.split(String.fromCharCode(10));
-                var clippeds = [];
-                
-                document.body.removeChild(ta);
-
-                
-                for (var i=0; i<clipRows.length; i++) {
-                    clippeds[i] = clipRows[i].split(String.fromCharCode(9));
-                }
-                
-                var activeCell = _grid.getActiveCell();
-                var activeRow = activeCell.row;
-                var activeCell = activeCell.cell;
-                var desty = activeRow;
-                var destx = activeCell;
-
-                for (var y = 0; y < clippeds.length; y++){
-                    for (var x = 0; x < clippeds[y].length; x++){
-                        var desty = activeRow + y;
-                        var destx = activeCell + x;
-
-                        var nd = _grid.getCellNode(desty, destx);
-                        var dt = _grid.getDataItem(desty);
-                        dt[columns[destx].id] = clippeds[y][x];
-                        _grid.updateCell(desty, destx);
-                    }
-                }
+                _decodeTabularData(_grid, ta);
             }, 100);
             
             return false;
@@ -129,15 +169,15 @@
         for (var j = ranges[i].fromRow; j <= ranges[i].toRow; j++) {
           hash[j] = {};
           for (var k = ranges[i].fromCell; k <= ranges[i].toCell; k++) {
-            hash[j][columns[k].id] = "copied";
+            hash[j][columns[k].id] = true;
           }
         }
       }
-      _grid.setCellCssStyles("copy-manager", hash);
+      _grid.setCellCssStyles(_copiedCellStyle, hash);
     }
 
     function clearCopySelection() {
-      _grid.removeCellCssStyles("copy-manager");
+      _grid.removeCellCssStyles(_copiedCellStyle);
     }
 
     $.extend(this, {
