@@ -115,11 +115,15 @@ if (typeof Slick === "undefined") {
     var $focusSink;
     var $headerScroller;
     var $headers;
+    var $headerDockLeft;
+    var $headerDockLeftCanvas;
     var $headerRow, $headerRowScroller;
     var $topPanelScroller;
     var $topPanel;
     var $viewport;
+    var $viewportDockLeft;
     var $canvas;
+    var $canvasDockLeft;
     var $style;
     var stylesheet, columnCssRulesL, columnCssRulesR;
     var viewportH, viewportW;
@@ -208,7 +212,10 @@ if (typeof Slick === "undefined") {
 
       $focusSink = $("<div tabIndex='0' hideFocus style='position:fixed;width:0;height:0;top:0;left:0;outline:0;'></div>").appendTo($container);
 
-      $headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+      $headerDockLeft = $("<div class='slick-header ui-state-default' style='overflow: hidden; position: relative; display: inline-block; width: 0px;' />").appendTo($container);
+      $headerDockLeftCanvas = $("<div class='slick-header-columns' style='width:10000px; left:-1000px' />").appendTo($headerDockLeft);
+
+      $headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;display:inline-block;' />").appendTo($container);
       $headers = $("<div class='slick-header-columns' style='width:10000px; left:-1000px' />").appendTo($headerScroller);
 
       $headerRowScroller = $("<div class='slick-headerrow ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
@@ -225,7 +232,9 @@ if (typeof Slick === "undefined") {
         $headerRowScroller.hide();
       }
 
-      $viewport = $("<div class='slick-viewport' style='width:100%;overflow:auto;outline:0;position:relative;;'>").appendTo($container);
+      $viewportDockLeft = $("<div style='width: 0px; overflow: hidden; outline: 0; position: relative;'/>").appendTo($container);
+
+      $viewport = $("<div class='slick-viewport' style='width:100%;overflow:auto;outline:0;position:relative;margin-top:-3px;'/>").appendTo($container);
       $viewport.css("overflow-y", options.autoHeight ? "hidden" : "auto");
 
       $canvas = $("<div class='grid-canvas' />").appendTo($viewport);
@@ -444,6 +453,7 @@ if (typeof Slick === "undefined") {
 
       $headers.empty();
       $headerRow.empty();
+      $headerDockLeftCanvas.empty();
       columnsById = {};
 
       for (var i = 0; i < columns.length; i++) {
@@ -455,8 +465,15 @@ if (typeof Slick === "undefined") {
             .width(m.width - headerColumnWidthDiff)
             .attr("title", m.toolTip || m.name || "")
             .data("fieldId", m.id)
-            .addClass(m.headerCssClass || "")
-            .appendTo($headers);
+            .addClass(m.headerCssClass || "");
+
+        if (columns[i].dock && columns[i].dock === 'left') {
+          header.appendTo($headerDockLeftCanvas);
+          $headerDockLeft.css("width", $headerDockLeft.outerWidth() + header.outerWidth());
+          $headerScroller.css("width", $headerScroller.outerWidth() - header.outerWidth());
+        } else {
+          header.appendTo($headers);
+        }
 
         if (options.enableColumnReorder || m.sortable) {
           header.hover(hoverBegin, hoverEnd);
