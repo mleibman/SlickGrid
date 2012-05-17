@@ -1,4 +1,4 @@
-// https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/map
+// the following three function originate form mozilla's mdn
   if (!Array.prototype.map) {
     Array.prototype.map = function(callback, thisArg) {
       var T, A, k;
@@ -123,21 +123,24 @@ if (!Array.prototype.filter) {
       }
     },
     checkCircle: function(ref, dependentRef) {
-      var k = this.key(ref), dk = this.key(dependentRef), children;
+      return this.checkCircleHelper(this.key(ref), this.key(dependentRef));
+    },
+    checkCircleHelper: function(k, dk) {
+      var children;
       if(k == dk) {
         return true;
       }
       children = this.dh[dk] || [];
       if(children[k]) {
-        return true;
+          return true;
       } else {
         for(var r in children[k]) {
-          if(this.checkCircle(ref, getRefFromString(r))) {
+          if(this.checkCircleHelper(k, r)) {
             return true;
-          }
+            }
         }
       }
-      return false;
+      return false;      
     },
     getUpdateRefs: function(ref) {
       return this.getHashRefs(this.uh, ref);
@@ -204,6 +207,7 @@ if (!Array.prototype.filter) {
       }
     },
     evaluateRef: function(ref) {
+      ref = ref.toLowerCase().replace('$', '');
       var self = this;
       var values = this.refRefs(ref).map(function(r) {
         return self.refValue(r);
@@ -215,13 +219,13 @@ if (!Array.prototype.filter) {
   };
 
 
-  function traverseTree(tree, fn) {
-    fn(tree);
-    if(tree.left) {
-      traverseTree(tree.left, fn);            
+  function traverseTree(node, fn) {
+    fn(node);
+    if(node.left) {
+      traverseTree(node.left, fn);            
     }
-    if(tree.right) {
-      traverseTree(tree.right, fn);
+    if(node.right) {
+      traverseTree(node.right, fn);
     }
   }
 
@@ -240,6 +244,7 @@ if (!Array.prototype.filter) {
     var defaultValue;
     var scope = this;
     var grid;
+    var selector;
     
     function updateRefs(ref) {
       var selector, rc, rr, refManager, refs;
@@ -260,9 +265,9 @@ if (!Array.prototype.filter) {
     }
     this.init = function (args) {
       grid = args.grid;
-      _selector = new Slick.CellRangeSelector();
-      _selector.onCellRangeSelected.subscribe(this.handleCellRangeSelected);
-      grid.registerPlugin(_selector)
+      selector = new Slick.CellRangeSelector();
+      selector.onCellRangeSelected.subscribe(this.handleCellRangeSelected);
+      grid.registerPlugin(selector)
       $input = $("<INPUT type=text class='editor-text'/>")
         .appendTo(args.container)
         .bind("keydown.nav", function (e) {
@@ -285,8 +290,8 @@ if (!Array.prototype.filter) {
     };
     this.destroy = function () {
       $input.remove();
-      _selector.onCellRangeSelected.unsubscribe(this.handleCellRangeSelected);
-      grid.unregisterPlugin(_selector);
+      selector.onCellRangeSelected.unsubscribe(this.handleCellRangeSelected);
+      grid.unregisterPlugin(selector);
     };
 
     this.focus = function () {
@@ -300,13 +305,14 @@ if (!Array.prototype.filter) {
     this.setValue = function (val) {
       $input.val(val);
     };
+
     this.loadValue = function (item) {
       defaultValue = $.data(args.container, 'formula') || item[args.column.field] || "";
       $input.val(defaultValue);
       $input[0].defaultValue = defaultValue;
       $input.select();
     };
-    
+
     this.serializeValue = function () {
       var val = $input.val(), result, cell, refs, tree, ref, old;
       var refManager = getRefManager(grid);
@@ -317,7 +323,7 @@ if (!Array.prototype.filter) {
         refManager.clear(ref);
       }
       $.data(args.container, 'formula', val);
-      if(val.charAt(0) == '=') {
+      if(val.charAt(0) == '=' && val.length > 1) {
         tree = parse(val.substring(1));
         result = evaluate(val.substring(1), refManager);
         traverseTree(tree, function(node) {
@@ -496,9 +502,7 @@ if (!Array.prototype.filter) {
   function parse(str) {
     var tokens = lex(str), pos = -1;
     var next = tokens[0]; 
-    return (function() {
-      return expr();
-    })();
+    return expr();
     
 
     function syntaxError(msg) {
@@ -509,16 +513,19 @@ if (!Array.prototype.filter) {
       n = n || 0;
       return tokens[pos + n];
     }
+
     function consume() {
       pos += 1;
       next = tokens[pos + 1];
     }
+
     function expect(value) {
       if(!next.value == value) {
         throw syntaxError('expected ' + next.value);
       }
       consume();
     }
+
     function expr() {
       var t = term();
       while(next.value == '+' || next.value == '-') {
@@ -529,6 +536,7 @@ if (!Array.prototype.filter) {
       }
       return t;
     }
+
     function term() {
       var t = factor();
       while(next.value == '*' || next.value == '/') {
@@ -539,6 +547,7 @@ if (!Array.prototype.filter) {
       }
       return t;
     }
+
     function factor() {
       var t = primary();
       if(next.value == '^') {
@@ -549,6 +558,7 @@ if (!Array.prototype.filter) {
         return t;
       }
     }
+
     function primary() {
       var t;
       if(next.type == 'number') {
@@ -572,6 +582,7 @@ if (!Array.prototype.filter) {
                           + next.value);
       }
     }
+
     function name() {
       if(next.value.charAt(0) == '_') {
         var t = {type: 'variable', value: next.value};
@@ -591,6 +602,7 @@ if (!Array.prototype.filter) {
         throw syntaxError('invalid syntax near ' + next.value);
       }
     }
+
     function func() {
       var t = {type: 'func', value: next.value, args: []};
       consume();
@@ -608,6 +620,7 @@ if (!Array.prototype.filter) {
         return t;
       }
     }
+
     function cellRef() {
       var value = '';
       if(next.type == 'dollar') {
@@ -624,6 +637,7 @@ if (!Array.prototype.filter) {
       return value;
     }
   }
+
   var _ops = {
     '+' : function(a, b) {
       return parseFloat(a) + parseFloat(b);
@@ -689,14 +703,17 @@ if (!Array.prototype.filter) {
       return _funcs.sum(args) / args.length;
     }
   };
+
   function getArgs(args) {
     return Array.prototype.slice.call(args);
   }
+
   function getArrayParams(args) {
     return args.length == 1 && $.isArray(args[0]) ?
       args[0] :
       getArgs(args);
   }
+
   function getVar(name) {
     name = name.toLowerCase();
     if(_vars[name]) {
@@ -705,6 +722,7 @@ if (!Array.prototype.filter) {
       throw evaluationError('undefined variable ' + name);
     }
   }
+
   function getFunc(name) {
     name = name.toLowerCase();
     if(_funcs[name]) {
@@ -713,6 +731,7 @@ if (!Array.prototype.filter) {
       throw evaluationError('call to undefined function ' + name);
     }
   }
+
   function evaluationError(msg) {
     return {name: 'evaluation error', message: msg};
   }
