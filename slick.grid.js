@@ -118,6 +118,9 @@ if (typeof Slick === "undefined") {
     var $headers;
     var $headerDockLeft;
     var $headerDockLeftCanvas;
+    var $headerDockRight;
+    var $headerDockRightCanvas;
+    var $headerDockScrollFiller;
     var $headerRow, $headerRowScroller;
     var $topPanelScroller;
     var $topPanel;
@@ -125,6 +128,7 @@ if (typeof Slick === "undefined") {
     var $viewport;
     var $canvas;
     var $canvasDockLeft;
+    var $canvasDockRight;
     var $hScrollViewport;
     var $hScrollCanvas;
     var $style;
@@ -146,6 +150,7 @@ if (typeof Slick === "undefined") {
 
     var rowsCache = {};
     var rowsCacheDockLeft = {};
+    var rowsCacheDockRight = {};
     var renderedRows = 0;
     var numVisibleRows;
     var prevScrollTop = 0;
@@ -224,6 +229,13 @@ if (typeof Slick === "undefined") {
       $headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;display:inline-block;' />").appendTo($headerContainer);
       $headers = $("<div class='slick-header-columns' style='width:10000px; left:-1000px' />").appendTo($headerScroller);
 
+      $headerDockRight = $("<div class='slick-header ui-state-default' style='overflow: hidden; position: relative; display: inline-block; width: 0px;' />").appendTo($headerContainer);
+      $headerDockRightCanvas = $("<div class='slick-header-columns' style='width:10000px; left:-1000px' />").appendTo($headerDockRight);
+
+      $headerDockScrollFiller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;display:inline-block;' />")
+        .html("<div class='slick-header-columns' style='width: 100px; '><div class='ui-state-default slick-header-column' style='width: 100px; '><span class='slick-column-name'>&nbsp;</span></div></div>")
+        .appendTo($headerContainer);
+
       $headerRowScroller = $("<div class='slick-headerrow ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($headerContainer);
       $headerRow = $("<div class='slick-headerrow-columns' />").appendTo($headerRowScroller);
 
@@ -248,6 +260,8 @@ if (typeof Slick === "undefined") {
       //$viewport.css("overflow-y", options.autoHeight ? "hidden" : "auto");
 
       $canvas = $("<div class='grid-canvas' />").appendTo($viewport);
+
+      $canvasDockRight = $("<div class='grid-canvas' style='width:0px;position:relative;outline:0px;display:inline-block;' />").appendTo($gridBodyViewport);
 
       $hScrollViewport = $("<div style='position:absolute;right:0px;left:0px;bottom:0px;height:17px;overflow-y:hidden;overflow-x:scroll;' />").appendTo($container);
       $hScrollCanvas = $("<div style='height:1px;' />").appendTo($hScrollViewport);
@@ -391,6 +405,8 @@ if (typeof Slick === "undefined") {
         widths.center = Math.max(widths.center, widths.centerViewPort);
       }
 
+      widths.full = widths.left + widths.center + widths.right;
+
       return widths;
     }
 
@@ -400,10 +416,11 @@ if (typeof Slick === "undefined") {
 
       if (!oldCanvasWidths || canvasWidths.center !== oldCanvasWidths.center) {
         $viewport.width(canvasWidths.centerViewPort);
+        $headerScroller.width(canvasWidths.centerViewPort);
         $canvas.width(canvasWidths.center);
         $headerRow.width(canvasWidths.center);
         $hScrollViewport.width(canvasWidths.viewport);
-        $hScrollCanvas.width(canvasWidths.center + canvasWidths.left);
+        $hScrollCanvas.width(canvasWidths.full);
         viewportHasHScroll = (canvasWidths.center > viewportW - scrollbarDimensions.width);
 
         if (viewportHasHScroll) {
@@ -502,6 +519,7 @@ if (typeof Slick === "undefined") {
       $headers.empty();
       $headerRow.empty();
       $headerDockLeftCanvas.empty();
+      $headerDockRightCanvas.empty();
       columnsById = {};
 
       for (var i = 0; i < columns.length; i++) {
@@ -515,13 +533,21 @@ if (typeof Slick === "undefined") {
             .data("fieldId", m.id)
             .addClass(m.headerCssClass || "");
 
-        if (columns[i].dock && columns[i].dock === 'left') {
-          header.appendTo($headerDockLeftCanvas);
-          $headerDockLeft.css("width", $headerDockLeft.outerWidth() + header.outerWidth());
-          $headerScroller.css("width", $headerScroller.outerWidth() - header.outerWidth());
-
-          $canvasDockLeft.css("width", $canvasDockLeft.outerWidth() + header.outerWidth());
+        if (columns[i].dock) {
+          $headerScroller.css("width", $viewport.outerWidth() - header.outerWidth());
           $viewport.css("width", $viewport.outerWidth() - header.outerWidth());
+
+          if (columns[i].dock === 'left') {
+            header.appendTo($headerDockLeftCanvas);
+            $headerDockLeft.css("width", $headerDockLeft.outerWidth() + header.outerWidth());
+            $canvasDockLeft.css("width", $canvasDockLeft.outerWidth() + header.outerWidth());
+          } else if (columns[i].dock === 'right') {
+            header.appendTo($headerDockRightCanvas);
+            $headerDockRight.css("width", $headerDockRight.outerWidth() + header.outerWidth());
+            $canvasDockRight.css("width", $canvasDockRight.outerWidth() + header.outerWidth());
+          } else {
+            throw "Not a valide dock: " + columns[i].dock;
+          }
         } else {
           header.appendTo($headers);
         }
@@ -942,8 +968,8 @@ if (typeof Slick === "undefined") {
         return {
           dock: 'right',
           column: column,
-          viewport: undefined,
-          canvas: undefined
+          viewport: $canvasDockRight,
+          canvas: $canvasDockRight
         };
       } else {
         throw "Undefined dock: " + column.dock;
@@ -1320,7 +1346,7 @@ if (typeof Slick === "undefined") {
       return item[columnDef.field];
     }
 
-    function appendRowHtml(stringArray, stringArrayDockLeft, row) {
+    function appendRowHtml(stringArray, stringArrayDockLeft, stringArrayDockRight, row) {
       var d = getDataItem(row);
       var dataLoading = row < getDataLength() && !d;
       var cellCss;
@@ -1336,9 +1362,12 @@ if (typeof Slick === "undefined") {
 
       stringArray.push("<div class='ui-widget-content " + rowCss + "' style='top:" + (options.rowHeight * row - offset) + "px'>");
       stringArrayDockLeft.push("<div class='ui-widget-content " + rowCss + "' style='top:" + (options.rowHeight * row - offset) + "px'>");
+      stringArrayDockRight.push("<div class='ui-widget-content " + rowCss + "' style='top:" + (options.rowHeight * row - offset) + "px'>");
 
       var colspan, m;
       for (var i = 0, cols = columns.length; i < cols; i++) {
+        var stArray;
+
         m = columns[i];
         colspan = getColspan(row, i);
         cellCss = "slick-cell l" + i + " r" + Math.min(columns.length - 1, i + colspan - 1) + (m.cssClass ? " " + m.cssClass : "");
@@ -1353,27 +1382,24 @@ if (typeof Slick === "undefined") {
           }
         }
 
-        if (m.dock && m.dock === "left") {
-          stringArrayDockLeft.push("<div class='" + cellCss + "'>");
+        if (m.dock) {
+          if (m.dock === "left") {
+            stArray = stringArrayDockLeft;
+          } else {
+            stArray = stringArrayDockRight;
+          }
         } else {
-          stringArray.push("<div class='" + cellCss + "'>");
+          stArray = stringArray;
         }
+
+        stArray.push("<div class='" + cellCss + "'>");
 
         // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
         if (d) {
-          var value = getDataItemValueForColumn(d, m);
-          if (m.dock && m.dock === "left") {
-            stringArrayDockLeft.push(getFormatter(row, m)(row, i, value, m, d));
-          } else {
-            stringArray.push(getFormatter(row, m)(row, i, value, m, d));
-          }
+          stArray.push(getFormatter(row, m)(row, i, getDataItemValueForColumn(d, m), m, d));
         }
 
-        if (m.dock && m.dock === "left") {
-          stringArrayDockLeft.push("</div>");
-        } else {
-          stringArray.push("</div>");
-        }
+        stArray.push("</div>");
 
         if (colspan) {
           i += (colspan - 1);
@@ -1382,6 +1408,7 @@ if (typeof Slick === "undefined") {
 
       stringArray.push("</div>");
       stringArrayDockLeft.push("</div>");
+      stringArrayDockRight.push("</div>");
     }
 
     function cleanupRows(rangeToKeep) {
@@ -1518,6 +1545,8 @@ if (typeof Slick === "undefined") {
       viewportHasVScroll = !options.autoHeight && (numberOfRows * options.rowHeight > viewportH);
 
       $gridBodyViewport.css("overflow-y", viewportHasVScroll ? "auto" : "hidden");
+      $headerDockScrollFiller.css("width", viewportHasVScroll ? scrollbarDimensions.width : 0);
+
 
       // remove the rows that are now outside of the data range
       // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
@@ -1547,6 +1576,7 @@ if (typeof Slick === "undefined") {
         $viewport.css("height", h);
         $canvas.css("height", h);
         $canvasDockLeft.css("height", h);
+        $canvasDockRight.css("height", h);
         scrollTop = $viewport[0].scrollTop;
       }
 
@@ -1626,6 +1656,7 @@ if (typeof Slick === "undefined") {
           parentDockLeftNode = $canvasDockLeft[0],
           stringArray = [],
           stringArrayDockLeft = [],
+          stringArrayDockRight = [],
           rows = [],
           needToReselectCell = false;
 
@@ -1635,7 +1666,7 @@ if (typeof Slick === "undefined") {
         }
         renderedRows++;
         rows.push(i);
-        appendRowHtml(stringArray, stringArrayDockLeft, i);
+        appendRowHtml(stringArray, stringArrayDockLeft, stringArrayDockRight, i);
         if (activeCellNode && activeRow === i) {
           needToReselectCell = true;
         }
@@ -1659,6 +1690,7 @@ if (typeof Slick === "undefined") {
 
       applyToCanvas(parentNode, stringArray, rowsCache);
       applyToCanvas(parentDockLeftNode, stringArrayDockLeft, rowsCacheDockLeft);
+      applyToCanvas(parentDockRightNode, stringArrayDockRight, rowsCacheDockRight);
 
       if (needToReselectCell) {
         activeCellNode = getCellNode(activeRow, activeCell);
@@ -1684,6 +1716,7 @@ if (typeof Slick === "undefined") {
       for (var row in rowsCache) {
         rowsCache[row].rowNode.style.top = (row * options.rowHeight - offset) + "px";
         rowsCacheDockLeft[row].rowNode.style.top = (row * options.rowHeight - offset) + "px";
+        rowsCacheDockRight[row].rowNode.style.top = (row * options.rowHeight - offset) + "px";
       }
     }
 
