@@ -123,9 +123,10 @@ if (typeof Slick === "undefined") {
     var $topPanel;
     var $gridBodyViewport;
     var $viewport;
-    var $viewportDockLeft;
     var $canvas;
     var $canvasDockLeft;
+    var $hScrollViewport;
+    var $hScrollCanvas;
     var $style;
     var stylesheet, columnCssRulesL, columnCssRulesR;
     var viewportH, viewportW;
@@ -237,15 +238,19 @@ if (typeof Slick === "undefined") {
         $headerRowScroller.hide();
       }
 
-      $gridBodyViewport = $("<div style='position:absolute;left:0px;right:0px;bottom:0px;top:" + (options.topPanelHeight + 2) + "px;outline:0px;overflow-y:auto;overflow-x:hidden;' />").appendTo($container);
+      $gridBodyViewport = $("<div style='position:absolute;left:0px;right:0px;bottom:0px;top:" +
+          (options.topPanelHeight + 2) + "px;outline:0px;overflow-x:hidden;' />").appendTo($container);
+      $gridBodyViewport.css("overflow-y", options.autoHeight ? "hidden" : "auto");
 
-      $viewportDockLeft = $("<div style='width: 0px; overflow: hidden; outline: 0; position: relative; display: inline-block;'/>").appendTo($gridBodyViewport);
-      $canvasDockLeft = $("<div class='grid-canvas' />").appendTo($viewportDockLeft);
+      $canvasDockLeft = $("<div class='grid-canvas' style='width:0px;position:relative;outline:0px;display:inline-block;' />").appendTo($gridBodyViewport);
 
-      $viewport = $("<div class='slick-viewport' style='width:100%;outline:0;position:relative;display: inline-block;'/>").appendTo($gridBodyViewport);
+      $viewport = $("<div class='slick-viewport' style='width:100%;overflow:hidden;outline:0;position:relative;display:inline-block;'/>").appendTo($gridBodyViewport);
       //$viewport.css("overflow-y", options.autoHeight ? "hidden" : "auto");
 
       $canvas = $("<div class='grid-canvas' />").appendTo($viewport);
+
+      $hScrollViewport = $("<div style='position:absolute;right:0px;left:0px;bottom:0px;height:17px;overflow-y:hidden;overflow-x:scroll;' />").appendTo($container);
+      $hScrollCanvas = $("<div style='height:1px;' />").appendTo($hScrollViewport);
 
       if (!options.explicitInitialization) {
         finishInitialization();
@@ -287,8 +292,8 @@ if (typeof Slick === "undefined") {
             .bind("resize.slickgrid", resizeCanvas);
         $gridBodyViewport
             .bind("scroll.slickgrid", handleVerticalScroll);
-        $viewport
-            .bind("scroll.slickgrid", handleScroll);
+        $hScrollViewport
+            .bind("scroll.slickgrid", handleHorizontalScroll);
         $headerScroller
             .bind("contextmenu.slickgrid", handleHeaderContextMenu)
             .bind("click.slickgrid", handleHeaderClick);
@@ -360,13 +365,15 @@ if (typeof Slick === "undefined") {
 
     function getCanvasWidths(){
       var availableWidth = viewportHasVScroll ? viewportW - scrollbarDimensions.width : viewportW,
-          rowWidth = 0,
           i = columns.length,
           widths = {
             left: 0,
             center: 0,
-            right: 0
+            right: 0,
+            viewport: availableWidth
           };
+
+      console.log('');
 
       while (i--) {
         if (!columns[i].dock) {
@@ -378,8 +385,10 @@ if (typeof Slick === "undefined") {
         }
       }
 
+      widths.centerViewPort = widths.viewport - widths.left - widths.right;
+
       if (options.fullWidthRows) {
-        widths.center = Math.max(widths.center, availableWidth - widths.left - widths.right);
+        widths.center = Math.max(widths.center, widths.centerViewPort);
       }
 
       return widths;
@@ -390,9 +399,20 @@ if (typeof Slick === "undefined") {
       canvasWidths = getCanvasWidths();
 
       if (!oldCanvasWidths || canvasWidths.center !== oldCanvasWidths.center) {
+        $viewport.width(canvasWidths.centerViewPort);
         $canvas.width(canvasWidths.center);
         $headerRow.width(canvasWidths.center);
+        $hScrollViewport.width(canvasWidths.viewport);
+        $hScrollCanvas.width(canvasWidths.center + canvasWidths.left);
         viewportHasHScroll = (canvasWidths.center > viewportW - scrollbarDimensions.width);
+
+        if (viewportHasHScroll) {
+          $gridBodyViewport.css("bottom", scrollbarDimensions.height);
+          $hScrollViewport.css("display", "block");
+        } else {
+          $gridBodyViewport.css("bottom", 0);
+          $hScrollViewport.css("display", "hidden");
+        }
       }
 
       if (!oldCanvasWidths || canvasWidths.center !== oldCanvasWidths.center || forceColumnWidthsUpdate) {
@@ -444,6 +464,7 @@ if (typeof Slick === "undefined") {
 
     function unbindAncestorScrollEvents() {
       $canvas.parents().unbind("scroll.slickgrid");
+      $hScrollCanvas.parents().unbind("scroll.slickgrid");
     }
 
     function updateColumnHeader(columnId, title, toolTip) {
@@ -499,7 +520,7 @@ if (typeof Slick === "undefined") {
           $headerDockLeft.css("width", $headerDockLeft.outerWidth() + header.outerWidth());
           $headerScroller.css("width", $headerScroller.outerWidth() - header.outerWidth());
 
-          $viewportDockLeft.css("width", $viewportDockLeft.outerWidth() + header.outerWidth());
+          $canvasDockLeft.css("width", $canvasDockLeft.outerWidth() + header.outerWidth());
           $viewport.css("width", $viewport.outerWidth() - header.outerWidth());
         } else {
           header.appendTo($headers);
@@ -914,7 +935,7 @@ if (typeof Slick === "undefined") {
         return {
           dock: 'left',
           column: column,
-          viewport: $viewportDockLeft,
+          viewport: $canvasDockLeft,
           canvas: $canvasDockLeft
         };
       } else if (column.dock === "right") {
@@ -1151,7 +1172,8 @@ if (typeof Slick === "undefined") {
         createCssRules();
         resizeCanvas();
         applyColumnWidths();
-        handleScroll();
+        handleVerticalScroll();
+        handleHorizontalScroll();
       }
     }
 
@@ -1244,8 +1266,6 @@ if (typeof Slick === "undefined") {
         cleanupRows(range.top, range.bottom);
         updateRowPositions();
       }
-
-      $viewportDockLeft[0].scrollTop = newScrollTop;
 
       if (prevScrollTop != newScrollTop) {
         scrollDir = (prevScrollTop + oldOffset < newScrollTop + offset) ? 1 : -1;
@@ -1477,8 +1497,7 @@ if (typeof Slick === "undefined") {
 
       numVisibleRows = Math.ceil(viewportH / options.rowHeight);
       viewportW = parseFloat($.css($container[0], "width", true));
-      $viewport.height(viewportH);
-      $viewportDockLeft.height(viewportH);
+      $hScrollViewport.height(viewportH);
 
       if (options.forceFitColumns) {
         autosizeColumns();
@@ -1497,6 +1516,8 @@ if (typeof Slick === "undefined") {
       var oldViewportHasVScroll = viewportHasVScroll;
       // with autoHeight, we do not need to accommodate the vertical scroll bar
       viewportHasVScroll = !options.autoHeight && (numberOfRows * options.rowHeight > viewportH);
+
+      $gridBodyViewport.css("overflow-y", viewportHasVScroll ? "auto" : "hidden");
 
       // remove the rows that are now outside of the data range
       // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
@@ -1523,6 +1544,7 @@ if (typeof Slick === "undefined") {
       }
 
       if (h !== oldH) {
+        $viewport.css("height", h);
         $canvas.css("height", h);
         $canvasDockLeft.css("height", h);
         scrollTop = $viewport[0].scrollTop;
@@ -1721,11 +1743,12 @@ if (typeof Slick === "undefined") {
       trigger(self.onScroll, {scrollTop: scrollTop});
     }
 
-    function handleScroll() {
-      var scrollLeft = $viewport[0].scrollLeft;
+    function handleHorizontalScroll() {
+      var scrollLeft = $hScrollViewport[0].scrollLeft;
 
       if (scrollLeft !== prevScrollLeft) {
         prevScrollLeft = scrollLeft;
+        $viewport[0].scrollLeft = scrollLeft;
         $headerScroller[0].scrollLeft = scrollLeft;
         $topPanelScroller[0].scrollLeft = scrollLeft;
         $headerRowScroller[0].scrollLeft = scrollLeft;
