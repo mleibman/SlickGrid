@@ -113,6 +113,7 @@ if (typeof Slick === "undefined") {
     var uid = "slickgrid_" + Math.round(1000000 * Math.random());
     var self = this;
     var $focusSink;
+    var $headerContainer;
     var $headerScroller;
     var $headers;
     var $headerDockLeft;
@@ -213,16 +214,18 @@ if (typeof Slick === "undefined") {
 
       $focusSink = $("<div tabIndex='0' hideFocus style='position:fixed;width:0;height:0;top:0;left:0;outline:0;'></div>").appendTo($container);
 
-      $headerDockLeft = $("<div class='slick-header ui-state-default' style='overflow: hidden; position: relative; display: inline-block; width: 0px;' />").appendTo($container);
+      $headerContainer = $("<div style='width:100%' />").appendTo($container);
+
+      $headerDockLeft = $("<div class='slick-header ui-state-default' style='overflow: hidden; position: relative; display: inline-block; width: 0px;' />").appendTo($headerContainer);
       $headerDockLeftCanvas = $("<div class='slick-header-columns' style='width:10000px; left:-1000px' />").appendTo($headerDockLeft);
 
-      $headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;display:inline-block;' />").appendTo($container);
+      $headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;display:inline-block;' />").appendTo($headerContainer);
       $headers = $("<div class='slick-header-columns' style='width:10000px; left:-1000px' />").appendTo($headerScroller);
 
-      $headerRowScroller = $("<div class='slick-headerrow ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+      $headerRowScroller = $("<div class='slick-headerrow ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($headerContainer);
       $headerRow = $("<div class='slick-headerrow-columns' />").appendTo($headerRowScroller);
 
-      $topPanelScroller = $("<div class='slick-top-panel-scroller ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+      $topPanelScroller = $("<div class='slick-top-panel-scroller ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($headerContainer);
       $topPanel = $("<div class='slick-top-panel' style='width:10000px' />").appendTo($topPanelScroller);
 
       if (!options.showTopPanel) {
@@ -233,10 +236,10 @@ if (typeof Slick === "undefined") {
         $headerRowScroller.hide();
       }
 
-      $viewportDockLeft = $("<div style='width: 0px; overflow: hidden; outline: 0; position: relative; margin-top: -2px; display: inline-block;'/>").appendTo($container);
+      $viewportDockLeft = $("<div style='width: 0px; overflow: hidden; outline: 0; position: relative; margin-top: -3px; display: inline-block;'/>").appendTo($container);
       $canvasDockLeft = $("<div class='grid-canvas' />").appendTo($viewportDockLeft);
 
-      $viewport = $("<div class='slick-viewport' style='width:100%;overflow:auto;outline:0;position:relative;margin-top:-2px; display: inline-block;'/>").appendTo($container);
+      $viewport = $("<div class='slick-viewport' style='width:100%;overflow:auto;outline:0;position:relative;margin-top:-3px; display: inline-block;'/>").appendTo($container);
       $viewport.css("overflow-y", options.autoHeight ? "hidden" : "auto");
 
       $canvas = $("<div class='grid-canvas' />").appendTo($viewport);
