@@ -1435,12 +1435,21 @@ if (typeof Slick === "undefined") {
     }
 
     function removeRowFromCache(row) {
-      var cacheEntry = rowsCache[row];
+      var cacheEntry = rowsCache[row],
+          cacheEntryLeft = rowsCacheDockLeft[row],
+          cacheEntryRight = rowsCacheDockRight[row];
+
       if (!cacheEntry) {
         return;
       }
+
       $canvas[0].removeChild(cacheEntry.rowNode);
+      $canvasDockLeft[0].removeChild(cacheEntryLeft.rowNode);
+      $canvasDockRight[0].removeChild(cacheEntryRight.rowNode);
+
       delete rowsCache[row];
+      delete rowsCacheDockLeft[row];
+      delete rowsCacheDockRight[row];
       delete postProcessedRows[row];
       renderedRows--;
       counter_rows_removed++;
