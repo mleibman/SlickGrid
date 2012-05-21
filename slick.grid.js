@@ -1522,15 +1522,11 @@ if (typeof Slick === "undefined") {
       x.innerHTML = stringArray.join("");
 
       for (var i = 0, ii = x.childNodes.length; i < ii; i++) {
-        var rowNode = x.firstChild;
-
         rowsCache[rows[i]] = {
-          "rowNode": rowNode,
+          "rowNode": parentNode.appendChild(x.firstChild),
           "cellNodes": null,
           "cellNodesByColumnIdx": null
         };
-
-        parentNode.appendChild(rowNode);
       }
 
       if (needToReselectCell) {
