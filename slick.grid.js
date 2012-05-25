@@ -134,6 +134,7 @@ if (typeof Slick === "undefined") {
     var $style;
     var stylesheet, columnCssRulesL, columnCssRulesR;
     var viewportH, viewportW;
+    var autoContainerH, initialContainerH;
     var canvasWidths;
     var viewportHasHScroll, viewportHasVScroll;
     var headerColumnWidthDiff = 0, headerColumnHeightDiff = 0, // border+padding
@@ -189,6 +190,8 @@ if (typeof Slick === "undefined") {
       if ($container.length < 1) {
         throw new Error("SlickGrid requires a valid container, " + container + " does not exist in the DOM.");
       }
+
+      initialContainerH = $container.height();
 
       // calculate these only once and share between grid instances
       maxSupportedCssHeight = maxSupportedCssHeight || getMaxSupportedCssHeight();
@@ -257,7 +260,6 @@ if (typeof Slick === "undefined") {
       $canvasDockLeft = $("<div class='grid-canvas' style='width:0px;position:relative;outline:0px;display:inline-block;' />").appendTo($gridBodyViewport);
 
       $viewport = $("<div class='slick-viewport' style='width:100%;overflow:hidden;outline:0;position:relative;display:inline-block;'/>").appendTo($gridBodyViewport);
-      //$viewport.css("overflow-y", options.autoHeight ? "hidden" : "auto");
 
       $canvas = $("<div class='grid-canvas' />").appendTo($viewport);
 
@@ -421,14 +423,14 @@ if (typeof Slick === "undefined") {
         $headerRow.width(canvasWidths.center);
         $hScrollViewport.width(canvasWidths.viewport);
         $hScrollCanvas.width(canvasWidths.full);
-        viewportHasHScroll = (canvasWidths.center > viewportW - scrollbarDimensions.width);
+        viewportHasHScroll = (canvasWidths.center > viewportW - (viewportHasVScroll ? scrollbarDimensions.width : 0));
 
         if (viewportHasHScroll) {
           $gridBodyViewport.css("bottom", scrollbarDimensions.height);
           $hScrollViewport.css("display", "block");
         } else {
           $gridBodyViewport.css("bottom", 0);
-          $hScrollViewport.css("display", "hidden");
+          $hScrollViewport.css("display", "none");
         }
       }
 
@@ -1527,8 +1529,10 @@ if (typeof Slick === "undefined") {
       if (!initialized) { return; }
       if (options.autoHeight) {
         viewportH = options.rowHeight * (getDataLength() + (options.enableAddRow ? 1 : 0) + (options.leaveSpaceForNewRows ? numVisibleRows - 1 : 0));
+        autoContainerH = viewportH + $headerContainer.height();
       } else {
         viewportH = getViewportHeight();
+        autoContainerH = initialContainerH;
       }
 
       numVisibleRows = Math.ceil(viewportH / options.rowHeight);
@@ -1733,6 +1737,8 @@ if (typeof Slick === "undefined") {
       if (!initialized) { return; }
       var visible = getVisibleRange();
       var rendered = getRenderedRange();
+
+      $container.height(autoContainerH + (viewportHasHScroll ? scrollbarDimensions.height : 0));
 
       // remove rows no longer in the viewport
       cleanupRows(rendered);
