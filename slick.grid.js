@@ -1671,6 +1671,7 @@ if (typeof Slick === "undefined") {
     function renderRows(range) {
       var parentNode = $canvas[0],
           parentDockLeftNode = $canvasDockLeft[0],
+          parentDockRightNode = $canvasDockRight[0],
           stringArray = [],
           stringArrayDockLeft = [],
           stringArrayDockRight = [],
