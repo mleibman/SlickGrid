@@ -2699,6 +2699,9 @@ if (typeof Slick === "undefined") {
       selectionModel.setSelectedRanges(rowsToRanges(rows));
     }
 
+    function containerId() {
+        return container;
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Debug
@@ -2829,6 +2832,7 @@ if (typeof Slick === "undefined") {
       "setCellCssStyles": setCellCssStyles,
       "removeCellCssStyles": removeCellCssStyles,
       "getCellCssStyles": getCellCssStyles,
+      "containerId": containerId,
 
       "init": finishInitialization,
       "destroy": destroy,
