@@ -413,10 +413,15 @@ if (typeof Slick === "undefined") {
     }
 
     function updateCanvasWidth(forceColumnWidthsUpdate) {
-      var oldCanvasWidths = canvasWidths;
+      var oldCanvasWidths = canvasWidths,
+          hasChanges = !oldCanvasWidths;
       canvasWidths = getCanvasWidths();
 
-      if (!oldCanvasWidths || canvasWidths.center !== oldCanvasWidths.center) {
+      for(var key in canvasWidths) {
+        hasChanges = hasChanges || canvasWidths[key] !== oldCanvasWidths[key];
+      }
+
+      if (hasChanges) {
         $viewport.width(canvasWidths.centerViewPort);
         $headerScroller.width(canvasWidths.centerViewPort);
         $canvas.width(canvasWidths.center);
@@ -1559,7 +1564,6 @@ if (typeof Slick === "undefined") {
 
       $gridBodyViewport.css("overflow-y", viewportHasVScroll ? "auto" : "hidden");
       $headerDockScrollFiller.css("width", viewportHasVScroll ? scrollbarDimensions.width : 0);
-
 
       // remove the rows that are now outside of the data range
       // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
