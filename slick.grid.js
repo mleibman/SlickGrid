@@ -439,7 +439,7 @@ if (typeof Slick === "undefined") {
         }
       }
 
-      if (!oldCanvasWidths || canvasWidths.center !== oldCanvasWidths.center || forceColumnWidthsUpdate) {
+      if (hasChanges || forceColumnWidthsUpdate) {
         applyColumnWidths();
       }
     }
