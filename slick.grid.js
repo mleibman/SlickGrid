@@ -1427,7 +1427,7 @@ if (typeof Slick === "undefined") {
                     $viewportBottomL[0].scrollTop = $viewportBottomR[0].scrollTop = newTop;
                 }
 
-                $viewportTopL[0].scrollTop = newScrollTop;
+                $viewportTopL[0].scrollTop = newTop;
 
                 trigger(self.onViewportChanged, {});
             }
