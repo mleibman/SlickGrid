@@ -290,8 +290,7 @@ if (typeof Slick === "undefined") {
             $topPanelScrollerL = $("<div class='ui-state-default slick-top-panel-scroller' />").appendTo($paneTopL);
             $topPanelScrollerR = $("<div class='ui-state-default slick-top-panel-scroller' />").appendTo($paneTopR);
 
-            $topPanelScroller = $().add($topPanelScrollerL).add(
-            $topPanelScrollerR);
+            $topPanelScroller = $().add($topPanelScrollerL).add($topPanelScrollerR);
 
             // Append the top panel
             $topPanelL = $("<div class='slick-top-panel' style='width:10000px' />").appendTo($topPanelScrollerL);
@@ -314,8 +313,7 @@ if (typeof Slick === "undefined") {
             $viewportBottomR = $("<div class='slick-viewport slick-viewport-bottom slick-viewport-right' tabIndex='0' hideFocus />").appendTo($paneBottomR);
 
             // Cache the viewports
-            $viewport = $().add($viewportTopL).add($viewportTopR).add(
-            $viewportBottomL).add($viewportBottomR);
+            $viewport = $().add($viewportTopL).add($viewportTopR).add($viewportBottomL).add($viewportBottomR);
 
             setOverflow();
 
@@ -441,22 +439,21 @@ if (typeof Slick === "undefined") {
         function getCanvasWidth() {
             var availableWidth = viewportHasVScroll ? viewportW - scrollbarDimensions.width : viewportW;
 
-            var rowWidthL = 0,
-                rowWidthR = 0,
-                i = columns.length;
+            var i = columns.length;
+
+            canvasWidthL = canvasWidthR = 0;
 
             while (i--) {
                 if ((options.frozenColumn > -1) && (i > options.frozenColumn)) {
-                    rowWidthR += (columns[i].width || columnDefaults.width);
+                    canvasWidthR += (columns[i].width || columnDefaults.width);
                 } else {
-                    rowWidthL += (columns[i].width || columnDefaults.width);
+                    canvasWidthL += (columns[i].width || columnDefaults.width);
                 }
             }
 
-            canvasWidthL = rowWidthL;
-            canvasWidthR = rowWidthR;
+            var totalRowWidth = canvasWidthL + canvasWidthR;
 
-            return options.fullWidthRows ? Math.max(rowWidth, availableWidth) : rowWidthL;
+            return options.fullWidthRows ? Math.max(totalRowWidth, availableWidth) : totalRowWidth;
         }
 
         function updateCanvasWidth(forceColumnWidthsUpdate) {
@@ -464,25 +461,26 @@ if (typeof Slick === "undefined") {
             canvasWidth = getCanvasWidth();
 
             if (canvasWidth != oldCanvasWidth) {
+                $paneTopR.css("left", canvasWidthL);
+
+                $viewportTopL.width(canvasWidthL);
+                $viewportTopR.width(viewportW - canvasWidthL);
+                $viewportBottomL.width(canvasWidthL);
+                $viewportBottomR.width(viewportW - canvasWidthL);
+
                 $canvasTopL.width(canvasWidthL);
+                $canvasTopR.width(canvasWidthR);
+                $canvasBottomL.width(canvasWidthL);
+                $canvasBottomR.width(canvasWidthR);
+
                 $headerScrollerL.width(canvasWidthL);
+                $headerScrollerR.width(canvasWidthR);
+
                 $headerRowScrollerL.width(canvasWidthL);
+                $headerRowScrollerR.width(canvasWidthR);
+
                 $headerRowL.width(canvasWidthL);
-
-                if (options.frozenColumn > -1) {
-                    $canvasTopR.width(canvasWidthR);
-                    $headerScrollerR.width(canvasWidthR);
-                    $headerRowScrollerR.width(canvasWidthR);
-                    $headerRowR.width(canvasWidthR);
-                }
-
-                if (options.frozenRow > -1) {
-                    $canvasBottomL.width(canvasWidthL);
-                }
-
-                if (options.frozenColumn > -1) {
-                    $canvasBottomR.width(canvasWidthR);
-                }
+                $headerRowR.width(canvasWidthR);
 
                 viewportHasHScroll = (canvasWidth > viewportW - scrollbarDimensions.width);
             }
@@ -767,38 +765,39 @@ if (typeof Slick === "undefined") {
         }
 
         function setupColumnResize() {
-            var $col, j, c, pageX, columnElements, minPageX, maxPageX, firstResizable, lastResizable, originalCanvasWidth;
+            var $col, j, c, pageX, columnElements, minPageX, maxPageX, firstResizable, lastResizable;
             columnElements = $headers.children();
             columnElements.find(".slick-resizable-handle").remove();
-            columnElements.each(function(i,e) {
+            columnElements.each(function(i, e) {
                 if (columns[i].resizable) {
-                    if (firstResizable === undefined) { firstResizable = i; }
+                    if (firstResizable === undefined) {
+                        firstResizable = i;
+                    }
                     lastResizable = i;
                 }
             });
             if (firstResizable === undefined) {
                 return;
             }
-            columnElements.each(function(i,e) {
-                if (i < firstResizable || (options.forceFitColumns && i >= lastResizable)) { return; }
+            columnElements.each(function(i, e) {
+                if (i < firstResizable || (options.forceFitColumns && i >= lastResizable)) {
+                    return;
+                }
                 $col = $(e);
                 $("<div class='slick-resizable-handle' />")
                     .appendTo(e)
-                    .hover(
-                        function() {
-                            $(this).toggleClass( 'slick-resizable-handle-hover' );
-                        },
-                        function() {
-                            $(this).toggleClass( 'slick-resizable-handle-hover' );
+                    .bind("dragstart", function(e, dd) {
+                        if (!getEditorLock().commitCurrentEdit()) {
+                            return false;
                         }
-                    )
-                    .on("dragstart", function(e,dd) {
-                        if (!getEditorLock().commitCurrentEdit()) { return false; }
                         pageX = e.pageX;
                         $(this).parent().addClass("slick-header-column-active");
-                        var shrinkLeewayOnRight = null, stretchLeewayOnRight = null;
+                        var shrinkLeewayOnRight = null,
+                            stretchLeewayOnRight = null;
                         // lock each column's width option to current width
-                        columnElements.each(function(i,e) { columns[i].previousWidth = $(e).outerWidth(); });
+                        columnElements.each(function(i, e) {
+                            columns[i].previousWidth = $(e).outerWidth();
+                        });
                         if (options.forceFitColumns) {
                             shrinkLeewayOnRight = 0;
                             stretchLeewayOnRight = 0;
@@ -809,8 +808,7 @@ if (typeof Slick === "undefined") {
                                     if (stretchLeewayOnRight !== null) {
                                         if (c.maxWidth) {
                                             stretchLeewayOnRight += c.maxWidth - c.previousWidth;
-                                        }
-                                        else {
+                                        } else {
                                             stretchLeewayOnRight = null;
                                         }
                                     }
@@ -818,7 +816,8 @@ if (typeof Slick === "undefined") {
                                 }
                             }
                         }
-                        var shrinkLeewayOnLeft = 0, stretchLeewayOnLeft = 0;
+                        var shrinkLeewayOnLeft = 0,
+                            stretchLeewayOnLeft = 0;
                         for (j = 0; j <= i; j++) {
                             // columns on left only affect minPageX
                             c = columns[j];
@@ -826,25 +825,30 @@ if (typeof Slick === "undefined") {
                                 if (stretchLeewayOnLeft !== null) {
                                     if (c.maxWidth) {
                                         stretchLeewayOnLeft += c.maxWidth - c.previousWidth;
-                                    }
-                                    else {
+                                    } else {
                                         stretchLeewayOnLeft = null;
                                     }
                                 }
                                 shrinkLeewayOnLeft += c.previousWidth - Math.max(c.minWidth || 0, absoluteColumnMinWidth);
                             }
                         }
-
-                        if (shrinkLeewayOnRight === null) { shrinkLeewayOnRight = 100000; }
-                        if (shrinkLeewayOnLeft === null) { shrinkLeewayOnLeft = 100000; }
-                        if (stretchLeewayOnRight === null) { stretchLeewayOnRight = 100000; }
-                        if (stretchLeewayOnLeft === null) { stretchLeewayOnLeft = 100000; }
+                        if (shrinkLeewayOnRight === null) {
+                            shrinkLeewayOnRight = 100000;
+                        }
+                        if (shrinkLeewayOnLeft === null) {
+                            shrinkLeewayOnLeft = 100000;
+                        }
+                        if (stretchLeewayOnRight === null) {
+                            stretchLeewayOnRight = 100000;
+                        }
+                        if (stretchLeewayOnLeft === null) {
+                            stretchLeewayOnLeft = 100000;
+                        }
                         maxPageX = pageX + Math.min(shrinkLeewayOnRight, stretchLeewayOnLeft);
                         minPageX = pageX - Math.min(shrinkLeewayOnLeft, stretchLeewayOnRight);
-                        originalCanvasWidth = $canvas.width();
-                    })
-                    .on("drag", function(e,dd) {
-                        var actualMinWidth, d = Math.min(maxPageX, Math.max(minPageX, e.pageX)) - pageX, x, ci;
+                    }).bind("drag", function(e, dd) {
+                        var actualMinWidth, d = Math.min(maxPageX, Math.max(minPageX, e.pageX)) - pageX,
+                            x;
                         if (d < 0) { // shrink column
                             x = d;
                             for (j = i; j >= 0; j--) {
@@ -870,13 +874,11 @@ if (typeof Slick === "undefined") {
                                             x -= c.maxWidth - c.previousWidth;
                                             c.width = c.maxWidth;
                                         } else {
-                                            c.width =  c.previousWidth + x;
+                                            c.width = c.previousWidth + x;
                                             x = 0;
                                         }
                                     }
                                 }
-                            } else if (options.syncColumnCellResize) {
-                                setCanvasWidth(originalCanvasWidth + d);
                             }
                         } else { // stretch column
                             x = d;
@@ -908,16 +910,13 @@ if (typeof Slick === "undefined") {
                                         }
                                     }
                                 }
-                            } else if (options.syncColumnCellResize) {
-                                setCanvasWidth(originalCanvasWidth + d);
                             }
                         }
                         applyColumnHeaderWidths();
                         if (options.syncColumnCellResize) {
                             applyColumnWidths();
                         }
-                    })
-                    .on("dragend", function(e,dd) {
+                    }).bind("dragend", function(e, dd) {
                         var newWidth;
                         $(this).parent().removeClass("slick-header-column-active");
                         for (j = 0; j < columnElements.length; j++) {
@@ -928,11 +927,11 @@ if (typeof Slick === "undefined") {
                                 invalidateAllRows();
                             }
                         }
-                        applyColumnWidths();
-                        resizeCanvas();
+                        updateCanvasWidth(true);
+                        render();
                         trigger(self.onColumnsResized, {});
                     });
-                });
+            });
         }
 
         function getVBoxDelta($el) {
