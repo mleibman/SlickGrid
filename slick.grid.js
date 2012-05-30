@@ -1542,7 +1542,10 @@ if (typeof Slick === "undefined") {
 
         function cleanupRows(rangeToKeep) {
             for (var i in rowsCache) {
-                if (((i = parseInt(i, 10)) !== activeRow) && (i < rangeToKeep.top || i > rangeToKeep.bottom) && (options.frozenRow > -1 && i >= options.frozenRow)) {
+                if (((i = parseInt(i, 10)) !== activeRow) &&
+                    (i < rangeToKeep.top || i > rangeToKeep.bottom) &&
+                    (options.frozenRow == -1 || (options.frozenRow > -1 && i >= options.frozenRow))
+                   ) {
                     removeRowFromCache(i);
                 }
             }
