@@ -12,9 +12,6 @@
  * cell/row DOM nodes. Cell editors must make sure they implement .destroy() and
  * do proper cleanup.
  *
- * TODO: Fix column resizing with frozen columns (resizing the columns on either
- * side of the frozen column doesn't look right)
- *
  */
 
 // make sure required JavaScript modules are loaded
@@ -462,6 +459,7 @@ if (typeof Slick === "undefined") {
 
             if (canvasWidth != oldCanvasWidth) {
                 $paneTopR.css("left", canvasWidthL);
+                $paneBottomR.css("left", canvasWidthL);
 
                 $viewportTopL.width(canvasWidthL);
                 $viewportTopR.width(viewportW - canvasWidthL);
@@ -1545,7 +1543,10 @@ if (typeof Slick === "undefined") {
 
         function cleanupRows(rangeToKeep) {
             for (var i in rowsCache) {
-                if (((i = parseInt(i, 10)) !== activeRow) && (i < rangeToKeep.top || i > rangeToKeep.bottom) && (options.frozenRow > -1 && i >= options.frozenRow)) {
+                if (((i = parseInt(i, 10)) !== activeRow) &&
+                    (i < rangeToKeep.top || i > rangeToKeep.bottom) &&
+                    (options.frozenRow == -1 || (options.frozenRow > -1 && i >= options.frozenRow))
+                   ) {
                     removeRowFromCache(i);
                 }
             }
