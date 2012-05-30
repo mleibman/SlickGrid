@@ -144,7 +144,7 @@ function myFilter(item, args) {
     return false;
   }
 
-  if (args.searchString != "" && item["title"].indexOf(args.searchString) == -1) {
+  if (args.searchString.toLowerCase() != "" && item["title"].toLowerCase().indexOf(args.searchString) == -1) {
     return false;
   }
 
