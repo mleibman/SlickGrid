@@ -459,6 +459,7 @@ if (typeof Slick === "undefined") {
 
             if (canvasWidth != oldCanvasWidth) {
                 $paneTopR.css("left", canvasWidthL);
+                $paneBottomR.css("left", canvasWidthL);
 
                 $viewportTopL.width(canvasWidthL);
                 $viewportTopR.width(viewportW - canvasWidthL);
