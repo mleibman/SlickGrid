@@ -178,7 +178,7 @@ if (typeof Slick === "undefined") {
       }
 
       // calculate these only once and share between grid instances
-      maxSupportedCssHeight = maxSupportedCssHeight || getMaxSupportedCssHeight();
+      maxSupportedCssHeight = options.maxSupportedCssHeight || maxSupportedCssHeight || getMaxSupportedCssHeight();
       scrollbarDimensions = scrollbarDimensions || measureScrollbar();
 
       options = $.extend({}, defaults, options);
@@ -376,21 +376,25 @@ if (typeof Slick === "undefined") {
     }
 
     function getMaxSupportedCssHeight() {
-      var increment = 1000000;
-      var supportedHeight = increment;
+      var minIncrement = 500000;
       // FF reports the height back but still renders blank after ~6M px
       var testUpTo = ($.browser.mozilla) ? 5000000 : 1000000000;
+      var nextIncrement = Math.floor(testUpTo / 2);
+      var supportedHeight = 0;
+      var testVal = 0;
+      var nextDir = 1;
       var div = $("<div style='display:none' />").appendTo(document.body);
-
-      while (supportedHeight <= testUpTo) {
-        div.css("height", supportedHeight + increment);
-        if (div.height() !== supportedHeight + increment) {
-          break;
+      while (nextIncrement > minIncrement) {
+        testVal += (nextDir * nextIncrement);
+        div.css("height", testVal);
+        if (div.height() !== testVal) {
+          nextDir = -1;
         } else {
-          supportedHeight += increment;
+          nextDir = 1;
+          supportedHeight = testVal;
         }
+        nextIncrement = Math.round(nextIncrement / 2);
       }
-
       div.remove();
       return supportedHeight;
     }
