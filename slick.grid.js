@@ -1387,6 +1387,7 @@ if (typeof Slick === "undefined") {
       }
 
       updateRowCount();
+      handleScroll();
       render();
     }
 
