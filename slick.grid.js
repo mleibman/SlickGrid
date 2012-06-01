@@ -376,18 +376,18 @@ if (typeof Slick === "undefined") {
     }
 
     function getMaxSupportedCssHeight() {
-      var increment = 1000000;
-      var supportedHeight = increment;
+      var supportedHeight = 1000000;
       // FF reports the height back but still renders blank after ~6M px
-      var testUpTo = ($.browser.mozilla) ? 5000000 : 1000000000;
+      var testUpTo = ($.browser.mozilla) ? 6000000 : 1000000000;
       var div = $("<div style='display:none' />").appendTo(document.body);
 
-      while (supportedHeight <= testUpTo) {
-        div.css("height", supportedHeight + increment);
-        if (div.height() !== supportedHeight + increment) {
+      while (true) {
+        var test = supportedHeight * 2;
+        div.css("height", test);
+        if (test > testUpTo || div.height() !== test) {
           break;
         } else {
-          supportedHeight += increment;
+          supportedHeight = test;
         }
       }
 
