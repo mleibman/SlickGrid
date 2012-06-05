@@ -1395,6 +1395,9 @@ if (typeof Slick === "undefined") {
         // Rendering / Scrolling
 
         function scrollTo(y) {
+            y = Math.max(y, 0);
+            y = Math.min(y, th - viewportH);
+
             var oldOffset = offset;
 
             page = Math.min(n - 1, Math.floor(y / ph));
@@ -2731,6 +2734,11 @@ if (typeof Slick === "undefined") {
             }
         }
 
+        function scrollRowToTop(row) {
+            scrollTo(row * options.rowHeight);
+            render();
+        }
+
         function getColspan(row, cell) {
             var metadata = data.getItemMetadata && data.getItemMetadata(row);
             if (!metadata || !metadata.columns) {
@@ -3283,6 +3291,7 @@ if (typeof Slick === "undefined") {
             "resizeCanvas": resizeCanvas,
             "updateRowCount": updateRowCount,
             "scrollRowIntoView": scrollRowIntoView,
+            "scrollRowToTop": scrollRowToTop,
             "getCanvasNode": getCanvasNode,
             "getViewportNode": getViewportNode,
             "focus": setFocus,
