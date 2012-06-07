@@ -49,46 +49,47 @@
 	</head>
 	<body>
 		<div style="position:relative">
-		<div style="width:600px;">
-			<div class="grid-header" style="width:100%">
-				<label>SlickGrid</label>
-                <span style="float:right" class="ui-icon ui-icon-search" title="Toggle search panel" onclick="toggleFilterRow()"></span>
+			<div style="width:600px;">
+				<div class="grid-header" style="width:100%">
+					<label>SlickGrid</label>
+					<span style="float:right" class="ui-icon ui-icon-search" title="Toggle search panel" onclick="toggleFilterRow()"></span>
+				</div>
+				<div id="myGrid" style="width:100%;height:350px;"></div>
+				<div id="pager" style="width:100%;height:20px;"></div>
 			</div>
-			<div id="myGrid" style="width:100%;height:350px;"></div>
-			<div id="pager" style="width:100%;height:20px;"></div>
-		</div>
 
-		<div class="options-panel">
-			<b>Search:</b>
-			<hr/>
-			<div style="padding:6px;">
-				<label style="width:200px;float:left">Frozen Row:</label>
-				<input type=text id="frozenRow" style="width:100px;" value=5>
-				<button id="setFrozenRow">Set</button>
-				<br/><br/>
-				<label style="width:200px;float:left">Frozen Column:</label>
-				<input type=text id="frozenColumn" style="width:100px;" value=-1>
-				<button id="setFrozenColumn">Set</button>
-				<br/><br/>
-				<button id="btnSelectRows">Select first 10 rows</button>
+			<div class="options-panel">
+				<b>Search:</b>
+				<hr/>
+				<div style="padding:6px;">
+					<label style="width:200px;float:left">Frozen Row:</label>
+					<input type=text id="frozenRow" style="width:100px;" value=5>
+					<button id="setFrozenRow">Set</button>
+					<br/><br/>
+					<label style="width:200px;float:left">Frozen Column:</label>
+					<input type=text id="frozenColumn" style="width:100px;" value=-1>
+					<button id="setFrozenColumn">Set</button>
+					<br/><br/>
+					<button id="btnSelectRows">Select first 10 rows</button>
 
-                <br/>
-                <h2>Demonstrates:</h2>
-                <ul>
-                    <li>a filtered Model (DataView) as a data source instead of a simple array</li>
-                    <li>grid reacting to model events (onRowCountChanged, onRowsChanged)</li>
-                    <li>
-                        <b>FAST</b> DataView recalculation and <b>real-time</b> grid updating in response to data changes.<br/>
-                        The grid holds <b>50'000</b> rows, yet you are able to sort, filter, scroll, navigate and edit as if it had 50 rows.
-                    </li>
-                    <li>adding new rows, bidirectional sorting</li>
-                    <li>column options:  cannotTriggerInsert</li>
-                    <li>events: onCellChange, onAddNewRow, onKeyDown, onSelectedRowsChanged, onSort</li>
-                    <li><font color=red>NOTE:</font>  all filters are immediately applied to new/edited rows</li>
-                    <li>Handling row selection against model changes.</li>
-                    <li>Paging.</li>
-                    <li>inline filter panel</li>
-			    </ul>
+					<br/>
+					<h2>Demonstrates:</h2>
+					<ul>
+						<li>a filtered Model (DataView) as a data source instead of a simple array</li>
+						<li>grid reacting to model events (onRowCountChanged, onRowsChanged)</li>
+						<li>
+							<b>FAST</b> DataView recalculation and <b>real-time</b> grid updating in response to data changes.<br/>
+							The grid holds <b>50'000</b> rows, yet you are able to sort, filter, scroll, navigate and edit as if it had 50 rows.
+						</li>
+						<li>adding new rows, bidirectional sorting</li>
+						<li>column options:  cannotTriggerInsert</li>
+						<li>events: onCellChange, onAddNewRow, onKeyDown, onSelectedRowsChanged, onSort</li>
+						<li><font color=red>NOTE:</font>  all filters are immediately applied to new/edited rows</li>
+						<li>Handling row selection against model changes.</li>
+						<li>Paging.</li>
+						<li>inline filter panel</li>
+					</ul>
+				</div>
 			</div>
 		</div>
 
@@ -140,8 +141,6 @@
 		id: "title",
 		name: "Title",
 		field: "title",
-		width: 120,
-		minWidth: 120,
 		cssClass: "cell-title",
 		editor: Slick.Editors.Text,
 		validator: requiredFieldValidator,
@@ -156,8 +155,8 @@
 		id: "%",
 		name: "% Complete",
 		field: "percentComplete",
-		width: 80,
 		resizable: false,
+		width: 80,
 		formatter: Slick.Formatters.PercentComplete,
 		editor: Slick.Editors.PercentComplete,
 		sortable: true
@@ -165,22 +164,17 @@
 		id: "start",
 		name: "Start",
 		field: "start",
-		minWidth: 60,
 		editor: Slick.Editors.Date,
 		sortable: true
 	}, {
 		id: "finish",
 		name: "Finish",
 		field: "finish",
-		minWidth: 60,
 		editor: Slick.Editors.Date,
 		sortable: true
 	}, {
 		id: "effort-driven",
 		name: "Effort Driven",
-		width: 80,
-		minWidth: 20,
-		maxWidth: 80,
 		cssClass: "cell-effort-driven",
 		field: "effortDriven",
 		formatter: Slick.Formatters.Checkmark,
@@ -191,8 +185,6 @@
 		id: "title1",
 		name: "Title1",
 		field: "title1",
-		width: 120,
-		minWidth: 120,
 		cssClass: "cell-title",
 		editor: Slick.Editors.Text,
 		validator: requiredFieldValidator,
@@ -201,8 +193,6 @@
 		id: "title2",
 		name: "Title2",
 		field: "title2",
-		width: 120,
-		minWidth: 120,
 		cssClass: "cell-title",
 		editor: Slick.Editors.Text,
 		validator: requiredFieldValidator,
@@ -211,8 +201,6 @@
 		id: "title3",
 		name: "Title3",
 		field: "title3",
-		width: 120,
-		minWidth: 120,
 		cssClass: "cell-title",
 		editor: Slick.Editors.Text,
 		validator: requiredFieldValidator,
@@ -221,8 +209,6 @@
 		id: "title4",
 		name: "Title4",
 		field: "title4",
-		width: 120,
-		minWidth: 120,
 		cssClass: "cell-title",
 		editor: Slick.Editors.Text,
 		validator: requiredFieldValidator,
@@ -267,7 +253,9 @@
 				var header = grid.getHeaderRowColumn(columns[i].id);
 				$(header).empty();
 				$("<input type='text'>")
-					.data("columnId", columns[i].id).val(columnFilters[columns[i].id]).appendTo(header);
+					.data("columnId", columns[i].id)
+					.val(columnFilters[columns[i].id])
+					.appendTo(header);
 			}
 		}
 	}
