@@ -994,7 +994,7 @@ if (typeof Slick === "undefined") {
             });
 
             $viewportBottomR.css({
-                'overflow-x': (options.frozenColumn > -1) ? (options.frozenRow > -1) ? 'auto' : 'auto' : (options.frozenRow > -1) ? 'auto' : 'auto',
+                'overflow-x': (options.frozenColumn > -1) ? (options.frozenRow > -1) ? 'scroll' : 'auto' : (options.frozenRow > -1) ? 'auto' : 'auto',
                 'overflow-y': (options.frozenColumn > -1) ? (options.frozenRow > -1) ? 'auto' : 'auto' : (options.frozenRow > -1) ? 'auto' : 'auto'
             });
         }
