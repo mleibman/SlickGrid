@@ -129,8 +129,7 @@ if (typeof Slick === "undefined") {
         var $style;
         var stylesheet, columnCssRulesL, columnCssRulesR;
         var viewportH, viewportW;
-        var canvasWidth;
-        var canvasWidthL, canvasWidthR;
+        var canvasWidth, canvasWidthL, canvasWidthR;
         var viewportHasHScroll, viewportHasVScroll;
         var headerColumnWidthDiff = 0,
             headerColumnHeightDiff = 0,
@@ -457,9 +456,18 @@ if (typeof Slick === "undefined") {
             var oldCanvasWidth = canvasWidth;
             canvasWidth = getCanvasWidth();
 
-            if (canvasWidth != oldCanvasWidth) {
+            if (canvasWidth != oldCanvasWidth || options.frozenColumn > -1) {
                 $paneTopR.css("left", canvasWidthL);
                 $paneBottomR.css("left", canvasWidthL);
+
+                //$headerScrollerL.width(canvasWidthL);
+                //$headerScrollerR.width(canvasWidthR);
+
+                $headerRowScrollerL.width(canvasWidthL);
+                $headerRowScrollerR.width(canvasWidthR);
+
+                $headerRowL.width(canvasWidthL);
+                $headerRowR.width(canvasWidthR);
 
                 $viewportTopL.width(canvasWidthL);
                 $viewportTopR.width(viewportW - canvasWidthL);
@@ -470,15 +478,6 @@ if (typeof Slick === "undefined") {
                 $canvasTopR.width(canvasWidthR);
                 $canvasBottomL.width(canvasWidthL);
                 $canvasBottomR.width(canvasWidthR);
-
-                $headerScrollerL.width(canvasWidthL);
-                $headerScrollerR.width(canvasWidthR);
-
-                $headerRowScrollerL.width(canvasWidthL);
-                $headerRowScrollerR.width(canvasWidthR);
-
-                $headerRowL.width(canvasWidthL);
-                $headerRowR.width(canvasWidthR);
 
                 viewportHasHScroll = (canvasWidth > viewportW - scrollbarDimensions.width);
             }
@@ -878,6 +877,10 @@ if (typeof Slick === "undefined") {
                                     }
                                 }
                             }
+
+                            if ( options.frozenColumn > -1 ) {
+                                $headerScrollerR.css('left', d);
+                            }
                         } else { // stretch column
                             x = d;
                             for (j = i; j >= 0; j--) {
@@ -909,7 +912,12 @@ if (typeof Slick === "undefined") {
                                     }
                                 }
                             }
+
+                            if ( options.frozenColumn > -1 ) {
+                                $headerScrollerR.css('left', d);
+                            }
                         }
+
                         applyColumnHeaderWidths();
                         if (options.syncColumnCellResize) {
                             applyColumnWidths();
@@ -924,6 +932,10 @@ if (typeof Slick === "undefined") {
                             if (c.previousWidth !== newWidth && c.rerenderOnResize) {
                                 invalidateAllRows();
                             }
+                        }
+
+                        if ( options.frozenColumn > -1 ) {
+                            $headerScrollerR.css('left', 0);
                         }
                         updateCanvasWidth(true);
                         render();
@@ -982,7 +994,7 @@ if (typeof Slick === "undefined") {
             });
 
             $viewportBottomR.css({
-                'overflow-x': (options.frozenColumn > -1) ? (options.frozenRow > -1) ? 'auto' : 'auto' : (options.frozenRow > -1) ? 'auto' : 'auto',
+                'overflow-x': (options.frozenColumn > -1) ? (options.frozenRow > -1) ? 'scroll' : 'auto' : (options.frozenRow > -1) ? 'auto' : 'auto',
                 'overflow-y': (options.frozenColumn > -1) ? (options.frozenRow > -1) ? 'auto' : 'auto' : (options.frozenRow > -1) ? 'auto' : 'auto'
             });
         }
