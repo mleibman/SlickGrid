@@ -93,7 +93,8 @@ if (typeof Slick === "undefined") {
       sortable: false,
       minWidth: 30,
       rerenderOnResize: false,
-      headerCssClass: null
+      headerCssClass: null,
+      visible: true
     };
 
     // scroller
@@ -344,7 +345,10 @@ if (typeof Slick === "undefined") {
       var rowWidth = 0;
       var i = columns.length;
       while (i--) {
-        rowWidth += (columns[i].width || columnDefaults.width);
+        if (columns[i].visble == true)
+        {
+          rowWidth += (columns[i].width || columnDefaults.width);
+        }
       }
       return options.fullWidthRows ? Math.max(rowWidth, availableWidth) : rowWidth;
     }
@@ -448,6 +452,12 @@ if (typeof Slick === "undefined") {
 
       for (var i = 0; i < columns.length; i++) {
         var m = columns[i] = $.extend({}, columnDefaults, columns[i]);
+        
+        if (m.visible == false)
+        {
+          continue;
+        }
+        
         columnsById[m.id] = i;
 
         var header = $("<div class='ui-state-default slick-header-column' id='" + uid + m.id + "' />")
