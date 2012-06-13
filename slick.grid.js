@@ -1837,7 +1837,11 @@ if (typeof Slick === "undefined") {
 
     function handleClick(e) {
       if (!currentEditor) {
-        setFocus();
+        // if this click resulted in some cell child node getting focus,
+        // don't steal it back - keyboard events will still bubble up
+        if (e.target != document.activeElement) {
+          setFocus();
+        }
       }
 
       var cell = getCellFromEvent(e);
@@ -1850,7 +1854,7 @@ if (typeof Slick === "undefined") {
         return;
       }
 
-      if (canCellBeActive(cell.row, cell.cell)) {
+      if ((activeCell != cell.cell || activeRow != cell.row) && canCellBeActive(cell.row, cell.cell)) {
         if (!getEditorLock().isActive() || getEditorLock().commitCurrentEdit()) {
           scrollRowIntoView(cell.row, false);
           setActiveCellInternal(getCellNode(cell.row, cell.cell), (cell.row === getDataLength()) || options.autoEdit);
@@ -2034,8 +2038,6 @@ if (typeof Slick === "undefined") {
           } else {
             makeActiveCellEditable();
           }
-        } else {
-          setFocus();
         }
       } else {
         activeRow = activeCell = null;
