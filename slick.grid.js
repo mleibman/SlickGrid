@@ -1960,10 +1960,17 @@ if (typeof Slick === "undefined") {
         return null;
       }
 
-      return {
-        row:  getRowFromNode($cell[0].parentNode),
-        cell: getCellFromNode($cell[0])
-      };
+      var row = getRowFromNode($cell[0].parentNode);
+      var cell = getCellFromNode($cell[0]);
+
+      if (row == null || cell == null) {
+        return null;
+      } else {
+        return {
+          "row": row,
+          "cell": cell
+        };
+      }
     }
 
     function getCellNodeBox(row, cell) {
