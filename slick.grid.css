@@ -169,6 +169,10 @@ classes should alter those!
 	width: 100%;
 }
 
+.slick-pane-header {
+	display: block;
+}
+
 .slick-header {
 	overflow: hidden;
 	position: relative;
