@@ -55,6 +55,7 @@ if (typeof Slick === "undefined") {
   function SlickGrid(container, data, columns, options) {
     // settings
     var defaults = {
+      renderDelay : 50,
       explicitInitialization: false,
       rowHeight: 25,
       defaultColumnWidth: 80,
@@ -1615,7 +1616,11 @@ if (typeof Slick === "undefined") {
             render();
           }
         } else {
-          h_render = setTimeout(render, 50);
+          if(options.renderDelay <= 0) {
+          	 render();
+          } else {
+          	h_render = setTimeout(render, options.renderDelay);
+          }
         }
 
         trigger(self.onViewportChanged, {});
