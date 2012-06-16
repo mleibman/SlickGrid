@@ -490,6 +490,8 @@ if (typeof Slick === "undefined") {
                     $canvasTopR.width(canvasWidthR);
 
                     if ( options.frozenRow > -1 ) {
+                        $viewportBottomL.width( canvasWidthL );
+
                         $paneBottomR.css('left', canvasWidthL);
 
                         $viewportBottomR.width(viewportW - canvasWidthL);
@@ -885,6 +887,8 @@ if (typeof Slick === "undefined") {
                         if (d < 0) { // shrink column
                             x = d;
 
+                            var newCanvasWidthL = 0, newCanvasWidthR = 0;
+
                             for (j = i; j >= 0; j--) {
                                 c = columns[j];
                                 if (c.resizable) {
@@ -899,20 +903,18 @@ if (typeof Slick === "undefined") {
                                 }
                             }
 
+                            for ( k = 0; k <= i; k++ ) {
+                                c = columns[k];
+
+                                if ((options.frozenColumn > -1) && (k > options.frozenColumn)) {
+                                    newCanvasWidthR += c.width;
+                                } else {
+                                    newCanvasWidthL += c.width;
+                                }
+                            }
+
                             if (options.forceFitColumns) {
                                 x = -d;
-
-                                var newCanvasWidthL = 0, newCanvasWidthR = 0;
-
-                                for ( k = 0; k <= i; k++ ) {
-                                    c = columns[k];
-
-                                    if ((options.frozenColumn > -1) && (k > options.frozenColumn)) {
-                                        newCanvasWidthR += c.width;
-                                    } else {
-                                        newCanvasWidthL += c.width;
-                                    }
-                                }
 
                                 for (j = i + 1; j < columnElements.length; j++) {
                                     c = columns[j];
@@ -932,13 +934,21 @@ if (typeof Slick === "undefined") {
                                         }
                                     }
                                 }
+                            } else {
+                                for (j = i + 1; j < columnElements.length; j++) {
+                                    c = columns[j];
 
-                                if ( options.frozenColumn > -1 && newCanvasWidthL <= canvasWidthL ) {
-                                    $paneHeaderR.css('left', newCanvasWidthL);
+                                    if ((options.frozenColumn > -1) && (j > options.frozenColumn)) {
+                                        newCanvasWidthR += c.width;
+                                    } else {
+                                        newCanvasWidthL += c.width;
+                                    }
                                 }
                             }
                         } else { // stretch column
                             x = d;
+
+                            var newCanvasWidthL = 0, newCanvasWidthR = 0;
 
                             for (j = i; j >= 0; j--) {
                                 c = columns[j];
@@ -953,20 +963,18 @@ if (typeof Slick === "undefined") {
                                 }
                             }
 
+                            for ( k = 0; k <= i; k++ ) {
+                                c = columns[k];
+
+                                if ((options.frozenColumn > -1) && (k > options.frozenColumn)) {
+                                    newCanvasWidthR += c.width;
+                                } else {
+                                    newCanvasWidthL += c.width;
+                                }
+                            }
+
                             if (options.forceFitColumns) {
                                 x = -d;
-
-                                var newCanvasWidthL = 0, newCanvasWidthR = 0;
-
-                                for ( k = 0; k <= i; k++ ) {
-                                    c = columns[k];
-
-                                    if ((options.frozenColumn > -1) && (k > options.frozenColumn)) {
-                                        newCanvasWidthR += c.width;
-                                    } else {
-                                        newCanvasWidthL += c.width;
-                                    }
-                                }
 
                                 for (j = i + 1; j < columnElements.length; j++) {
                                     c = columns[j];
@@ -987,15 +995,26 @@ if (typeof Slick === "undefined") {
                                         }
                                     }
                                 }
+                            } else {
+                                for (j = i + 1; j < columnElements.length; j++) {
+                                    c = columns[j];
 
-                                if ( options.frozenColumn > -1 && newCanvasWidthL >= canvasWidthL ) {
-                                    $paneHeaderR.css('left', newCanvasWidthL);
+                                    if ((options.frozenColumn > -1) && (j > options.frozenColumn)) {
+                                        newCanvasWidthR += c.width;
+                                    } else {
+                                        newCanvasWidthL += c.width;
+                                    }
                                 }
                             }
                         }
 
+                        if ( options.frozenColumn > -1 && newCanvasWidthL != canvasWidthL ) {
+                            $paneHeaderR.css( 'left', newCanvasWidthL );
+                        }
+
                         applyColumnHeaderWidths();
                         if (options.syncColumnCellResize) {
+                            updateCanvasWidth();
                             applyColumnWidths();
                         }
                     }).bind("dragend", function(e, dd) {
