@@ -12,8 +12,7 @@
  * cell/row DOM nodes. Cell editors must make sure they implement .destroy() and
  * do proper cleanup.
  *
- * TODO: Fix row re-ordering
- * TODO: Fix filtering
+ * TODO: Fix filtering?
  *
  */
 
@@ -367,7 +366,7 @@ if (typeof Slick === "undefined") {
                 resizeCanvas();
                 bindAncestorScrollEvents();
 
-                if (options.frozenColumn > -1) {
+                if (jQuery.fn.mousewheel && options.frozenColumn > -1) {
                     if (options.frozenRow > -1) {
                         $viewportBottomL.mousewheel(handleMouseWheel);
                     } else {
@@ -432,7 +431,7 @@ if (typeof Slick === "undefined") {
         }
 
         function getCanvasNode() {
-            return $canvas[0];
+            return $canvas;
         }
 
         function getViewportNode() {
