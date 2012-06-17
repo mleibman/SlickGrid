@@ -12,6 +12,9 @@
  * cell/row DOM nodes. Cell editors must make sure they implement .destroy() and
  * do proper cleanup.
  *
+ * TODO: Fix row re-ordering
+ * TODO: Fix filtering
+ *
  */
 
 // make sure required JavaScript modules are loaded
@@ -2146,7 +2149,7 @@ if (typeof Slick === "undefined") {
                 }
 
                 var d = getDataItem(row),
-                    cellNodes = rowNode.childNodes;
+                    cellNodes = rowNode.children();
                 for (var i = 0, j = 0, l = columns.length; i < l; ++i) {
                     var m = columns[i];
                     if (m.asyncPostRender) {
