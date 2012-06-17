@@ -1764,13 +1764,24 @@ if (typeof Slick === "undefined") {
 
             if (options.autoHeight) {
                 viewportH = options.rowHeight * (getDataLength() + (options.enableAddRow ? 1 : 0) + (options.leaveSpaceForNewRows ? numVisibleRows - 1 : 0));
+                $paneTopL.css( 'position', 'relative' );
             } else {
                 viewportH = getViewportHeight();
             }
 
             numVisibleRows = Math.ceil(viewportH / options.rowHeight);
 
-            var paneTopH = (options.frozenRow > -1) ? (options.rowHeight * options.frozenRow) + parseFloat($.css($headerScrollerL[0], "height")) + getVBoxDelta($headerScrollerL) + (options.showTopPanel ? options.topPanelHeight + getVBoxDelta($topPanelScroller) : 0) + (options.showHeaderRow ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0) : parseFloat($.css($container[0], "height", true));
+            var paneTopH = (options.frozenRow > -1)
+                         ? (options.rowHeight * options.frozenRow)
+                           + parseFloat($.css($headerScrollerL[0], "height"))
+                           + getVBoxDelta($headerScrollerL)
+                           + (options.showTopPanel
+                              ? options.topPanelHeight + getVBoxDelta($topPanelScroller)
+                              : 0)
+                           + (options.showHeaderRow
+                              ? options.headerRowHeight + getVBoxDelta($headerRowScroller)
+                              : 0)
+                         : viewportH;
 
             $paneTopL.css({
                  'top': $paneHeaderL.height()
