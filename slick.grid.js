@@ -1180,7 +1180,7 @@ if (typeof Slick === "undefined") {
 
     function scrollTo(y) {
       y = Math.max(y, 0);
-      y = Math.min(y, th - viewportH);
+      y = Math.min(y, th - viewportH + (viewportHasHScroll ? scrollbarDimensions.height : 0));
 
       var oldOffset = offset;
 
@@ -1867,7 +1867,11 @@ if (typeof Slick === "undefined") {
 
     function handleClick(e) {
       if (!currentEditor) {
-        setFocus();
+        // if this click resulted in some cell child node getting focus,
+        // don't steal it back - keyboard events will still bubble up
+        if (e.target != document.activeElement) {
+          setFocus();
+        }
       }
 
       var cell = getCellFromEvent(e);
@@ -1880,7 +1884,7 @@ if (typeof Slick === "undefined") {
         return;
       }
 
-      if (canCellBeActive(cell.row, cell.cell)) {
+      if ((activeCell != cell.cell || activeRow != cell.row) && canCellBeActive(cell.row, cell.cell)) {
         if (!getEditorLock().isActive() || getEditorLock().commitCurrentEdit()) {
           scrollRowIntoView(cell.row, false);
           setActiveCellInternal(getCellNode(cell.row, cell.cell), (cell.row === getDataLength()) || options.autoEdit);
@@ -1986,10 +1990,17 @@ if (typeof Slick === "undefined") {
         return null;
       }
 
-      return {
-        row:  getRowFromNode($cell[0].parentNode),
-        cell: getCellFromNode($cell[0])
-      };
+      var row = getRowFromNode($cell[0].parentNode);
+      var cell = getCellFromNode($cell[0]);
+
+      if (row == null || cell == null) {
+        return null;
+      } else {
+        return {
+          "row": row,
+          "cell": cell
+        };
+      }
     }
 
     function getCellNodeBox(row, cell) {
@@ -2064,8 +2075,6 @@ if (typeof Slick === "undefined") {
           } else {
             makeActiveCellEditable();
           }
-        } else {
-          setFocus();
         }
       } else {
         activeRow = activeCell = null;
