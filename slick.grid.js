@@ -12,8 +12,7 @@
  * cell/row DOM nodes. Cell editors must make sure they implement .destroy() and
  * do proper cleanup.
  *
- * TODO: Fix row re-ordering
- * TODO: Fix filtering
+ * TODO: Fix filtering?
  *
  */
 
