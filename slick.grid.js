@@ -413,13 +413,29 @@ if (typeof Slick === "undefined") {
     function updateColumnHeader(columnId, title, toolTip) {
       if (!initialized) { return; }
       var idx = getColumnIndex(columnId);
+      var columnDef = columns[idx];
       var $header = $headers.children().eq(idx);
       if ($header) {
-        columns[idx].name = title;
-        columns[idx].toolTip = toolTip;
+        if (title !== undefined) {
+          columns[idx].name = title;
+        }
+        if (toolTip !== undefined) {
+          columns[idx].toolTip = toolTip;
+        }
+
+        trigger(self.onBeforeHeaderDestroy, {
+          "headerNode": $header[0],
+          "column": columnDef
+        });
+
         $header
-            .attr("title", toolTip || title || "")
+            .attr("title", toolTip || "")
             .children().eq(0).html(title);
+
+        trigger(self.onHeaderRendered, {
+          "headerNode": $header[0],
+          "column": columnDef
+        });
       }
     }
 
@@ -442,6 +458,17 @@ if (typeof Slick === "undefined") {
         $(this).removeClass("ui-state-hover");
       }
 
+      $headers.find(".slick-header-column")
+        .each(function() {
+          var columnDef = columns[columnsById[$(this).data("fieldId")]];
+          if (columnDef) {
+            trigger(self.onBeforeHeaderDestroy, {
+              "headerNode": this,
+              "column": columnDef
+            });
+          }
+        });
+
       $headers.empty();
       $headerRow.empty();
       columnsById = {};
@@ -453,7 +480,7 @@ if (typeof Slick === "undefined") {
         var header = $("<div class='ui-state-default slick-header-column' id='" + uid + m.id + "' />")
             .html("<span class='slick-column-name'>" + m.name + "</span>")
             .width(m.width - headerColumnWidthDiff)
-            .attr("title", m.toolTip || m.name || "")
+            .attr("title", m.toolTip || "")
             .data("fieldId", m.id)
             .addClass(m.headerCssClass || "")
             .appendTo($headers);
@@ -465,6 +492,11 @@ if (typeof Slick === "undefined") {
         if (m.sortable) {
           header.append("<span class='slick-sort-indicator' />");
         }
+
+        trigger(self.onHeaderRendered, {
+          "headerNode": header[0],
+          "column": m
+        });
 
         if (options.showHeaderRow) {
           $("<div class='ui-state-default slick-headerrow-column l" + i + " r" + i + "'></div>")
@@ -2753,6 +2785,8 @@ if (typeof Slick === "undefined") {
       "onSort": new Slick.Event(),
       "onHeaderContextMenu": new Slick.Event(),
       "onHeaderClick": new Slick.Event(),
+      "onHeaderRendered": new Slick.Event(),
+      "onBeforeHeaderDestroy": new Slick.Event(),
       "onMouseEnter": new Slick.Event(),
       "onMouseLeave": new Slick.Event(),
       "onClick": new Slick.Event(),
