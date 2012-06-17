@@ -367,7 +367,7 @@ if (typeof Slick === "undefined") {
                 resizeCanvas();
                 bindAncestorScrollEvents();
 
-                if (options.frozenColumn > -1) {
+                if (jQuery.fn.mousewheel && options.frozenColumn > -1) {
                     if (options.frozenRow > -1) {
                         $viewportBottomL.mousewheel(handleMouseWheel);
                     } else {
