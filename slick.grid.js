@@ -432,7 +432,7 @@ if (typeof Slick === "undefined") {
         }
 
         function getCanvasNode() {
-            return $canvas[0];
+            return $canvas;
         }
 
         function getViewportNode() {
