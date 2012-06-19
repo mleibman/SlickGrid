@@ -1081,7 +1081,7 @@ if (typeof Slick === "undefined") {
 
             $viewportTopR.css({
                 'overflow-x': (options.frozenColumn > -1) ? (options.frozenRow > -1) ? 'hidden' : 'scroll' : (options.frozenRow > -1) ? 'hidden' : 'auto',
-                'overflow-y': (options.frozenColumn > -1) ? (options.frozenRow > -1) ? 'scroll' : 'scroll' : (options.frozenRow > -1) ? 'scroll' : 'auto'
+                'overflow-y': (options.frozenColumn > -1) ? (options.frozenRow > -1) ? 'scroll' : 'auto' : (options.frozenRow > -1) ? 'scroll' : 'auto'
             });
 
             $viewportBottomL.css({
@@ -1767,6 +1767,10 @@ if (typeof Slick === "undefined") {
             if (options.autoHeight) {
                 viewportH = options.rowHeight * (getDataLength() + (options.enableAddRow ? 1 : 0) + (options.leaveSpaceForNewRows ? numVisibleRows - 1 : 0));
                 $paneTopL.css( 'position', 'relative' );
+
+                if ( options.frozenColumn > -1 ) {
+                    $container.height( viewportH + parseFloat($.css($headerScrollerL[0], "height")) + scrollbarDimensions.height);
+                }
             } else {
                 viewportH = getViewportHeight();
             }
@@ -1785,12 +1789,20 @@ if (typeof Slick === "undefined") {
                               : 0)
                          : viewportH;
 
+            if ( options.frozenColumn > -1 && options.autoHeight ) {
+                paneTopH += scrollbarDimensions.height;
+            }
+
             $paneTopL.css({
                  'top': $paneHeaderL.height()
                 ,'height': paneTopH
             });
 
             var viewportTopH = (options.frozenRow > -1) ? (options.rowHeight * options.frozenRow) : viewportH;
+
+            if ( options.frozenColumn > -1 && options.autoHeight ) {
+                viewportTopH += scrollbarDimensions.height;
+            }
 
             $viewportTopL.height(viewportTopH);
 
