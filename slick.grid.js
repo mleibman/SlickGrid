@@ -897,7 +897,8 @@ if (typeof Slick === "undefined") {
 
       trigger(self.onBeforeDestroy, {});
 
-      for (var i = 0; i < plugins.length; i++) {
+      var i = plugins.length;
+      while(i--) {
         unregisterPlugin(plugins[i]);
       }
 
