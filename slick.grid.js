@@ -1756,7 +1756,15 @@ if (typeof Slick === "undefined") {
         }
 
         function getViewportHeight() {
-            return parseFloat($.css($container[0], "height", true)) - parseFloat($.css($headerScroller[0], "height")) - getVBoxDelta($headerScroller) - (options.showTopPanel ? options.topPanelHeight + getVBoxDelta($topPanelScroller) : 0) - (options.showHeaderRow ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0);
+            return parseFloat($.css($container[0], "height", true))
+                 - parseFloat($.css($headerScroller[0], "height"))
+                 - getVBoxDelta($headerScroller)
+                 - (options.showTopPanel
+                    ? options.topPanelHeight + getVBoxDelta($topPanelScroller)
+                    : 0)
+                 - (options.showHeaderRow
+                    ? options.headerRowHeight + getVBoxDelta($headerRowScroller)
+                    : 0);
         }
 
         function resizeCanvas() {
@@ -1787,11 +1795,14 @@ if (typeof Slick === "undefined") {
                            + (options.showHeaderRow
                               ? options.headerRowHeight + getVBoxDelta($headerRowScroller)
                               : 0)
-                         : viewportH;
+                         : viewportH
+                           + (options.showHeaderRow
+                              ? options.headerRowHeight + getVBoxDelta($headerRowScroller)
+                              : 0);
 
-            if ( options.frozenColumn > -1 && options.autoHeight ) {
-                paneTopH += scrollbarDimensions.height;
-            }
+            var paneBottomTop = paneTopH;
+
+            paneTopH += ( options.frozenColumn > -1 && options.autoHeight ) ? scrollbarDimensions.height : 0;
 
             $paneTopL.css({
                  'top': $paneHeaderL.height()
@@ -1806,7 +1817,16 @@ if (typeof Slick === "undefined") {
 
             $viewportTopL.height(viewportTopH);
 
-            var paneBottomH = viewportH - viewportTopH + parseFloat($.css($headerScrollerL[0], "height")) + getVBoxDelta($headerScrollerL) + (options.showTopPanel ? options.topPanelHeight + getVBoxDelta($topPanelScroller) : 0) + (options.showHeaderRow ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0);
+            var paneBottomH = viewportH
+                            - viewportTopH
+                            + parseFloat($.css($headerScrollerL[0], "height"))
+                            + getVBoxDelta($headerScrollerL)
+                            + (options.showTopPanel
+                               ? options.topPanelHeight + getVBoxDelta($topPanelScroller)
+                               : 0)
+                            + (options.showHeaderRow
+                               ? options.headerRowHeight + getVBoxDelta($headerRowScroller)
+                               : 0);
 
             var viewportBottomH = viewportH - viewportTopH;
 
@@ -1820,14 +1840,14 @@ if (typeof Slick === "undefined") {
 
                 if (options.frozenRow > -1) {
                     $paneBottomL.css({
-                        'top': paneTopH
+                        'top': paneBottomTop
                     });
 
                     $paneBottomR.css({
-                         'top': paneTopH
+                         'top': paneBottomTop
                     });
 
-                    $viewportBottomR.height(viewportBottomH);
+                    $viewportBottomR.height(viewportBottomH+ ( ( options.frozenColumn > -1 && options.autoHeight ) ? scrollbarDimensions.height : 0 ));
                 }
             } else {
                 if (options.frozenRow > -1) {
@@ -1835,12 +1855,12 @@ if (typeof Slick === "undefined") {
                         'width': '100%'
                     });
 
-                    $paneBottomL.css('top', paneTopH);
+                    $paneBottomL.css('top', paneBottomTop);
                 }
             }
 
             if (options.frozenRow > -1) {
-                $viewportBottomL.height(viewportBottomH);
+                $viewportBottomL.height(viewportBottomH + ( ( options.frozenColumn > -1 && options.autoHeight ) ? scrollbarDimensions.height : 0 ));
 
                 $canvasTopL.height(options.frozenRow * options.rowHeight);
                 $canvasTopR.height(options.frozenRow * options.rowHeight);
