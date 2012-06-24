@@ -89,7 +89,6 @@ if (typeof Slick === "undefined") {
             dataItemColumnValueExtractor: null,
             frozenColumn: -1,
             frozenRow: -1,
-            dataItemColumnValueExtractor: null,
             fullWidthRows: false,
             multiColumnSort: false,
             defaultFormatter: defaultFormatter
