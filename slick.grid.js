@@ -485,6 +485,7 @@ if (typeof Slick === "undefined") {
                     $headerRowL.width(canvasWidthL);
                     $headerRowR.width(canvasWidthR);
 
+                    $paneTopL.width( canvasWidthL );
                     $viewportTopL.width(canvasWidthL);
 
                     $viewportTopR.width(viewportW - canvasWidthL);
@@ -1527,17 +1528,15 @@ if (typeof Slick === "undefined") {
 
                 lastRenderedScrollTop = scrollTop = prevScrollTop = newScrollTop;
 
-                var newTop = options.rowHeight * currentRow;
-
                 if (options.frozenColumn > -1) {
-                    $viewportTopR[0].scrollTop = newTop;
+                    $viewportTopR[0].scrollTop = newScrollTop;
                 }
 
                 if (options.frozenRow > -1) {
-                    $viewportBottomL[0].scrollTop = $viewportBottomR[0].scrollTop = newTop;
+                    $viewportBottomL[0].scrollTop = $viewportBottomR[0].scrollTop = newScrollTop;
                 }
 
-                $viewportTopL[0].scrollTop = newTop;
+                $viewportTopL[0].scrollTop = newScrollTop;
 
                 trigger(self.onViewportChanged, {});
             }
@@ -2133,7 +2132,6 @@ if (typeof Slick === "undefined") {
                 }
 
                 if (h_render) {
-
                     clearTimeout(h_render);
                 }
 
@@ -2161,8 +2159,12 @@ if (typeof Slick === "undefined") {
                 }
 
                 // Scroll up
-                scrollRowIntoView(range.top - delta, false);
+                scrollRowIntoView(range.top - Math.abs(delta), false);
             } else {
+                if ( range.bottom >= getDataLength() ) {
+                    return;
+                }
+
                 // Scroll down
                 // TODO: Eliminate the -2 hack
                 scrollRowIntoView(range.bottom - 2 + Math.abs(delta), false);
