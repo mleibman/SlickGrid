@@ -1506,7 +1506,7 @@ if (typeof Slick === "undefined") {
 
         function scrollTo(y) {
             y = Math.max(y, 0);
-            y = Math.min(y, th - viewportH);
+            y = Math.min(y, th - viewportH + (viewportHasHScroll ? scrollbarDimensions.height : 0));
 
             var oldOffset = offset;
 
@@ -1525,7 +1525,7 @@ if (typeof Slick === "undefined") {
             if (prevScrollTop != newScrollTop) {
                 scrollDir = (prevScrollTop + oldOffset < newScrollTop + offset) ? 1 : -1;
 
-                lastRenderedScrollTop = scrollTop = prevScrollTop = newScrollTop;
+                lastRenderedScrollTop = ( scrollTop = prevScrollTop = newScrollTop );
 
                 if (options.frozenColumn > -1) {
                     $viewportTopR[0].scrollTop = newScrollTop;
@@ -2160,10 +2160,6 @@ if (typeof Slick === "undefined") {
                 // Scroll up
                 scrollRowIntoView(range.top - Math.abs(delta), false);
             } else {
-                if ( range.bottom >= getDataLength() ) {
-                    return;
-                }
-
                 // Scroll down
                 // TODO: Eliminate the -2 hack
                 scrollRowIntoView(range.bottom - 2 + Math.abs(delta), false);
