@@ -927,7 +927,8 @@ if (typeof Slick === "undefined") {
 
       trigger(self.onBeforeDestroy, {});
 
-      for (var i = 0; i < plugins.length; i++) {
+      var i = plugins.length;
+      while(i--) {
         unregisterPlugin(plugins[i]);
       }
 
@@ -1697,11 +1698,10 @@ if (typeof Slick === "undefined") {
         }
 
         ensureCellNodesInRowsCache(row);
-        for (var columnIdx in cacheEntry.cellNodesByColumnIdx) {
-          columnIdx = columnIdx | 0;
-          var m = columns[columnIdx];
+        for (var i = 0; i < cacheEntry.cellNodesByColumnIdx.length; i++) {
+          var m = columns[i];
           if (m.asyncPostRender) {
-            var node = cacheEntry.cellNodesByColumnIdx[columnIdx];
+            var node = cacheEntry.cellNodesByColumnIdx[i];
             m.asyncPostRender(node, postProcessFromRow, getDataItem(row), m);
           }
         }
