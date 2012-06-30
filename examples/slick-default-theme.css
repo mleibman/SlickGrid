@@ -86,7 +86,7 @@ classes should alter those!
   background: silver !important;
 }
 
-.slick-row[row$="1"], .slick-row[row$="3"], .slick-row[row$="5"], .slick-row[row$="7"], .slick-row[row$="9"] {
+.slick-row.odd {
   background: #fafafa;
 }
 
