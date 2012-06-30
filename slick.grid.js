@@ -2221,6 +2221,10 @@ if (typeof Slick === "undefined") {
 
             render();
             event.preventDefault();
+
+            trigger(self.onMouseWheel, {
+                scrollTop: scrollTop
+            });
         }
 
         function asyncPostProcessRows() {
@@ -3468,6 +3472,7 @@ if (typeof Slick === "undefined") {
 
             // Events
             "onScroll": new Slick.Event(),
+            "onMouseWheel" : new Slick.Event(),
             "onSort": new Slick.Event(),
             "onHeaderMouseEnter": new Slick.Event(),
             "onHeaderMouseLeave": new Slick.Event(),
