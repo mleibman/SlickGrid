@@ -15,6 +15,7 @@
         var _viewportTop;
         var _viewportBottom;
     var _self = this;
+    var _handler = new Slick.EventHandler();
 
     function init(grid) {
       _grid = grid;
@@ -23,17 +24,15 @@
             _viewport = _grid.getViewportNode();
             _viewportTop = $(_viewport).offset().top;
             _viewportBottom = _viewportTop + _viewport.clientHeight;
-      _grid.onDragInit.subscribe(handleDragInit);
-      _grid.onDragStart.subscribe(handleDragStart);
-      _grid.onDrag.subscribe(handleDrag);
-      _grid.onDragEnd.subscribe(handleDragEnd);
+      _handler
+        .subscribe(_grid.onDragInit, handleDragInit)
+        .subscribe(_grid.onDragStart, handleDragStart)
+        .subscribe(_grid.onDrag, handleDrag)
+        .subscribe(_grid.onDragEnd, handleDragEnd);
     }
 
     function destroy() {
-      _grid.onDragInit.unsubscribe(handleDragInit);
-      _grid.onDragStart.unsubscribe(handleDragStart);
-      _grid.onDrag.unsubscribe(handleDrag);
-      _grid.onDragEnd.unsubscribe(handleDragEnd);
+      _handler.unsubscribeAll();
     }
 
     function handleDragInit(e, dd) {

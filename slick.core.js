@@ -139,6 +139,8 @@
         handler: handler
       });
       event.subscribe(handler);
+
+      return this;  // allow chaining
     };
 
     this.unsubscribe = function (event, handler) {
@@ -151,6 +153,8 @@
           return;
         }
       }
+
+      return this;  // allow chaining
     };
 
     this.unsubscribeAll = function () {
@@ -159,6 +163,8 @@
         handlers[i].event.unsubscribe(handlers[i].handler);
       }
       handlers = [];
+
+      return this;  // allow chaining
     }
   }
 
