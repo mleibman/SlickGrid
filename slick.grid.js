@@ -2708,14 +2708,14 @@ if (typeof Slick === "undefined") {
                 var $activeCellNode = $(activeCellNode);
                 var $activeCellOffset = $activeCellNode.offset();
 
-                var rowOffset = $activeCellNode.parents('.grid-canvas').offset().top;
+                var rowOffset = Math.floor( $activeCellNode.parents('.grid-canvas').offset().top );
                 var isBottom = $activeCellNode.parents('.grid-canvas-bottom').length;
 
                 if ( options.frozenRow > -1 && isBottom ) {
                     rowOffset -= options.frozenRow * options.rowHeight;
                 }
 
-                cell = getCellFromPoint($activeCellOffset.left, $activeCellOffset.top - rowOffset);
+                cell = getCellFromPoint($activeCellOffset.left, Math.ceil($activeCellOffset.top) - rowOffset);
 
                 activeRow = cell.row;
                 activeCell = activePosX = activeCell = activePosX = getCellFromNode(activeCellNode);
