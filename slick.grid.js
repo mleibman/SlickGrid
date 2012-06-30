@@ -1540,7 +1540,7 @@ if (typeof Slick === "undefined") {
 
         function scrollTo(y) {
             y = Math.max(y, 0);
-            y = Math.min(y, th - viewportH + (viewportHasHScroll ? scrollbarDimensions.height : 0));
+            y = Math.min(y, th - viewportH + ((viewportHasHScroll || options.frozenColumn > -1) ? scrollbarDimensions.height : 0));
 
             var oldOffset = offset;
 
@@ -2212,19 +2212,19 @@ if (typeof Slick === "undefined") {
             var range = getVisibleRange();
 
             if (delta > 0) {
-                if (range.top == 0) {
-                    return;
-                }
-
                 // Scroll up
-                scrollRowIntoView(range.top - Math.abs(delta), false);
+                scrollTo(scrollTop - (Math.abs(delta) * options.rowHeight));
             } else {
                 // Scroll down
-                // TODO: Eliminate the -2 hack
-                scrollRowIntoView(range.bottom - 2 + Math.abs(delta), false);
+                scrollTo(scrollTop + (Math.abs(delta) * options.rowHeight));
             }
 
+            render();
             event.preventDefault();
+
+            trigger(self.onMouseWheel, {
+                scrollTop: scrollTop
+            });
         }
 
         function asyncPostProcessRows() {
@@ -2705,17 +2705,17 @@ if (typeof Slick === "undefined") {
             activeCellNode = newCell;
 
             if (activeCellNode != null) {
-                $activeCellNode = $(activeCellNode);
-                $activeCellOffset = $activeCellNode.offset();
+                var $activeCellNode = $(activeCellNode);
+                var $activeCellOffset = $activeCellNode.offset();
 
-                var rowOffset = $activeCellNode.parents('.grid-canvas').offset().top;
+                var rowOffset = Math.floor( $activeCellNode.parents('.grid-canvas').offset().top );
                 var isBottom = $activeCellNode.parents('.grid-canvas-bottom').length;
 
                 if ( options.frozenRow > -1 && isBottom ) {
                     rowOffset -= options.frozenRow * options.rowHeight;
                 }
 
-                cell = getCellFromPoint($activeCellOffset.left, $activeCellOffset.top - rowOffset);
+                cell = getCellFromPoint($activeCellOffset.left, Math.ceil($activeCellOffset.top) - rowOffset);
 
                 activeRow = cell.row;
                 activeCell = activePosX = activeCell = activePosX = getCellFromNode(activeCellNode);
@@ -3472,6 +3472,7 @@ if (typeof Slick === "undefined") {
 
             // Events
             "onScroll": new Slick.Event(),
+            "onMouseWheel" : new Slick.Event(),
             "onSort": new Slick.Event(),
             "onHeaderMouseEnter": new Slick.Event(),
             "onHeaderMouseLeave": new Slick.Event(),
