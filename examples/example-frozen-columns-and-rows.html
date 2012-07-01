@@ -381,6 +381,18 @@
 			e.preventDefault();
 		});
 
+		grid.onMouseEnter.subscribe(function(e) {
+			var cell = this.getCellFromEvent(e);
+
+			this.setSelectedRows([cell.row]);
+			e.preventDefault();
+		});
+
+		grid.onMouseLeave.subscribe(function(e) {
+			this.setSelectedRows([]);
+			e.preventDefault();
+		});
+
 		grid.onSort.subscribe(function(e, args) {
 			sortdir = args.sortAsc ? 1 : -1;
 			sortcol = args.sortCol.field;
