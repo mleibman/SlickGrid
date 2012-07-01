@@ -262,6 +262,18 @@
                 e.preventDefault();
             });
 
+			grid.onMouseEnter.subscribe(function(e) {
+				var cell = this.getCellFromEvent(e);
+
+				this.setSelectedRows([cell.row]);
+                e.preventDefault();
+			});
+
+			grid.onMouseLeave.subscribe(function(e) {
+				this.setSelectedRows([]);
+                e.preventDefault();
+			});
+
 			grid.onSelectedRowsChanged.subscribe(function(e) {
                 selectedRowIds = [];
                 var rows = grid.getSelectedRows();
@@ -338,7 +350,6 @@
 
 			var h_runfilters = null;
 
-			// wire up the slider to apply the filter to the model
 			// wire up the slider to apply the filter to the model
 			$("#pcSlider,#pcSlider2").slider({
 				"range":	"min",
