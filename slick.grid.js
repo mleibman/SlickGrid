@@ -209,7 +209,8 @@ if (typeof Slick === "undefined") {
       $focusSink = $("<div tabIndex='0' hideFocus style='position:fixed;width:0;height:0;top:0;left:0;outline:0;'></div>").appendTo($container);
 
       $headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-      $headers = $("<div class='slick-header-columns' style='width:10000px; left:-1000px' />").appendTo($headerScroller);
+      $headers = $("<div class='slick-header-columns' style='left:-1000px' />").appendTo($headerScroller);
+      $headers.width(getHeadersWidth());
 
       $headerRowScroller = $("<div class='slick-headerrow ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
       $headerRow = $("<div class='slick-headerrow-columns' />").appendTo($headerRowScroller);
@@ -341,6 +342,17 @@ if (typeof Slick === "undefined") {
       return dim;
     }
 
+    function getHeadersWidth() {
+      var headersWidth = 0;
+
+      for (var i = 0, length = columns.length; i < length; i++) {
+        var width = columns[i].width || columnDefaults.width;
+        headersWidth += width;
+      }
+
+      return headersWidth + scrollbarDimensions.width + 1000;
+    }
+
     function getCanvasWidth() {
       var availableWidth = viewportHasVScroll ? viewportW - scrollbarDimensions.width : viewportW;
       var rowWidth = 0;
@@ -357,6 +369,7 @@ if (typeof Slick === "undefined") {
 
       if (canvasWidth != oldCanvasWidth) {
         $canvas.width(canvasWidth);
+        $headers.width(getHeadersWidth());
         $headerRow.width(canvasWidth);
         viewportHasHScroll = (canvasWidth > viewportW - scrollbarDimensions.width);
       }
@@ -472,6 +485,7 @@ if (typeof Slick === "undefined") {
         });
 
       $headers.empty();
+      $headers.width(getHeadersWidth());
       $headerRow.empty();
       columnsById = {};
 
