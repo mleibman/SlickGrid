@@ -2617,7 +2617,7 @@ if (typeof Slick === "undefined") {
                 rowOffset = options.frozenRow * options.rowHeight;
             }
 
-            var row = getCellFromPoint(e.clientX - c.left, e.clientY - c.top + rowOffset).row;
+            var row = getCellFromPoint(e.clientX - c.left, e.clientY - c.top + rowOffset + $(document).scrollTop()).row;
             var cell = getCellFromNode($cell[0]);
 
             if (row == null || cell == null) {
