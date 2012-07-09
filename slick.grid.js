@@ -515,6 +515,9 @@ if (typeof Slick === "undefined") {
 
         if (m.sortable) {
           header.append("<span class='slick-sort-indicator' />");
+          if (options.multiColumnSort) {
+            header.append("<span class='slick-sort-order' />");
+          }
         }
 
         trigger(self.onHeaderRendered, {
@@ -1073,6 +1076,10 @@ if (typeof Slick === "undefined") {
           .find(".slick-sort-indicator")
               .removeClass("slick-sort-indicator-asc slick-sort-indicator-desc");
 
+      headerColumnEls
+          .find(".slick-sort-order")
+          .text('');
+
       $.each(sortColumns, function(i, col) {
         if (col.sortAsc == null) {
           col.sortAsc = true;
@@ -1083,6 +1090,10 @@ if (typeof Slick === "undefined") {
               .addClass("slick-header-column-sorted")
               .find(".slick-sort-indicator")
                   .addClass(col.sortAsc ? "slick-sort-indicator-asc" : "slick-sort-indicator-desc");
+
+          headerColumnEls.eq(columnIndex)
+              .find('.slick-sort-order')
+                  .text(i+1);
         }
       });
     }
