@@ -1513,7 +1513,7 @@ if (typeof Slick === "undefined") {
       // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
       var l = options.enableAddRow ? getDataLength() : getDataLength() - 1;
       for (var i in rowsCache) {
-        if (i >= l) {
+        if (i > l) {
           removeRowFromCache(i);
         }
       }
