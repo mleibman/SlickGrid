@@ -39,7 +39,7 @@
 		<script>
 		var grid;
 		var data = [];
-        var extraColumns = 0;
+        var extraColumns = 100;
 
 		function testPostRender(cellNode, row, dataContext, colDef) {
 			cellNode.style.backgroundColor = 'yellow';
@@ -82,6 +82,18 @@
                 d["effortDriven"] = (i % 5 == 0);
             }
 
+
+            data.getItemMetadata = function (row) {
+              if (row % 2 === 1) {
+                return {
+                  "columns": {
+                    "duration": {
+                      "colspan": 3
+                    }
+                  }
+                };
+              }
+            };
 
             // initialize the grid
             grid = new Slick.Grid("#myGrid", data, columns, options);

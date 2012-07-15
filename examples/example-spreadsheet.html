@@ -23,6 +23,7 @@
   <div class="options-panel">
     <h2>Demonstrates:</h2>
     <ul>
+      <li>Virtual scrolling on both rows and columns.</li>
       <li>Select a range of cells with a mouse</li>
       <li>Use Ctrl-C and Ctrl-V keyboard shortcuts to cut and paste cells</li>
       <li>Use Esc to cancel a copy and paste operation</li>
@@ -66,10 +67,11 @@
     }
   ];
 
-  for (var i = 0; i < 26; i++) {
+  for (var i = 0; i < 100; i++) {
     columns.push({
       id: i,
-      name: String.fromCharCode("A".charCodeAt(0) + i),
+      name: String.fromCharCode("A".charCodeAt(0) + (i / 26) | 0) +
+            String.fromCharCode("A".charCodeAt(0) + (i % 26)),
       field: i,
       width: 60,
       editor: FormulaEditor
