@@ -3127,6 +3127,7 @@ if (typeof Slick === "undefined") {
       "getCellEditor": getCellEditor,
       "getCellNode": getCellNode,
       "getCellNodeBox": getCellNodeBox,
+      "getRowFromNode": getRowFromNode,
       "canCellBeSelected": canCellBeSelected,
       "canCellBeActive": canCellBeActive,
       "navigatePrev": navigatePrev,
