@@ -37,7 +37,7 @@
 <body>
 <div style="width:700px;float:left;">
   <div class="grid-header" style="width:100%">
-    <label>Digg stories</label>
+    <label>Hackernews stories</label>
         <span style="float:right;display:inline-block;">
           Search:
           <input type="text" id="txtSearch" value="apple">
@@ -55,8 +55,7 @@
 
   <h2>WARNING:</h2>
   <ul>
-    <li>Digg API uses request rate limiting. You may occasionally get an error if you do a frequent
-      scrolling/resorting/searching.
+    <li>API access to Hackernews provided through ThriftDB has some latency when paging through results. Be patient.
     </li>
   </ul>
 </div>
@@ -77,15 +76,20 @@
   var loader = new Slick.Data.RemoteModel();
 
   var storyTitleFormatter = function (row, cell, value, columnDef, dataContext) {
-    return "<b><a href='" + dataContext["link"] + "' target=_blank>" +
-        dataContext["title"] + "</a></b><br/>" + dataContext["description"];
+    s ="<b><a href='" + dataContext["url"] + "' target=_blank>" +
+              dataContext["title"] + "</a></b><br/>";
+    desc = dataContext["text"];
+    if (desc) { // on Hackernews many stories don't have a description
+        s += desc;
+    }
+    return s;
   };
 
 
   var columns = [
     {id: "num", name: "#", field: "index", width: 40},
     {id: "story", name: "Story", width: 580, formatter: storyTitleFormatter, cssClass: "cell-story"},
-    {id: "diggs", name: "Diggs", field: "diggs", width: 60, sortable: true}
+    {id: "points", name: "Points", field: "points", width: 60}
   ];
 
   var options = {
@@ -102,12 +106,6 @@
     grid = new Slick.Grid("#myGrid", loader.data, columns, options);
 
     grid.onViewportChanged.subscribe(function (e, args) {
-      var vp = grid.getViewport();
-      loader.ensureData(vp.top, vp.bottom);
-    });
-
-    grid.onSort.subscribe(function (e, args) {
-      loader.setSort(args.sortCol.field, args.sortAsc ? 1 : -1);
       var vp = grid.getViewport();
       loader.ensureData(vp.top, vp.bottom);
     });
