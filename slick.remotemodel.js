@@ -1,7 +1,7 @@
 (function ($) {
   /***
    * A sample AJAX data store implementation.
-   * Right now, it's hooked up to load all AJAX-related Hackernews stories, but can
+   * Right now, it's hooked up to load all Apple-related Hackernews stories, but can
    * easily be extended to support and JSONP-compatible backend that accepts paging parameters.
    */
   function RemoteModel() {
