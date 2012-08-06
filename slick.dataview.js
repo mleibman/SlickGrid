@@ -652,7 +652,11 @@
           if (aggregators) {
             calculateTotals(groups);
           }
-          groups.sort(groupingComparer);
+          if (groupingComparer) {
+              groups.sort(groupingComparer);
+          } else {
+              groups.sort();
+          }
           newRows = flattenGroupedRows(groups);
         }
       }
