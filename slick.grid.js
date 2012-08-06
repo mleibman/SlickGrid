@@ -444,6 +444,10 @@ if (typeof Slick === "undefined") {
     function updateColumnHeader(columnId, title, toolTip) {
       if (!initialized) { return; }
       var idx = getColumnIndex(columnId);
+      if (idx == null) {
+        return;
+      }
+
       var columnDef = columns[idx];
       var $header = $headers.children().eq(idx);
       if ($header) {
