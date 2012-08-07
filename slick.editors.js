@@ -445,10 +445,10 @@
         scope.cancel();
       } else if (e.which == $.ui.keyCode.TAB && e.shiftKey) {
         e.preventDefault();
-        grid.navigatePrev();
+        args.grid.navigatePrev();
       } else if (e.which == $.ui.keyCode.TAB) {
         e.preventDefault();
-        grid.navigateNext();
+        args.grid.navigateNext();
       }
     };
 
