@@ -98,14 +98,8 @@
 				}
 
 				grid.setColumns(visibleColumns);
-
-				_self.onColumnChanged.notify();
 			}
 		}
-
-		$.extend(this, {
-			"onColumnChanged": new Slick.Event()
-		});
 
 		init();
 	}
