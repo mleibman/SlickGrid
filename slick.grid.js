@@ -188,12 +188,19 @@ if (typeof Slick === "undefined") {
       scrollbarDimensions = scrollbarDimensions || measureScrollbar();
 
       options = $.extend({}, defaults, options);
+      validateAndEnforceOptions();
       columnDefaults.width = options.defaultColumnWidth;
 
       columnsById = {};
       for (var i = 0; i < columns.length; i++) {
         var m = columns[i] = $.extend({}, columnDefaults, columns[i]);
         columnsById[m.id] = i;
+        if (m.minWidth && m.width < m.minWidth) {
+          m.width = m.minWidth;
+        }
+        if (m.maxWidth && m.width > m.maxWidth) {
+          m.width = m.maxWidth;
+        }
       }
 
       // validate loaded JavaScript modules against requested options
@@ -440,6 +447,10 @@ if (typeof Slick === "undefined") {
     function updateColumnHeader(columnId, title, toolTip) {
       if (!initialized) { return; }
       var idx = getColumnIndex(columnId);
+      if (idx == null) {
+        return;
+      }
+
       var columnDef = columns[idx];
       var $header = $headers.children().eq(idx);
       if ($header) {
@@ -1128,8 +1139,8 @@ if (typeof Slick === "undefined") {
         for (var j = ranges[i].fromRow; j <= ranges[i].toRow; j++) {
           if (!hash[j]) {  // prevent duplicates
             selectedRows.push(j);
+            hash[j] = {};
           }
-          hash[j] = {};
           for (var k = ranges[i].fromCell; k <= ranges[i].toCell; k++) {
             if (canCellBeSelected(j, k)) {
               hash[j][columns[k].id] = options.selectedCellCssClass;
@@ -1166,6 +1177,12 @@ if (typeof Slick === "undefined") {
       for (var i = 0; i < columns.length; i++) {
         var m = columns[i] = $.extend({}, columnDefaults, columns[i]);
         columnsById[m.id] = i;
+        if (m.minWidth && m.width < m.minWidth) {
+          m.width = m.minWidth;
+        }
+        if (m.maxWidth && m.width > m.maxWidth) {
+          m.width = m.maxWidth;
+        }
       }
 
       updateColumnCaches();
@@ -1197,9 +1214,16 @@ if (typeof Slick === "undefined") {
       }
 
       options = $.extend(options, args);
+      validateAndEnforceOptions();
 
       $viewport.css("overflow-y", options.autoHeight ? "hidden" : "auto");
       render();
+    }
+
+    function validateAndEnforceOptions() {
+      if (options.autoHeight) {
+        options.leaveSpaceForNewRows = false;
+      }
     }
 
     function setData(newData, scrollToTop) {
@@ -1503,6 +1527,8 @@ if (typeof Slick === "undefined") {
 
     function getViewportHeight() {
       return parseFloat($.css($container[0], "height", true)) -
+          parseFloat($.css($container[0], "paddingTop", true)) -
+          parseFloat($.css($container[0], "paddingBottom", true)) -
           parseFloat($.css($headerScroller[0], "height")) - getVBoxDelta($headerScroller) -
           (options.showTopPanel ? options.topPanelHeight + getVBoxDelta($topPanelScroller) : 0) -
           (options.showHeaderRow ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0);
@@ -1511,14 +1537,16 @@ if (typeof Slick === "undefined") {
     function resizeCanvas() {
       if (!initialized) { return; }
       if (options.autoHeight) {
-        viewportH = options.rowHeight * (getDataLength() + (options.enableAddRow ? 1 : 0) + (options.leaveSpaceForNewRows ? numVisibleRows - 1 : 0));
+        viewportH = options.rowHeight * (getDataLength() + (options.enableAddRow ? 1 : 0));
       } else {
         viewportH = getViewportHeight();
       }
 
       numVisibleRows = Math.ceil(viewportH / options.rowHeight);
       viewportW = parseFloat($.css($container[0], "width", true));
-      $viewport.height(viewportH);
+      if (!options.autoHeight) {
+        $viewport.height(viewportH);
+      }
 
       if (options.forceFitColumns) {
         autosizeColumns();
