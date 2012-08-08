@@ -144,6 +144,10 @@ if (typeof Slick === "undefined") {
         var hasFrozenRows = false;
         var frozenRowsHeight = 0;
         var actualFrozenRow = -1;
+        var paneTopH = 0;
+        var paneBottomH = 0;
+        var viewportTopH = 0;
+        var viewportBottomH = 0;
 
         var activePosX;
         var activeRow, activeCell;
@@ -1794,7 +1798,9 @@ if (typeof Slick === "undefined") {
             var frozenRowOffset = ( hasFrozenRows )
                                   ? ( options.frozenBottom )
                                     ? ( row >= actualFrozenRow )
-                                      ? $canvasTopL.height()
+                                      ? ( h < viewportTopH )
+                                        ? ( actualFrozenRow * options.rowHeight )
+                                        : h
                                       : 0
                                     : ( row >= actualFrozenRow )
                                       ? frozenRowsHeight
@@ -2020,10 +2026,10 @@ if (typeof Slick === "undefined") {
                 return;
             }
 
-            var  paneTopH = 0
-                ,paneBottomH = 0
-                ,viewportTopH = 0
-                ,viewportBottomH = 0;
+            paneTopH = 0
+            paneBottomH = 0
+            viewportTopH = 0
+            viewportBottomH = 0;
 
             var topPanelH = ( options.showTopPanel )
                             ? $topPanelScroller.outerHeight()
@@ -2117,10 +2123,16 @@ if (typeof Slick === "undefined") {
 
                 if ( options.frozenBottom ) {
                     $canvasBottomL.height( frozenRowsHeight );
-                    $canvasBottomR.height( frozenRowsHeight );
+
+                    if ( options.frozenColumn > -1 ) {
+                        $canvasBottomR.height( frozenRowsHeight );
+                    }
                 } else {
                     $canvasTopL.height( frozenRowsHeight );
-                    $canvasTopR.height( frozenRowsHeight );
+
+                    if ( options.frozenColumn > -1 ) {
+                        $canvasTopR.height( frozenRowsHeight );
+                    }
                 }
             } else {
                 $viewportTopR.height( viewportTopH );
@@ -2148,9 +2160,10 @@ if (typeof Slick === "undefined") {
                 numberOfRows = getDataLength() + (options.enableAddRow ? 1 : 0) + (options.leaveSpaceForNewRows ? numVisibleRows - 1 : 0);
             }
 
+            var tempViewportH = $viewportScrollContainerY.height();
             var oldViewportHasVScroll = viewportHasVScroll;
             // with autoHeight, we do not need to accommodate the vertical scroll bar
-            viewportHasVScroll = !options.autoHeight && (numberOfRows * options.rowHeight > viewportH);
+            viewportHasVScroll = !options.autoHeight && (numberOfRows * options.rowHeight > tempViewportH);
 
             // remove the rows that are now outside of the data range
             // this helps avoid redundant calls to .removeRow() when the size of
@@ -2162,7 +2175,7 @@ if (typeof Slick === "undefined") {
                 }
             }
 
-            th = Math.max(options.rowHeight * numberOfRows, viewportH - scrollbarDimensions.height);
+            th = Math.max(options.rowHeight * numberOfRows, tempViewportH - scrollbarDimensions.height);
 
             if (th < maxSupportedCssHeight) {
                 // just one page
@@ -2180,16 +2193,22 @@ if (typeof Slick === "undefined") {
             if (h !== oldH) {
                 if ( hasFrozenRows && !options.frozenBottom ) {
                     $canvasBottomL.css("height", h);
-                    $canvasBottomR.css("height", h);
+
+                    if ( options.frozenColumn > -1 ) {
+                        $canvasBottomR.css("height", h);
+                    }
                 } else {
                     $canvasTopL.css("height", h);
-                    $canvasTopR.css("height", h);
+
+                    if ( options.frozenColumn > -1 ) {
+                        $canvasTopR.css("height", h);
+                    }
                 }
 
                 scrollTop = $viewportScrollContainerY[0].scrollTop;
             }
 
-            var oldScrollTopInRange = (scrollTop + offset <= th - viewportH);
+            var oldScrollTopInRange = (scrollTop + offset <= th - tempViewportH);
 
             if (th == 0 || scrollTop == 0) {
                 page = offset = 0;
@@ -2198,7 +2217,7 @@ if (typeof Slick === "undefined") {
                 scrollTo(scrollTop + offset);
             } else {
                 // scroll to bottom
-                scrollTo(th - viewportH);
+                scrollTo(th - tempViewportH);
             }
 
             if (h != oldH && options.autoHeight) {
