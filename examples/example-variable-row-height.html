@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+
+  <title>SlickGrid Variable Row Height: Basic Grid</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css">
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css">
+  <link rel="stylesheet" href="examples.css" type="text/css">
+</head>
+
+<body>
+<table width="100%">
+	<tr>
+		<td valign="top" width="50%">
+			<div id="myGrid" style="width:600px;height:350px;"></div>
+		</td>
+
+		<td valign="top">
+			<h2>Demonstrates:</h2>
+
+			<ul>
+				<li>basic grid with minimal configuration and variable row height</li>
+
+				<li>Rows with custom height: 1, 5, 98, 400, 49998</li>
+
+				<li><button id='scrollTo'>Scroll To Row</button><input id="nRow" type="text" value="100" style="width:50px;"></li>
+
+				<li>
+					Set Row:
+					<input type="text" id="rowNum" style="width:50px;" value="3">'s height to
+					<input type="text" id="customHeight" style="width:50px;" value="50">px
+					<button id="setRowHeight">Set</button>
+				</li>
+			</ul>
+		</td>
+	</tr>
+</table>
+<script src="../lib/jquery-1.7.min.js" type="text/javascript"></script>
+<script src="../lib/jquery.event.drag-2.0.min.js" type="text/javascript"></script>
+<script src="../slick.core.js" type="text/javascript"></script>
+<script src="../slick.grid.js" type="text/javascript"></script>
+<script type="text/javascript">
+var grid;
+var columns = [{
+	id: "title",
+	name: "Title",
+	field: "title"
+}, {
+	id: "duration",
+	name: "Duration",
+	field: "duration"
+}, {
+	id: "%",
+	name: "% Complete",
+	field: "percentComplete"
+}, {
+	id: "start",
+	name: "Start",
+	field: "start"
+}, {
+	id: "finish",
+	name: "Finish",
+	field: "finish"
+}, {
+	id: "effort-driven",
+	name: "Effort Driven",
+	field: "effortDriven"
+}];
+
+var options = {
+	enableCellNavigation: true,
+	enableColumnReorder: false
+};
+
+$(function() {
+	var data = [];
+	var customRowHeight = {
+		1: {
+			'height': 32
+		},
+		5: {
+			'height': 55
+		},
+		98: {
+			'height': 100
+		},
+		400: {
+			'height': 40
+		},
+		49998: {
+			'height': 100
+		}
+	};
+
+	for (var i = 0; i < 50009; i++) {
+		data[i] = {
+			title: "Task " + i,
+			duration: "5 days",
+			percentComplete: Math.round(Math.random() * 100),
+			start: "01/01/2009",
+			finish: "01/05/2009",
+			effortDriven: (i % 5 == 0)
+		};
+	}
+
+	data.getItemMetadata = function(row) {
+		if (customRowHeight[row]) {
+			var obj = {
+				'rows': {}
+			};
+
+			obj['rows'][row] = customRowHeight[row];
+
+			return obj;
+		}
+	};
+
+	grid = new Slick.Grid("#myGrid", data, columns, options);
+
+	$('#scrollTo').click(function(e) {
+		grid.scrollRowToTop($('#nRow').val());
+	});
+
+	$('#setRowHeight').click(function(e) {
+		var row = parseInt( $('#rowNum').val() );
+		var height = parseInt( $('#customHeight').val() );
+
+		customRowHeight[row] = {
+			'height': height
+		}
+
+		grid.invalidate();
+	});
+})</script>
+</body>
+</html>
