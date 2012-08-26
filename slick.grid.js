@@ -84,7 +84,8 @@ if (typeof Slick === "undefined") {
       dataItemColumnValueExtractor: null,
       fullWidthRows: false,
       multiColumnSort: false,
-      defaultFormatter: defaultFormatter
+      defaultFormatter: defaultFormatter,
+      forceSyncScrolling: false
     };
 
     var columnDefaults = {
@@ -1898,8 +1899,9 @@ if (typeof Slick === "undefined") {
 
         if (Math.abs(lastRenderedScrollTop - scrollTop) > 20 ||
             Math.abs(lastRenderedScrollLeft - scrollLeft) > 20) {
-          if (Math.abs(lastRenderedScrollTop - scrollTop) < viewportH &&
-              Math.abs(lastRenderedScrollLeft - scrollLeft) < viewportW) {
+          if (options.forceSyncScrolling || (
+              Math.abs(lastRenderedScrollTop - scrollTop) < viewportH &&
+              Math.abs(lastRenderedScrollLeft - scrollLeft) < viewportW)) {
             render();
           } else {
             h_render = setTimeout(render, 50);
