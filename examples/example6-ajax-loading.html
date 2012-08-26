@@ -37,7 +37,7 @@
 <body>
 <div style="width:700px;float:left;">
   <div class="grid-header" style="width:100%">
-    <label>Digg stories</label>
+    <label>Hackernews stories</label>
         <span style="float:right;display:inline-block;">
           Search:
           <input type="text" id="txtSearch" value="apple">
@@ -55,8 +55,7 @@
 
   <h2>WARNING:</h2>
   <ul>
-    <li>Digg API uses request rate limiting. You may occasionally get an error if you do a frequent
-      scrolling/resorting/searching.
+    <li>API access to Hackernews provided through ThriftDB has some latency when paging through results. Be patient.
     </li>
   </ul>
 </div>
@@ -77,15 +76,20 @@
   var loader = new Slick.Data.RemoteModel();
 
   var storyTitleFormatter = function (row, cell, value, columnDef, dataContext) {
-    return "<b><a href='" + dataContext["link"] + "' target=_blank>" +
-        dataContext["title"] + "</a></b><br/>" + dataContext["description"];
+    s ="<b><a href='" + dataContext["url"] + "' target=_blank>" +
+              dataContext["title"] + "</a></b><br/>";
+    desc = dataContext["text"];
+    if (desc) { // on Hackernews many stories don't have a description
+        s += desc;
+    }
+    return s;
   };
 
 
   var columns = [
     {id: "num", name: "#", field: "index", width: 40},
     {id: "story", name: "Story", width: 580, formatter: storyTitleFormatter, cssClass: "cell-story"},
-    {id: "diggs", name: "Diggs", field: "diggs", width: 60, sortable: true}
+    {id: "points", name: "Points", field: "points", width: 60}
   ];
 
   var options = {
@@ -95,9 +99,6 @@
     enableCellNavigation: false
   };
 
-  var loadingIndicator = null;
-
-
   $(function () {
     grid = new Slick.Grid("#myGrid", loader.data, columns, options);
 
@@ -106,39 +107,44 @@
       loader.ensureData(vp.top, vp.bottom);
     });
 
-    grid.onSort.subscribe(function (e, args) {
-      loader.setSort(args.sortCol.field, args.sortAsc ? 1 : -1);
-      var vp = grid.getViewport();
-      loader.ensureData(vp.top, vp.bottom);
-    });
 
-    loader.onDataLoading.subscribe(function () {
-      if (!loadingIndicator) {
-        loadingIndicator = $("<span class='loading-indicator'><label>Buffering...</label></span>").appendTo(document.body);
-        var $g = $("#myGrid");
+    indicators = new Array();
 
-        loadingIndicator
-            .css("position", "absolute")
-            .css("top", $g.position().top + $g.height() / 2 - loadingIndicator.height() / 2)
-            .css("left", $g.position().left + $g.width() / 2 - loadingIndicator.width() / 2);
-      }
+    loader.onDataLoading.subscribe(function (e, args) {
+        if(indicators.length == 0) {
+            loadingIndicator = $("<span class='loading-indicator'><label>Buffering...</label></span>").appendTo(document.body);
+            var $g = $("#myGrid");
 
-      loadingIndicator.show();
+            loadingIndicator
+                .css("position", "absolute")
+                .css("top", $g.position().top + $g.height() / 2 - loadingIndicator.height() / 2)
+                .css("left", $g.position().left + $g.width() / 2 - loadingIndicator.width() / 2);
+
+            loadingIndicator.show();
+            indicators.push(loadingIndicator);
+        }
+        else
+            indicators.push(null);
     });
 
     loader.onDataLoaded.subscribe(function (e, args) {
-      for (var i = args.from; i <= args.to; i++) {
+      for (var i = args.from; i < args.to; i++) {
         grid.invalidateRow(i);
       }
 
       grid.updateRowCount();
       grid.render();
 
-      loadingIndicator.fadeOut();
+      i = indicators.pop();
+      if(i != null)
+        i.fadeOut();
     });
 
     $("#txtSearch").keyup(function (e) {
       if (e.which == 13) {
+        loader.clear();
+        grid.updateRowCount();
+        grid.render();
         loader.setSearch($(this).val());
         var vp = grid.getViewport();
         loader.ensureData(vp.top, vp.bottom);
