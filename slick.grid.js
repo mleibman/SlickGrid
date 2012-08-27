@@ -39,6 +39,7 @@ if (typeof Slick === "undefined") {
   // shared across all grids on the page
   var scrollbarDimensions;
   var maxSupportedCssHeight;  // browser's breaking point
+  var $style;
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   // SlickGrid class implementation (available as Slick.Grid)
@@ -120,8 +121,7 @@ if (typeof Slick === "undefined") {
     var $topPanelScroller;
     var $topPanel;
     var $viewport;
-    var $canvas;
-    var $style;
+    var $canvas;    
     var stylesheet, columnCssRulesL, columnCssRulesR;
     var viewportH, viewportW;
     var canvasWidth;
@@ -862,26 +862,39 @@ if (typeof Slick === "undefined") {
     }
 
     function createCssRules() {
-      $style = $("<style type='text/css' rel='stylesheet' />").appendTo($("head"));
+      // We will append to the existing style sheet if it already exists.
+      if(!$style)
+        $style = $("<style type='text/css' rel='stylesheet' />").appendTo($("head"));       
+
       var rowHeight = (options.rowHeight - cellHeightDiff);
-      var rules = [
-        "." + uid + " .slick-header-column { left: 1000px; }",
-        "." + uid + " .slick-top-panel { height:" + options.topPanelHeight + "px; }",
-        "." + uid + " .slick-headerrow-columns { height:" + options.headerRowHeight + "px; }",
-        "." + uid + " .slick-cell { height:" + rowHeight + "px; }",
-        "." + uid + " .slick-row { height:" + options.rowHeight + "px; }"
-      ];
-
-      for (var i = 0; i < columns.length; i++) {
-        rules.push("." + uid + " .l" + i + " { }");
-        rules.push("." + uid + " .r" + i + " { }");
-      }
-
-      if ($style[0].styleSheet) { // IE
-        $style[0].styleSheet.cssText = rules.join(" ");
-      } else {
-        $style[0].appendChild(document.createTextNode(rules.join(" ")));
-      }
+      var sheets = document.styleSheets;
+       
+      for (var i=0; i<sheets.length; i++) {
+        if ((sheets[i].ownerNode || sheets[i].owningElement) == $style[0]) {
+          if ($style[0].styleSheet) { // IE (we need to addRule rather than insertRule)
+            sheets[i].addRule("." + uid + " .slick-header-column", "left: 1000px;", -1);
+            sheets[i].addRule("." + uid + " .slick-top-panel", "height:" + options.topPanelHeight + "px;", -1);
+            sheets[i].addRule("." + uid + " .slick-headerrow-columns", "height:" + options.headerRowHeight + "px;", -1);
+            sheets[i].addRule("." + uid + " .slick-cell", "height:" + rowHeight + "px;", -1);
+            sheets[i].addRule("." + uid + " .slick-row", "height:" + options.rowHeight + "px;", -1);
+            for (var j=0; j<columns.length; j++) {
+              sheets[i].addRule("." + uid + " .l" + j, " ", -1);
+              sheets[i].addRule("." + uid + " .r" + j, " ", -1);
+            }
+          } else {
+            sheets[i].insertRule("." + uid + " .slick-header-column { left: 1000px; }", sheets[i].cssRules.length);
+            sheets[i].insertRule("." + uid + " .slick-top-panel { height:" + options.topPanelHeight + "px; }", sheets[i].cssRules.length);
+            sheets[i].insertRule("." + uid + " .slick-headerrow-columns { height:" + options.headerRowHeight + "px; }", sheets[i].cssRules.length);
+            sheets[i].insertRule("." + uid + " .slick-cell { height:" + rowHeight + "px; }", sheets[i].cssRules.length);
+            sheets[i].insertRule("." + uid + " .slick-row { height:" + options.rowHeight + "px; }", sheets[i].cssRules.length);
+            for (var j=0; j<columns.length; j++) {
+              sheets[i].insertRule("." + uid + " .l" + j + " {}", sheets[i].cssRules.length);
+              sheets[i].insertRule("." + uid + " .r" + j + " {}", sheets[i].cssRules.length);
+            }
+          }
+          break;
+        }
+      }      
     }
 
     function getColumnCssRules(idx) {
@@ -922,8 +935,37 @@ if (typeof Slick === "undefined") {
     }
 
     function removeCssRules() {
-      $style.remove();
-      stylesheet = null;
+      if (!stylesheet) {
+        var sheets = document.styleSheets;
+        for (var i = 0; i < sheets.length; i++) {
+          if ((sheets[i].ownerNode || sheets[i].owningElement) == $style[0]) {
+            stylesheet = sheets[i];
+            break;
+          }
+        }
+
+        if (!stylesheet) {
+          return;
+        }
+      }
+			var rules = stylesheet.cssRules? stylesheet.cssRules: stylesheet.rules;        	
+			stylesheet.crossdelete = stylesheet.deleteRule? 
+					stylesheet.deleteRule : stylesheet.removeRule;
+			
+      // Only delete the rules associated with our current instance.
+			for (i=0; i<rules.length; i++){
+				if(rules[i].selectorText.indexOf(uid) > 0){
+          stylesheet.crossdelete(i)
+          i--; //decrement i by 1, since deleting a rule collapses the array by 1
+        }
+      } 
+      
+      // If there is no more information in this stylesheet, we remove it entirely.
+      if(rules.length == 0) {
+        $style.remove();
+        $style = null;
+        stylesheet = null;
+      }
     }
 
     function destroy() {
