@@ -429,7 +429,7 @@ if (typeof Slick === "undefined") {
       return supportedHeight;
     }
 
- // TODO:  this is static.  need to handle page mutation.
+    // TODO:  this is static.  need to handle page mutation.
     function bindAncestorScrollEvents() {
       var elem = $canvas[0];
       while ((elem = elem.parentNode) != document.body && elem != null) {
@@ -437,7 +437,7 @@ if (typeof Slick === "undefined") {
         if (elem == $viewport[0] || elem.scrollWidth != elem.clientWidth || elem.scrollHeight != elem.clientHeight) {
           var $elem = $(elem);
           if (!$boundAncestors) {
-        	$boundAncestors = $elem;
+            $boundAncestors = $elem;
           } else {
             $boundAncestors = $boundAncestors.add($elem);
           }
