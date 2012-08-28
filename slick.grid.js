@@ -122,6 +122,7 @@ if (typeof Slick === "undefined") {
     var $viewport;
     var $canvas;
     var $style;
+    var $boundAncestors;
     var stylesheet, columnCssRulesL, columnCssRulesR;
     var viewportH, viewportW;
     var canvasWidth;
@@ -428,19 +429,29 @@ if (typeof Slick === "undefined") {
       return supportedHeight;
     }
 
-    // TODO:  this is static.  need to handle page mutation.
+ // TODO:  this is static.  need to handle page mutation.
     function bindAncestorScrollEvents() {
       var elem = $canvas[0];
       while ((elem = elem.parentNode) != document.body && elem != null) {
         // bind to scroll containers only
         if (elem == $viewport[0] || elem.scrollWidth != elem.clientWidth || elem.scrollHeight != elem.clientHeight) {
-          $(elem).bind("scroll.slickgrid", handleActiveCellPositionChange);
+          var $elem = $(elem);
+          if (!$boundAncestors) {
+        	$boundAncestors = $elem;
+          } else {
+            $boundAncestors = $boundAncestors.add($elem);
+          }
+          $elem.bind("scroll." + uid, handleActiveCellPositionChange);
         }
       }
     }
 
     function unbindAncestorScrollEvents() {
-      $canvas.parents().unbind("scroll.slickgrid");
+      if (!$boundAncestors) {
+        return;
+      }
+      $boundAncestors.unbind("scroll." + uid);
+      $boundAncestors = null;
     }
 
     function updateColumnHeader(columnId, title, toolTip) {
