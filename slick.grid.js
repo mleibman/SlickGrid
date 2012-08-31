@@ -471,8 +471,8 @@ if (typeof Slick === "undefined") {
           columns[idx].toolTip = toolTip;
         }
 
-        trigger(self.onBeforeHeaderDestroy, {
-          "headerNode": $header[0],
+        trigger(self.onBeforeHeaderCellDestroy, {
+          "node": $header[0],
           "column": columnDef
         });
 
@@ -480,8 +480,8 @@ if (typeof Slick === "undefined") {
             .attr("title", toolTip || "")
             .children().eq(0).html(title);
 
-        trigger(self.onHeaderRendered, {
-          "headerNode": $header[0],
+        trigger(self.onHeaderCellRendered, {
+          "node": $header[0],
           "column": columnDef
         });
       }
@@ -510,15 +510,25 @@ if (typeof Slick === "undefined") {
         .each(function() {
           var columnDef = $(this).data("column");
           if (columnDef) {
-            trigger(self.onBeforeHeaderDestroy, {
-              "headerNode": this,
+            trigger(self.onBeforeHeaderCellDestroy, {
+              "node": this,
               "column": columnDef
             });
           }
         });
-
       $headers.empty();
       $headers.width(getHeadersWidth());
+
+      $headerRow.find(".slick-headerrow-column")
+        .each(function() {
+          var columnDef = $(this).data("column");
+          if (columnDef) {
+            trigger(self.onBeforeHeaderRowCellDestroy, {
+              "node": this,
+              "column": columnDef
+            });
+          }
+        });
       $headerRow.empty();
 
       for (var i = 0; i < columns.length; i++) {
@@ -540,14 +550,20 @@ if (typeof Slick === "undefined") {
           header.append("<span class='slick-sort-indicator' />");
         }
 
-        trigger(self.onHeaderRendered, {
-          "headerNode": header[0],
+        trigger(self.onHeaderCellRendered, {
+          "node": header[0],
           "column": m
         });
 
         if (options.showHeaderRow) {
-          $("<div class='ui-state-default slick-headerrow-column l" + i + " r" + i + "'></div>")
+          var headerRowCell = $("<div class='ui-state-default slick-headerrow-column l" + i + " r" + i + "'></div>")
+              .data("column", m)
               .appendTo($headerRow);
+
+          trigger(self.onHeaderRowCellRendered, {
+            "node": headerRowCell[0],
+            "column": m
+          });
         }
       }
 
@@ -1241,24 +1257,26 @@ if (typeof Slick === "undefined") {
       return $topPanel[0];
     }
 
-    function showTopPanel() {
-      options.showTopPanel = true;
-      $topPanelScroller.slideDown("fast", resizeCanvas);
+    function setTopPanelVisibility(visible) {
+      if (options.showTopPanel != visible) {
+        options.showTopPanel = visible;
+        if (visible) {
+          $topPanelScroller.slideDown("fast", resizeCanvas);
+        } else {
+          $topPanelScroller.slideUp("fast", resizeCanvas);
+        }
+      }
     }
 
-    function hideTopPanel() {
-      options.showTopPanel = false;
-      $topPanelScroller.slideUp("fast", resizeCanvas);
-    }
-
-    function showHeaderRowColumns() {
-      options.showHeaderRow = true;
-      $headerRowScroller.slideDown("fast", resizeCanvas);
-    }
-
-    function hideHeaderRowColumns() {
-      options.showHeaderRow = false;
-      $headerRowScroller.slideUp("fast", resizeCanvas);
+    function setHeaderRowVisibility(visible) {
+      if (options.showHeaderRow != visible) {
+        options.showHeaderRow = visible;
+        if (visible) {
+          $headerRowScroller.slideDown("fast", resizeCanvas);
+        } else {
+          $headerRowScroller.slideUp("fast", resizeCanvas);
+        }
+      }
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3087,8 +3105,10 @@ if (typeof Slick === "undefined") {
       "onHeaderMouseLeave": new Slick.Event(),
       "onHeaderContextMenu": new Slick.Event(),
       "onHeaderClick": new Slick.Event(),
-      "onHeaderRendered": new Slick.Event(),
-      "onBeforeHeaderDestroy": new Slick.Event(),
+      "onHeaderCellRendered": new Slick.Event(),
+      "onBeforeHeaderCellDestroy": new Slick.Event(),
+      "onHeaderRowCellRendered": new Slick.Event(),
+      "onBeforeHeaderRowCellDestroy": new Slick.Event(),
       "onMouseEnter": new Slick.Event(),
       "onMouseLeave": new Slick.Event(),
       "onClick": new Slick.Event(),
@@ -3173,10 +3193,8 @@ if (typeof Slick === "undefined") {
       "navigateRight": navigateRight,
       "gotoCell": gotoCell,
       "getTopPanel": getTopPanel,
-      "showTopPanel": showTopPanel,
-      "hideTopPanel": hideTopPanel,
-      "showHeaderRowColumns": showHeaderRowColumns,
-      "hideHeaderRowColumns": hideHeaderRowColumns,
+      "setTopPanelVisibility": setTopPanelVisibility,
+      "setHeaderRowVisibility": setHeaderRowVisibility,
       "getHeaderRow": getHeaderRow,
       "getHeaderRowColumn": getHeaderRowColumn,
       "getGridPosition": getGridPosition,
