@@ -73,6 +73,7 @@ if (typeof Slick === "undefined") {
       editorLock: Slick.GlobalEditorLock,
       showHeaderRow: false,
       headerRowHeight: 25,
+      headerHeight: 25,
       showTopPanel: false,
       topPanelHeight: 25,
       formatterFactory: null,
@@ -547,6 +548,7 @@ if (typeof Slick === "undefined") {
             .attr("title", m.toolTip || "")
             .data("column", m)
             .addClass(m.headerCssClass || "")
+            .css("height", options.headerHeight - headerColumnHeightDiff)
             .appendTo($headers);
 
         if (options.enableColumnReorder || m.sortable) {
