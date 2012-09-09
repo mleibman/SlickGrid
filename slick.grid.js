@@ -907,7 +907,7 @@ if (typeof Slick === "undefined") {
                  top: ( rowPositionCache[i - 1] )
                       ? ( rowPositionCache[i - 1].bottom - offset )
                       : 0
-                ,height: ( metadata && metadata.hasOwnProperty('rows') && metadata.rows[i] )
+                ,height: ( metadata && metadata.rows && metadata.rows[i] )
                          ? metadata.rows[i].height
                          : options.rowHeight
             }
