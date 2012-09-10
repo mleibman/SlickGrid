@@ -161,11 +161,7 @@ function comparer(a, b) {
 }
 
 function toggleFilterRow() {
-  if ($(grid.getTopPanel()).is(":visible")) {
-    grid.hideTopPanel();
-  } else {
-    grid.showTopPanel();
-  }
+  grid.setTopPanelVisibility(!grid.getOptions().showTopPanel);
 }
 
 

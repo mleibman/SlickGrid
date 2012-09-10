@@ -4,6 +4,7 @@
    * display way below the lower boundary of the column thus hiding them.
    */
   display: inline-block;
+  float: left;
   margin-bottom: 100px;
 }
 
@@ -12,6 +13,11 @@
   float: right;
   vertical-align: top;
   margin: 1px;
+  /**
+  * This makes all "float:right" elements after it that spill over to the next line
+  * display way below the lower boundary of the column thus hiding them.
+  */
+  margin-bottom: 100px;
   height: 15px;
   width: 15px;
   background-repeat: no-repeat;

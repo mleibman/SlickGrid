@@ -75,8 +75,8 @@
       options = $.extend(true, {}, _defaults, options);
       _grid = grid;
       _handler
-        .subscribe(_grid.onHeaderRendered, handleHeaderRendered)
-        .subscribe(_grid.onBeforeHeaderDestroy, handleBeforeHeaderDestroy);
+        .subscribe(_grid.onHeaderCellRendered, handleHeaderCellRendered)
+        .subscribe(_grid.onBeforeHeaderCellDestroy, handleBeforeHeaderCellDestroy);
 
       // Force the grid to re-render the header now that the events are hooked up.
       _grid.setColumns(_grid.getColumns());
@@ -88,7 +88,7 @@
     }
 
 
-    function handleHeaderRendered(e, args) {
+    function handleHeaderCellRendered(e, args) {
       var column = args.column;
 
       if (column.header && column.header.buttons) {
@@ -127,20 +127,20 @@
 
           btn
             .bind("click", handleButtonClick)
-            .appendTo(args.headerNode);
+            .appendTo(args.node);
         }
       }
     }
 
 
-    function handleBeforeHeaderDestroy(e, args) {
+    function handleBeforeHeaderCellDestroy(e, args) {
       var column = args.column;
 
       if (column.header && column.header.buttons) {
         // Removing buttons via jQuery will also clean up any event handlers and data.
         // NOTE: If you attach event handlers directly or using a different framework,
         //       you must also clean them up here to avoid memory leaks.
-        $(args.headerNode).find("." + options.buttonCssClass).remove();
+        $(args.node).find("." + options.buttonCssClass).remove();
       }
     }
 

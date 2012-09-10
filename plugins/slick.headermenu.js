@@ -93,8 +93,8 @@
       options = $.extend(true, {}, _defaults, options);
       _grid = grid;
       _handler
-        .subscribe(_grid.onHeaderRendered, handleHeaderRendered)
-        .subscribe(_grid.onBeforeHeaderDestroy, handleBeforeHeaderDestroy);
+        .subscribe(_grid.onHeaderCellRendered, handleHeaderCellRendered)
+        .subscribe(_grid.onBeforeHeaderCellDestroy, handleBeforeHeaderCellDestroy);
 
       // Force the grid to re-render the header now that the events are hooked up.
       _grid.setColumns(_grid.getColumns());
@@ -126,7 +126,7 @@
       }
     }
 
-    function handleHeaderRendered(e, args) {
+    function handleHeaderCellRendered(e, args) {
       var column = args.column;
       var menu = column.header && column.header.menu;
 
@@ -150,16 +150,16 @@
 
         $el
           .bind("click", showMenu)
-          .appendTo(args.headerNode);
+          .appendTo(args.node);
       }
     }
 
 
-    function handleBeforeHeaderDestroy(e, args) {
+    function handleBeforeHeaderCellDestroy(e, args) {
       var column = args.column;
 
       if (column.header && column.header.menu) {
-        $(args.headerNode).find(".slick-header-menubutton").remove();
+        $(args.node).find(".slick-header-menubutton").remove();
       }
     }
 
