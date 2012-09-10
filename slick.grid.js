@@ -1927,11 +1927,13 @@ if (typeof Slick === "undefined") {
                         )
                    ) {
                     removeFrozenRow = true;
+                } else {
+                    removeFrozenRow = true;
                 }
 
-                if (((i = parseInt(i, 10)) !== activeRow) &&
-                    (i < rangeToKeep.top || i > rangeToKeep.bottom) &&
-                    ( removeFrozenRow )
+                if ( ( ( i = parseInt(i, 10)) !== activeRow )
+                     && ( i < rangeToKeep.top || i > rangeToKeep.bottom )
+                     && ( removeFrozenRow )
                    ) {
                     removeRowFromCache(i);
                 }
@@ -1959,7 +1961,12 @@ if (typeof Slick === "undefined") {
                 return;
             }
 
-            cacheEntry.rowNode.remove();
+            cacheEntry.rowNode[0].parentElement.removeChild( cacheEntry.rowNode[0] );
+
+            // Remove the row from the right viewport
+            if ( cacheEntry.rowNode[1] ) {
+                cacheEntry.rowNode[1].parentElement.removeChild( cacheEntry.rowNode[1] );
+            }
 
             delete rowsCache[row];
             delete postProcessedRows[row];
@@ -2366,7 +2373,7 @@ if (typeof Slick === "undefined") {
 
             var cellToRemove;
             while ((cellToRemove = cellsToRemove.pop()) != null) {
-                cacheEntry.cellNodesByColumnIdx[cellToRemove].remove();
+                cacheEntry.cellNodesByColumnIdx[cellToRemove][0].parentElement.removeChild( cacheEntry.cellNodesByColumnIdx[cellToRemove][0] );
                 delete cacheEntry.cellColSpans[cellToRemove];
                 delete cacheEntry.cellNodesByColumnIdx[cellToRemove];
                 if (postProcessedRows[row]) {
