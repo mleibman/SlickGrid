@@ -1366,7 +1366,7 @@ if (typeof Slick === "undefined") {
         rowCss += " " + metadata.cssClasses;
       }
 
-      stringArray.push("<div class='ui-widget-content " + rowCss + "' style='top:" + (options.rowHeight * row - offset) + "px'>");
+      stringArray.push("<div class='ui-widget-content " + rowCss + "' style='top:" + (options.rowHeight * row - offset) + "px'>\n");
 
       var colspan, m;
       for (var i = 0, ii = columns.length; i < ii; i++) {
@@ -1395,7 +1395,7 @@ if (typeof Slick === "undefined") {
         }
       }
 
-      stringArray.push("</div>");
+      stringArray.push("\n</div>");
     }
 
     function appendCellHtml(stringArray, row, cell, colspan) {
@@ -1414,7 +1414,7 @@ if (typeof Slick === "undefined") {
         }
       }
 
-      stringArray.push("<div class='" + cellCss + "'>");
+      stringArray.push("<div class='" + cellCss + "'>\n");
 
       // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
       if (d) {
@@ -1422,7 +1422,7 @@ if (typeof Slick === "undefined") {
         stringArray.push(getFormatter(row, m)(row, cell, value, m, d));
       }
 
-      stringArray.push("</div>");
+      stringArray.push("\n</div>");
 
       rowsCache[row].cellRenderQueue.push(cell);
       rowsCache[row].cellColSpans[cell] = colspan;
