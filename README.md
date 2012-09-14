@@ -4,8 +4,8 @@
 This Fork's Features
 --------------------------------------
 
-Frozen Rows (top & bottom)
-Frozen Columns (left only, right coming soon)
-Horizontal scrolling of frozen viewport with mousewheel
-Scroll viewport during row drag
-Scroll viewport during column drag
+Frozen Rows (top & bottom)<br>
+Frozen Columns (left only, right coming soon)<br>
+Horizontal scrolling of frozen viewport with mousewheel<br>
+Scroll viewport during row drag<br>
+Scroll viewport during column drag<br>
