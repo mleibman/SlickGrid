@@ -1927,8 +1927,6 @@ if (typeof Slick === "undefined") {
                         )
                    ) {
                     removeFrozenRow = true;
-                } else {
-                    removeFrozenRow = true;
                 }
 
                 if ( ( ( i = parseInt(i, 10)) !== activeRow )
