@@ -94,7 +94,8 @@ if (typeof Slick === "undefined") {
       sortable: false,
       minWidth: 30,
       rerenderOnResize: false,
-      headerCssClass: null
+      headerCssClass: null,
+      defaultSortAsc: true
     };
 
     // scroller
@@ -622,7 +623,7 @@ if (typeof Slick === "undefined") {
             }
 
             if (!sortOpts) {
-              sortOpts = { columnId: column.id, sortAsc: true };
+              sortOpts = { columnId: column.id, sortAsc: column.defaultSortAsc };
               sortColumns.push(sortOpts);
             } else if (sortColumns.length == 0) {
               sortColumns.push(sortOpts);
