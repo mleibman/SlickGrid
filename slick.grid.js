@@ -1929,7 +1929,11 @@ if (typeof Slick === "undefined") {
           scrollTo(scrollTop + offset);
         } else {
           var oldOffset = offset;
-          page = Math.min(n - 1, Math.floor(scrollTop * ((th - viewportH) / (h - viewportH)) * (1 / ph)));
+          if (h == viewportH) {
+            page = 0;
+          } else {
+            page = Math.min(n - 1, Math.floor(scrollTop * ((th - viewportH) / (h - viewportH)) * (1 / ph)));
+          }
           offset = Math.round(page * cj);
           if (oldOffset != offset) {
             invalidateAllRows();
