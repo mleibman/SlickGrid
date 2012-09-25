@@ -649,6 +649,7 @@ if (typeof Slick === "undefined") {
     }
 
     function setupColumnReorder() {
+      $headers.sortable("destroy");
       $headers.sortable({
         containment: "parent",
         axis: "x",
