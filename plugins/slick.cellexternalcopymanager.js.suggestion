@@ -1,0 +1,199 @@
+(function ($) {
+  // register namespace
+  $.extend(true, window, {
+    "Slick": {
+      "CellExternalCopyManager": CellExternalCopyManager
+    }
+  });
+
+
+  function CellExternalCopyManager(options) {
+    /*
+      This manager enables users to copy/paste data from/to an external Spreadsheet application
+      such as MS-Excel® or OpenOffice-Spreadsheet.
+
+      Since it is not possible to access directly the clipboard in javascript, the plugin uses
+      a trick to do it's job. After detecting the keystroke, we dynamically create a textarea
+      where the browser copies/pastes the serialized data. 
+
+      options:
+        copiedCellStyle : sets the css className used for copied cells. default : "copy-manager"
+        dataItemColumnValueExtractor : option to specify a custom column value extractor function
+
+    */
+    var _grid;
+    var _self = this;
+    var _copiedRanges;
+    var _options = options || {};
+    var _copiedCellStyle = _options.copiedCellStyle || "copy-manager";
+
+
+    var keyCodes = {
+      'C':67,
+      'V':86
+    }
+
+    function init(grid) {
+      _grid = grid;
+      _grid.onKeyDown.subscribe(handleKeyDown);      
+    }
+
+    function destroy() {
+      _grid.onKeyDown.unsubscribe(handleKeyDown);
+    }
+
+    function getDataItemValueForColumn(item, columnDef) {
+      if (_options.dataItemColumnValueExtractor) {
+        return _options.dataItemColumnValueExtractor(item, columnDef);
+      }
+      return item[columnDef.field];
+    }
+
+    function setDataItemValueForColumn(item, columnDef, value) {
+      if (_options.dataItemColumnValueSetter) {
+        return _options.dataItemColumnValueSetter(item, columnDef, value);
+      }
+      return item[columnDef.field] = value;
+    }
+
+
+    function _createTextBox(innerText){
+      var ta = document.createElement('textarea');
+      ta.style.position = 'absolute';
+      ta.style.left = '-1000px';
+      ta.style.top = '-1000px';
+      ta.value = innerText;
+      document.body.appendChild(ta);
+      document.designMode = 'off';
+      ta.focus();
+
+      return ta;
+    }
+    function _decodeTabularData(_grid, ta){
+      var columns = _grid.getColumns();
+      var clipText = ta.value;
+      var clipRows = clipText.split("\r\n"); 
+     var clippeds = [];
+
+      document.body.removeChild(ta);
+
+      for (var i=0; i<clipRows.length; i++) {
+        if (clipRows[i]!="") // get rid of the last ""
+          clippeds[i] = clipRows[i].split(String.fromCharCode(9)); //  "\t" 
+      }
+
+      var selectedCell = _grid.getActiveCell();
+      var activeRow = selectedCell.row + pageSize*pageNum;// getActiveCell.row starts from 0  for each page.
+      var activeCell = selectedCell.cell;
+      var desty = activeRow;
+      var destx = activeCell;
+
+      var data = _grid.getData().getItems();  
+
+      for (var y = 0; y < clippeds.length; y++){
+        for (var x = 0; x < clippeds[y].length; x++){
+            var desty = activeRow + y;
+          var destx = activeCell + x;
+            if (desty < data.length && destx < grid.getColumns().length ) { 
+                data[desty][columns[destx].field] = clippeds[y][x];
+            if ( data[desty].hasOwnProperty('id')) 
+              changedIds.push(data[desty].id);// record changed id used by saving function
+          }
+        }
+      }
+
+      _grid.invalidate();
+    }
+
+
+    function handleKeyDown(e, args) {
+      var ranges;
+      if (!_grid.getEditorLock().isActive()) {
+
+        //ESC
+        if (e.which == $.ui.keyCode.ESCAPE) {
+          if (_copiedRanges) {
+            e.preventDefault();
+            clearCopySelection();
+            _self.onCopyCancelled.notify({ranges: _copiedRanges});
+            _copiedRanges = null;
+          }
+        }
+
+        if (e.which == keyCodes.C && (e.ctrlKey || e.metaKey)) {    // CTRL + C
+          ranges = _grid.getSelectionModel().getSelectedRanges();
+
+          if (ranges.length != 0) {
+            _copiedRanges = ranges;
+            markCopySelection(ranges);
+            _self.onCopyCells.notify({ranges: ranges});
+
+            var columns = _grid.getColumns();
+            var clipText = "" ;
+            for (var rg = 0; rg < ranges.length; rg++){
+                var range = ranges[rg];
+                for (var i=range.fromRow; i< range.toRow+1 ; i++){
+                    var dt = _grid.getDataItem(i);
+                    for (var j=range.fromCell; j< range.toCell+1 ; j++){
+                          if (j==range.fromCell) 
+                            clipText = clipText.concat(getDataItemValueForColumn(dt, columns[j]));
+                          else 
+                          clipText = clipText.concat("\t",getDataItemValueForColumn(dt, columns[j]));
+                    }
+                    clipText = clipText.concat("\r\n");
+                }
+            }
+
+            var ta = _createTextBox(clipText);
+
+
+            $(ta).select();
+            setTimeout(function(){
+                document.body.removeChild(ta);
+            }, 100);
+
+            return false;
+          }
+        }
+
+        if (e.which == keyCodes.V && (e.ctrlKey || e.metaKey)) {    // CTRL + V
+            var ta = _createTextBox(''); 
+
+            setTimeout(function(){ 
+                _decodeTabularData(_grid, ta);
+            }, 100);
+
+            return false;
+        }
+      }
+    }
+
+    function markCopySelection(ranges) {
+      var columns = _grid.getColumns();
+      var hash = {};
+      for (var i = 0; i < ranges.length; i++) {
+        for (var j = ranges[i].fromRow; j <= ranges[i].toRow; j++) {
+          hash[j] = {};
+          for (var k = ranges[i].fromCell; k <= ranges[i].toCell; k++) {
+            hash[j][columns[k].id] = true;
+          }
+        }
+      }
+      _grid.setCellCssStyles(_copiedCellStyle, hash);
+    }
+
+    function clearCopySelection() {
+      _grid.removeCellCssStyles(_copiedCellStyle);
+    }
+
+    $.extend(this, {
+      "init": init,
+      "destroy": destroy,
+      "clearCopySelection": clearCopySelection,
+
+      "onCopyCells": new Slick.Event(),
+      "onCopyCancelled": new Slick.Event(),
+      "onPasteCells": new Slick.Event()
+    });
+  }
+})(jQuery);
