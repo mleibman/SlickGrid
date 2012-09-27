@@ -19,6 +19,9 @@
   <div style="width:600px;">
     <div id="myGrid" style="width:100%;height:500px;"></div>
   </div>
+  <div style="width:600px;">
+    <div id="myGrid2" style="width:100%;height:500px;"></div>
+  </div>
 
   <div class="options-panel">
     <h2>Excel compatible copy/paste manager</h2>
@@ -54,11 +57,19 @@
 <script src="../plugins/slick.cellexternalcopymanager.js"></script>
 <script src="../plugins/slick.cellselectionmodel.js"></script>
 <script src="../slick.editors.js"></script>
+<script src="../slick.formatters.js"></script>
 <script src="../slick.grid.js"></script>
 
 <script>
   var grid;
+  var grid2;
   var data = [];
+  var data2 = [];
+  var copyManager;
+  var copyManager2;
+  var cellSelectionModel;
+  var cellSelectionModel2;
+  
   var options = {
     editable: true,
     enableAddRow: true,
@@ -85,7 +96,9 @@
       editor: FormulaEditor
     });
   }
-
+  
+  columns[4] = {id: "%", name: "% Complete", field: "percentComplete", width: 80, resizable: false, formatter: Slick.Formatters.PercentCompleteBar, editor: Slick.Editors.PercentComplete};
+  
   /***
    * A proof-of-concept cell editor with Excel-like range selection and insertion.
    */
@@ -123,7 +136,6 @@
       );
     };
 
-
     init();
   }
 
@@ -135,17 +147,20 @@
       for (var j = 0; j < 26; j++) {
         d[j] = j+i;
       }
+      d["percentComplete"] = Math.round(Math.random() * 100)
     }
-
+    
     grid = new Slick.Grid("#myGrid", data, columns, options);
-
     grid.setSelectionModel(new Slick.CellSelectionModel());
+    //cellSelectionModel.onSelectedRangesChanged.subscribe(function(e, args){
+    //  grid.focus();
+    //});
     grid.registerPlugin(new Slick.AutoTooltips());
 
     // set keyboard focus on the grid
     grid.getCanvasNode().focus();
 
-    var copyManager = new Slick.CellExternalCopyManager();
+    copyManager = new Slick.CellExternalCopyManager();
     grid.registerPlugin(copyManager);
     
 
@@ -157,6 +172,16 @@
       grid.updateRowCount();
       grid.render();
     });
+    
+    grid2 = new Slick.Grid("#myGrid2", data, columns, options);
+    cellSelectionModel2 = new Slick.CellSelectionModel();
+    grid2.setSelectionModel(cellSelectionModel2);
+    cellSelectionModel2.onSelectedRangesChanged.subscribe(function(e, args){
+      grid2.focus();
+    });
+    
+    copyManager2 = new Slick.CellExternalCopyManager();
+    grid2.registerPlugin(copyManager2);
   })
 </script>
 </body>

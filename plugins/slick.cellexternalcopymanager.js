@@ -17,16 +17,17 @@
       where the browser copies/pastes the serialized data. 
       
       options:
-        copiedCellStyle : sets the css className used for copied cells. default : "copy-manager"
+        copiedCellStyle : sets the css className used for copied cells. default : "copied"
+        copiedCellStyleLayerKey : sets the layer key for setting css values of copied cells. default : "copy-manager"
         dataItemColumnValueExtractor : option to specify a custom column value extractor function
-     
+        dataItemColumnValueSetter : option to specify a custom column value setter function
     */
     var _grid;
     var _self = this;
     var _copiedRanges;
     var _options = options || {};
-    var _copiedCellStyle = _options.copiedCellStyle || "copy-manager";
-    
+    var _copiedCellStyleLayerKey = _options.copiedCellStyleLayerKey || "copy-manager";
+    var _copiedCellStyle = _options.copiedCellStyle || "copied";
     
     var keyCodes = {
       'C':67,
@@ -35,7 +36,18 @@
 
     function init(grid) {
       _grid = grid;
-      _grid.onKeyDown.subscribe(handleKeyDown);      
+      _grid.onKeyDown.subscribe(handleKeyDown);
+      
+      // we need a cell selection model
+      var cellSelectionModel = grid.getSelectionModel();
+      if (!cellSelectionModel){
+        throw new Error("Selection model is mandatory for this plugin. Please set a selection model on the grid before adding this plugin: grid.setSelectionModel(new Slick.CellSelectionModel())");
+      }
+      // we give focus on the grid when a selection is done on it.
+      // without this, if the user selects a range of cell without giving focus on a particular cell, the grid doesn't get the focus and key stroke handles (ctrl+c) don't work
+      cellSelectionModel.onSelectedRangesChanged.subscribe(function(e, args){
+        _grid.focus();
+      });
     }
 
     function destroy() {
@@ -62,9 +74,8 @@
       ta.style.position = 'absolute';
       ta.style.left = '-1000px';
       ta.style.top = '-1000px';
-      ta.innerHTML = innerText;
+      ta.value = innerText;
       document.body.appendChild(ta);
-      document.designMode = 'off';
       ta.focus();
       
       return ta;
@@ -73,13 +84,13 @@
     function _decodeTabularData(_grid, ta){
       var columns = _grid.getColumns();
       var clipText = ta.value;
-      var clipRows = clipText.split(String.fromCharCode(10));
-      var clippeds = [];
+      var clipRows = clipText.split("\n");
+      var clippedRange = [];
       
       document.body.removeChild(ta);
 
       for (var i=0; i<clipRows.length; i++) {
-        clippeds[i] = clipRows[i].split(String.fromCharCode(9));
+        clippedRange[i] = clipRows[i].split("\t");
       }
       
       var activeCell = _grid.getActiveCell();
@@ -87,18 +98,34 @@
       var activeCell = activeCell.cell;
       var desty = activeRow;
       var destx = activeCell;
-
-      for (var y = 0; y < clippeds.length; y++){
-        for (var x = 0; x < clippeds[y].length; x++){
+      var h = 0;
+      var w = 0;
+      
+      for (var y = 0; y < clippedRange.length; y++){
+        h++;
+        w=0;
+        for (var x = 0; x < clippedRange[y].length; x++){
+          w++;
           var desty = activeRow + y;
           var destx = activeCell + x;
 
           var nd = _grid.getCellNode(desty, destx);
           var dt = _grid.getDataItem(desty);
-          setDataItemValueForColumn(dt, columns[destx], clippeds[y][x]);
+          setDataItemValueForColumn(dt, columns[destx], clippedRange[y][x]);
           _grid.updateCell(desty, destx);
         }
       }
+      
+      var bRange = {
+        'fromCell': activeCell,
+        'fromRow': activeRow,
+        'toCell': activeCell+w-1,
+        'toRow': activeRow+h-1
+      }
+
+      markCopySelection([bRange]);
+      _grid.getSelectionModel().setSelectedRanges([bRange]);
+      _self.onPasteCells.notify({ranges: [bRange]});
     }
     
     
@@ -163,28 +190,35 @@
     }
 
     function markCopySelection(ranges) {
+      clearCopySelection();
+      
       var columns = _grid.getColumns();
       var hash = {};
       for (var i = 0; i < ranges.length; i++) {
         for (var j = ranges[i].fromRow; j <= ranges[i].toRow; j++) {
           hash[j] = {};
           for (var k = ranges[i].fromCell; k <= ranges[i].toCell; k++) {
-            hash[j][columns[k].id] = true;
+            hash[j][columns[k].id] = _copiedCellStyle;
           }
         }
       }
-      _grid.setCellCssStyles(_copiedCellStyle, hash);
+      _grid.setCellCssStyles(_copiedCellStyleLayerKey, hash);
+      clearTimeout(_self.clearCopyTI);
+      _self.clearCopyTI = setTimeout(function(){
+        _self.clearCopySelection();
+      }, 2000);
     }
 
     function clearCopySelection() {
-      _grid.removeCellCssStyles(_copiedCellStyle);
+      _grid.removeCellCssStyles(_copiedCellStyleLayerKey);
     }
 
     $.extend(this, {
       "init": init,
       "destroy": destroy,
       "clearCopySelection": clearCopySelection,
-
+      "handleKeyDown":handleKeyDown,
+      
       "onCopyCells": new Slick.Event(),
       "onCopyCancelled": new Slick.Event(),
       "onPasteCells": new Slick.Event()
