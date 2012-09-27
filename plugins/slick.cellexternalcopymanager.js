@@ -85,7 +85,7 @@
     function _decodeTabularData(_grid, ta){
       var columns = _grid.getColumns();
       var clipText = ta.value;
-      var clipRows = clipText.split("\n");
+      var clipRows = clipText.split(/[\n\f\r]/);
       var clippedRange = [];
       
       document.body.removeChild(ta);
@@ -167,9 +167,9 @@
                     }
                     clipTextRows.push(clipTextCells.join("\t"));
                 }
-                clipTextArr.push(clipTextRows.join("\n"));
+                clipTextArr.push(clipTextRows.join("\r\n"));
             }
-            var clipText = clipTextArr.join("\n");
+            var clipText = clipTextArr.join('');
             var ta = _createTextBox(clipText);
             $(ta).select();
             
