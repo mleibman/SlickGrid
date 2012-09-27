@@ -28,6 +28,7 @@
     var _options = options || {};
     var _copiedCellStyleLayerKey = _options.copiedCellStyleLayerKey || "copy-manager";
     var _copiedCellStyle = _options.copiedCellStyle || "copied";
+    var _clearCopyTI = 0;
     
     var keyCodes = {
       'C':67,
@@ -203,8 +204,8 @@
         }
       }
       _grid.setCellCssStyles(_copiedCellStyleLayerKey, hash);
-      clearTimeout(_self.clearCopyTI);
-      _self.clearCopyTI = setTimeout(function(){
+      clearTimeout(_clearCopyTI);
+      _clearCopyTI = setTimeout(function(){
         _self.clearCopySelection();
       }, 2000);
     }

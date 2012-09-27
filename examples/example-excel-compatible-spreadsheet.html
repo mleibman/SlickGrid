@@ -65,10 +65,6 @@
   var grid2;
   var data = [];
   var data2 = [];
-  var copyManager;
-  var copyManager2;
-  var cellSelectionModel;
-  var cellSelectionModel2;
   
   var options = {
     editable: true,
@@ -152,16 +148,12 @@
     
     grid = new Slick.Grid("#myGrid", data, columns, options);
     grid.setSelectionModel(new Slick.CellSelectionModel());
-    //cellSelectionModel.onSelectedRangesChanged.subscribe(function(e, args){
-    //  grid.focus();
-    //});
     grid.registerPlugin(new Slick.AutoTooltips());
 
     // set keyboard focus on the grid
     grid.getCanvasNode().focus();
 
-    copyManager = new Slick.CellExternalCopyManager();
-    grid.registerPlugin(copyManager);
+    grid.registerPlugin(new Slick.CellExternalCopyManager());
     
 
     grid.onAddNewRow.subscribe(function (e, args) {
@@ -174,14 +166,9 @@
     });
     
     grid2 = new Slick.Grid("#myGrid2", data, columns, options);
-    cellSelectionModel2 = new Slick.CellSelectionModel();
-    grid2.setSelectionModel(cellSelectionModel2);
-    cellSelectionModel2.onSelectedRangesChanged.subscribe(function(e, args){
-      grid2.focus();
-    });
+    grid2.setSelectionModel(new Slick.CellSelectionModel());
     
-    copyManager2 = new Slick.CellExternalCopyManager();
-    grid2.registerPlugin(copyManager2);
+    grid2.registerPlugin(new Slick.CellExternalCopyManager());
   })
 </script>
 </body>
