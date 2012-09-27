@@ -91,7 +91,8 @@
       document.body.removeChild(ta);
 
       for (var i=0; i<clipRows.length; i++) {
-        clippedRange[i] = clipRows[i].split("\t");
+        if (clipRows[i]!="")
+          clippedRange[i] = clipRows[i].split("\t");
       }
       
       var activeCell = _grid.getActiveCell();
@@ -109,11 +110,13 @@
           w++;
           var desty = activeRow + y;
           var destx = activeCell + x;
-
-          var nd = _grid.getCellNode(desty, destx);
-          var dt = _grid.getDataItem(desty);
-          setDataItemValueForColumn(dt, columns[destx], clippedRange[y][x]);
-          _grid.updateCell(desty, destx);
+          
+          if (desty < data.length && destx < grid.getColumns().length ) { 
+            var nd = _grid.getCellNode(desty, destx);
+            var dt = _grid.getDataItem(desty);
+            setDataItemValueForColumn(dt, columns[destx], clippedRange[y][x]);
+            _grid.updateCell(desty, destx);
+          }
         }
       }
       
@@ -198,7 +201,7 @@
       for (var i = 0; i < ranges.length; i++) {
         for (var j = ranges[i].fromRow; j <= ranges[i].toRow; j++) {
           hash[j] = {};
-          for (var k = ranges[i].fromCell; k <= ranges[i].toCell; k++) {
+          for (var k = ranges[i].fromCell; k <= ranges[i].toCell && k<columns.length; k++) {
             hash[j][columns[k].id] = _copiedCellStyle;
           }
         }
