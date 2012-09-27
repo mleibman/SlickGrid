@@ -114,18 +114,41 @@
           clippedRange[i] = clipRows[i].split("\t");
       }
       
-      var activeCell = _grid.getActiveCell();
-      var activeRow = activeCell.row;
-      var activeCell = activeCell.cell;
+      var selectedCell = _grid.getActiveCell();
+      var ranges = _grid.getSelectionModel().getSelectedRanges();
+      var selectedRange = ranges && ranges.length ? ranges[0] : null;   // pick only one selection
+      var activeRow = null;
+      var activeCell = null;
+      
+      if (selectedRange){
+        activeRow = selectedRange.fromRow;
+        activeCell = selectedRange.fromCell;
+      } else if (selectedCell){
+        activeRow = selectedCell.row;
+        activeCell = selectedCell.cell;
+      } else {
+        // we don't know where to paste
+        return;
+      }
+      
+      var oneCellToMultiple = false;
+      var destH = clippedRange.length;
+      var destW = clippedRange.length ? clippedRange[0].length : 0;
+      if (clippedRange.length == 1 && clippedRange[0].length == 1 && selectedRange){
+        oneCellToMultiple = true;
+        destH = selectedRange.toRow - selectedRange.fromRow +1;
+        destW = selectedRange.toCell - selectedRange.fromCell +1;
+      }
+      
       var desty = activeRow;
       var destx = activeCell;
       var h = 0;
       var w = 0;
       
-      for (var y = 0; y < clippedRange.length; y++){
+      for (var y = 0; y < destH; y++){
         h++;
         w=0;
-        for (var x = 0; x < clippedRange[y].length; x++){
+        for (var x = 0; x < destW; x++){
           w++;
           var desty = activeRow + y;
           var destx = activeCell + x;
@@ -133,7 +156,10 @@
           if (desty < data.length && destx < grid.getColumns().length ) { 
             var nd = _grid.getCellNode(desty, destx);
             var dt = _grid.getDataItem(desty);
-            setDataItemValueForColumn(dt, columns[destx], clippedRange[y][x]);
+            if (oneCellToMultiple)
+              setDataItemValueForColumn(dt, columns[destx], clippedRange[0][0]);
+            else
+              setDataItemValueForColumn(dt, columns[destx], clippedRange[y][x]);
             _grid.updateCell(desty, destx);
           }
         }
