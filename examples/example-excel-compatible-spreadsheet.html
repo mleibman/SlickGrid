@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>SlickGrid example 3: Editing</title>
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
   <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
@@ -12,6 +12,57 @@
       background: rgba(0, 0, 255, 0.2);
       -webkit-transition: 0.5s background;
     }
+    
+    
+    /*
+        weekcalendareditor
+    */
+    .wkclEdCont {
+        width:210px;
+        height:23px;
+        overflow:hidden;
+        margin-top:-1px;
+        border:1px solid #DDD;
+    }
+    .wkclEdContNotEditing{
+        width:210px;
+        height:23px;
+        overflow:hidden;
+        margin-top:-1px;
+        border-right:1px solid #DDD;
+    }
+
+    .wkclEdHalfDay{
+        width:14px;
+        height:100%;
+        cursor:pointer;
+        float:left;
+    }
+    .wkclEdDay{
+        width:29px;
+        height:100%;
+        border-left:1px solid #DDD;
+        float:left;
+    }
+
+    .wkclEdHeadCont{
+        width:210px;
+        height:23px;
+        overflow:hidden;
+        border:1px solid #FFF;
+        border-bottom:none;
+        margin-top:5px;
+    }
+
+    .wkclEdHeadDay{
+        width:29px;
+        height:100%;
+        border-left:1px solid #DDD;
+        float:left;
+        text-align:center;
+        margin-top:5px;
+    }
+    
   </style>
 </head>
 <body>
@@ -89,52 +140,13 @@
       name: String.fromCharCode("A".charCodeAt(0) + i),
       field: i,
       width: 60,
-      editor: FormulaEditor
+      editor: Slick.Editors.Text
     });
   }
   
   columns[4] = {id: "%", name: "% Complete", field: "percentComplete", width: 80, resizable: false, formatter: Slick.Formatters.PercentCompleteBar, editor: Slick.Editors.PercentComplete};
-  
-  /***
-   * A proof-of-concept cell editor with Excel-like range selection and insertion.
-   */
-  function FormulaEditor(args) {
-    var _self = this;
-    var _editor = new Slick.Editors.Text(args);
-    var _selector;
-
-    $.extend(this, _editor);
-
-    function init() {
-      // register a plugin to select a range and append it to the textbox
-      // since events are fired in reverse order (most recently added are executed first),
-      // this will override other plugins like moverows or selection model and will
-      // not require the grid to not be in the edit mode
-      _selector = new Slick.CellRangeSelector();
-      _selector.onCellRangeSelected.subscribe(_self.handleCellRangeSelected);
-      args.grid.registerPlugin(_selector);
-    }
-
-    this.destroy = function () {
-      _selector.onCellRangeSelected.unsubscribe(_self.handleCellRangeSelected);
-      grid.unregisterPlugin(_selector);
-      _editor.destroy();
-    };
-
-    this.handleCellRangeSelected = function (e, args) {
-      _editor.setValue(
-          _editor.getValue() +
-              grid.getColumns()[args.range.fromCell].name +
-              args.range.fromRow +
-              ":" +
-              grid.getColumns()[args.range.toCell].name +
-              args.range.toRow
-      );
-    };
-
-    init();
-  }
-
+  columns[5] = {id: "start", name: "Start", field: "start", minWidth: 60, editor: Slick.Editors.Date};
+ 
 
   $(function () {
     for (var i = 0; i < 100; i++) {
@@ -143,7 +155,9 @@
       for (var j = 0; j < 26; j++) {
         d[j] = j+i;
       }
-      d["percentComplete"] = Math.round(Math.random() * 100)
+      d["percentComplete"] = Math.round(Math.random() * 100);
+      d["start"] = new Date(Math.round(Math.random() * 1000000000));
+      d["weekCalendar"] = [true, true, true, true, true, true, true, true, true, true, false, false, false, false];
     }
     
     grid = new Slick.Grid("#myGrid", data, columns, options);

@@ -59,14 +59,33 @@
       if (_options.dataItemColumnValueExtractor) {
         return _options.dataItemColumnValueExtractor(item, columnDef);
       }
-      return item[columnDef.field];
+      // if a custom getter is not defined, we call serializeValue of the editor to serialize
+      var editorArgs = {
+        'container':$(document),  // a dummy container
+        'column':columnDef
+      };
+      var editor = new columnDef.editor(editorArgs);
+      var retVal = '';
+      editor.loadValue(item);
+      retVal = editor.serializeValue();
+      editor.destroy();
+
+      return retVal;
     }
     
     function setDataItemValueForColumn(item, columnDef, value) {
       if (_options.dataItemColumnValueSetter) {
         return _options.dataItemColumnValueSetter(item, columnDef, value);
       }
-      return item[columnDef.field] = value;
+      // if a custom setter is not defined, we call applyValue of the editor to unserialize
+      var editorArgs = {
+        'container':$(document),  // a dummy container
+        'column':columnDef
+      };
+      var editor = new columnDef.editor(editorArgs);
+      editor.loadValue(item);
+      editor.applyValue(item, value);
+      editor.destroy();
     }
     
     
