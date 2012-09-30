@@ -13,6 +13,7 @@
     var _dragging;
     var _decorator;
     var _self = this;
+    var _handler = new Slick.EventHandler();
     var _defaults = {
       selectionCss: {
         "border": "2px dashed blue"
@@ -25,17 +26,15 @@
       _decorator = new Slick.CellRangeDecorator(grid, options);
       _grid = grid;
       _canvas = _grid.getCanvasNode();
-      _grid.onDragInit.subscribe(handleDragInit);
-      _grid.onDragStart.subscribe(handleDragStart);
-      _grid.onDrag.subscribe(handleDrag);
-      _grid.onDragEnd.subscribe(handleDragEnd);
+      _handler
+        .subscribe(_grid.onDragInit, handleDragInit)
+        .subscribe(_grid.onDragStart, handleDragStart)
+        .subscribe(_grid.onDrag, handleDrag)
+        .subscribe(_grid.onDragEnd, handleDragEnd);
     }
 
     function destroy() {
-      _grid.onDragInit.unsubscribe(handleDragInit);
-      _grid.onDragStart.unsubscribe(handleDragStart);
-      _grid.onDrag.unsubscribe(handleDrag);
-      _grid.onDragEnd.unsubscribe(handleDragEnd);
+      _handler.unsubscribeAll();
     }
 
     function handleDragInit(e, dd) {

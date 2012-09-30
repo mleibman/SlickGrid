@@ -133,7 +133,6 @@ var columns = [
 var options = {
   editable: true,
   enableAddRow: true,
-  enableRowReordering: true,
   enableCellNavigation: true,
   forceFitColumns: true,
   autoEdit: false
@@ -159,7 +158,9 @@ $(function () {
 
   grid.setSelectionModel(new Slick.RowSelectionModel());
 
-  var moveRowsPlugin = new Slick.RowMoveManager();
+  var moveRowsPlugin = new Slick.RowMoveManager({
+    cancelEditOnDrag: true
+  });
 
   moveRowsPlugin.onBeforeMoveRows.subscribe(function (e, data) {
     for (var i = 0; i < data.rows.length; i++) {
@@ -284,12 +285,21 @@ $(function () {
   $.drop({mode: "mouse"});
   $("#dropzone")
       .bind("dropstart", function (e, dd) {
+        if (dd.mode != "recycle") {
+          return;
+        }
         $(this).css("background", "yellow");
       })
       .bind("dropend", function (e, dd) {
+        if (dd.mode != "recycle") {
+          return;
+        }
         $(dd.available).css("background", "pink");
       })
       .bind("drop", function (e, dd) {
+        if (dd.mode != "recycle") {
+          return;
+        }
         var rowsToDelete = dd.rows.sort().reverse();
         for (var i = 0; i < rowsToDelete.length; i++) {
           data.splice(rowsToDelete[i], 1);

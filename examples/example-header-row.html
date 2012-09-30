@@ -55,7 +55,8 @@
   var options = {
     enableCellNavigation: true,
     showHeaderRow: true,
-    headerRowHeight: 30
+    headerRowHeight: 30,
+    explicitInitialization: true
   };
   var columns = [];
   var columnFilters = {};
@@ -69,19 +70,6 @@
     });
   }
 
-
-  function updateHeaderRow() {
-    for (var i = 0; i < columns.length; i++) {
-      if (columns[i].id !== "selector") {
-        var header = grid.getHeaderRowColumn(columns[i].id);
-        $(header).empty();
-        $("<input type='text'>")
-            .data("columnId", columns[i].id)
-            .val(columnFilters[columns[i].id])
-            .appendTo(header);
-      }
-    }
-  }
 
   function filter(item) {
     for (var columnId in columnFilters) {
@@ -118,26 +106,29 @@
       grid.render();
     });
 
+
     $(grid.getHeaderRow()).delegate(":input", "change keyup", function (e) {
-      columnFilters[$(this).data("columnId")] = $.trim($(this).val());
-      dataView.refresh();
+      var columnId = $(this).data("columnId");
+      if (columnId != null) {
+        columnFilters[columnId] = $.trim($(this).val());
+        dataView.refresh();
+      }
     });
 
-
-    grid.onColumnsReordered.subscribe(function (e, args) {
-      updateHeaderRow();
+    grid.onHeaderRowCellRendered.subscribe(function(e, args) {
+        $(args.node).empty();
+        $("<input type='text'>")
+           .data("columnId", args.column.id)
+           .val(columnFilters[args.column.id])
+           .appendTo(args.node);
     });
 
-    grid.onColumnsResized.subscribe(function (e, args) {
-      updateHeaderRow();
-    });
+    grid.init();
 
     dataView.beginUpdate();
     dataView.setItems(data);
     dataView.setFilter(filter);
     dataView.endUpdate();
-
-    updateHeaderRow();
   })
 </script>
 </body>

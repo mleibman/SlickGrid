@@ -10,6 +10,7 @@
   function CheckboxSelectColumn(options) {
     var _grid;
     var _self = this;
+    var _handler = new Slick.EventHandler();
     var _selectedRowsLookup = {};
     var _defaults = {
       columnId: "_checkbox_selector",
@@ -22,17 +23,15 @@
 
     function init(grid) {
       _grid = grid;
-      _grid.onSelectedRowsChanged.subscribe(handleSelectedRowsChanged);
-      _grid.onClick.subscribe(handleClick);
-      _grid.onHeaderClick.subscribe(handleHeaderClick);
-      _grid.onKeyDown.subscribe(handleKeyDown);
+      _handler
+        .subscribe(_grid.onSelectedRowsChanged, handleSelectedRowsChanged)
+        .subscribe(_grid.onClick, handleClick)
+        .subscribe(_grid.onHeaderClick, handleHeaderClick)
+        .subscribe(_grid.onKeyDown, handleKeyDown);
     }
 
     function destroy() {
-      _grid.onSelectedRowsChanged.unsubscribe(handleSelectedRowsChanged);
-      _grid.onClick.unsubscribe(handleClick);
-      _grid.onHeaderClick.unsubscribe(handleHeaderClick);
-      _grid.onKeyDown.unsubscribe(handleKeyDown);
+      _handler.unsubscribeAll();
     }
 
     function handleSelectedRowsChanged(e, args) {
@@ -52,7 +51,7 @@
       _selectedRowsLookup = lookup;
       _grid.render();
 
-      if (selectedRows.length == _grid.getDataLength()) {
+      if (selectedRows.length && selectedRows.length == _grid.getDataLength()) {
         _grid.updateColumnHeader(_options.columnId, "<input type='checkbox' checked='checked'>", _options.toolTip);
       } else {
         _grid.updateColumnHeader(_options.columnId, "<input type='checkbox'>", _options.toolTip);
