@@ -26,7 +26,7 @@
     var scope = this;
 
     this.init = function () {
-      $input = $("<INPUT type=text class='editor-text' />")
+      $input = $("<INPUT type='text' class='editor-text' />")
           .appendTo(args.container)
           .bind("keydown.nav", function (e) {
             if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
@@ -95,7 +95,7 @@
     var scope = this;
 
     this.init = function () {
-      $input = $("<INPUT type=text class='editor-text' />");
+      $input = $("<INPUT type='text' class='editor-text' />");
 
       $input.bind("keydown.nav", function (e) {
         if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
@@ -158,7 +158,7 @@
     var calendarOpen = false;
 
     this.init = function () {
-      $input = $("<INPUT type=text class='editor-text' />");
+      $input = $("<INPUT type='text' class='editor-text' />");
       $input.appendTo(args.container);
       $input.focus().select();
       $input.datepicker({
@@ -288,7 +288,7 @@
     var scope = this;
 
     this.init = function () {
-      $select = $("<INPUT type=checkbox value='true' class='editor-checkbox' hideFocus>");
+      $select = $("<INPUT type='checkbox' value='true' class='editor-checkbox' hideFocus='true'>");
       $select.appendTo(args.container);
       $select.focus();
     };
@@ -338,14 +338,14 @@
     var scope = this;
 
     this.init = function () {
-      $input = $("<INPUT type=text class='editor-percentcomplete' />");
+      $input = $("<INPUT type='text' class='editor-percentcomplete' />");
       $input.width($(args.container).innerWidth() - 25);
       $input.appendTo(args.container);
 
       $picker = $("<div class='editor-percentcomplete-picker' />").appendTo(args.container);
       $picker.append("<div class='editor-percentcomplete-helper'><div class='editor-percentcomplete-wrapper'><div class='editor-percentcomplete-slider' /><div class='editor-percentcomplete-buttons' /></div></div>");
 
-      $picker.find(".editor-percentcomplete-buttons").append("<button val=0>Not started</button><br/><button val=50>In Progress</button><br/><button val=100>Complete</button>");
+      $picker.find(".editor-percentcomplete-buttons").append("<button val='0'>Not started</button><br/><button val='50'>In Progress</button><br/><button val='100'>Complete</button>");
 
       $input.focus().select();
 
@@ -423,7 +423,7 @@
       $wrapper = $("<DIV style='z-index:10000;position:absolute;background:white;padding:5px;border:3px solid gray; -moz-border-radius:10px; border-radius:10px;'/>")
           .appendTo($container);
 
-      $input = $("<TEXTAREA hidefocus rows=5 style='backround:white;width:250px;height:80px;border:0;outline:0'>")
+      $input = $("<TEXTAREA hidefocus='true' rows='5' style='backround:white;width:250px;height:80px;border:0;outline:0'>")
           .appendTo($wrapper);
 
       $("<DIV style='text-align:right'><BUTTON>Save</BUTTON><BUTTON>Cancel</BUTTON></DIV>")
