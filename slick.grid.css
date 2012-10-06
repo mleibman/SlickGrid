@@ -152,16 +152,16 @@ classes should alter those!
 }
 
 .slick-selection {
-    z-index: 10;
-    position: absolute;
-    border: 2px dashed black;
+  z-index: 10;
+  position: absolute;
+  border: 2px dashed black;
 }
 
 
 
 /* ------------------- RTL ------------------- */
 
-.rtl .slick-header.ui-state-default {
+.rtl .slick-header.ui-state-default, .rtl .slick-headerrow.ui-state-default {
   border-left: auto;
   border-right: 0px;
 }

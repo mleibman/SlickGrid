@@ -10,6 +10,7 @@
   function CheckboxSelectColumn(options) {
     var _grid;
     var _self = this;
+    var _handler = new Slick.EventHandler();
     var _selectedRowsLookup = {};
     var _defaults = {
       columnId: "_checkbox_selector",
@@ -22,15 +23,15 @@
 
     function init(grid) {
       _grid = grid;
-      _grid.onSelectedRowsChanged.subscribe(handleSelectedRowsChanged);
-      _grid.onClick.subscribe(handleClick);
-      _grid.onHeaderClick.subscribe(handleHeaderClick);
+      _handler
+        .subscribe(_grid.onSelectedRowsChanged, handleSelectedRowsChanged)
+        .subscribe(_grid.onClick, handleClick)
+        .subscribe(_grid.onHeaderClick, handleHeaderClick)
+        .subscribe(_grid.onKeyDown, handleKeyDown);
     }
 
     function destroy() {
-      _grid.onSelectedRowsChanged.unsubscribe(handleSelectedRowsChanged);
-      _grid.onClick.unsubscribe(handleClick);
-      _grid.onHeaderClick.unsubscribe(handleHeaderClick);
+      _handler.unsubscribeAll();
     }
 
     function handleSelectedRowsChanged(e, args) {
@@ -57,6 +58,19 @@
       }
     }
 
+    function handleKeyDown(e, args) {
+      if (e.which == 32) {
+        if (_grid.getColumns()[args.cell].id === _options.columnId) {
+          // if editing, try to commit
+          if (!_grid.getEditorLock().isActive() || _grid.getEditorLock().commitCurrentEdit()) {
+            toggleRowSelection(args.row);
+          }
+          e.preventDefault();
+          e.stopImmediatePropagation();
+        }
+      }
+    }
+
     function handleClick(e, args) {
       // clicking on a row select checkbox
       if (_grid.getColumns()[args.cell].id === _options.columnId && $(e.target).is(":checkbox")) {
@@ -67,15 +81,19 @@
           return;
         }
 
-        if (_selectedRowsLookup[args.row]) {
-          _grid.setSelectedRows($.grep(_grid.getSelectedRows(), function (n) {
-            return n != args.row
-          }));
-        } else {
-          _grid.setSelectedRows(_grid.getSelectedRows().concat(args.row));
-        }
+        toggleRowSelection(args.row);
         e.stopPropagation();
         e.stopImmediatePropagation();
+      }
+    }
+
+    function toggleRowSelection(row) {
+      if (_selectedRowsLookup[row]) {
+        _grid.setSelectedRows($.grep(_grid.getSelectedRows(), function (n) {
+          return n != row
+        }));
+      } else {
+        _grid.setSelectedRows(_grid.getSelectedRows().concat(row));
       }
     }
 

@@ -6,7 +6,8 @@
         Aggregators: {
           Avg: AvgAggregator,
           Min: MinAggregator,
-          Max: MaxAggregator
+          Max: MaxAggregator,
+          Sum: SumAggregator
         }
       }
     }
@@ -23,7 +24,8 @@
     var self = this;
 
     var defaults = {
-      groupItemMetadataProvider: null
+      groupItemMetadataProvider: null,
+      inlineFilters: false
     };
 
 
@@ -127,11 +129,11 @@
     function setPagingOptions(args) {
       if (args.pageSize != undefined) {
         pagesize = args.pageSize;
-        pagenum = Math.min(pagenum, Math.ceil(totalRows / pagesize));
+        pagenum = pagesize ? Math.min(pagenum, Math.max(0, Math.ceil(totalRows / pagesize) - 1)) : 0;
       }
 
       if (args.pageNum != undefined) {
-        pagenum = Math.min(args.pageNum, Math.ceil(totalRows / pagesize));
+        pagenum = Math.min(args.pageNum, Math.max(0, Math.ceil(totalRows / pagesize) - 1));
       }
 
       onPagingInfoChanged.notify(getPagingInfo(), null, self);
@@ -140,7 +142,8 @@
     }
 
     function getPagingInfo() {
-      return {pageSize: pagesize, pageNum: pagenum, totalRows: totalRows};
+      var totalPages = pagesize ? Math.max(1, Math.ceil(totalRows / pagesize)) : 1;
+      return {pageSize: pagesize, pageNum: pagenum, totalRows: totalRows, totalPages: totalPages};
     }
 
     function sort(comparer, ascending) {
@@ -197,8 +200,10 @@
 
     function setFilter(filterFn) {
       filter = filterFn;
-      compiledFilter = compileFilter();
-      compiledFilterWithCaching = compileFilterWithCaching();
+      if (options.inlineFilters) {
+        compiledFilter = compileFilter();
+        compiledFilterWithCaching = compileFilterWithCaching();
+      }
       refresh();
     }
 
@@ -255,6 +260,28 @@
 
     function getItemById(id) {
       return items[idxById[id]];
+    }
+
+    function mapIdsToRows(idArray) {
+      var rows = [];
+      ensureRowsByIdCache();
+      for (var i = 0; i < idArray.length; i++) {
+        var row = rowsById[idArray[i]];
+        if (row != null) {
+          rows[rows.length] = row;
+        }
+      }
+      return rows;
+    }
+
+    function mapRowsToIds(rowArray) {
+      var ids = [];
+      for (var i = 0; i < rowArray.length; i++) {
+        if (rowArray[i] < rows.length) {
+          ids[ids.length] = rows[rowArray[i]][idProperty];
+        }
+      }
+      return ids;
     }
 
     function updateItem(id, item) {
@@ -504,14 +531,45 @@
       return fn;
     }
 
+    function uncompiledFilter(items, args) {
+      var retval = [], idx = 0;
+
+      for (var i = 0, ii = items.length; i < ii; i++) {
+        if (filter(items[i], args)) {
+          retval[idx++] = items[i];
+        }
+      }
+
+      return retval;
+    }
+
+    function uncompiledFilterWithCaching(items, args, cache) {
+      var retval = [], idx = 0, item;
+
+      for (var i = 0, ii = items.length; i < ii; i++) {
+        item = items[i];
+        if (cache[i]) {
+          retval[idx++] = item;
+        } else if (filter(item, args)) {
+          retval[idx++] = item;
+          cache[i] = true;
+        }
+      }
+
+      return retval;
+    }
+
     function getFilteredAndPagedItems(items) {
       if (filter) {
+        var batchFilter = options.inlineFilters ? compiledFilter : uncompiledFilter;
+        var batchFilterWithCaching = options.inlineFilters ? compiledFilterWithCaching : uncompiledFilterWithCaching;
+
         if (refreshHints.isFilterNarrowing) {
-          filteredItems = compiledFilter(filteredItems, filterArgs);
+          filteredItems = batchFilter(filteredItems, filterArgs);
         } else if (refreshHints.isFilterExpanding) {
-          filteredItems = compiledFilterWithCaching(items, filterArgs, filterCache);
+          filteredItems = batchFilterWithCaching(items, filterArgs, filterCache);
         } else if (!refreshHints.isFilterUnchanged) {
-          filteredItems = compiledFilter(items, filterArgs);
+          filteredItems = batchFilter(items, filterArgs);
         }
       } else {
         // special case:  if not filtering and not paging, the resulting
@@ -619,7 +677,7 @@
       // if the current page is no longer valid, go to last page and recalc
       // we suffer a performance penalty here, but the main loop (recalc) remains highly optimized
       if (pagesize && totalRows < pagenum * pagesize) {
-        pagenum = Math.floor(totalRows / pagesize);
+        pagenum = Math.max(0, Math.ceil(totalRows / pagesize) - 1);
         diff = recalc(items, filter);
       }
 
@@ -638,6 +696,69 @@
       }
     }
 
+    function syncGridSelection(grid, preserveHidden) {
+      var self = this;
+      var selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());;
+      var inHandler;
+
+      grid.onSelectedRowsChanged.subscribe(function(e, args) {
+        if (inHandler) { return; }
+        selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());
+      });
+
+      this.onRowsChanged.subscribe(function(e, args) {
+        if (selectedRowIds.length > 0) {
+          inHandler = true;
+          var selectedRows = self.mapIdsToRows(selectedRowIds);
+          if (!preserveHidden) {
+            selectedRowIds = self.mapRowsToIds(selectedRows);
+          }
+          grid.setSelectedRows(selectedRows);
+          inHandler = false;
+        }
+      });
+    }
+
+    function syncGridCellCssStyles(grid, key) {
+      var hashById;
+      var inHandler;
+
+      // since this method can be called after the cell styles have been set,
+      // get the existing ones right away
+      storeCellCssStyles(grid.getCellCssStyles(key));
+
+      function storeCellCssStyles(hash) {
+        hashById = {};
+        for (var row in hash) {
+          var id = rows[row][idProperty];
+          hashById[id] = hash[row];
+        }
+      }
+
+      grid.onCellCssStylesChanged.subscribe(function(e, args) {
+        if (inHandler) { return; }
+        if (key != args.key) { return; }
+        if (args.hash) {
+          storeCellCssStyles(args.hash);
+        }
+      });
+
+      this.onRowsChanged.subscribe(function(e, args) {
+        if (hashById) {
+          inHandler = true;
+          ensureRowsByIdCache();
+          var newHash = {};
+          for (var id in hashById) {
+            var row = rowsById[id];
+            if (row != undefined) {
+              newHash[row] = hashById[id];
+            }
+          }
+          grid.setCellCssStyles(key, newHash);
+          inHandler = false;
+        }
+      });
+    }
 
     return {
       // methods
@@ -660,6 +781,8 @@
       "getRowById": getRowById,
       "getItemById": getItemById,
       "getItemByIdx": getItemByIdx,
+      "mapRowsToIds": mapRowsToIds,
+      "mapIdsToRows": mapIdsToRows,
       "setRefreshHints": setRefreshHints,
       "setFilterArgs": setFilterArgs,
       "refresh": refresh,
@@ -667,6 +790,8 @@
       "insertItem": insertItem,
       "addItem": addItem,
       "deleteItem": deleteItem,
+      "syncGridSelection": syncGridSelection,
+      "syncGridCellCssStyles": syncGridCellCssStyles,
 
       // data provider methods
       "getLength": getLength,
@@ -692,9 +817,9 @@
     this.accumulate = function (item) {
       var val = item[this.field_];
       this.count_++;
-      if (val != null && val != NaN) {
+      if (val != null && val != "" && val != NaN) {
         this.nonNullCount_++;
-        this.sum_ += 1 * val;
+        this.sum_ += parseFloat(val);
       }
     };
 
@@ -717,7 +842,7 @@
 
     this.accumulate = function (item) {
       var val = item[this.field_];
-      if (val != null && val != NaN) {
+      if (val != null && val != "" && val != NaN) {
         if (this.min_ == null || val < this.min_) {
           this.min_ = val;
         }
@@ -741,7 +866,7 @@
 
     this.accumulate = function (item) {
       var val = item[this.field_];
-      if (val != null && val != NaN) {
+      if (val != null && val != "" && val != NaN) {
         if (this.max_ == null || val > this.max_) {
           this.max_ = val;
         }
@@ -753,6 +878,28 @@
         groupTotals.max = {};
       }
       groupTotals.max[this.field_] = this.max_;
+    }
+  }
+
+  function SumAggregator(field) {
+    this.field_ = field;
+
+    this.init = function () {
+      this.sum_ = null;
+    };
+
+    this.accumulate = function (item) {
+      var val = item[this.field_];
+      if (val != null && val != "" && val != NaN) {
+        this.sum_ += parseFloat(val);
+      }
+    };
+
+    this.storeResult = function (groupTotals) {
+      if (!groupTotals.sum) {
+        groupTotals.sum = {};
+      }
+      groupTotals.sum[this.field_] = this.sum_;
     }
   }
 

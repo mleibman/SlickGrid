@@ -8,11 +8,18 @@
   <style>
     .slick-headerrow-column {
       background: #87ceeb;
+      text-overflow: clip;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
     }
 
     .slick-headerrow-column input {
       margin: 0;
       padding: 0;
+      width: 100%;
+      height: 100%;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
     }
   </style>
 </head>
@@ -47,7 +54,8 @@
   var data = [];
   var options = {
     enableCellNavigation: true,
-    showHeaderRow: true
+    showHeaderRow: true,
+    headerRowHeight: 30
   };
   var columns = [];
   var columnFilters = {};
@@ -69,7 +77,6 @@
         $(header).empty();
         $("<input type='text'>")
             .data("columnId", columns[i].id)
-            .width($(header).width() - 4)
             .val(columnFilters[columns[i].id])
             .appendTo(header);
       }

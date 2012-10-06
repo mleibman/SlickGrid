@@ -182,7 +182,7 @@ $(function () {
 
 
   // initialize the model
-  dataView = new Slick.Data.DataView();
+  dataView = new Slick.Data.DataView({ inlineFilters: true });
   dataView.beginUpdate();
   dataView.setItems(data);
   dataView.setFilter(myFilter);
