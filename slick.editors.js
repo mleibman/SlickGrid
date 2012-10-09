@@ -158,13 +158,13 @@
     var calendarOpen = false;
 
     this.init = function () {
-      $input = $("<INPUT type=text class='editor-text datepicker' />");
+      $input = $("<INPUT type=text class='editor-text' />");
       $input.appendTo(args.container);
       $input.focus().select();
       $input.datepicker({
         showOn: "button",
         buttonImageOnly: true,
-        //buttonImage: "../images/calendar.gif",
+        buttonImage: "../images/calendar.gif",
         beforeShow: function () {
           calendarOpen = true
         },
@@ -423,7 +423,7 @@
       $wrapper = $("<DIV style='z-index:10000;position:absolute;background:white;padding:5px;border:3px solid gray; -moz-border-radius:10px; border-radius:10px;'/>")
           .appendTo($container);
 
-      $input = $("<TEXTAREA hidefocus rows=5 style='background:white;width:250px;height:80px;border:0;outline:0'>")
+      $input = $("<TEXTAREA hidefocus rows=5 style='backround:white;width:250px;height:80px;border:0;outline:0'>")
           .appendTo($wrapper);
 
       $("<DIV style='text-align:right'><BUTTON>Save</BUTTON><BUTTON>Cancel</BUTTON></DIV>")
@@ -506,9 +506,6 @@
         msg: null
       };
     };
-
-    this.init();
-  }
 
     this.init();
   }
