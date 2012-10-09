@@ -159,7 +159,7 @@
 
     this.init = function () {
       console.log(args);
-      console.log(args.column.args.column.datePickerImageUrl)
+      console.log(args.column.datePickerImageUrl)
       $input = $("<INPUT type=text class='editor-text' />");
       $input.appendTo(args.container);
       $input.focus().select();
