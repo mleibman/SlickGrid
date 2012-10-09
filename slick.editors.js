@@ -158,13 +158,13 @@
     var calendarOpen = false;
 
     this.init = function () {
-      $input = $("<INPUT type=text class='editor-text datepicker' />");
+      $input = $("<INPUT type=text class='editor-text' />");
       $input.appendTo(args.container);
       $input.focus().select();
       $input.datepicker({
         showOn: "button",
         buttonImageOnly: true,
-        buttonImage: "../images/calendar.gif",
+        //buttonImage: "../images/calendar.gif",
         beforeShow: function () {
           calendarOpen = true
         },
