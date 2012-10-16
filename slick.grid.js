@@ -3028,7 +3028,9 @@ if (typeof Slick === "undefined") {
               trigger(self.onCellChange, {
                 row: activeRow,
                 cell: activeCell,
-                item: item
+                item: item,
+                previousValue: editCommand.prevSerializedValue,
+                newValue: editCommand.serializedValue
               });
             } else {
               var newItem = {};
