@@ -2167,6 +2167,8 @@ if (typeof Slick === "undefined") {
           } else {
             return;
           }
+        } else if (e.which == 13 && e.shiftKey && !e.ctrlKey && !e.altKey) {
+          navigateUp();
         } else if (e.which == 9 && e.shiftKey && !e.ctrlKey && !e.altKey) {
           navigatePrev();
         } else {
