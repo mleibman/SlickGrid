@@ -59,16 +59,21 @@
       if (_options.dataItemColumnValueExtractor) {
         return _options.dataItemColumnValueExtractor(item, columnDef);
       }
-      // if a custom getter is not defined, we call serializeValue of the editor to serialize
-      var editorArgs = {
-        'container':$(document),  // a dummy container
-        'column':columnDef
-      };
-      var editor = new columnDef.editor(editorArgs);
+
       var retVal = '';
-      editor.loadValue(item);
-      retVal = editor.serializeValue();
-      editor.destroy();
+
+      // if a custom getter is not defined, we call serializeValue of the editor to serialize
+      if (columnDef.editor){
+        var editorArgs = {
+          'container':$(document),  // a dummy container
+          'column':columnDef,
+          'position':{'top':0, 'left':0}  // a dummy position required by some editors
+        };
+        var editor = new columnDef.editor(editorArgs);
+        editor.loadValue(item);
+        retVal = editor.serializeValue();
+        editor.destroy();
+      }
 
       return retVal;
     }
@@ -77,15 +82,19 @@
       if (_options.dataItemColumnValueSetter) {
         return _options.dataItemColumnValueSetter(item, columnDef, value);
       }
+
       // if a custom setter is not defined, we call applyValue of the editor to unserialize
-      var editorArgs = {
-        'container':$(document),  // a dummy container
-        'column':columnDef
-      };
-      var editor = new columnDef.editor(editorArgs);
-      editor.loadValue(item);
-      editor.applyValue(item, value);
-      editor.destroy();
+      if (columnDef.editor){
+        var editorArgs = {
+          'container':$(document),  // a dummy container
+          'column':columnDef,
+          'position':{'top':0, 'left':0}  // a dummy position required by some editors
+        };
+        var editor = new columnDef.editor(editorArgs);
+        editor.loadValue(item);
+        editor.applyValue(item, value);
+        editor.destroy();
+      }
     }
     
     
@@ -142,6 +151,8 @@
       
       var desty = activeRow;
       var destx = activeCell;
+      var maxDestY = _grid.getDataLength();
+      var maxDestX = _grid.getColumns().length;
       var h = 0;
       var w = 0;
       
@@ -153,7 +164,7 @@
           var desty = activeRow + y;
           var destx = activeCell + x;
           
-          if (desty < data.length && destx < grid.getColumns().length ) { 
+          if (desty < maxDestY && destx < maxDestX ) {
             var nd = _grid.getCellNode(desty, destx);
             var dt = _grid.getDataItem(desty);
             if (oneCellToMultiple)
