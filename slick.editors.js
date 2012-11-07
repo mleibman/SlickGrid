@@ -54,7 +54,7 @@
     };
 
     this.loadValue = function (item) {
-      defaultValue = item[args.column.field] || "";
+      defaultValue = args.grid.getDataItemValueForColumn(item, args.column) || "";
       $input.val(defaultValue);
       $input[0].defaultValue = defaultValue;
       $input.select();
@@ -65,7 +65,7 @@
     };
 
     this.applyValue = function (item, state) {
-      item[args.column.field] = state;
+      args.grid.setDataItemValueForColumn(item, args.column, state);
     };
 
     this.isValueChanged = function () {
@@ -116,7 +116,7 @@
     };
 
     this.loadValue = function (item) {
-      defaultValue = item[args.column.field];
+      defaultValue = args.grid.getDataItemValueForColumn(item, args.column);
       $input.val(defaultValue);
       $input[0].defaultValue = defaultValue;
       $input.select();
@@ -127,7 +127,7 @@
     };
 
     this.applyValue = function (item, state) {
-      item[args.column.field] = state;
+      args.grid.setDataItemValueForColumn(item, args.column, state);
     };
 
     this.isValueChanged = function () {
@@ -208,7 +208,7 @@
     };
 
     this.loadValue = function (item) {
-      defaultValue = item[args.column.field];
+      defaultValue = args.grid.getDataItemValueForColumn(item, args.column);
       $input.val(defaultValue);
       $input[0].defaultValue = defaultValue;
       $input.select();
@@ -219,7 +219,7 @@
     };
 
     this.applyValue = function (item, state) {
-      item[args.column.field] = state;
+      args.grid.setDataItemValueForColumn(item, args.column, state);
     };
 
     this.isValueChanged = function () {
@@ -256,7 +256,7 @@
     };
 
     this.loadValue = function (item) {
-      $select.val((defaultValue = item[args.column.field]) ? "yes" : "no");
+      $select.val((defaultValue = args.grid.getDataItemValueForColumn(item, args.column)) ? "yes" : "no");
       $select.select();
     };
 
@@ -265,7 +265,7 @@
     };
 
     this.applyValue = function (item, state) {
-      item[args.column.field] = state;
+      args.grid.setDataItemValueForColumn(item, args.column, state);
     };
 
     this.isValueChanged = function () {
@@ -302,7 +302,7 @@
     };
 
     this.loadValue = function (item) {
-      defaultValue = item[args.column.field];
+      defaultValue = args.grid.getDataItemValueForColumn(item, args.column);
       if (defaultValue) {
         $select.attr("checked", "checked");
       } else {
@@ -315,7 +315,7 @@
     };
 
     this.applyValue = function (item, state) {
-      item[args.column.field] = state;
+      args.grid.setDataItemValueForColumn(item, args.column, state);
     };
 
     this.isValueChanged = function () {
@@ -374,7 +374,7 @@
     };
 
     this.loadValue = function (item) {
-      $input.val(defaultValue = item[args.column.field]);
+      $input.val(defaultValue = args.grid.getDataItemValueForColumn(item, args.column));
       $input.select();
     };
 
@@ -383,7 +383,7 @@
     };
 
     this.applyValue = function (item, state) {
-      item[args.column.field] = state;
+      args.grid.setDataItemValueForColumn(item, args.column, state);
     };
 
     this.isValueChanged = function () {
@@ -484,7 +484,7 @@
     };
 
     this.loadValue = function (item) {
-      $input.val(defaultValue = item[args.column.field]);
+      $input.val(defaultValue = args.grid.getDataItemValueForColumn(item, args.column));
       $input.select();
     };
 
@@ -493,7 +493,7 @@
     };
 
     this.applyValue = function (item, state) {
-      item[args.column.field] = state;
+      args.grid.setDataItemValueForColumn(item, args.column, state);
     };
 
     this.isValueChanged = function () {
