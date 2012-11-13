@@ -172,7 +172,8 @@
         },
         onClose: function () {
           calendarOpen = false
-        }
+        },
+        dateFormat: "dd.mm.yyyy"
       });
       $input.width($input.width() - 18);
     };
