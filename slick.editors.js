@@ -173,7 +173,7 @@
         onClose: function () {
           calendarOpen = false
         },
-        dateFormat: "dd.mm.yyyy"
+        dateFormat: "dd-mm-yy"
       });
       $input.width($input.width() - 18);
     };
