@@ -1,3 +1,5 @@
 .gitk*
 .idea/*
 *.orig
+.DS_Store
+.settings/
