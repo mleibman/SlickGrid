@@ -363,7 +363,7 @@ if (typeof Slick === "undefined") {
             if (!initialized) {
                 initialized = true;
 
-                viewportW = parseFloat($.css($container[0], "width", true));
+                getViewportWidth();
                 getViewportHeight();
 
                 // header columns and cells may have different padding/border
@@ -2055,6 +2055,10 @@ if (typeof Slick === "undefined") {
             numVisibleRows = Math.ceil( viewportH / options.rowHeight );
         }
 
+        function getViewportWidth() {
+            viewportW = parseFloat($.css($container[0], "width", true));
+        }
+
         function resizeCanvas() {
             if (!initialized) {
                 return;
@@ -2073,6 +2077,7 @@ if (typeof Slick === "undefined") {
                              ? $headerRowScrollerL.outerHeight()
                              : 0;
 
+            getViewportWidth();
             getViewportHeight();
 
             // Account for Frozen Rows
