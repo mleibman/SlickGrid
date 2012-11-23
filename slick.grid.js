@@ -649,7 +649,9 @@ if (typeof Slick === "undefined") {
     }
 
     function setupColumnReorder() {
-      $headers.sortable("destroy");
+	  if (!(jQuery.isEmptyObject($.data( $headers, $headers.sortable.prototype.widgetFullName ) ))){
+		  $headers.sortable("destroy");
+	  }
       $headers.sortable({
         containment: "parent",
         axis: "x",
