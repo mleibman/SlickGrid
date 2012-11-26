@@ -152,6 +152,7 @@ if (typeof Slick === "undefined") {
 
     var selectionModel;
     var selectedRows = [];
+    var selectedCells = [];
 
     var plugins = [];
     var cellCssClasses = {};
@@ -1145,6 +1146,7 @@ if (typeof Slick === "undefined") {
           for (var k = ranges[i].fromCell; k <= ranges[i].toCell; k++) {
             if (canCellBeSelected(j, k)) {
               hash[j][columns[k].id] = options.selectedCellCssClass;
+              selectedCells.push({Row:j, Column:k});
             }
           }
         }
@@ -3116,6 +3118,13 @@ if (typeof Slick === "undefined") {
       return selectedRows;
     }
 
+    function getSelectedCells() {
+      if (!selectionModel) {
+        throw "Selection model is not set";
+      }
+      return selectedCells;
+    }
+
     function setSelectedRows(rows) {
       if (!selectionModel) {
         throw "Selection model is not set";
@@ -3209,6 +3218,7 @@ if (typeof Slick === "undefined") {
       "getSelectionModel": getSelectionModel,
       "setSelectionModel": setSelectionModel,
       "getSelectedRows": getSelectedRows,
+      "getSelectedCells": getSelectedCells,
       "setSelectedRows": setSelectedRows,
 
       "render": render,
