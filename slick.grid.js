@@ -117,7 +117,7 @@ if (typeof Slick === "undefined") {
         var $container;
         var uid = "slickgrid_" + Math.round(1000000 * Math.random());
         var self = this;
-        var $focusSink;
+        var $focusSink, $focusSink2;
         var $headerScroller;
         var $headers;
         var $headerRow, $headerRowScroller, $headerRowSpacer;
@@ -147,6 +147,7 @@ if (typeof Slick === "undefined") {
         var viewportTopH = 0;
         var viewportBottomH = 0;
 
+        var tabbingDirection = 1;
         var activePosX;
         var activeRow, activeCell;
         var activeCellNode = null;
@@ -354,6 +355,8 @@ if (typeof Slick === "undefined") {
             // Cache the canvases
             $canvas = $().add($canvasTopL).add($canvasTopR).add($canvasBottomL).add($canvasBottomR);
 
+            $focusSink2 = $focusSink.clone().appendTo($container);
+
             if (!options.explicitInitialization) {
                 finishInitialization();
             }
@@ -417,7 +420,7 @@ if (typeof Slick === "undefined") {
                     .delegate(".slick-header-column", "mouseleave", handleHeaderMouseLeave);
                 $headerRowScroller
                     .bind("scroll", handleHeaderRowScroll);
-                $focusSink
+                $focusSink.add($focusSink2)
                     .bind("keydown", handleKeyDown);
                 $canvas
                     .bind("keydown", handleKeyDown)
@@ -869,6 +872,8 @@ if (typeof Slick === "undefined") {
         }
 
         function setupColumnReorder() {
+            // force init jquery ui sortable +1.9
+            $headers.sortable();
             $headers.sortable("destroy");
             var columnScrollTimer = null;
 
@@ -3152,7 +3157,11 @@ if (typeof Slick === "undefined") {
         }
 
         function setFocus() {
-            $focusSink[0].focus();
+            if (tabbingDirection == -1) {
+              $focusSink[0].focus();
+            } else {
+              $focusSink2[0].focus();
+            }
         }
 
         function scrollCellIntoView(row, cell) {
@@ -3734,6 +3743,16 @@ if (typeof Slick === "undefined") {
             }
 
             setFocus();
+
+            var tabbingDirections = {
+                "up": -1,
+                "down": 1,
+                "left": -1,
+                "right": 1,
+                "prev": -1,
+                "next": 1
+            };
+            tabbingDirection = tabbingDirections[dir];
 
             var stepFunctions = {
                 "up": gotoUp,
