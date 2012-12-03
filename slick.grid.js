@@ -652,6 +652,8 @@ if (typeof Slick === "undefined") {
     }
 
     function setupColumnReorder() {
+      // force init jquery ui sortable +1.9
+      $headers.sortable();
       $headers.sortable("destroy");
       $headers.sortable({
         containment: "parent",
