@@ -147,6 +147,8 @@ if (typeof Slick === "undefined") {
         var viewportTopH = 0;
         var viewportBottomH = 0;
 
+        var $activeCanvasNode;
+        var $activeViewportNode;
         var activePosX;
         var activeRow, activeCell;
         var activeCellNode = null;
@@ -345,6 +347,9 @@ if (typeof Slick === "undefined") {
             // Cache the viewports
             $viewport = $().add($viewportTopL).add($viewportTopR).add($viewportBottomL).add($viewportBottomR);
 
+            // Default the active viewport to the top left
+            $activeViewportNode = $viewportTopL;
+
             // Append the canvas containers
             $canvasTopL = $("<div class='grid-canvas grid-canvas-top grid-canvas-left' tabIndex='0' hideFocus />").appendTo($viewportTopL);
             $canvasTopR = $("<div class='grid-canvas grid-canvas-top grid-canvas-right' tabIndex='0' hideFocus />").appendTo($viewportTopR);
@@ -353,6 +358,9 @@ if (typeof Slick === "undefined") {
 
             // Cache the canvases
             $canvas = $().add($canvasTopL).add($canvasTopR).add($canvasBottomL).add($canvasBottomR);
+
+            // Default the active canvas to the top left
+            $activeCanvasNode = $canvasTopL;
 
             if (!options.explicitInitialization) {
                 finishInitialization();
@@ -470,11 +478,35 @@ if (typeof Slick === "undefined") {
         }
 
         function getCanvasNode() {
-            return $canvas;
+            return $canvas[0];
+        }
+
+        function getActiveCanvasNode( element ) {
+            setActiveCanvasNode( element );
+
+            return $activeCanvasNode[0];
+        }
+
+        function setActiveCanvasNode( element ) {
+            if ( element ) {
+                $activeCanvasNode = $( element.target ).closest( '.grid-canvas' );
+            }
         }
 
         function getViewportNode() {
         	return $viewport[0];
+        }
+
+        function getActiveViewportNode( element ) {
+            setActiveViewPortNode( element );
+
+            return $activeViewportNode[0];
+        }
+
+        function setActiveViewportNode( element ) {
+            if ( element ) {
+                $activeViewportNode = $( element.target ).closest( '.slick-viewport' );
+            }
         }
 
         function measureScrollbar() {
@@ -1820,17 +1852,7 @@ if (typeof Slick === "undefined") {
                 rowCss += " " + metadata.cssClasses;
             }
 
-            var frozenRowOffset = ( hasFrozenRows )
-                                  ? ( options.frozenBottom )
-                                    ? ( row >= actualFrozenRow )
-                                      ? ( h < viewportTopH )
-                                        ? ( actualFrozenRow * options.rowHeight )
-                                        : h
-                                      : 0
-                                    : ( row >= actualFrozenRow )
-                                      ? frozenRowsHeight
-                                      : 0
-                                  : 0;
+            var frozenRowOffset = getFrozenRowOffset( row );
 
             var rowHtml = "<div class='ui-widget-content " + rowCss + "' style='top:"
                         + (options.rowHeight * row - offset - frozenRowOffset )
@@ -3053,6 +3075,7 @@ if (typeof Slick === "undefined") {
         }
 
         function getCellFromPoint(x, y) {
+            //var row = Math.floor((y + offset - ( ( y > frozenRowsHeight ) ? frozenRowsHeight : 0 ) ) / options.rowHeight);
             var row = Math.floor((y + offset) / options.rowHeight);
             var cell = 0;
 
@@ -3089,6 +3112,23 @@ if (typeof Slick === "undefined") {
             }
 
             return null;
+        }
+
+        function getFrozenRowOffset( row ) {
+            var offset =
+                ( hasFrozenRows )
+                ? ( options.frozenBottom )
+                  ? ( row >= actualFrozenRow )
+                    ? ( h < viewportTopH )
+                      ? ( actualFrozenRow * options.rowHeight )
+                      : h
+                    : 0
+                  : ( row >= actualFrozenRow )
+                    ? frozenRowsHeight
+                    : 0
+                : 0;
+
+            return offset;
         }
 
         function getCellFromEvent(e) {
@@ -3128,11 +3168,17 @@ if (typeof Slick === "undefined") {
                 return null;
             }
 
-            var y1 = row * options.rowHeight - offset;
+            var frozenRowOffset = getFrozenRowOffset( row );
+
+            var y1 = row * options.rowHeight - offset - frozenRowOffset;
             var y2 = y1 + options.rowHeight - 1;
             var x1 = 0;
             for (var i = 0; i < cell; i++) {
                 x1 += columns[i].width;
+
+                if ( options.frozenColumn == i ) {
+                    x1 = 0;
+                }
             }
             var x2 = x1 + columns[cell].width;
 
@@ -4078,7 +4124,11 @@ if (typeof Slick === "undefined") {
             "scrollRowToTop": scrollRowToTop,
             "scrollCellIntoView": scrollCellIntoView,
             "getCanvasNode": getCanvasNode,
+            "getActiveCanvasNode": getActiveCanvasNode,
+            "setActiveCanvasNode": setActiveCanvasNode,
             "getViewportNode": getViewportNode,
+            "getActiveViewportNode": getActiveViewportNode,
+            "setActiveViewportNode": setActiveViewportNode,
             "focus": setFocus,
             "getCellFromPoint": getCellFromPoint,
             "getCellFromEvent": getCellFromEvent,
@@ -4111,6 +4161,7 @@ if (typeof Slick === "undefined") {
             "setCellCssStyles": setCellCssStyles,
             "removeCellCssStyles": removeCellCssStyles,
             "getCellCssStyles": getCellCssStyles,
+            "getFrozenRowOffset": getFrozenRowOffset,
 
             "init": finishInitialization,
             "destroy": destroy,

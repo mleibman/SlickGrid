@@ -26,7 +26,7 @@
     function init(grid) {
       _options = $.extend(true, {}, _defaults, options);
       _grid = grid;
-      _canvas = _grid.getCanvasNode();
+      _canvas = _grid.getActiveCanvasNode();
       _grid.onActiveCellChanged.subscribe(handleActiveCellChange);
       grid.registerPlugin(_selector);
       _selector.onCellRangeSelected.subscribe(handleCellRangeSelected);

@@ -10,6 +10,7 @@
   function CellRangeSelector(options) {
     var _grid;
     var _canvas;
+    var _$activeCanvas;
     var _dragging;
     var _decorator;
     var _self = this;
@@ -34,51 +35,66 @@
     }
 
     function destroy() {
-      _handler.unsubscribeAll();
+        _handler.unsubscribeAll();
     }
 
     function handleDragInit(e, dd) {
-      // prevent the grid from cancelling drag'n'drop by default
-      e.stopImmediatePropagation();
+        // Set the active canvas node because the decorator needs to append its
+        // box to the correct canvas
+        _$activeCanvas = $( _grid.getActiveCanvasNode( e ) );
+        
+        var c = _$activeCanvas.offset();
+
+        var rowOffset = 0;
+        var isBottom = _$activeCanvas.hasClass( '.grid-canvas-bottom' );
+
+        if ( _grid.getOptions().frozenRow > -1 && isBottom ) {
+            rowOffset = ( options.frozenBottom ) ? $canvasTopL.height() : frozenRowsHeight;
+        }
+        
+        // prevent the grid from cancelling drag'n'drop by default
+        e.stopImmediatePropagation();
     }
 
     function handleDragStart(e, dd) {
-      var cell = _grid.getCellFromEvent(e);
-      if (_self.onBeforeCellRangeSelected.notify(cell) !== false) {
-        if (_grid.canCellBeSelected(cell.row, cell.cell)) {
-          _dragging = true;
-          e.stopImmediatePropagation();
+        var cell = _grid.getCellFromEvent(e);
+        if (_self.onBeforeCellRangeSelected.notify(cell) !== false) {
+            if (_grid.canCellBeSelected(cell.row, cell.cell)) {
+                _dragging = true;
+                e.stopImmediatePropagation();
+            }
         }
-      }
-      if (!_dragging) {
-        return;
-      }
+        if (!_dragging) {
+            return;
+        }
 
-      var start = _grid.getCellFromPoint(
-          dd.startX - $(_canvas).offset().left,
-          dd.startY - $(_canvas).offset().top);
+        var start = _grid.getCellFromEvent( e );
 
-      dd.range = {start: start, end: {}};
-
-      return _decorator.show(new Slick.Range(start.row, start.cell));
+        dd.range = {start: start, end: {}};
+console.log( "handleDragStart: row: " + start.row + " cell: " + start.cell );
+        return _decorator.show(new Slick.Range(start.row, start.cell));
     }
 
     function handleDrag(e, dd) {
-      if (!_dragging) {
-        return;
-      }
-      e.stopImmediatePropagation();
+        if (!_dragging) {
+            return;
+        }
+        e.stopImmediatePropagation();
 
-      var end = _grid.getCellFromPoint(
-          e.pageX - $(_canvas).offset().left,
-          e.pageY - $(_canvas).offset().top);
+        var end = _grid.getCellFromPoint(
+            e.pageX - $(_canvas).offset().left,
+            e.pageY - $(_canvas).offset().top
+        );        
+        //var end = _grid.getCellFromEvent( e );
 
-      if (!_grid.canCellBeSelected(end.row, end.cell)) {
-        return;
-      }
+        if (!_grid.canCellBeSelected(end.row, end.cell)) {
+            return;
+        }
 
-      dd.range.end = end;
-      _decorator.show(new Slick.Range(dd.range.start.row, dd.range.start.cell, end.row, end.cell));
+        dd.range.end = end;
+console.log( "handleDrag: start row: " + dd.range.start.row + " start cell: " + dd.range.start.cell );
+console.log( "handleDrag: end   row: " + end.row + " start cell: " + end.cell );
+        _decorator.show(new Slick.Range(dd.range.start.row, dd.range.start.cell, end.row, end.cell));
     }
 
     function handleDragEnd(e, dd) {
