@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <title>SlickGrid example 3: Editing</title>
+  <title>SlickGrid Example: Spreadsheet with Frozen Rows and Columns</title>
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
   <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
@@ -17,7 +17,7 @@
 <body>
 <div style="position:relative">
   <div style="width:600px;">
-    <div id="myGrid" style="width:100%;height:350px;"></div>
+    <div id="myGrid" style="width:100%;height:500px;"></div>
   </div>
 
   <div class="options-panel">
@@ -51,13 +51,13 @@
   var grid;
   var data = [];
   var options = {
-     editable: true
-    ,enableAddRow: true
-    ,enableCellNavigation: true
-    ,asyncEditorLoading: false
-    ,autoEdit: false
-	,frozenColumn: 3
-	,frozenRow: 4
+    editable: true,
+    enableAddRow: true,
+    enableCellNavigation: true,
+    asyncEditorLoading: false,
+    autoEdit: false
+    ,frozenColumn: 3
+    ,frozenRow: 7
   };
 
   var columns = [
@@ -72,8 +72,9 @@
   for (var i = 0; i < 100; i++) {
     columns.push({
       id: i,
-      name: String.fromCharCode("A".charCodeAt(0) + (i / 26) | 0) +
-            String.fromCharCode("A".charCodeAt(0) + (i % 26)),
+      //name: String.fromCharCode("A".charCodeAt(0) + (i / 26) | 0) +
+      //      String.fromCharCode("A".charCodeAt(0) + (i % 26)),
+      name: i,
       field: i,
       width: 60,
       editor: FormulaEditor

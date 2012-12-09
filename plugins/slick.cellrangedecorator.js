@@ -33,7 +33,7 @@
       if (!_elem) {
         _elem = $("<div></div>", {css: options.selectionCss})
             .css("position", "absolute")
-            .appendTo(grid.getCanvasNode());
+            .appendTo(grid.getActiveCanvasNode());
       }
 
       var from = grid.getCellNodeBox(range.fromRow, range.fromCell);
