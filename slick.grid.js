@@ -3075,7 +3075,6 @@ if (typeof Slick === "undefined") {
         }
 
         function getCellFromPoint(x, y) {
-            //var row = Math.floor((y + offset - ( ( y > frozenRowsHeight ) ? frozenRowsHeight : 0 ) ) / options.rowHeight);
             var row = Math.floor((y + offset) / options.rowHeight);
             var cell = 0;
 
