@@ -102,7 +102,7 @@
       var ta = document.createElement('textarea');
       ta.style.position = 'absolute';
       ta.style.left = '-1000px';
-      ta.style.top = '-1000px';
+      ta.style.top = document.body.scrollTop + 'px';
       ta.value = innerText;
       document.body.appendChild(ta);
       ta.focus();
