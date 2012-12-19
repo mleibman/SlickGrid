@@ -74,7 +74,7 @@
     }
 
     function handleActiveCellChange(e, args) {
-      if (_options.selectActiveCell) {
+      if (_options.selectActiveCell && args.row != null && args.cell != null) {
         setSelectedRanges([new Slick.Range(args.row, args.cell)]);
       }
     }

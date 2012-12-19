@@ -701,12 +701,7 @@
       var selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());;
       var inHandler;
 
-      grid.onSelectedRowsChanged.subscribe(function(e, args) {
-        if (inHandler) { return; }
-        selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());
-      });
-
-      this.onRowsChanged.subscribe(function(e, args) {
+      function update() {
         if (selectedRowIds.length > 0) {
           inHandler = true;
           var selectedRows = self.mapIdsToRows(selectedRowIds);
@@ -716,7 +711,16 @@
           grid.setSelectedRows(selectedRows);
           inHandler = false;
         }
+      }
+
+      grid.onSelectedRowsChanged.subscribe(function(e, args) {
+        if (inHandler) { return; }
+        selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());
       });
+
+      this.onRowsChanged.subscribe(update);
+
+      this.onRowCountChanged.subscribe(update);
     }
 
     function syncGridCellCssStyles(grid, key) {
@@ -735,15 +739,7 @@
         }
       }
 
-      grid.onCellCssStylesChanged.subscribe(function(e, args) {
-        if (inHandler) { return; }
-        if (key != args.key) { return; }
-        if (args.hash) {
-          storeCellCssStyles(args.hash);
-        }
-      });
-
-      this.onRowsChanged.subscribe(function(e, args) {
+      function update() {
         if (hashById) {
           inHandler = true;
           ensureRowsByIdCache();
@@ -757,7 +753,19 @@
           grid.setCellCssStyles(key, newHash);
           inHandler = false;
         }
+      }
+
+      grid.onCellCssStylesChanged.subscribe(function(e, args) {
+        if (inHandler) { return; }
+        if (key != args.key) { return; }
+        if (args.hash) {
+          storeCellCssStyles(args.hash);
+        }
       });
+
+      this.onRowsChanged.subscribe(update);
+
+      this.onRowCountChanged.subscribe(update);
     }
 
     return {
