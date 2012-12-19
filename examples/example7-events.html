@@ -109,6 +109,10 @@
     grid.onClick.subscribe(function (e) {
       var cell = grid.getCellFromEvent(e);
       if (grid.getColumns()[cell.cell].id == "priority") {
+        if (!grid.getEditorLock().commitCurrentEdit()) {
+          return;
+        }
+
         var states = { "Low": "Medium", "Medium": "High", "High": "Low" };
         data[cell.row].priority = states[data[cell.row].priority];
         grid.updateRow(cell.row);
@@ -121,7 +125,9 @@
     if (!$(e.target).is("li")) {
       return;
     }
-
+    if (!grid.getEditorLock().commitCurrentEdit()) {
+      return;
+    }
     var row = $(this).data("row");
     data[row].priority = $(e.target).attr("data");
     grid.updateRow(row);
