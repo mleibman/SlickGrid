@@ -16,6 +16,7 @@
   display: inline-block;
   margin: 2px;
   border-color: gray;
+  cursor: pointer;
 }
 
 .slick-pager .slick-pager-nav {
