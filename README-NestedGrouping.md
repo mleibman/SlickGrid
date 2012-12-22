@@ -1,7 +1,8 @@
 Author: Ghislain B. 
 Notes: Please note that this project fork is in very early stage!!!
 
-What do we want to achieve? A functional SlickGrid with nested grouping (multiple columns grouping).
+What do we want to achieve? 
+- A functional SlickGrid with nested grouping (multiple columns grouping).
 
 What is working?
 - I got it partly working with 2 levels though it only works on the first page load.
