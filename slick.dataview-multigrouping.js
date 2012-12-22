@@ -30,8 +30,7 @@
 
   	// new variables for nested grouping
 		var multigroupRows = [];
-		var isMultiGrouped = false;
-        var itemsInGroups = [[]];
+		var itemsInGroups = [[]];
 		
     // private
     var idProperty = "id";  // property holding a unique row id
@@ -55,9 +54,9 @@
 
     // grouping
     var groupingGetter = [];
-	var groupingGetterIsAFn = [];
-	var groupingFormatter = [];
-	var groupingComparer = [];
+	  var groupingGetterIsAFn = [];
+	  var groupingFormatter = [];
+	  var groupingComparer = [];
     var groups = [[]];
     var collapsedGroups = [{}];
     var aggregators;
@@ -216,51 +215,48 @@
         options.groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
       }  
       
-        if(valueGetter instanceof Array) {
-          for (var i = 0; i < valueGetter.length; i++) {
-                if(i == 0) {
-                    groupingGetter[i] = valueGetter[i];
-                    groupingGetterIsAFn[i] = typeof groupingGetter[i] === "function";
-                    groupingFormatter[i] = valueFormatter[i];
-                    groupingComparer[i] = sortComparer[i];
-                    collapsedGroups[i] = {};
-                    groups = [[]];  
-                    itemsInGroups[0][0] = items;
-                    refresh(items, 0);
-                }else {
-                    isMultiGrouped = true;
-                    groupingGetter[i] = valueGetter[i];
-                    groupingGetterIsAFn[i] = typeof groupingGetter[i] === "function";
-                    groupingFormatter[i] = valueFormatter[i];
-                    groupingComparer[i] = sortComparer[i];
-                    collapsedGroups[i] = {};
-                    groups[i] = [];
-                    
-                    var groupsLn = groups[i-1].length;
-                    var itemsArray = [];
-                    itemsInGroups[i] = [];
-                    var itemToInsert = [];
-                    
-                    for (var j = 0; j < groupsLn; j++) {    
-                        itemsArray = groups[i-1][j].rows;
-                        itemToInsert = groups[i-1][j];
-                        itemToInsert.rows = null;
-                        itemsInGroups[i][j] = itemsArray;
-                        itemsArray.unshift(itemToInsert);                         
-                        refresh(itemsArray, i);
-                    }                                   
-                }
-            }  
-        }else {
-           groupingGetterIsAFn[0] = typeof groupingGetter === "function";
-            groupingGetter[0] = valueGetter;
-            groupingFormatter[0] = valueFormatter;
-            groupingComparer[0] = sortComparer;
-            collapsedGroups[0] = {};
-            groups[0] = []; 
+      if(valueGetter instanceof Array) {              
+        var itemsArray = [];
+        var itemToInsert = [];
+        groups = [[]]; 
+        multigroupRows = []; 
+
+        for (var i = 0; i < valueGetter.length; i++) {
+          groupingGetter[i] = valueGetter[i];
+          groupingGetterIsAFn[i] = typeof groupingGetter[i] === "function";
+          groupingFormatter[i] = valueFormatter[i];
+          groupingComparer[i] = sortComparer[i];
+          collapsedGroups[i] = {};
+          groups[i] = [];
+
+          if(i == 0) {
             itemsInGroups[0][0] = items;
-            refresh(items, 0); 
-        }                                             	    
+            refresh(items, 0);  
+          }else {
+            itemsArray = [];
+            itemsInGroups[i] = [];
+            itemToInsert = [];  
+
+            for (var j = 0; j < groups[i-1].length; j++) {    
+              itemsArray = groups[i-1][j].rows;
+              itemToInsert = groups[i-1][j];
+              itemToInsert.rows = null;
+              itemsInGroups[i][j] = itemsArray;
+              itemsArray.unshift(itemToInsert);                         
+              refresh(itemsArray, i);
+            }     
+          } 
+        }  
+      }else {
+        groupingGetterIsAFn[0] = typeof groupingGetter === "function";
+        groupingGetter[0] = valueGetter;
+        groupingFormatter[0] = valueFormatter;
+        groupingComparer[0] = sortComparer;
+        collapsedGroups[0] = {};
+        groups[0] = []; 
+        itemsInGroups[0][0] = items;
+        refresh(items, 0); 
+      }                                             	    
     }
 
     function setAggregators(groupAggregators, includeCollapsed) {
@@ -391,13 +387,23 @@
     function collapseGroup(groupingValue, groupLevel) {
       var groupLvl = (typeof(groupLevel) === "undefined") ? 0 : groupLevel;  
       collapsedGroups[groupLvl][groupingValue] = true;
-      refresh(itemsInGroups[groupLevel][0], groupLevel);
+      
+      multigroupRows = [];                               
+      
+      for (var j = 0; j < itemsInGroups[groupLevel].length; j++) {                       
+        refresh(itemsInGroups[groupLevel][j], groupLevel);
+      }
     }
 
     function expandGroup(groupingValue, groupLevel) {
       var groupLvl = (typeof(groupLevel) === "undefined") ? 0 : groupLevel;
       delete collapsedGroups[groupLvl][groupingValue];
-      refresh(items[groupLevel], groupLevel);
+      
+      multigroupRows = [];                             
+       
+      for (var j = 0; j < itemsInGroups[groupLevel].length; j++) {                       
+        refresh(itemsInGroups[groupLevel][j], groupLevel);
+      }
     }
 
     function getGroups() {
@@ -482,12 +488,7 @@
         if (g.totals && (!g.collapsed || aggregateCollapsed)) {
           groupedRows[gl++] = g.totals;
         }
-      }
-			
-        // PATCH remove the unnecessary added group total at index 2 from the array
-        // this happen because we added a group to the beginning of the rows and it treats this item as a group of null item, given the group of 0 item of with null properties
-        //if(isMultiGrouped)
-        //    groupedRows.splice(2, 1);  
+      }                                  
 						
       return groupedRows;
     }

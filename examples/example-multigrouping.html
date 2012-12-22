@@ -50,8 +50,9 @@
       </button>
       <br/>
       <br/>
-			<button onclick="groupByDurationPercentage()">Group by duration,percentage & sort groups by value</button>
-            <button onclick="groupByDurationEffortDriven()">Group by duration,effort-driven & sort groups by value</button>
+      <button onclick="groupByDurationEffortDriven()">Group by duration,effort-driven & sort groups by value</button>
+			<button onclick="groupByDurationPercentage()">Group by duration,percentage & sort groups by value</button>                 
+      <button onclick="groupByDurationPercentageStart()">Group by duration,percentage,start-date & sort groups by value</button>      
       <br/>
 			<br/>
       <button onclick="collapseAllGroups()">Collapse all groups</button>
@@ -201,10 +202,10 @@ function groupByDurationPercentage() {
 			[
 				(function (g) {
 					return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
-				})
-				,(function (g) {
+				}),
+				(function (g) {
 					return "Complete:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
-				})
+				}) 
 			],
 			[
 				function (a, b) {
@@ -226,8 +227,8 @@ function groupByDurationEffortDriven() {
             [
                 (function (g) {
                     return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
-                })
-                ,(function (g) {
+                }),
+                (function (g) {
                     var txtTrueFalse = (g.value === true) ? "True" : "False";
                     return "Effort-Driven:  " + txtTrueFalse + "  <span style='color:green'>(" + g.count + " items)</span>";
                 })
@@ -246,6 +247,37 @@ function groupByDurationEffortDriven() {
   ], true);     */
 }
 
+function groupByDurationPercentageStart() {
+  dataView.groupBy(
+      ["duration", "percentComplete", "start"],
+      [
+        (function (g) {
+          return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+        }),
+        (function (g) {
+          return "Complete:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+        }),
+        (function (g) {
+          return "Start Date:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+        })
+      ],
+      [
+        function (a, b) {
+          return a.value - b.value;
+        },
+        function (a, b) {
+          return a.value - b.value;
+        },
+        function (a, b) {
+          return a.value - b.value;
+        }
+      ]
+  ); /*
+  dataView.setAggregators([
+    new Slick.Data.Aggregators.Avg("percentComplete")
+  ], true);     */
+}
+
 $(".grid-header .ui-icon")
     .addClass("ui-state-default ui-corner-all")
     .mouseover(function (e) {
@@ -255,7 +287,8 @@ $(".grid-header .ui-icon")
       $(e.target).removeClass("ui-state-hover")
     });
 
-$(function () {
+$(function () { 
+  var someDates = Array("01/01/2009", "02/02/2009", "03/03/2009");
   // prepare the data
   for (var i = 0; i < 5000; i++) {
     var d = (data[i] = {});
@@ -265,8 +298,8 @@ $(function () {
     d["title"] = "Task " + i;
     d["duration"] = Math.round(Math.random() * 14);
     d["percentComplete"] = Math.round(Math.random() * 100);
-    d["start"] = "01/01/2009";
-    d["finish"] = "01/05/2009";
+    d["start"] = someDates[ Math.floor((Math.random()*2)) ];
+    d["finish"] = someDates[ Math.floor((Math.random()*2)) ];
     d["effortDriven"] = (i % 5 == 0);
   }
 
