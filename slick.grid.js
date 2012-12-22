@@ -362,7 +362,7 @@ if (typeof Slick === "undefined") {
 
             // Default the active canvas to the top left
             $activeCanvasNode = $canvasTopL;
-            
+
             $focusSink2 = $focusSink.clone().appendTo($container);
 
             if (!options.explicitInitialization) {
@@ -569,12 +569,13 @@ if (typeof Slick === "undefined") {
         }
 
         function updateCanvasWidth(forceColumnWidthsUpdate) {
+            var oldCanvasWidth = canvasWidth;
             var oldCanvasWidthL = canvasWidthL;
             var oldCanvasWidthR = canvasWidthR;
             var widthChanged;
             canvasWidth = getCanvasWidth();
 
-            widthChanged = canvasWidthL !== oldCanvasWidthL || canvasWidthR !== oldCanvasWidthR;
+            widthChanged = canvasWidth !== oldCanvasWidth || canvasWidthL !== oldCanvasWidthL || canvasWidthR !== oldCanvasWidthR;
 
             if (widthChanged || options.frozenColumn > -1 || hasFrozenRows ) {
                 $canvasTopL.width(canvasWidthL);
