@@ -148,7 +148,16 @@
         destH = selectedRange.toRow - selectedRange.fromRow +1;
         destW = selectedRange.toCell - selectedRange.fromCell +1;
       }
-      
+		
+      var availableRows = _grid.getData().length - activeRow;
+      if(availableRows < destH)
+      {	
+        var d = _grid.getData();
+        for(var addRows = 1; addRows <= destH - availableRows; addRows++)
+          d.push({});
+        _grid.setData(d);
+        _grid.render();
+      }
       var desty = activeRow;
       var destx = activeCell;
       var maxDestY = _grid.getDataLength();
