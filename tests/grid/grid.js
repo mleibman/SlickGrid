@@ -23,17 +23,17 @@ var moved = function (dx, dy, msg) {
 
 var ROWS = 500, COLS = 10;
 var data = [], row;
-for (var i=0; i<ROWS; i++) {
+for (var i=0; i < ROWS; i++) {
     row = {};
     row["id"] = "id_" + i;
-    for (var j=0; j<COLS; j++) {
+    for (var j=0; j < COLS; j++) {
         row["col_" + j] = i + "." + j;
     }
     data.push(row);
 }
 
 var cols = [], col;
-for (var i=0; i<COLS; i++) {
+for (var i=0; i < COLS; i++) {
     col = {};
     col["id"] = "col" + i;
     col["field"] = "col_" + i;
@@ -47,8 +47,8 @@ grid = new Slick.Grid("#container", data, cols);
 grid.render();
 
 
-
 module("grid - column resizing");
+
 
 test("minWidth is respected", function() {
     var firstCol = $("#container .slick-header-column:first");
@@ -59,7 +59,7 @@ test("minWidth is respected", function() {
 
 
 test("onColumnsResized is fired on column resize", function() {
-    expect(2);
+    expect(1);
     grid.onColumnsResized = function() { ok(true,"onColumnsResized called") };
     var oldWidth = cols[0].width;
     $("#container .slick-resizable-handle:first").simulate("drag", {dx:100,dy:0});
@@ -70,6 +70,65 @@ test("onColumnsResized is fired on column resize", function() {
 
 test("getData should return data", function() {
     equal(grid.getData(), data);
+});
+
+
+module("grid - initial render");
+
+
+test("top-right canvas height equals top-left canvas height", function() {
+    var leftHeight = $("#container .grid-canvas.grid-canvas-top.grid-canvas-left").height();
+    var rightHeight = $("#container .grid-canvas.grid-canvas-top.grid-canvas-right").height();
+    equal(leftHeight, rightHeight);
+});
+
+
+module("grid - freeze options changing");
+
+
+test("setOptions 'frozenColumn' from frozen to unfrozen", function() {
+    var currentWidth
+      , width = $("#container").width()
+      , $paneHeaderL = $(".slick-pane.slick-pane-header.slick-pane-left")
+      , $paneTopL = $(".slick-pane.slick-pane-top.slick-pane-left")
+      , $viewportTopL = $(".slick-viewport.slick-viewport-top.slick-viewport-left");
+
+    grid.setOptions({ 'frozenColumn': 1 });
+    grid.setOptions({ 'frozenColumn': -1 });
+
+    currentWidth = $paneHeaderL.width();
+    equal(currentWidth, width);
+
+    currentWidth = $paneTopL.width();
+    equal(currentWidth, width);
+
+    currentWidth = $viewportTopL.width();
+    equal(currentWidth, width);
+});
+
+
+test("setOptions 'frozenColumn' from unfrozen to frozen", function() {
+    var i
+      , currentWidth
+      , width = 0
+      , frozenColumns = 1
+      , $paneHeaderL = $(".slick-pane.slick-pane-header.slick-pane-left")
+      , $paneTopL = $(".slick-pane.slick-pane-top.slick-pane-left")
+      , $viewportTopL = $(".slick-viewport.slick-viewport-top.slick-viewport-left");
+
+    for (i = 0; i <= frozenColumns; i++) {
+      width += cols[i].width;
+    }
+    grid.setOptions({ 'frozenColumn': frozenColumns });
+
+    currentWidth = $paneHeaderL.width();
+    equal(currentWidth, width);
+
+    currentWidth = $paneTopL.width();
+    equal(currentWidth, width);
+
+    currentWidth = $viewportTopL.width();
+    equal(currentWidth, width);
 });
 
 

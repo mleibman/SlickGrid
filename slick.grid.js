@@ -570,9 +570,14 @@ if (typeof Slick === "undefined") {
 
         function updateCanvasWidth(forceColumnWidthsUpdate) {
             var oldCanvasWidth = canvasWidth;
+            var oldCanvasWidthL = canvasWidthL;
+            var oldCanvasWidthR = canvasWidthR;
+            var widthChanged;
             canvasWidth = getCanvasWidth();
 
-            if (canvasWidth != oldCanvasWidth || options.frozenColumn > -1 || hasFrozenRows ) {
+            widthChanged = canvasWidth !== oldCanvasWidth || canvasWidthL !== oldCanvasWidthL || canvasWidthR !== oldCanvasWidthR;
+
+            if (widthChanged || options.frozenColumn > -1 || hasFrozenRows ) {
                 $canvasTopL.width(canvasWidthL);
 
                 getHeadersWidth();
@@ -581,7 +586,12 @@ if (typeof Slick === "undefined") {
                 $headerR.width(headersWidthR);
 
                 if ( options.frozenColumn > -1 ) {
+                    $canvasTopR.width(canvasWidthR);
+
+                    $paneHeaderL.width(canvasWidthL);
                     $paneHeaderR.css('left', canvasWidthL);
+
+                    $paneTopL.width(canvasWidthL);
                     $paneTopR.css('left', canvasWidthL);
 
                     $headerRowScrollerL.width(canvasWidthL);
@@ -590,20 +600,14 @@ if (typeof Slick === "undefined") {
                     $headerRowL.width(canvasWidthL);
                     $headerRowR.width(canvasWidthR);
 
-                    $paneTopL.width( canvasWidthL );
                     $viewportTopL.width(canvasWidthL);
-
                     $viewportTopR.width(viewportW - canvasWidthL);
 
-                    $canvasTopR.width(canvasWidthR);
-
                     if ( hasFrozenRows ) {
-                        $paneBottomL.width( canvasWidthL );
-
-                        $viewportBottomL.width( canvasWidthL );
-
+                        $paneBottomL.width(canvasWidthL);
                         $paneBottomR.css('left', canvasWidthL);
 
+                        $viewportBottomL.width(canvasWidthL);
                         $viewportBottomR.width(viewportW - canvasWidthL);
 
                         $canvasBottomL.width(canvasWidthL);
@@ -631,7 +635,7 @@ if (typeof Slick === "undefined") {
 
             $headerRowSpacer.width(canvasWidth + (viewportHasVScroll ? scrollbarDimensions.width : 0));
 
-            if (canvasWidth != oldCanvasWidth || forceColumnWidthsUpdate) {
+            if (widthChanged || forceColumnWidthsUpdate) {
                 applyColumnWidths();
             }
         }
@@ -2267,10 +2271,7 @@ if (typeof Slick === "undefined") {
                     }
                 } else {
                     $canvasTopL.css("height", h);
-
-                    if ( options.frozenColumn > -1 ) {
-                        $canvasTopR.css("height", h);
-                    }
+                    $canvasTopR.css("height", h);
                 }
 
                 scrollTop = $viewportScrollContainerY[0].scrollTop;
@@ -3544,21 +3545,20 @@ if (typeof Slick === "undefined") {
         }
 
         function getColspan(row, cell) {
-			var metadata = data.getItemMetadata && data.getItemMetadata(row);
-			if (!metadata || !metadata.columns) {
-				return 1;
-			}
+            var metadata = data.getItemMetadata && data.getItemMetadata(row);
+            if (!metadata || !metadata.columns) {
+                return 1;
+            }
 
-			var columnData = metadata.columns[columns[cell].id] || metadata.columns[cell];
-			var colspan = (columnData && columnData.colspan);
-			if (colspan === "*") {
-				colspan = columns.length - cell;
-			} else {
-				colspan = colspan || 1;
-			}
-			return (colspan || 1);
-			return colspan;
-		}
+            var columnData = metadata.columns[columns[cell].id] || metadata.columns[cell];
+            var colspan = (columnData && columnData.colspan);
+            if (colspan === "*") {
+                colspan = columns.length - cell;
+            } else {
+                colspan = colspan || 1;
+            }
+            return (colspan || 1);
+        }
 
         function findFirstFocusableCell(row) {
             var cell = 0;
