@@ -362,7 +362,7 @@ if (typeof Slick === "undefined") {
 
             // Default the active canvas to the top left
             $activeCanvasNode = $canvasTopL;
-            
+
             $focusSink2 = $focusSink.clone().appendTo($container);
 
             if (!options.explicitInitialization) {
@@ -904,9 +904,7 @@ if (typeof Slick === "undefined") {
         }
 
         function setupColumnReorder() {
-            // force init jquery ui sortable +1.9
-            $headers.sortable();
-            $headers.sortable("destroy");
+            $headers.filter(":ui-sortable").sortable("destroy");
             var columnScrollTimer = null;
 
             function scrollColumnsRight() {
