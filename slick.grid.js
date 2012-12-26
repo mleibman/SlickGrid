@@ -92,6 +92,7 @@ if (typeof Slick === "undefined") {
       name: "",
       resizable: true,
       sortable: false,
+      reordable: true,
       minWidth: 30,
       rerenderOnResize: false,
       headerCssClass: null,
@@ -554,7 +555,11 @@ if (typeof Slick === "undefined") {
             .appendTo($headers);
 
         if (options.enableColumnReorder || m.sortable) {
+            if(m.reordable){
           header.hover(hoverBegin, hoverEnd);
+            } else {
+                header.addClass("slick-header-not-reordable");
+        }
         }
 
         if (m.sortable) {
@@ -661,6 +666,7 @@ if (typeof Slick === "undefined") {
         helper: "clone",
         placeholder: "slick-sortable-placeholder ui-state-default slick-header-column",
         forcePlaceholderSize: true,
+        items: "div:not(.slick-header-not-reordable)",
         start: function (e, ui) {
           $(ui.helper).addClass("slick-header-column-active");
         },
@@ -673,11 +679,19 @@ if (typeof Slick === "undefined") {
             return;
           }
 
-          var reorderedIds = $headers.sortable("toArray");
+          var reorderedIds = [];
+          $headers.find(".slick-header-column").each(function(idx, el){
+              reorderedIds.push($(el)[0].id);
+          });
+
           var reorderedColumns = [];
           for (var i = 0; i < reorderedIds.length; i++) {
-            reorderedColumns.push(columns[getColumnIndex(reorderedIds[i].replace(uid, ""))]);
+              var column = columns[getColumnIndex(reorderedIds[i].replace(uid, ""))];
+              if(column){
+                  reorderedColumns.push(column);
           }
+          }
+
           setColumns(reorderedColumns);
 
           trigger(self.onColumnsReordered, {});
