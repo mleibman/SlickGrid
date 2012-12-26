@@ -146,6 +146,8 @@ if (typeof Slick === "undefined") {
         var paneBottomH = 0;
         var viewportTopH = 0;
         var viewportBottomH = 0;
+        var topPanelH = 0;
+        var headerRowH = 0;
 
         var tabbingDirection = 1;
         var $activeCanvasNode;
@@ -1244,6 +1246,8 @@ if (typeof Slick === "undefined") {
                 actualFrozenRow = ( options.frozenBottom )
                                   ? ( dataLength - options.frozenRow )
                                   : options.frozenRow;
+            } else {
+                hasFrozenRows = false;
             }
         }
 
@@ -2071,14 +2075,21 @@ if (typeof Slick === "undefined") {
                             )
                           + ( ( options.frozenColumn == -1 ) ? $headers.outerHeight() : 0 );
             } else {
+                topPanelH = ( options.showTopPanel )
+                            ? options.topPanelHeight + getVBoxDelta($topPanelScroller)
+                            : 0;
+
+                headerRowH = ( options.showHeaderRow )
+                             ? options.headerRowHeight + getVBoxDelta($headerRowScroller)
+                             : 0;
+
                 viewportH = parseFloat($.css($container[0], "height", true))
                           - parseFloat($.css($container[0], "paddingTop", true))
                           - parseFloat($.css($container[0], "paddingBottom", true))
                           - parseFloat($.css($headerScroller[0], "height"))
                           - getVBoxDelta($headerScroller)
-                          - (options.showTopPanel
-                             ? options.topPanelHeight + getVBoxDelta($topPanelScroller)
-                             : 0);
+                          - topPanelH
+                          - headerRowH;
             }
 
             numVisibleRows = Math.ceil( viewportH / options.rowHeight );
@@ -2098,14 +2109,6 @@ if (typeof Slick === "undefined") {
             viewportTopH = 0
             viewportBottomH = 0;
 
-            var topPanelH = ( options.showTopPanel )
-                            ? $topPanelScroller.outerHeight()
-                            : 0;
-
-            var headerRowH = ( options.showHeaderRow )
-                             ? $headerRowScrollerL.outerHeight()
-                             : 0;
-
             getViewportWidth();
             getViewportHeight();
 
@@ -2117,7 +2120,7 @@ if (typeof Slick === "undefined") {
                     paneBottomH = frozenRowsHeight + scrollbarDimensions.height;
                 } else {
                     paneTopH = frozenRowsHeight;
-                    paneBottomH = viewportH - frozenRowsHeight- topPanelH - headerRowH;
+                    paneBottomH = viewportH - frozenRowsHeight;
                 }
             } else {
                 paneTopH = viewportH;
