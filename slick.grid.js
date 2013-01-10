@@ -2191,7 +2191,7 @@ if (typeof Slick === "undefined") {
       if (!currentEditor) {
         // if this click resulted in some cell child node getting focus,
         // don't steal it back - keyboard events will still bubble up
-        if (e.target != document.activeElement) {
+        if (options.editable && e.target != document.activeElement) {
           setFocus();
         }
       }
