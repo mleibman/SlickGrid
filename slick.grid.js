@@ -1948,14 +1948,14 @@ if (typeof Slick === "undefined") {
 
         function cleanupRows(rangeToKeep) {
             for (var i in rowsCache) {
-                var removeFrozenRow = false;
+                var removeFrozenRow = true;
 
                 if ( hasFrozenRows
-                     && ( ( options.frozenBottom && i < actualFrozenRow ) // Frozen bottom rows
-                          || ( i >= actualFrozenRow )                     // Frozen top rows
+                     && ( ( options.frozenBottom && i >= actualFrozenRow ) // Frozen bottom rows
+                          || ( !options.frozenBottom && i <= actualFrozenRow ) // Frozen top rows
                         )
                    ) {
-                    removeFrozenRow = true;
+                    removeFrozenRow = false;
                 }
 
                 if ( ( ( i = parseInt(i, 10)) !== activeRow )
