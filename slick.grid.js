@@ -654,9 +654,7 @@ if (typeof Slick === "undefined") {
     }
 
     function setupColumnReorder() {
-      // force init jquery ui sortable +1.9
-      $headers.sortable();
-      $headers.sortable("destroy");
+      $headers.filter(":ui-sortable").sortable("destroy");
             var columnScrollTimer = null;
             var viewportLeft = $viewport.offset().left;
 
