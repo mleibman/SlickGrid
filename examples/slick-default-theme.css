@@ -10,6 +10,10 @@ classes should alter those!
   border-bottom: 1px solid silver;
 }
 
+.slick-header-columns.slick-header-parents{
+  border-bottom: 0px;
+}
+
 .slick-header-column {
   background: url('../images/header-columns-bg.gif') repeat-x center bottom;
   border-right: 1px solid silver;
