@@ -509,11 +509,11 @@ if (typeof Slick === "undefined") {
     }
 
     function createColumnHeaders() {
-      function hoverBegin() {
+      function onMouseEnter() {
         $(this).addClass("ui-state-hover");
       }
 
-      function hoverEnd() {
+      function onMouseLeave() {
         $(this).removeClass("ui-state-hover");
       }
 
@@ -554,7 +554,9 @@ if (typeof Slick === "undefined") {
             .appendTo($headers);
 
         if (options.enableColumnReorder || m.sortable) {
-          header.hover(hoverBegin, hoverEnd);
+          header
+            .on('mouseenter', onMouseEnter)
+            .on('mouseleave', onMouseLeave);
         }
 
         if (m.sortable) {
