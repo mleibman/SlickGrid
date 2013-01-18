@@ -658,6 +658,7 @@ if (typeof Slick === "undefined") {
       $headers.filter(":ui-sortable").sortable("destroy");
       $headers.sortable({
         containment: "parent",
+        distance: 3,
         axis: "x",
         cursor: "default",
         tolerance: "intersection",
