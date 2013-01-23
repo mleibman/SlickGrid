@@ -28,11 +28,8 @@
       inlineFilters: false
     };
 
-  	// new variables for nested grouping
-		var multigroupRows = [];
-		var itemsInGroups = [[]];
 		
-    // private
+  	// private
     var idProperty = "id";  // property holding a unique row id
     var items = [];         // data by index
     var rows = [];          // data by row
@@ -57,10 +54,11 @@
 	  var groupingGetterIsAFn = [];
 	  var groupingFormatter = [];
 	  var groupingComparer = [];
-    var groups = [[]];
-    var collapsedGroups = [{}];
+    var groups = [];
+		var collapsedGroups = {};
     var aggregators;
     var aggregateCollapsed = false;
+		var aggregateAllLevels = false;
     var compiledAccumulators;
 
     var pagesize = 0;
@@ -81,7 +79,7 @@
 
     function endUpdate() {
       suspend = false;
-      refresh(items, 0);
+      refresh();
     }
 
     function setRefreshHints(hints) {
@@ -126,7 +124,7 @@
       idxById = {};
       updateIdxById();
       ensureIdUniqueness();
-      refresh(items, 0);
+      refresh();
     }
 
     function setPagingOptions(args) {
@@ -141,7 +139,7 @@
 
       onPagingInfoChanged.notify(getPagingInfo(), null, self);
 
-      refresh(items, 0);
+      refresh();
     }
 
     function getPagingInfo() {
@@ -162,7 +160,7 @@
       }
       idxById = {};
       updateIdxById();
-      refresh(items, 0);
+      refresh();
     }
 
     /***
@@ -190,7 +188,7 @@
       }
       idxById = {};
       updateIdxById();
-      refresh(items, 0);
+      refresh();
     }
 
     function reSort() {
@@ -207,7 +205,7 @@
         compiledFilter = compileFilter();
         compiledFilterWithCaching = compileFilterWithCaching();
       }
-      refresh(items, 0);
+      refresh();
     }
 
     function groupBy(valueGetter, valueFormatter, sortComparer) {
@@ -215,54 +213,37 @@
         options.groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
       }  
       
-      if(valueGetter instanceof Array) {              
-        var itemsArray = [];
-        var itemToInsert = [];
-        groups = [[]]; 
-        multigroupRows = []; 
-
+			// reset grouping variables
+			groupingGetter = [];
+			groupingGetterIsAFn = [];
+			groupingFormatter = [];
+			groupingComparer = [];
+			groups = [];
+			collapsedGroups = {};
+				
+      if(valueGetter instanceof Array) {
         for (var i = 0; i < valueGetter.length; i++) {
           groupingGetter[i] = valueGetter[i];
           groupingGetterIsAFn[i] = typeof groupingGetter[i] === "function";
           groupingFormatter[i] = valueFormatter[i];
           groupingComparer[i] = sortComparer[i];
-          collapsedGroups[i] = {};
-          groups[i] = [];
-
-          if(i == 0) {
-            itemsInGroups[0][0] = items;
-            refresh(items, 0);  
-          }else {
-            itemsArray = [];
-            itemsInGroups[i] = [];
-            itemToInsert = [];  
-
-            for (var j = 0; j < groups[i-1].length; j++) {    
-              itemsArray = groups[i-1][j].rows;
-              itemToInsert = groups[i-1][j];
-              itemToInsert.rows = null;
-              itemsInGroups[i][j] = itemsArray;
-              itemsArray.unshift(itemToInsert);                         
-              refresh(itemsArray, i);
-            }     
-          } 
-        }  
+        }				
+				refresh();  
       }else {
         groupingGetterIsAFn[0] = typeof groupingGetter === "function";
         groupingGetter[0] = valueGetter;
         groupingFormatter[0] = valueFormatter;
         groupingComparer[0] = sortComparer;
-        collapsedGroups[0] = {};
-        groups[0] = []; 
-        itemsInGroups[0][0] = items;
-        refresh(items, 0); 
+        refresh(); 
       }                                             	    
     }
 
-    function setAggregators(groupAggregators, includeCollapsed) {
+    function setAggregators(groupAggregators, includeCollapsed, aggregateAllLowerLevels) {
       aggregators = groupAggregators;
       aggregateCollapsed = (includeCollapsed !== undefined)
           ? includeCollapsed : aggregateCollapsed;
+			aggregateAllLevels = (aggregateAllLowerLevels !== undefined)
+					? aggregateAllLowerLevels : false;
 
       // pre-compile accumulator loops
       compiledAccumulators = [];
@@ -271,7 +252,7 @@
         compiledAccumulators[idx] = compileAccumulatorLoop(aggregators[idx]);
       }
 
-      refresh(items, 0);
+      refresh();
     }
 
     function getItemByIdx(i) {
@@ -331,19 +312,19 @@
         updated = {};
       }
       updated[id] = true;
-      refresh(items, 0);
+      refresh();
     }
 
     function insertItem(insertBefore, item) {
       items.splice(insertBefore, 0, item);
       updateIdxById(insertBefore);
-      refresh(items, 0);
+      refresh();
     }
 
     function addItem(item) {
       items.push(item);
       updateIdxById(items.length - 1);
-      refresh(items, 0);
+      refresh();
     }
 
     function deleteItem(id) {
@@ -354,7 +335,7 @@
       delete idxById[id];
       items.splice(idx, 1);
       updateIdxById(idx);
-      refresh(items, 0);
+      refresh();
     }
 
     function getLength() {
@@ -384,40 +365,29 @@
       return null;
     }
 
-    function collapseGroup(groupingValue, groupLevel) {
-      var groupLvl = (typeof(groupLevel) === "undefined") ? 0 : groupLevel;  
-      collapsedGroups[groupLvl][groupingValue] = true;
-      
-      multigroupRows = [];                               
-      
-      for (var j = 0; j < itemsInGroups[groupLevel].length; j++) {                       
-        refresh(itemsInGroups[groupLevel][j], groupLevel);
-      }
+    function collapseGroup(groupingValue) {
+			collapsedGroups[groupingValue] = true;
+      refresh();      
     }
 
     function expandGroup(groupingValue, groupLevel) {
-      var groupLvl = (typeof(groupLevel) === "undefined") ? 0 : groupLevel;
-      delete collapsedGroups[groupLvl][groupingValue];
-      
-      multigroupRows = [];                             
-       
-      for (var j = 0; j < itemsInGroups[groupLevel].length; j++) {                       
-        refresh(itemsInGroups[groupLevel][j], groupLevel);
-      }
+      delete collapsedGroups[groupingValue];
+      refresh();
     }
 
     function getGroups() {
       return groups;
     }
 
-    function extractGroups(rows, groupLevel) {
+    function extractGroups(dataset, groupingColumn, groupLevel) {
       var group;
       var val;
       var groupsLcl = [];
       var groupsByVal = [];
       var r;
-
-      for (var i = 0, l = rows.length; i < l; i++) {
+			var rows = dataset.__group ? dataset.rows : dataset;
+			
+			for (var i = 0, l = rows.length; i < l; i++) {
         r = rows[i];
         val = (groupingGetterIsAFn[groupLevel]) ? groupingGetter[groupLevel](r) : r[groupingGetter[groupLevel]];
         val = val || 0;
@@ -426,14 +396,24 @@
           group = new Slick.Group();
           group.count = 0;
           group.value = val;
-          group.rows = [];
+					group.groupby = dataset.__group ? dataset.groupby+"-->"+groupingColumn+":"+val : groupingColumn+":"+val;
+					group.level = groupLevel;
+					group.rows = [];
           groupsLcl[groupsLcl.length] = group;
           groupsByVal[val] = group;
         }
 
         group.rows[group.count++] = r;
+				
+				// do we have more level of grouping? if yes go deeper by recursion until we resurface back to parent level 0
+				if(groupLevel < groupingGetter.length-1) {
+					groupLevel++;
+					var grp = extractGroups(group, groupingGetter[groupLevel], groupLevel);
+					group.groups = grp;	
+					groupLevel--;
+				}
       }
-
+			
       return groupsLcl;
     }
 
@@ -457,19 +437,32 @@
     }
 
     function calculateTotals(groupsLcl) {
-      var idx = groupsLcl.length;
+      var idx = groupsLcl.length, g;
       while (idx--) {
-        calculateGroupTotals(groupsLcl[idx]);
+				g = groupsLcl[idx];
+        calculateGroupTotals(g);
+				
+				// do we have more level of grouping? if yes go deeper by recursion until we resurface back to parent level 0
+				if(g.groups && aggregateAllLevels) {
+					calculateTotals(g.groups);
+				}
       }
     }
 
-    function finalizeGroups(groupsLcl, groupLevel) {
+    function finalizeGroups(groupsLcl, groupLevel, isParentCollapsed) {
       var idx = groupsLcl.length, g;
       while (idx--) {
         g = groupsLcl[idx];
-        g.collapsed = (g.value in collapsedGroups[groupLevel]);
+        g.collapsed = (g.groupby in collapsedGroups);
         g.title = groupingFormatter[groupLevel] ? groupingFormatter[groupLevel](g) : g.value;
-        g.indent = groupLevel;
+        g.level = groupLevel;
+				
+				// do we have more level of grouping? if yes go deeper by recursion until we resurface back to parent level 0
+				if(g.groups) {
+					groupLevel++;
+					finalizeGroups(g.groups, groupLevel, g.collapsed);	
+					groupLevel--;
+				}
       }
     }
 	
@@ -478,8 +471,16 @@
       for (var i = 0, l = groupsLcl.length; i < l; i++) {
         g = groupsLcl[i];
         groupedRows[gl++] = g;
-
-        if (!g.collapsed) {
+				
+				// do we have more level of grouping? if yes go deeper by recursion until we resurface back to parent level 0
+				if(g.groups && !g.collapsed) {
+					var grpRows = flattenGroupedRows(g.groups);
+					for (var k = 0, kk = grpRows.length; k < kk; k++) {
+						groupedRows[gl++] = grpRows[k];
+					}
+				}
+				
+        if (!g.collapsed && !g.groups) {
           for (var j = 0, jj = g.rows.length; j < jj; j++) {
             groupedRows[gl++] = g.rows[j];
           }
@@ -488,8 +489,7 @@
         if (g.totals && (!g.collapsed || aggregateCollapsed)) {
           groupedRows[gl++] = g.totals;
         }
-      }                                  
-						
+      }
       return groupedRows;
     }
 
@@ -684,7 +684,21 @@
       return diff;
     }
 
-    function recalc(_items, filter, groupLevel) {
+		function multiSort(groupLcl, groupLevel) {			
+			groupLcl.sort(groupingComparer[groupLevel]);
+			if (groupLevel < groupingComparer.length-1) {
+				groupLevel++;
+				for (var i = 0, l = groupLcl.length; i < l; i++) {					
+					var grp = multiSort(groupLcl[i].groups, groupLevel);
+					groupLcl[i].groups = grp; // now sorted group
+				}
+				groupLevel--;
+			}
+		
+			return groupLcl;
+		}
+		
+    function recalc(_items, filter) {
       rowsById = null;
 
       if (refreshHints.isFilterNarrowing != prevRefreshHints.isFilterNarrowing ||
@@ -696,42 +710,33 @@
       totalRows = filteredItems.totalRows;
       var newRows = filteredItems.rows;
 
-      groups[groupLevel] = [];
-      if (groupingGetter[groupLevel] != null) {
-        groups[groupLevel] = extractGroups(newRows, groupLevel);
-        if (groups[groupLevel].length) {
-          finalizeGroups(groups[groupLevel], groupLevel);
+			groups = [];
+      if (groupingGetter[0] != null) {
+        groups = extractGroups(newRows, groupingGetter[0], 0);
+        if (groups.length) {
+          finalizeGroups(groups, 0, false);
           if (aggregators) {
-            calculateTotals(groups[groupLevel]);
+            calculateTotals(groups, 0);
           }
-          groups[groupLevel].sort(groupingComparer[groupLevel]);
-          newRows = flattenGroupedRows(groups[groupLevel]);
+					
+					if (groupingComparer.length > 1) {
+						multiSort(groups, 0);
+					}else {
+						groups.sort(groupingComparer[0]);
+					}					
+								
+          newRows = flattenGroupedRows(groups);
         }
       }
-
-      if(groupLevel > 0) {
-        // PATCH remove the unnecessary added group with 0 items, from the beginning of the array
-        // this happen because we added a group to the beginning of the rows and it treats this item as a group of null item, given the group of 0 item of with null properties
-        //newRows.shift();
-        newRows.unshift(_items[groupLevel-1]);   
-
-        for (var i = 0; i < newRows.length; i++) {
-            multigroupRows[multigroupRows.length] = newRows[i];
-        }  
-        newRows = multigroupRows;
-      }
-      
+			
       var diff = getRowDiffs(rows, newRows);
 
       rows = newRows;
-       
-      if(groupLevel > 0) {
-        multigroupRows = newRows; // save the full multi-group rows
-      }
+      
       return diff;
     }
 
-    function refresh(itemsArray, groupLevel) {
+    function refresh() {
       if (suspend) {
         return;
       }
@@ -739,13 +744,13 @@
       var countBefore = rows.length;
       var totalRowsBefore = totalRows;
 
-      var diff = recalc(itemsArray, filter, groupLevel); // pass as direct refs to avoid closure perf hit
+      var diff = recalc(items, filter); // pass as direct refs to avoid closure perf hit
 
       // if the current page is no longer valid, go to last page and recalc
       // we suffer a performance penalty here, but the main loop (recalc) remains highly optimized
       if (pagesize && totalRows < pagenum * pagesize) {
         pagenum = Math.max(0, Math.ceil(totalRows / pagesize) - 1);
-        diff = recalc(itemsArray, filter, groupLevel);
+        diff = recalc(items, filter);
       }
 
       updated = null;
@@ -762,38 +767,6 @@
         onRowsChanged.notify({rows: diff}, null, self);
       }
     }
-		
-function refresh2(itemsArray) {
-	if (suspend) {
-		return;
-	}
-
-	var countBefore = rows.length;
-	var totalRowsBefore = totalRows;
-
-	var diff = recalc(itemsArray, filter, 1); // pass as direct refs to avoid closure perf hit
-
-	// if the current page is no longer valid, go to last page and recalc
-	// we suffer a performance penalty here, but the main loop (recalc) remains highly optimized
-	if (pagesize && totalRows < pagenum * pagesize) {
-		pagenum = Math.max(0, Math.ceil(totalRows / pagesize) - 1);
-		diff = recalc(itemsArray, filter, 1);
-	}
-
-	updated = null;
-	prevRefreshHints = refreshHints;
-	refreshHints = {};
-
-	if (totalRowsBefore != totalRows) {
-		onPagingInfoChanged.notify(getPagingInfo(), null, self);
-	}
-	if (countBefore != rows.length) {
-		onRowCountChanged.notify({previous: countBefore, current: rows.length}, null, self);
-	}
-	if (diff.length > 0) {
-		onRowsChanged.notify({rows: diff}, null, self);
-	}
-}
 
     function syncGridSelection(grid, preserveHidden) {
       var self = this;

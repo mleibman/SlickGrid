@@ -43,8 +43,8 @@
         return item.title;
       }
 
-      var isParent = (typeof(item.indent) === "undefined" || item.indent == 0) ? true : false;
-      var indentation = (isParent) ? "0px" : ((item.indent * 15) + "px");
+      var isParent = (typeof(item.level) === "undefined" || item.level == 0) ? true : false;
+      var indentation = (isParent) ? "0px" : ((item.level * 15) + "px");
       var fontStyle = (isParent) ? "font-weight:bold; font-size:9pt;" : "font-weight:normal; font-size:8pt";
       
       return "<span class='" + options.toggleCssClass + " " +
@@ -77,10 +77,10 @@
       var item = this.getDataItem(args.row);
       if (item && item instanceof Slick.Group && $(e.target).hasClass(options.toggleCssClass)) {
         if (item.collapsed) {
-          this.getData().expandGroup(item.value, item.indent);
+          this.getData().expandGroup(item.groupby);
         }
         else {
-          this.getData().collapseGroup(item.value, item.indent);
+          this.getData().collapseGroup(item.groupby);
         }
 
         e.stopImmediatePropagation();
@@ -96,10 +96,10 @@
           var item = this.getDataItem(activeCell.row);
           if (item && item instanceof Slick.Group) {
             if (item.collapsed) {
-              this.getData().expandGroup(item.value, item.indent);
+              this.getData().expandGroup(item.groupby);
             }
             else {
-              this.getData().collapseGroup(item.value, item.indent);
+              this.getData().collapseGroup(item.groupby);
             }
 
             e.stopImmediatePropagation();

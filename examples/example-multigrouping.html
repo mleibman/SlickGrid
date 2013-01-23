@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <title>SlickGrid example: Grouping</title>
+  <title>SlickGrid example: Multi-Grouping</title>
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
   <link rel="stylesheet" href="../controls/slick.pager.css" type="text/css"/>
   <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
@@ -28,7 +28,7 @@
     <div id="pager" style="width:100%;height:20px;"></div>
   </div>
 
-  <div class="options-panel">
+  <div class="options-panel" style="width:450px;">
     <b>Options:</b>
     <hr/>
     <div style="padding:6px;">
@@ -50,9 +50,9 @@
       </button>
       <br/>
       <br/>
-      <button onclick="groupByDurationEffortDriven()">Group by duration,effort-driven & sort groups by value</button>
-			<button onclick="groupByDurationPercentage()">Group by duration,percentage & sort groups by value</button>                 
-      <button onclick="groupByDurationPercentageStart()">Group by duration,percentage,start-date & sort groups by value</button>      
+      <button onclick="groupByDurationEffortDriven()">Group by 2 [duration,effort-driven] & sort groups by value, aggregate all levels</button>
+			<button onclick="groupByDurationPercentage()">Group by 2 [duration,percentage] & sort groups by value, aggregate only 1st level</button>                 
+      <button onclick="groupByDurationPercentageStart()">Group by 3 [duration,percentage,start-date] & sort groups by value</button>      
       <br/>
 			<br/>
       <button onclick="collapseAllGroups()">Collapse all groups</button>
@@ -64,7 +64,7 @@
     <h2>Demonstrates:</h2>
     <ul>
       <li>
-        Fully dynamic and interactive grouping with filtering and aggregates over <b>50'000</b> items<br>
+        Fully dynamic and interactive grouping with filtering and aggregates over <b>5'000</b> items<br>
         Personally, this is just the coolest slickest thing I've ever seen done with DHTML grids!
       </li>
     </ul>
@@ -96,12 +96,13 @@ var grid;
 var data = [];
 var columns = [
   {id: "sel", name: "#", field: "num", cssClass: "cell-selection", width: 40, resizable: false, selectable: false, focusable: false },
-  {id: "title", name: "Title", field: "title", width: 120, minWidth: 120, cssClass: "cell-title", sortable: true, editor: Slick.Editors.Text},
-  {id: "duration", name: "Duration", field: "duration", sortable: true},
+  {id: "title", name: "Title", field: "title", width: 70, minWidth: 50, cssClass: "cell-title", sortable: true, editor: Slick.Editors.Text},
+  {id: "duration", name: "Duration", field: "duration", width: 70, sortable: true},
   {id: "%", name: "% Complete", field: "percentComplete", width: 80, formatter: Slick.Formatters.PercentCompleteBar, sortable: true, groupTotalsFormatter: avgTotalsFormatter},
   {id: "start", name: "Start", field: "start", minWidth: 60, sortable: true},
   {id: "finish", name: "Finish", field: "finish", minWidth: 60, sortable: true},
-  {id: "effort-driven", name: "Effort Driven", width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark, sortable: true}
+	{id: "cost", name: "Cost", field: "cost", width: 90, sortable: true, groupTotalsFormatter: sumTotalsFormatter},
+  {id: "effort-driven", name: "Effort Driven", width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark, sortable: true}	
 ];
 
 var options = {
@@ -116,6 +117,10 @@ var prevPercentCompleteThreshold = 0;
 
 function avgTotalsFormatter(totals, columnDef) {
   return "avg: " + Math.round(totals.avg[columnDef.field]) + "%";
+}
+
+function sumTotalsFormatter(totals, columnDef) {
+  return "total: " + ((Math.round(parseFloat(totals.sum[columnDef.field])*100)/100));
 }
 
 function myFilter(item, args) {
@@ -134,7 +139,7 @@ function comparer(a, b) {
 function collapseAllGroups() {
   dataView.beginUpdate();
   for (var i = 0; i < dataView.getGroups().length; i++) {
-    dataView.collapseGroup(dataView.getGroups()[i].value, 0);
+    dataView.collapseGroup(dataView.getGroups()[i].groupby);
   }
   dataView.endUpdate();
 }
@@ -142,7 +147,7 @@ function collapseAllGroups() {
 function expandAllGroups() {
   dataView.beginUpdate();
   for (var i = 0; i < dataView.getGroups().length; i++) {
-    dataView.expandGroup(dataView.getGroups()[i].value, 0);
+    dataView.expandGroup(dataView.getGroups()[i].groupby);
   }
   dataView.endUpdate();
 }
@@ -151,6 +156,13 @@ function clearGrouping() {
   dataView.groupBy(null);
 }
 
+function roundNumber(num, dec) {
+	var result = String(Math.round(num*Math.pow(10,dec))/Math.pow(10,dec));
+	if(result.indexOf('.')<0) {result+= '.';}
+	while(result.length- result.indexOf('.')<=dec) {result+= '0';}
+	return result;
+}
+	
 function groupByDuration() {
   dataView.groupBy(
       "duration",
@@ -162,7 +174,8 @@ function groupByDuration() {
       }
   );
   dataView.setAggregators([
-    new Slick.Data.Aggregators.Avg("percentComplete")
+    new Slick.Data.Aggregators.Avg("percentComplete"),
+		new Slick.Data.Aggregators.Sum("cost")
   ], false);
 }
 
@@ -177,7 +190,8 @@ function groupByDurationOrderByCount() {
       }
   );
   dataView.setAggregators([
-    new Slick.Data.Aggregators.Avg("percentComplete")
+    new Slick.Data.Aggregators.Avg("percentComplete"),
+		new Slick.Data.Aggregators.Sum("cost")
   ], false);
 }
 
@@ -192,7 +206,8 @@ function groupByDurationOrderByCountGroupCollapsed() {
       }
   );
   dataView.setAggregators([
-    new Slick.Data.Aggregators.Avg("percentComplete")
+    new Slick.Data.Aggregators.Avg("percentComplete"),
+		new Slick.Data.Aggregators.Sum("cost")
   ], true);
 }
 
@@ -215,10 +230,11 @@ function groupByDurationPercentage() {
 					return a.value - b.value;
 				}
 			]
-	); /*
+	); 
 	dataView.setAggregators([
-    new Slick.Data.Aggregators.Avg("percentComplete")
-  ], true);     */
+    new Slick.Data.Aggregators.Avg("percentComplete"),
+    new Slick.Data.Aggregators.Sum("cost")
+  ], true);     
 }
 
 function groupByDurationEffortDriven() {
@@ -241,10 +257,11 @@ function groupByDurationEffortDriven() {
                     return a.value - b.value;
                 }
             ]
-    ); /*
+    ); 
     dataView.setAggregators([
-    new Slick.Data.Aggregators.Avg("percentComplete")
-  ], true);     */
+    new Slick.Data.Aggregators.Avg("percentComplete"),
+		new Slick.Data.Aggregators.Sum("cost")
+  ], true, true);     
 }
 
 function groupByDurationPercentageStart() {
@@ -268,14 +285,16 @@ function groupByDurationPercentageStart() {
         function (a, b) {
           return a.value - b.value;
         },
-        function (a, b) {
-          return a.value - b.value;
+        function (a, b) { // string sorting
+					var x = a.value, y = b.value;
+          return x == y ? 0 : (x > y ? 1 : -1);
         }
       ]
-  ); /*
+  ); 
   dataView.setAggregators([
-    new Slick.Data.Aggregators.Avg("percentComplete")
-  ], true);     */
+    new Slick.Data.Aggregators.Avg("percentComplete"),
+		new Slick.Data.Aggregators.Sum("cost")
+  ], true, false);     
 }
 
 $(".grid-header .ui-icon")
@@ -289,6 +308,7 @@ $(".grid-header .ui-icon")
 
 $(function () { 
   var someDates = Array("01/01/2009", "02/02/2009", "03/03/2009");
+	
   // prepare the data
   for (var i = 0; i < 5000; i++) {
     var d = (data[i] = {});
@@ -300,7 +320,8 @@ $(function () {
     d["percentComplete"] = Math.round(Math.random() * 100);
     d["start"] = someDates[ Math.floor((Math.random()*2)) ];
     d["finish"] = someDates[ Math.floor((Math.random()*2)) ];
-    d["effortDriven"] = (i % 5 == 0);
+		d["cost"] = Math.round(Math.random() * 10000) / 100;
+    d["effortDriven"] = (i % 5 == 0);		
   }
 
   var groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
@@ -412,9 +433,10 @@ $(function () {
       }
   );
   dataView.setAggregators([
-    new Slick.Data.Aggregators.Avg("percentComplete")
+    new Slick.Data.Aggregators.Avg("percentComplete"),
+		new Slick.Data.Aggregators.Sum("cost")
   ], false);
-  dataView.collapseGroup(0, 0);
+  dataView.collapseGroup("duration:0");
   dataView.endUpdate();
 
   $("#gridContainer").resizable();
