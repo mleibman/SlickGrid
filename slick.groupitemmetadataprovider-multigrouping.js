@@ -62,8 +62,7 @@
     function init(grid) {
       _grid = grid;
       _grid.onClick.subscribe(handleGridClick);
-      _grid.onKeyDown.subscribe(handleGridKeyDown);
-
+      _grid.onKeyDown.subscribe(handleGridKeyDown);    
     }
 
     function destroy() {

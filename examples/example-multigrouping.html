@@ -205,55 +205,55 @@ function groupByDurationOrderByCountGroupCollapsed() {
 }
 
 function groupByDurationPercentage() {
-	dataView.groupBy(
-	  ["duration", "percentComplete"],
-	  [
-		  (function (g) {
-			  return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
-		  }),
-		  (function (g) {
-			  return "Complete:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
-		  }) 
-	  ],
-	  [
-		  function (a, b) {
-			  return a.value - b.value;
-		  },
-		  function (a, b) {
-			  return a.value - b.value;
-		  }
-	  ]
-	); 
-	dataView.setAggregators([
-    new Slick.Data.Aggregators.Avg("percentComplete"),
-    new Slick.Data.Aggregators.Sum("cost")
+  dataView.groupBy(
+    ["duration", "percentComplete"],
+    [
+      (function (g) {
+        return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+      }),
+      (function (g) {
+        return "Complete:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+      }) 
+    ],
+    [
+      function (a, b) {
+        return a.value - b.value;
+      },
+      function (a, b) {
+        return a.value - b.value;
+      }
+    ]
+  ); 
+  dataView.setAggregators([
+  new Slick.Data.Aggregators.Avg("percentComplete"),
+  new Slick.Data.Aggregators.Sum("cost")
   ], true);     
 }
 
 function groupByDurationEffortDriven() {
-    dataView.groupBy(
-      ["duration", "effortDriven"],
-      [
-          (function (g) {
-              return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
-          }),
-          (function (g) {
-              var txtTrueFalse = (g.value === true) ? "True" : "False";
-              return "Effort-Driven:  " + txtTrueFalse + "  <span style='color:green'>(" + g.count + " items)</span>";
-          })
-      ],
-      [
-          function (a, b) {
-              return a.value - b.value;
-          },
-          function (a, b) {
-              return a.value - b.value;
-          }
-      ]
-    ); 
-    dataView.setAggregators([
+  dataView.groupBy(
+    ["duration", "effortDriven"],
+    [
+      (function (g) {
+        return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+      }),
+      (function (g) {
+        var txtTrueFalse = (g.value === true) ? "True" : "False";
+        return "Effort-Driven:  " + txtTrueFalse + "  <span style='color:green'>(" + g.count + " items)</span>";
+      })
+    ],
+    [
+      function (a, b) {
+        return a.value - b.value;
+      },
+      function (a, b) {
+        return a.value - b.value;
+      }
+    ]
+  ); 
+  dataView.setAggregators([
     new Slick.Data.Aggregators.Avg("percentComplete"),
-	new Slick.Data.Aggregators.Sum("cost")
+    new Slick.Data.Aggregators.Sum("cost")
   ], true, true);     
 }
 
@@ -279,14 +279,14 @@ function groupByDurationPercentageStart() {
         return a.value - b.value;
       },
       function (a, b) { // string sorting
-				  var x = a.value, y = b.value;
+        var x = a.value, y = b.value;
         return x == y ? 0 : (x > y ? 1 : -1);
       }
     ]
   ); 
   dataView.setAggregators([
     new Slick.Data.Aggregators.Avg("percentComplete"),
-	new Slick.Data.Aggregators.Sum("cost")
+    new Slick.Data.Aggregators.Sum("cost")
   ], true, false);     
 }
 
