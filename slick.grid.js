@@ -313,7 +313,7 @@ if (typeof Slick === "undefined") {
             .bind("dblclick", handleDblClick)
             .bind("contextmenu", handleContextMenu)
             .bind("draginit", handleDragInit)
-            .bind("dragstart", handleDragStart)
+            .bind("dragstart", {distance: 3}, handleDragStart)
             .bind("drag", handleDrag)
             .bind("dragend", handleDragEnd)
             .delegate(".slick-cell", "mouseenter", handleMouseEnter)
