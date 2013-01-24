@@ -51,14 +51,14 @@
 
     // grouping
     var groupingGetter = [];
-	  var groupingGetterIsAFn = [];
-	  var groupingFormatter = [];
-	  var groupingComparer = [];
+    var groupingGetterIsAFn = [];
+    var groupingFormatter = [];
+    var groupingComparer = [];
     var groups = [];
-		var collapsedGroups = {};
+	var collapsedGroups = {};
     var aggregators;
     var aggregateCollapsed = false;
-		var aggregateAllLevels = false;
+	var aggregateAllLevels = false;
     var compiledAccumulators;
 
     var pagesize = 0;
@@ -213,13 +213,13 @@
         options.groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
       }  
       
-			// reset grouping variables
-			groupingGetter = [];
-			groupingGetterIsAFn = [];
-			groupingFormatter = [];
-			groupingComparer = [];
-			groups = [];
-			collapsedGroups = {};
+	  // reset grouping variables
+	  groupingGetter = [];
+	  groupingGetterIsAFn = [];
+	  groupingFormatter = [];
+	  groupingComparer = [];
+	  groups = [];
+	  collapsedGroups = {};
 				
       if(valueGetter instanceof Array) {
         for (var i = 0; i < valueGetter.length; i++) {
@@ -228,7 +228,7 @@
           groupingFormatter[i] = valueFormatter[i];
           groupingComparer[i] = sortComparer[i];
         }				
-				refresh();  
+		refresh();  
       }else {
         groupingGetterIsAFn[0] = typeof groupingGetter === "function";
         groupingGetter[0] = valueGetter;
@@ -385,9 +385,9 @@
       var groupsLcl = [];
       var groupsByVal = [];
       var r;
-			var rows = dataset.__group ? dataset.rows : dataset;
+      var rows = dataset.__group ? dataset.rows : dataset;
 			
-			for (var i = 0, l = rows.length; i < l; i++) {
+      for (var i = 0, l = rows.length; i < l; i++) {
         r = rows[i];
         val = (groupingGetterIsAFn[groupLevel]) ? groupingGetter[groupLevel](r) : r[groupingGetter[groupLevel]];
         val = val || 0;
@@ -396,22 +396,22 @@
           group = new Slick.Group();
           group.count = 0;
           group.value = val;
-					group.groupby = dataset.__group ? dataset.groupby+"-->"+groupingColumn+":"+val : groupingColumn+":"+val;
-					group.level = groupLevel;
-					group.rows = [];
+		  group.groupby = dataset.__group ? dataset.groupby+"-->"+groupingColumn+":"+val : groupingColumn+":"+val;
+		  group.level = groupLevel;
+		  group.rows = [];
           groupsLcl[groupsLcl.length] = group;
           groupsByVal[val] = group;
         }
 
         group.rows[group.count++] = r;
 				
-				// do we have more level of grouping? if yes go deeper by recursion until we resurface back to parent level 0
-				if(groupLevel < groupingGetter.length-1) {
-					groupLevel++;
-					var grp = extractGroups(group, groupingGetter[groupLevel], groupLevel);
-					group.groups = grp;	
-					groupLevel--;
-				}
+		// do we have more level of grouping? if yes go deeper by recursion until we resurface back to parent level 0
+		if(groupLevel < groupingGetter.length-1) {
+			groupLevel++;
+			var grp = extractGroups(group, groupingGetter[groupLevel], groupLevel);
+			group.groups = grp;	
+			groupLevel--;
+		}
       }
 			
       return groupsLcl;
@@ -439,13 +439,13 @@
     function calculateTotals(groupsLcl) {
       var idx = groupsLcl.length, g;
       while (idx--) {
-				g = groupsLcl[idx];
+	    g = groupsLcl[idx];
         calculateGroupTotals(g);
 				
-				// do we have more level of grouping? if yes go deeper by recursion until we resurface back to parent level 0
-				if(g.groups && aggregateAllLevels) {
-					calculateTotals(g.groups);
-				}
+		// do we have more level of grouping? if yes go deeper by recursion until we resurface back to parent level 0
+		if(g.groups && aggregateAllLevels) {
+			calculateTotals(g.groups);
+		}
       }
     }
 
@@ -457,12 +457,12 @@
         g.title = groupingFormatter[groupLevel] ? groupingFormatter[groupLevel](g) : g.value;
         g.level = groupLevel;
 				
-				// do we have more level of grouping? if yes go deeper by recursion until we resurface back to parent level 0
-				if(g.groups) {
-					groupLevel++;
-					finalizeGroups(g.groups, groupLevel, g.collapsed);	
-					groupLevel--;
-				}
+		// do we have more level of grouping? if yes go deeper by recursion until we resurface back to parent level 0
+		if(g.groups) {
+			groupLevel++;
+			finalizeGroups(g.groups, groupLevel, g.collapsed);	
+			groupLevel--;
+		}
       }
     }
 	
@@ -472,13 +472,13 @@
         g = groupsLcl[i];
         groupedRows[gl++] = g;
 				
-				// do we have more level of grouping? if yes go deeper by recursion until we resurface back to parent level 0
-				if(g.groups && !g.collapsed) {
-					var grpRows = flattenGroupedRows(g.groups);
-					for (var k = 0, kk = grpRows.length; k < kk; k++) {
-						groupedRows[gl++] = grpRows[k];
-					}
-				}
+		// do we have more level of grouping? if yes go deeper by recursion until we resurface back to parent level 0
+		if(g.groups && !g.collapsed) {
+			var grpRows = flattenGroupedRows(g.groups);
+			for (var k = 0, kk = grpRows.length; k < kk; k++) {
+				groupedRows[gl++] = grpRows[k];
+			}
+		}
 				
         if (!g.collapsed && !g.groups) {
           for (var j = 0, jj = g.rows.length; j < jj; j++) {
@@ -684,19 +684,19 @@
       return diff;
     }
 
-		function multiSort(groupLcl, groupLevel) {			
-			groupLcl.sort(groupingComparer[groupLevel]);
-			if (groupLevel < groupingComparer.length-1) {
-				groupLevel++;
-				for (var i = 0, l = groupLcl.length; i < l; i++) {					
-					var grp = multiSort(groupLcl[i].groups, groupLevel);
-					groupLcl[i].groups = grp; // now sorted group
-				}
-				groupLevel--;
+	function multiSort(groupLcl, groupLevel) {			
+		groupLcl.sort(groupingComparer[groupLevel]);
+		if (groupLevel < groupingComparer.length-1) {
+			groupLevel++;
+			for (var i = 0, l = groupLcl.length; i < l; i++) {					
+				var grp = multiSort(groupLcl[i].groups, groupLevel);
+				groupLcl[i].groups = grp; // now sorted group
 			}
-		
-			return groupLcl;
+			groupLevel--;
 		}
+	
+		return groupLcl;
+	}
 		
     function recalc(_items, filter) {
       rowsById = null;
@@ -710,7 +710,7 @@
       totalRows = filteredItems.totalRows;
       var newRows = filteredItems.rows;
 
-			groups = [];
+	  groups = [];
       if (groupingGetter[0] != null) {
         groups = extractGroups(newRows, groupingGetter[0], 0);
         if (groups.length) {
@@ -719,11 +719,11 @@
             calculateTotals(groups, 0);
           }
 					
-					if (groupingComparer.length > 1) {
-						multiSort(groups, 0);
-					}else {
-						groups.sort(groupingComparer[0]);
-					}					
+		  if (groupingComparer.length > 1) {
+			  multiSort(groups, 0);
+		  }else {
+			  groups.sort(groupingComparer[0]);
+		  }					
 								
           newRows = flattenGroupedRows(groups);
         }

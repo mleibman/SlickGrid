@@ -43,9 +43,9 @@
         return item.title;
       }
 
-      var isParent = (typeof(item.level) === "undefined" || item.level == 0) ? true : false;
-      var indentation = (isParent) ? "0px" : ((item.level * 15) + "px");
-      var fontStyle = (isParent) ? "font-weight:bold; font-size:9pt;" : "font-weight:normal; font-size:8pt";
+      var isParentLevel = (item.level === undefined || item.level == 0) ? true : false;
+      var indentation = (isParentLevel) ? "0px" : ((item.level * 15) + "px");
+      var fontStyle = (isParentLevel) ? "font-weight:bold; font-size:9pt;" : "font-weight:normal; font-size:8pt";
       
       return "<span class='" + options.toggleCssClass + " " +
           (item.collapsed ? options.toggleCollapsedCssClass : options.toggleExpandedCssClass) +
