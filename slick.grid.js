@@ -132,6 +132,7 @@ if (typeof Slick === "undefined") {
         cellWidthDiff = 0, cellHeightDiff = 0;
     var absoluteColumnMinWidth;
     var numberOfRows = 0;
+	var $headerParents;
 
     var tabbingDirection = 1;
     var activePosX;
@@ -523,13 +524,24 @@ if (typeof Slick === "undefined") {
       }
 
       function createColumnHeader(m, appendTo) {
-        return $("<div class='ui-state-default slick-header-column' id='" + uid + m.id + "' />")
+        header = $("<div class='ui-state-default slick-header-column' id='" + uid + m.id + "' />")
             .html("<span class='slick-column-name'>" + m.name + "</span>")
             .width(m.width - headerColumnWidthDiff)
             .attr("title", m.toolTip || "")
             .data("column", m)
             .addClass(m.headerCssClass || "")
             .appendTo(appendTo);
+
+        if (m.sortable) {
+          header.append("<span class='slick-sort-indicator' />");
+        }
+
+
+		if (m.spacer) {
+			header.addClass("slick-column-spacer");
+		}
+
+		return header;
       }
 
       function createBaseColumnHeader(m) {
@@ -537,10 +549,6 @@ if (typeof Slick === "undefined") {
 
         if (options.enableColumnReorder || m.sortable) {
           header.hover(hoverBegin, hoverEnd);
-        }
-
-        if (m.sortable) {
-          header.append("<span class='slick-sort-indicator' />");
         }
 
         trigger(self.onHeaderCellRendered, {
@@ -623,7 +631,7 @@ if (typeof Slick === "undefined") {
     }
 
     function setupColumnSort() {
-      $headers.click(function (e) {
+        $headerScroller.click(function (e) {
         // temporary workaround for a bug in jQuery 1.7.1 (http://bugs.jquery.com/ticket/11328)
         e.metaKey = e.metaKey || e.ctrlKey;
 
@@ -1137,7 +1145,7 @@ if (typeof Slick === "undefined") {
         var totalWidth = 0;
         for (var i = 0; i < columns.length; i++) {
           var column = columns[i];
-          if (column.children) {
+          if (column.children && column.children.length) {
             column.width = computeWidths(column.children, depth);
           }
           if (column.spacers) {
@@ -1186,18 +1194,42 @@ if (typeof Slick === "undefined") {
       sortColumns = cols;
 
       var headerColumnEls = $headers.children();
-      headerColumnEls
+
+      var removeFrom = hasNestedColumns ? headerColumnEls.add($headerParents.children().children()) : headerColumnEls;
+
+      removeFrom
           .removeClass("slick-header-column-sorted")
           .find(".slick-sort-indicator")
               .removeClass("slick-sort-indicator-asc slick-sort-indicator-desc");
 
+      function findBottomHeader() {
+      }
+
       $.each(sortColumns, function(i, col) {
+
         if (col.sortAsc == null) {
           col.sortAsc = true;
         }
         var columnIndex = getColumnIndex(col.columnId);
         if (columnIndex != null) {
-          headerColumnEls.eq(columnIndex)
+
+          var headerMaybe = headerColumnEls.eq(columnIndex);
+
+          if (hasNestedColumns && headerMaybe.hasClass("slick-column-spacer")) {
+            var parentHeaderRows = $headerParents.children().get().reverse();
+            for (var i = 0; i < parentHeaderRows.length; i++) {
+              var headerColumns = $(parentHeaderRows[i]).children();
+              $(headerColumns).each(function(){
+
+                if ($(this).data("column").id == col.columnId && ! $(this).hasClass("slick-column-spacer")) {
+                  headerMaybe = $(this);
+                  return;
+                }
+              });
+            }
+          }
+
+          headerMaybe
               .addClass("slick-header-column-sorted")
               .find(".slick-sort-indicator")
                   .addClass(col.sortAsc ? "slick-sort-indicator-asc" : "slick-sort-indicator-desc");
@@ -1248,19 +1280,7 @@ if (typeof Slick === "undefined") {
     }
 
     function setColumns(columnDefinitions) {
-      columns = columnDefinitions;
-
-      columnsById = {};
-      for (var i = 0; i < columns.length; i++) {
-        var m = columns[i] = $.extend({}, columnDefaults, columns[i]);
-        columnsById[m.id] = i;
-        if (m.minWidth && m.width < m.minWidth) {
-          m.width = m.minWidth;
-        }
-        if (m.maxWidth && m.width > m.maxWidth) {
-          m.width = m.maxWidth;
-        }
-      }
+	  parseColumns(columnDefinitions);
 
       updateColumnCaches();
 
@@ -1360,29 +1380,32 @@ if (typeof Slick === "undefined") {
 
     function parseColumns(columnsInput) {
       var maxDepth = 0;
+	  var j = 0;
       columns = [];
+	  nestedColumns = null;
 
       function parse(columnsInput, depth) {
         var totalWidth = 0;
         if (depth > maxDepth) maxDepth = depth;
         for (var i = 0; i < columnsInput.length; i++) {
           var column = columnsInput[i];
-          if (column.children) {
+          if (column.children && column.children.length) {
             hasNestedColumns = true;
             column.width = parse(column.children, depth + 1);
           }
           else {
             column = columnsInput[i] = $.extend({}, columnDefaults, column);
-            columnsById[column.id] = i;
+            columnsById[column.id] = j;
+			j++;
             if (column.minWidth && column.width < column.minWidth) {
               column.width = column.minWidth;
             }
             if (column.maxWidth && column.width > column.maxWidth) {
               column.width = column.maxWidth;
             }
-            totalWidth += column.width;
             columns.push(column);
           }
+		  totalWidth += column.width;
         }
         return totalWidth;
       }
@@ -1398,7 +1421,7 @@ if (typeof Slick === "undefined") {
         for (var index in columnsInput) {
           var column = columnsInput[index];
           addToNested(column, depth);
-          if (column.children) {
+          if (column.children && column.children.length) {
             splitIntoLayers(column.children, depth + 1)
           }
           else {
