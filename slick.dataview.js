@@ -50,14 +50,13 @@
     var filterCache = [];
 
     // grouping
-    var groupingGetter = [];
-    var groupingGetterIsAFn = [];
-    var groupingFormatter = [];
-    var groupingComparer = [];
+    var groupingGetter;
+    var groupingGetterIsAFn;
+    var groupingFormatter;
+    var groupingComparer;
     var groups = [];
     var collapsedGroups = {};
     var aggregators;
-    var aggregateAllLevels = false;
     var aggregateCollapsed = false;
     var compiledAccumulators;
 
@@ -213,36 +212,19 @@
         options.groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
       }
 
-      groupingGetter = [];
-      groupingGetterIsAFn = [];
-      groupingFormatter = [];
-      groupingComparer = [];
-      groups = [];
+      groupingGetter = valueGetter;
+      groupingGetterIsAFn = typeof groupingGetter === "function";
+      groupingFormatter = valueFormatter;
+      groupingComparer = sortComparer;
       collapsedGroups = {};
-
-      if(valueGetter instanceof Array) {
-        for (var i = 0; i < valueGetter.length; i++) {
-          groupingGetter[i] = valueGetter[i];
-          groupingGetterIsAFn[i] = typeof groupingGetter[i] === "function";
-          groupingFormatter[i] = valueFormatter[i];
-          groupingComparer[i] = sortComparer[i];
-        }				
-        refresh();  
-      }else {
-        groupingGetterIsAFn[0] = typeof groupingGetter === "function";
-        groupingGetter[0] = valueGetter;
-        groupingFormatter[0] = valueFormatter;
-        groupingComparer[0] = sortComparer;
-        refresh(); 
-      }
+      groups = [];
+      refresh();
     }
 
-    function setAggregators(groupAggregators, includeCollapsed, aggregateAllLowerLevels) {
+    function setAggregators(groupAggregators, includeCollapsed) {
       aggregators = groupAggregators;
       aggregateCollapsed = (includeCollapsed !== undefined)
           ? includeCollapsed : aggregateCollapsed;
-      aggregateAllLevels = (aggregateAllLowerLevels !== undefined)
-          ? aggregateAllLowerLevels : false;
 
       // pre-compile accumulator loops
       compiledAccumulators = [];
@@ -378,27 +360,22 @@
       return groups;
     }
 
-    function extractGroups(dataset, groupingColumn, groupLevel) {
+    function extractGroups(rows) {
       var group;
       var val;
       var groups = [];
       var groupsByVal = [];
       var r;
-      var rows = dataset.__group ? dataset.rows : dataset;
 
       for (var i = 0, l = rows.length; i < l; i++) {
         r = rows[i];
-        val = (groupingGetterIsAFn[groupLevel]) ? groupingGetter[groupLevel](r) : r[groupingGetter[groupLevel]];
+        val = (groupingGetterIsAFn) ? groupingGetter(r) : r[groupingGetter];
         val = val || 0;
         group = groupsByVal[val];
         if (!group) {
           group = new Slick.Group();
           group.count = 0;
           group.value = val;
-          group.groupby = dataset.__group 
-            ? dataset.groupby + "-->" + groupingColumn + ":" + val 
-            : groupingColumn + ":" + val;
-          group.level = groupLevel;
           group.rows = [];
           groups[groups.length] = group;
           groupsByVal[val] = group;
@@ -407,12 +384,6 @@
         group.rows[group.count++] = r;
       }
 
-      if(groupLevel < groupingGetter.length-1) {
-        for (var i = 0; i < groups.length; i++) {
-          group = groups[i];
-          group.groups = extractGroups(group, groupingGetter[groupLevel], groupLevel+1);
-        }
-      }
       return groups;
     }
 
@@ -436,30 +407,18 @@
     }
 
     function calculateTotals(groups) {
-      var idx = groups.length, g;
+      var idx = groups.length;
       while (idx--) {
-        g = groups[idx];
-        calculateGroupTotals(g);
-        
-        if(g.groups && aggregateAllLevels) {
-          calculateTotals(g.groups);
-        }
+        calculateGroupTotals(groups[idx]);
       }
     }
 
-    function finalizeGroups(groups, groupLevel) {
+    function finalizeGroups(groups) {
       var idx = groups.length, g;
       while (idx--) {
         g = groups[idx];
-        g.collapsed = (g.groupby in collapsedGroups);
-        g.title = groupingFormatter[groupLevel] ? groupingFormatter[groupLevel](g) : g.value;
-        g.level = groupLevel;
-        
-        if(g.groups) {
-          groupLevel++;
-          finalizeGroups(g.groups, groupLevel);
-          groupLevel--;
-        }
+        g.collapsed = (g.value in collapsedGroups);
+        g.title = groupingFormatter ? groupingFormatter(g) : g.value;
       }
     }
 
@@ -469,14 +428,7 @@
         g = groups[i];
         groupedRows[gl++] = g;
 
-        if(g.groups && !g.collapsed) {
-          var grpRows = flattenGroupedRows(g.groups);
-          for (var k = 0, kk = grpRows.length; k < kk; k++) {
-            groupedRows[gl++] = grpRows[k];
-          }
-        }
-        
-        if (!g.collapsed && !g.groups) {
+        if (!g.collapsed) {
           for (var j = 0, jj = g.rows.length; j < jj; j++) {
             groupedRows[gl++] = g.rows[j];
           }
@@ -661,7 +613,7 @@
           item = newRows[i];
           r = rows[i];
 
-          if ((groupingGetter[0] && (eitherIsNonData = (item.__nonDataRow) || (r.__nonDataRow)) &&
+          if ((groupingGetter && (eitherIsNonData = (item.__nonDataRow) || (r.__nonDataRow)) &&
               item.__group !== r.__group ||
               item.__updated ||
               item.__group && !item.equals(r))
@@ -680,20 +632,6 @@
       return diff;
     }
 
-    function multiSort(group, groupLevel) {			
-      group.sort(groupingComparer[groupLevel]);
-      if (groupLevel < groupingComparer.length-1) {
-        groupLevel++;
-        for (var i = 0, l = group.length; i < l; i++) {					
-          var grp = multiSort(group[i].groups, groupLevel);
-          group[i].groups = grp;
-        }
-        groupLevel--;
-      }
-
-      return group;
-    }
-    
     function recalc(_items) {
       rowsById = null;
 
@@ -707,18 +645,14 @@
       var newRows = filteredItems.rows;
 
       groups = [];
-      if (groupingGetter[0] != null) {
-        groups = extractGroups(newRows, groupingGetter[0], 0);
+      if (groupingGetter != null) {
+        groups = extractGroups(newRows);
         if (groups.length) {
-          finalizeGroups(groups, 0);
+          finalizeGroups(groups);
           if (aggregators) {
             calculateTotals(groups);
           }
-          if (groupingComparer.length > 1) {
-            multiSort(groups, 0);
-          }else {
-            groups.sort(groupingComparer[0]);
-          }
+          groups.sort(groupingComparer);
           newRows = flattenGroupedRows(groups);
         }
       }
