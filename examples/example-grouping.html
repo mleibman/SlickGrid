@@ -140,18 +140,32 @@ function comparer(a, b) {
 
 function collapseAllGroups() {
   dataView.beginUpdate();
-  for (var i = 0; i < dataView.getGroups().length; i++) {
-    dataView.collapseGroup(dataView.getGroups()[i].groupby);
-  }
+  collapseAllGrouping(dataView.getGroups());
   dataView.endUpdate();
 }
 
 function expandAllGroups() {
   dataView.beginUpdate();
-  for (var i = 0; i < dataView.getGroups().length; i++) {
-    dataView.expandGroup(dataView.getGroups()[i].groupby);
-  }
+  expandAllGrouping(dataView.getGroups());
   dataView.endUpdate();
+}
+
+function collapseAllGrouping(groups) {
+  for (var i = 0; i < groups.length; i++) {
+    dataView.collapseGroup(groups[i].groupby);
+    if(groups[i].groups !== undefined) {
+      collapseAllGrouping(groups[i].groups);
+    }
+  }
+}
+
+function expandAllGrouping(groups) {
+  for (var i = 0; i < groups.length; i++) {
+    dataView.expandGroup(groups[i].groupby);
+    if(groups[i].groups !== undefined) {
+      expandAllGrouping(groups[i].groups);
+    }
+  }
 }
 
 function clearGrouping() {
