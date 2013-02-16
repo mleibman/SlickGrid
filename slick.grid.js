@@ -315,7 +315,7 @@ if (typeof Slick === "undefined") {
             .bind("dblclick", handleDblClick)
             .bind("contextmenu", handleContextMenu)
             .bind("draginit", handleDragInit)
-            .bind("dragstart", handleDragStart)
+            .bind("dragstart", {distance: 3}, handleDragStart)
             .bind("drag", handleDrag)
             .bind("dragend", handleDragEnd)
             .delegate(".slick-cell", "mouseenter", handleMouseEnter)
@@ -425,7 +425,7 @@ if (typeof Slick === "undefined") {
     function getMaxSupportedCssHeight() {
       var supportedHeight = 1000000;
       // FF reports the height back but still renders blank after ~6M px
-      var testUpTo = ($.browser.mozilla) ? 6000000 : 1000000000;
+      var testUpTo = navigator.userAgent.toLowerCase().match(/firefox/) ? 6000000 : 1000000000;
       var div = $("<div style='display:none' />").appendTo(document.body);
 
       while (true) {
@@ -511,11 +511,11 @@ if (typeof Slick === "undefined") {
     }
 
     function createColumnHeaders() {
-      function hoverBegin() {
+      function onMouseEnter() {
         $(this).addClass("ui-state-hover");
       }
 
-      function hoverEnd() {
+      function onMouseLeave() {
         $(this).removeClass("ui-state-hover");
       }
 
@@ -556,10 +556,13 @@ if (typeof Slick === "undefined") {
             .appendTo($headers);
 
         if (options.enableColumnReorder || m.sortable) {
-          header.hover(hoverBegin, hoverEnd);
+          header
+            .on('mouseenter', onMouseEnter)
+            .on('mouseleave', onMouseLeave);
         }
 
         if (m.sortable) {
+          header.addClass("slick-header-sortable");
           header.append("<span class='slick-sort-indicator' />");
         }
 
@@ -668,6 +671,7 @@ if (typeof Slick === "undefined") {
 
       $headers.sortable({
         containment: "parent",
+        distance: 3,
         axis: "x",
         cursor: "default",
         tolerance: "intersection",
@@ -2021,7 +2025,7 @@ if (typeof Slick === "undefined") {
           if (m.asyncPostRender && !postProcessedRows[row][columnIdx]) {
             var node = cacheEntry.cellNodesByColumnIdx[columnIdx];
             if (node) {
-              m.asyncPostRender(node, postProcessFromRow, getDataItem(row), m);
+              m.asyncPostRender(node, row, getDataItem(row), m);
             }
             postProcessedRows[row][columnIdx] = true;
           }
