@@ -296,10 +296,6 @@ if (typeof Slick === "undefined") {
             // Append the header scroller containers
             $headerScrollerL = $("<div class='ui-state-default slick-header slick-header-left' />").appendTo($paneHeaderL);
             $headerScrollerR = $("<div class='ui-state-default slick-header slick-header-right' />").appendTo($paneHeaderR);
-            // TODO Add L & R copies of the headerRowSpacer?
-            $headerRowSpacer = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
-                .css("width", getCanvasWidth() + scrollbarDimensions.width + "px")
-                .appendTo($headerRowScroller);
 
             // Cache the header scroller containers
             $headerScroller = $().add($headerScrollerL).add($headerScrollerR);
@@ -315,6 +311,11 @@ if (typeof Slick === "undefined") {
             $headerRowScrollerR = $("<div class='ui-state-default slick-headerrow' />").appendTo($paneTopR);
 
             $headerRowScroller = $().add($headerRowScrollerL).add($headerRowScrollerR);
+
+            // TODO Add L & R copies of the headerRowSpacer?
+            $headerRowSpacer = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
+                .css("width", getCanvasWidth() + scrollbarDimensions.width + "px")
+                .appendTo($headerRowScroller);
 
             $headerRowL = $("<div class='slick-headerrow-columns slick-headerrow-columns-left' />").appendTo($headerRowScrollerL);
             $headerRowR = $("<div class='slick-headerrow-columns slick-headerrow-columns-right' />").appendTo($headerRowScrollerR);
@@ -597,7 +598,7 @@ if (typeof Slick === "undefined") {
                     $paneTopR.css('left', canvasWidthL);
 
                     $headerRowScrollerL.width(canvasWidthL);
-                    $headerRowScrollerR.width(canvasWidthR);
+                    $headerRowScrollerR.width( viewportW - canvasWidthL );
 
                     $headerRowL.width(canvasWidthL);
                     $headerRowR.width(canvasWidthR);
@@ -622,7 +623,7 @@ if (typeof Slick === "undefined") {
 
                     $headerRowScrollerL.width( '100%' );
 
-                    $headerRowL.width( '100%' );
+                    $headerRowL.width( canvasWidth );
 
                     $viewportTopL.width( '100%' );
 
@@ -817,7 +818,9 @@ if (typeof Slick === "undefined") {
                 });
 
                 if (options.showHeaderRow) {
-                    var headerRowCell = $("<div class='ui-state-default slick-headerrow-column l" + i + " r" + i + "'></div>").data("column", m).appendTo($headerRowTarget);
+                    var headerRowCell = $("<div class='ui-state-default slick-headerrow-column l" + i + " r" + i + "'></div>")
+                        .data("column", m)
+                        .appendTo($headerRowTarget);
 
                     trigger(self.onHeaderRowCellRendered, {
                         "node": headerRowCell[0],
