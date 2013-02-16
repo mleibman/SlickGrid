@@ -104,7 +104,7 @@
     for (var i = 0; i < 500; i++) {
       var d = (data[i] = {});
       d.server = "Server " + i;
-      for (var j = 0; j < columns.length; j++) {
+      for (var j = 0; j < columns.length - 1; j++) { //there should be 4 numbered columns in data, airite?
         d[j] = Math.round(Math.random() * 100);
       }
     }
@@ -119,14 +119,13 @@
     var changes = {};
     var numberOfUpdates = Math.round(Math.random() * (data.length / 10));
     for (var i = 0; i < numberOfUpdates; i++) {
-      var server = Math.round(Math.random() * (data.length - 1));
-      var cpu = Math.round(Math.random() * (columns.length - 1));
+      var server = Math.floor(Math.random() * data.length);
+      var cpu = Math.floor(Math.random() * (columns.length - 1));
       var delta = Math.round(Math.random() * 50) - 25;
-      var col = grid.getColumnIndex("cpu" + cpu);
-      var val = data[server][col] + delta;
-      val = Math.max(0, val);
-      val = Math.min(100, val);
-
+      var col = cpu; //column index != field name 
+	  
+      var val = data[server][col];
+      val = Math.min(100, Math.max(0, val + delta));
       data[server][col] = val;
 
       if (!changes[server]) {
@@ -134,7 +133,7 @@
       }
 
       changes[server]["cpu" + cpu] = "changed";
-
+	  
       grid.invalidateRow(server);
     }
 
