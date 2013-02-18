@@ -2,10 +2,12 @@
   function SlickGridPager(dataView, grid, $container) {
     var $status;
 
+    function updatePagerEventListener (e, pagingInfo) {
+      updatePager(pagingInfo);
+    }
+
     function init() {
-      dataView.onPagingInfoChanged.subscribe(function (e, pagingInfo) {
-        updatePager(pagingInfo);
-      });
+      dataView.onPagingInfoChanged.subscribe(updatePagerEventListener);
 
       constructPagerUI();
       updatePager(dataView.getPagingInfo());
@@ -140,6 +142,11 @@
     }
 
     init();
+
+    this.destroy = function(){
+      dataView.onPagingInfoChanged.unsubscribe(updatePagerEventListener);
+      $container.find(".ui-icon-container").off('mouseenter mouseleave');
+    };
   }
 
   // Slick.Controls.Pager
