@@ -360,8 +360,9 @@
     };
 
     this.destroy = function () {
-      $input.remove();
+      $picker.find(".editor-percentcomplete-buttons button").unbind("click");
       $picker.slider('destroy').remove();
+      $input.remove();
     };
 
     this.focus = function () {
