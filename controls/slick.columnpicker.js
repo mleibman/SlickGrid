@@ -106,6 +106,11 @@
     }
 
     init();
+
+    this.destroy = function(){
+      grid.onHeaderContextMenu.unsubscribe(handleHeaderContextMenu);
+      $menu.off("mouseleave click");
+    };
   }
 
   // Slick.Controls.ColumnPicker

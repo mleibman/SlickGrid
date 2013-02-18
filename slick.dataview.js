@@ -164,7 +164,7 @@
 
     /***
      * Provides a workaround for the extremely slow sorting in IE.
-     * Does a [lexicographic] sort on a give column by temporarily overriding Object.prototype.toString
+     * Does a [lexicographic] sort on a given column by temporarily overriding Object.prototype.toString
      * to return the value of that field and then doing a native Array.sort().
      */
     function fastSort(field, ascending) {
@@ -698,7 +698,7 @@
 
     function syncGridSelection(grid, preserveHidden) {
       var self = this;
-      var selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());;
+      var selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());
       var inHandler;
 
       function update() {
@@ -768,6 +768,12 @@
       this.onRowCountChanged.subscribe(update);
     }
 
+    function unsubscribeListeners (){
+      this.onRowCountChanged.unsubscribeAll();
+      this.onPagingInfoChanged.unsubscribeAll();
+      this.onRowsChanged.unsubscribeAll();
+    }
+
     return {
       // methods
       "beginUpdate": beginUpdate,
@@ -809,7 +815,8 @@
       // events
       "onRowCountChanged": onRowCountChanged,
       "onRowsChanged": onRowsChanged,
-      "onPagingInfoChanged": onPagingInfoChanged
+      "onPagingInfoChanged": onPagingInfoChanged,
+      "unsubscribeListeners": unsubscribeListeners
     };
   }
 

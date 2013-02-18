@@ -294,8 +294,8 @@ if (typeof Slick === "undefined") {
         resizeCanvas();
         bindAncestorScrollEvents();
 
-        $container
-            .bind("resize.slickgrid", resizeCanvas);
+          $container
+              .bind("resize.slickgrid", resizeCanvas);
         $viewport
             .bind("scroll", handleScroll);
         $headerScroller
@@ -694,7 +694,7 @@ if (typeof Slick === "undefined") {
     function setupColumnResize() {
       var $col, j, c, pageX, columnElements, minPageX, maxPageX, firstResizable, lastResizable;
       columnElements = $headers.children();
-      columnElements.find(".slick-resizable-handle").remove();
+      columnElements.find(".slick-resizable-handle").unbind("dragstart drag dragend").remove();
       columnElements.each(function (i, e) {
         if (columns[i].resizable) {
           if (firstResizable === undefined) {
@@ -978,10 +978,24 @@ if (typeof Slick === "undefined") {
       }
 
       unbindAncestorScrollEvents();
+      // unbind all events previously bound
       $container.unbind(".slickgrid");
+      $viewport.unbind("selectstart.ui scroll");
+      $container.unbind("resize.slickgrid");
+      $headerScroller
+          .unbind("contextmenu click")
+          .undelegate(".slick-header-column", "mouseenter")
+          .undelegate(".slick-header-column", "mouseleave");
+      $headerRowScroller.unbind("scroll");
+      $focusSink.add($focusSink2).unbind("keydown");
+      $canvas.unbind("draginit dragstart dragend drag keydown click dblclick contextmenu")
+          .undelegate(".slick-cell", "mouseenter")
+          .undelegate(".slick-cell", "mouseleave");
+      $headers.children().find('.slick-resizable-handle').unbind("dragstart drag dragend");
+      $headers.unbind("selectstart.ui");
+
       removeCssRules();
 
-      $canvas.unbind("draginit dragstart dragend drag");
       $container.empty().removeClass(uid);
     }
 

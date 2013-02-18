@@ -105,6 +105,14 @@
     };
 
     /***
+     * Remove all listeners from all events
+     * @method unsubscribeAll
+     */
+    this.unsubscribeAll = function () {
+        handlers = [];
+    };
+
+    /***
      * Fires an event notifying all subscribers.
      * @method notify
      * @param args {Object} Additional data object to be passed to all handlers.

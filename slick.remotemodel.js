@@ -8,7 +8,7 @@
     // private
     var PAGESIZE = 50;
     var data = {length: 0};
-    var searchstr = "apple";
+    var searchstr = "apple"; // bloody apple fanboys...
     var sortcol = null;
     var sortdir = 1;
     var h_request = null;
