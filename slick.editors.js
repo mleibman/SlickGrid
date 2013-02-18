@@ -23,7 +23,6 @@
   function TextEditor(args) {
     var $input;
     var defaultValue;
-    var scope = this;
 
     this.init = function () {
       $input = $("<INPUT type=text class='editor-text' />")
@@ -38,7 +37,7 @@
     };
 
     this.destroy = function () {
-      $input.remove();
+      $input.unbind("keydown.nav").remove();
     };
 
     this.focus = function () {
@@ -108,7 +107,7 @@
     };
 
     this.destroy = function () {
-      $input.remove();
+      $input.unbind("keydown.nav").remove();
     };
 
     this.focus = function () {
@@ -154,7 +153,6 @@
   function DateEditor(args) {
     var $input;
     var defaultValue;
-    var scope = this;
     var calendarOpen = false;
 
     this.init = function () {
@@ -239,7 +237,6 @@
   function YesNoSelectEditor(args) {
     var $select;
     var defaultValue;
-    var scope = this;
 
     this.init = function () {
       $select = $("<SELECT tabIndex='0' class='editor-yesno'><OPTION value='yes'>Yes</OPTION><OPTION value='no'>No</OPTION></SELECT>");
@@ -285,7 +282,6 @@
   function CheckboxEditor(args) {
     var $select;
     var defaultValue;
-    var scope = this;
 
     this.init = function () {
       $select = $("<INPUT type=checkbox value='true' class='editor-checkbox' hideFocus>");
@@ -335,7 +331,6 @@
   function PercentCompleteEditor(args) {
     var $input, $picker;
     var defaultValue;
-    var scope = this;
 
     this.init = function () {
       $input = $("<INPUT type=text class='editor-percentcomplete' />");
@@ -366,7 +361,7 @@
 
     this.destroy = function () {
       $input.remove();
-      $picker.remove();
+      $picker.slider('destroy').remove();
     };
 
     this.focus = function () {
@@ -476,6 +471,9 @@
     };
 
     this.destroy = function () {
+      $wrapper.find("button:first").unbind('click');
+      $wrapper.find("button:last").unbind('click');
+      $input.unbind("keydown");
       $wrapper.remove();
     };
 
