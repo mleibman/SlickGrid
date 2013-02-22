@@ -91,7 +91,14 @@
         <li>Select a range of cells with a mouse</li>
         <li>Use Ctrl-C shortcut to copy cells</li>
         <li>You can paste the tabular data into Excel</li>
-    </ul>    
+    </ul>
+
+    <h2>Undo/redo support :</h2>
+    <ul>
+      <li>Use buttons to undo/redo copy/paste</li>
+    </ul>
+    <button onclick="undoRedoBuffer.undo()"><img src="../images/arrow_undo.png" align="absmiddle"> Undo</button>
+    <button onclick="undoRedoBuffer.redo()"><img src="../images/arrow_redo.png" align="absmiddle"> Redo</button>
   </div>
 </div>
 
@@ -123,6 +130,56 @@
     enableCellNavigation: true,
     asyncEditorLoading: false,
     autoEdit: false
+  };
+
+
+
+  var undoRedoBuffer = {
+      commandQueue : [],
+      commandCtr : 0,
+
+      queueAndExecuteCommand : function(editCommand) {
+        this.commandQueue[this.commandCtr] = editCommand;
+        this.commandCtr++;
+        editCommand.execute();
+      },
+
+      undo : function() {
+        if (this.commandCtr == 0)
+          return;
+
+        this.commandCtr--;
+        var command = this.commandQueue[this.commandCtr];
+
+        if (command && Slick.GlobalEditorLock.cancelCurrentEdit()) {
+          command.undo();
+        }
+      },
+      redo : function() {
+        if (this.commandCtr >= this.commandQueue.length)
+          return;
+        var command = this.commandQueue[this.commandCtr];
+        this.commandCtr++;
+        if (command && Slick.GlobalEditorLock.cancelCurrentEdit()) {
+          command.execute();
+        }
+      }
+  }
+
+  // undo shortcut
+  $(document).keydown(function(e)
+  {
+    if (e.which == 90 && (e.ctrlKey || e.metaKey)) {    // CTRL + (shift) + Z
+      if (e.shiftKey){
+        undoRedoBuffer.redo();
+      } else {
+        undoRedoBuffer.undo();
+      }
+    }
+  });
+
+  var pluginOptions = {
+    clipboardCommandHandler: function(editCommand){ undoRedoBuffer.queueAndExecuteCommand.call(undoRedoBuffer,editCommand); }
   };
 
   var columns = [
@@ -167,7 +224,7 @@
     // set keyboard focus on the grid
     grid.getCanvasNode().focus();
 
-    grid.registerPlugin(new Slick.CellExternalCopyManager());
+    grid.registerPlugin(new Slick.CellExternalCopyManager(pluginOptions));
     
 
     grid.onAddNewRow.subscribe(function (e, args) {
@@ -182,7 +239,7 @@
     grid2 = new Slick.Grid("#myGrid2", data, columns, options);
     grid2.setSelectionModel(new Slick.CellSelectionModel());
     
-    grid2.registerPlugin(new Slick.CellExternalCopyManager());
+    grid2.registerPlugin(new Slick.CellExternalCopyManager(pluginOptions));
   })
 </script>
 </body>

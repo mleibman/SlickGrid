@@ -1,8 +1,3 @@
-// This plugin has been adapted from https://github.com/Celebio/SlickGrid/ 
-// revision 55deb75db7902faf46083bb76ffdba806dd87b39
-// some callbacks have been added to the decodeTabularData function
-// to facilitate undo/redo support. 
-
 (function ($) {
   // register namespace
   $.extend(true, window, {
@@ -155,7 +150,7 @@
         destW = selectedRange.toCell - selectedRange.fromCell +1;
       }
 
-      clipCommand = {
+      var clipCommand = {
 
         isClipboardCommand: true,
         clippedRange: clippedRange,
