@@ -1,0 +1,21 @@
+{
+  "name": "slickgrid",
+  "version": "2.1.0",
+  "description": "A lightning fast JavaScript grid/spreadsheet",
+  "main": "slick.core.js",
+  "directories": {
+    "example": "examples",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/shtylman/SlickGrid.git"
+  },
+  "keywords": [
+    "slickgrid",
+    "grid"
+  ],
+  "author": "Michael Leibman <michael.leibman@gmail.com>",
+  "license": "MIT",
+  "readmeFilename": "README.md"
+}
