@@ -43,9 +43,16 @@
         return item.title;
       }
 
+      var isParentLevel = (item.level === undefined || item.level == 0) ? true : false;
+      var indentation = (isParentLevel) ? "0px" : ((item.level * 15) + "px");
+      var fontStyle = (isParentLevel) ? "font-weight:bold; font-size:9pt;" : "font-weight:normal; font-size:8pt";
+      
+
       return "<span class='" + options.toggleCssClass + " " +
           (item.collapsed ? options.toggleCollapsedCssClass : options.toggleExpandedCssClass) +
-          "'></span>" + item.title;
+          "' style='margin-left:" + indentation + "'>" +
+          "</span><span style='"+ fontStyle + "'>" + 
+          item.title + "</span>";          
     }
 
     function defaultTotalsCellFormatter(row, cell, value, columnDef, item) {
@@ -71,10 +78,10 @@
       var item = this.getDataItem(args.row);
       if (item && item instanceof Slick.Group && $(e.target).hasClass(options.toggleCssClass)) {
         if (item.collapsed) {
-          this.getData().expandGroup(item.value);
+          this.getData().expandGroup(item.groupby);
         }
         else {
-          this.getData().collapseGroup(item.value);
+          this.getData().collapseGroup(item.groupby);
         }
 
         e.stopImmediatePropagation();
@@ -90,10 +97,10 @@
           var item = this.getDataItem(activeCell.row);
           if (item && item instanceof Slick.Group) {
             if (item.collapsed) {
-              this.getData().expandGroup(item.value);
+              this.getData().expandGroup(item.groupby);
             }
             else {
-              this.getData().collapseGroup(item.value);
+              this.getData().collapseGroup(item.groupby);
             }
 
             e.stopImmediatePropagation();
