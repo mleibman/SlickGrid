@@ -508,21 +508,23 @@
       group.totals = totals;
     }
 
-    function calculateTotals(groups) {
+    function calculateTotals(groups, level) {
+      level = level || 0;
+      var gi = groupingInfos[level];
       var idx = groups.length, g;
       while (idx--) {
         g = groups[idx];
 
-        if (g.collapsed && !groupingInfos[g.level].aggregateCollapsed) {
+        if (g.collapsed && !gi.aggregateCollapsed) {
           continue;
         }
 
         // Do a depth-first aggregation so that parent setGrouping aggregators can access subgroup totals.
         if (g.groups) {
-          calculateTotals(g.groups);
+          calculateTotals(g.groups, level + 1);
         }
 
-        if (groupingInfos[g.level].aggregators.length) {
+        if (gi.aggregators.length) {
           calculateGroupTotals(g);
         }
       }
