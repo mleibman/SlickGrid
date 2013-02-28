@@ -2988,11 +2988,7 @@ if (typeof Slick === "undefined") {
         return columnMetadata[cell].focusable;
       }
 
-      if (typeof columns[cell].focusable === "boolean") {
-        return columns[cell].focusable;
-      }
-
-      return true;
+      return columns[cell].focusable;
     }
 
     function canCellBeSelected(row, cell) {
