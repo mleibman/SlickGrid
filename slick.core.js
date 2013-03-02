@@ -319,7 +319,7 @@
      * @property rows
      * @type {Array}
      */
-    this.rows = null;
+    this.rows = [];
 
     /**
      * Sub-groups that are part of the group.

@@ -54,7 +54,9 @@
       getter: null,
       formatter: null,
       comparer: function(a, b) { return a.value - b.value; },
+      predefinedValues: [],
       aggregators: [],
+      aggregateEmpty: false,
       aggregateCollapsed: false,
       aggregateChildGroups: false,
       collapsed: false
@@ -459,18 +461,28 @@
       var level = parentGroup ? parentGroup.level + 1 : 0;
       var gi = groupingInfos[level];
 
-      for (var i = 0, l = rows.length; i < l; i++) {
-        r = rows[i];
-        val = gi.getterIsAFn ? gi.getter(r) : r[gi.getter];
-        val = val || 0;
+      for (var i = 0, l = gi.predefinedValues.length; i < l; i++) {
+        val = gi.predefinedValues[i];
         group = groupsByVal[val];
         if (!group) {
           group = new Slick.Group();
-          group.count = 0;
           group.value = val;
           group.level = level;
           group.groupingKey = (parentGroup ? parentGroup.groupingKey + groupingDelimiter : '') + val;
-          group.rows = [];
+          groups[groups.length] = group;
+          groupsByVal[val] = group;
+        }
+      }
+
+      for (var i = 0, l = rows.length; i < l; i++) {
+        r = rows[i];
+        val = gi.getterIsAFn ? gi.getter(r) : r[gi.getter];
+        group = groupsByVal[val];
+        if (!group) {
+          group = new Slick.Group();
+          group.value = val;
+          group.level = level;
+          group.groupingKey = (parentGroup ? parentGroup.groupingKey + groupingDelimiter : '') + val;
           groups[groups.length] = group;
           groupsByVal[val] = group;
         }
@@ -524,7 +536,8 @@
           calculateTotals(g.groups, level + 1);
         }
 
-        if (gi.aggregators.length) {
+        if (gi.aggregators.length && (
+            gi.aggregateEmpty || g.rows.length || (g.groups && g.groups.length))) {
           calculateGroupTotals(g);
         }
       }
@@ -546,7 +559,7 @@
           // Let the non-leaf setGrouping rows get garbage-collected.
           // They may have been used by aggregates that go over all of the descendants,
           // but at this point they are no longer needed.
-          g.rows = null;
+          g.rows = [];
         }
       }
     }
