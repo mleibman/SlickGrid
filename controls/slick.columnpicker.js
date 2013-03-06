@@ -17,9 +17,6 @@
     function init() {
       grid.onHeaderContextMenu.subscribe(handleHeaderContextMenu);
       options = $.extend({}, defaults, options);
-      for (var i = 0; i < columns.length; i++) {
-        columns[i] = $.extend({}, columnDefaults, columns[i]);
-      }
 
       $menu = $("<span class='slick-columnpicker' style='display:none;position:absolute;z-index:20;' />").appendTo(document.body);
 
@@ -37,7 +34,7 @@
 
       var $li, $input;
       for (var i = 0; i < columns.length; i++) {
-        if (columns[i].pickable ) {
+        if (columns[i].pickable !== false) {
           $li = $("<li />").appendTo($menu);
           $input = $("<input type='checkbox' />").data("column-index", i);
           columnCheckboxes.push($input);
@@ -112,7 +109,7 @@
         var visibleColumns = [];
         var checkboxIndex = 0;
         for (var i = 0; i < columns.length; i++) {
-          if (!columns[i].pickable ||
+          if (columns[i].pickable == false ||
               ($(columnCheckboxes[checkboxIndex++]).is(":checked"))) {
             visibleColumns.push(columns[i]);
           }
