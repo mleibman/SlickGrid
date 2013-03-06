@@ -59,6 +59,7 @@
       aggregateEmpty: false,
       aggregateCollapsed: false,
       aggregateChildGroups: false,
+      displaySubtotals: true,
       collapsed: false
     };
     var groupingInfos = [];
@@ -565,10 +566,11 @@
     }
 
     function flattenGroupedRows(groups) {
-      var groupedRows = [], rows, gl = 0, g;
+      var groupedRows = [], rows, gl = 0, g, currentGroupingInfo;
       for (var i = 0, l = groups.length; i < l; i++) {
         g = groups[i];
         groupedRows[gl++] = g;
+        currentGroupingInfo = groupingInfos[g.level];
 
         if (!g.collapsed) {
           rows = g.groups ? flattenGroupedRows(g.groups) : g.rows;
@@ -577,7 +579,8 @@
           }
         }
 
-        if (g.totals && (!g.collapsed || groupingInfos[g.level].aggregateCollapsed)) {
+        if (g.totals && currentGroupingInfo.displaySubtotals &&
+              (!g.collapsed || currentGroupingInfo.aggregateCollapsed)) {
           groupedRows[gl++] = g.totals;
         }
       }
