@@ -11,7 +11,7 @@
     };
 
     var columnDefaults = {
-      pickable: true
+      showInColumnPicker: true
     };
 
     function init() {
@@ -34,7 +34,7 @@
 
       var $li, $input;
       for (var i = 0; i < columns.length; i++) {
-        if (columns[i].pickable !== false) {
+        if (columns[i].showInColumnPicker !== false) {
           $li = $("<li />").appendTo($menu);
           $input = $("<input type='checkbox' />").data("column-index", i);
           columnCheckboxes.push($input);
@@ -62,7 +62,7 @@
           .text("Force fit columns")
           .prepend($input)
           .appendTo($li);
-        if (options.forceFitColumns) {
+        if (grid.getOptions().forceFitColumns) {
           $input.attr("checked", "checked");
         }
       }
@@ -74,7 +74,7 @@
           .text("Synchronous resize")
           .prepend($input)
           .appendTo($li);
-        if (options.syncColumnCellResize) {
+        if (grid.getOptions().syncColumnCellResize) {
           $input.attr("checked", "checked");
         }
       }
@@ -109,8 +109,9 @@
         var visibleColumns = [];
         var checkboxIndex = 0;
         for (var i = 0; i < columns.length; i++) {
-          if (columns[i].pickable == false ||
-              ($(columnCheckboxes[checkboxIndex++]).is(":checked"))) {
+          var shown = (columns[i].showInColumnPicker !== false);
+          if ((!shown && grid.getColumnIndex(columns[i].id) != null) ||
+              (shown && ($(columnCheckboxes[checkboxIndex++]).is(":checked")))) {
             visibleColumns.push(columns[i]);
           }
         }
