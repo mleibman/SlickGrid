@@ -59,7 +59,8 @@
       aggregateEmpty: false,
       aggregateCollapsed: false,
       aggregateChildGroups: false,
-      collapsed: false
+      collapsed: false,
+      displayTotalsRow: true
     };
     var groupingInfos = [];
     var groups = [];
@@ -579,7 +580,7 @@
           }
         }
 
-        if (g.totals && (!g.collapsed || gi.aggregateCollapsed)) {
+        if (g.totals && gi.displayTotalsRow && (!g.collapsed || gi.aggregateCollapsed)) {
           groupedRows[gl++] = g.totals;
         }
       }
