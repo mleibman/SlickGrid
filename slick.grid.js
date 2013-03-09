@@ -407,14 +407,6 @@ if (typeof Slick === "undefined") {
                 setScroller();
                 setOverflow();
 
-                if (jQuery.fn.mousewheel && options.frozenColumn > -1) {
-                    if ( !( options.frozenBottom ) && ( hasFrozenRows ) ) {
-                        $viewportBottomL.mousewheel(handleMouseWheel);
-                    } else {
-                        $viewportTopL.mousewheel(handleMouseWheel);
-                    }
-                }
-
                 updateColumnCaches();
                 createColumnHeaders();
                 setupColumnSort();
@@ -426,6 +418,10 @@ if (typeof Slick === "undefined") {
                     .bind("resize.slickgrid", resizeCanvas);
                 $viewport
                     .bind("scroll", handleScroll);
+                if (jQuery.fn.mousewheel && (options.frozenColumn > -1 || options.frozenRow > -1)) {
+                     $viewport
+                        .bind("mousewheel", handleMouseWheel);
+                }
                 $headerScroller
                     .bind("contextmenu", handleHeaderContextMenu)
                     .bind("click", handleHeaderClick)
@@ -2648,17 +2644,39 @@ if (typeof Slick === "undefined") {
                 $viewportScrollContainerX[0].scrollLeft = scrollLeft;
             }
         }
-
+        
+        function handleMouseWheel(event, delta, deltaX, deltaY) {
+            scrollTop = $viewportScrollContainerY[0].scrollTop - (deltaY * 10);
+            scrollLeft = $viewportScrollContainerX[0].scrollLeft + (deltaX * 10);
+            _handleScroll();
+            event.preventDefault();
+        }
+        
         function handleScroll() {
             scrollTop = $viewportScrollContainerY[0].scrollTop;
             scrollLeft = $viewportScrollContainerX[0].scrollLeft;
+            _handleScroll();
+        }
 
+        function _handleScroll() {
+            var maxScrollDistanceY = $viewportScrollContainerY[0].scrollHeight - $viewportScrollContainerY[0].clientHeight;
+            var maxScrollDistanceX = $viewportScrollContainerY[0].scrollWidth - $viewportScrollContainerY[0].clientWidth;
+            
+            // Ceiling the max scroll values
+              if (scrollTop > maxScrollDistanceY) {
+                scrollTop = maxScrollDistanceY;
+              }
+              if (scrollLeft > maxScrollDistanceX) {
+                scrollLeft = maxScrollDistanceX;
+              }
+              
             var vScrollDist = Math.abs(scrollTop - prevScrollTop);
             var hScrollDist = Math.abs(scrollLeft - prevScrollLeft);
 
             if (hScrollDist) {
                 prevScrollLeft = scrollLeft;
 
+                $viewportScrollContainerX[0].scrollLeft = scrollLeft;
                 $headerScrollContainer[0].scrollLeft = scrollLeft;
                 $topPanelScroller[0].scrollLeft = scrollLeft;
                 $headerRowScrollContainer[0].scrollLeft = scrollLeft;
@@ -2678,6 +2696,7 @@ if (typeof Slick === "undefined") {
                 vScrollDir = prevScrollTop < scrollTop ? 1 : -1;
                 prevScrollTop = scrollTop
 
+                $viewportScrollContainerY[0].scrollTop = scrollTop;
                 if ( options.frozenColumn > -1 ) {
                     if ( hasFrozenRows && !options.frozenBottom ) {
                         $viewportBottomL[0].scrollTop = scrollTop;
@@ -2724,23 +2743,6 @@ if (typeof Slick === "undefined") {
 
             trigger(self.onScroll, {
                 scrollLeft: scrollLeft,
-                scrollTop: scrollTop
-            });
-        }
-
-        function handleMouseWheel(event, delta, deltaX, deltaY) {
-            if (delta > 0) {
-                // Scroll up
-                scrollTo(scrollTop - (Math.abs(delta) * options.rowHeight));
-            } else {
-                // Scroll down
-                scrollTo(scrollTop + (Math.abs(delta) * options.rowHeight));
-            }
-
-            render();
-            event.preventDefault();
-
-            trigger(self.onMouseWheel, {
                 scrollTop: scrollTop
             });
         }
@@ -4073,7 +4075,6 @@ if (typeof Slick === "undefined") {
 
             // Events
             "onScroll": new Slick.Event(),
-            "onMouseWheel": new Slick.Event(),
             "onSort": new Slick.Event(),
             "onHeaderMouseEnter": new Slick.Event(),
             "onHeaderMouseLeave": new Slick.Event(),
