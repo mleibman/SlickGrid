@@ -150,10 +150,11 @@
         destW = selectedRange.toCell - selectedRange.fromCell +1;
       }
 	  var availableRows = _grid.getData().length - activeRow;
+	  var addRows = 0;
 	  if(availableRows < destH)
 	  {
 		var d = _grid.getData();
-		for(var addRows = 1; addRows <= destH - availableRows; addRows++)
+		for(addRows = 1; addRows <= destH - availableRows; addRows++)
 			d.push({});
 		_grid.setData(d);
 		_grid.render();
@@ -243,6 +244,14 @@
           this.markCopySelection([bRange]);
           _grid.getSelectionModel().setSelectedRanges([bRange]);
           this.cellExternalCopyManager.onPasteCells.notify({ranges: [bRange]});
+          
+          if(addRows > 1){            
+            var d = _grid.getData();
+            for(; addRows > 1; addRows--)
+              d.splice(d.length - 1, 1);
+            _grid.setData(d);
+            _grid.render();
+          }
         }
       };
 
