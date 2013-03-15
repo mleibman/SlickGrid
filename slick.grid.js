@@ -494,6 +494,10 @@ if (typeof Slick === "undefined") {
             return $activeCanvasNode[0];
         }
 
+        function getCanvases() {
+            return $canvas;
+        }
+
         function setActiveCanvasNode( element ) {
             if ( element ) {
                 $activeCanvasNode = $( element.target ).closest( '.grid-canvas' );
@@ -4149,6 +4153,7 @@ if (typeof Slick === "undefined") {
             "scrollRowToTop": scrollRowToTop,
             "scrollCellIntoView": scrollCellIntoView,
             "getCanvasNode": getCanvasNode,
+            "getCanvases": getCanvases,
             "getActiveCanvasNode": getActiveCanvasNode,
             "setActiveCanvasNode": setActiveCanvasNode,
             "getViewportNode": getViewportNode,

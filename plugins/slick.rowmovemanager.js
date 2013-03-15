@@ -8,7 +8,7 @@
 
     function RowMoveManager(options) {
         var _grid;
-        var _canvas;
+        var _canvases;
         var _dragging;
         var _scrollTimer;
         var _viewport;
@@ -23,7 +23,7 @@
         function init(grid) {
             options = $.extend(true, {}, _defaults, options);
             _grid = grid;
-            _canvas = _grid.getCanvasNode();
+            _canvases = _grid.getCanvases();
             _scrollTimer = null;
             _viewport = _grid.getViewportNode();
             _viewportTop = $(_viewport).offset().top;
@@ -72,16 +72,16 @@
           dd.selectionProxy = $("<div class='slick-reorder-proxy'/>")
               .css("position", "absolute")
               .css("zIndex", "99999")
-              .css("width", $(_canvas).innerWidth())
+              .css("width", $(_canvases[0]).innerWidth() + $(_canvases[1]).innerWidth())
               .css("height", rowHeight * selectedRows.length)
-              .appendTo(_canvas);
+              .appendTo(_canvases);
 
           dd.guide = $("<div class='slick-reorder-guide'/>")
               .css("position", "absolute")
               .css("zIndex", "99998")
-              .css("width", $(_canvas).innerWidth())
+              .css("width", $(_canvases[0]).innerWidth() + $(_canvases[1]).innerWidth())
               .css("top", -1000)
-              .appendTo(_canvas);
+              .appendTo(_canvases);
 
           dd.insertBefore = -1;
         }
@@ -93,7 +93,7 @@
 
           e.stopImmediatePropagation();
 
-          var top = e.pageY - $(_canvas).offset().top;
+          var top = e.pageY - $(_canvases[0]).offset().top;
           dd.selectionProxy.css("top", top - 5);
 
           var insertBefore = Math.max(0, Math.min(Math.round(top / _grid.getOptions().rowHeight), _grid.getDataLength()));
