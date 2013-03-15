@@ -122,7 +122,7 @@ if (typeof Slick === "undefined") {
         var $focusSink, $focusSink2;
         var $headerScroller;
         var $headers;
-        var $headerRow, $headerRowScroller, $headerRowSpacer;
+        var $headerRow, $headerRowScroller, $headerRowSpacerL, $headerRowSpacerR;
         var $topPanelScroller;
         var $topPanel;
         var $viewport;
@@ -314,10 +314,13 @@ if (typeof Slick === "undefined") {
 
             $headerRowScroller = $().add($headerRowScrollerL).add($headerRowScrollerR);
 
-            // TODO Add L & R copies of the headerRowSpacer?
-            $headerRowSpacer = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
+            $headerRowSpacerL = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
                 .css("width", getCanvasWidth() + scrollbarDimensions.width + "px")
-                .appendTo($headerRowScroller);
+                .appendTo($headerRowScrollerL);
+            $headerRowSpacerR = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
+                .css("width", getCanvasWidth() + scrollbarDimensions.width + "px")
+                .appendTo($headerRowScrollerR);
+
 
             $headerRowL = $("<div class='slick-headerrow-columns slick-headerrow-columns-left' />").appendTo($headerRowScrollerL);
             $headerRowR = $("<div class='slick-headerrow-columns slick-headerrow-columns-right' />").appendTo($headerRowScrollerR);
@@ -596,7 +599,7 @@ if (typeof Slick === "undefined") {
                     $paneTopR.css('left', canvasWidthL);
 
                     $headerRowScrollerL.width(canvasWidthL);
-                    $headerRowScrollerR.width( viewportW - canvasWidthL );
+                    $headerRowScrollerR.width(viewportW - canvasWidthL);
 
                     $headerRowL.width(canvasWidthL);
                     $headerRowR.width(canvasWidthR);
@@ -634,7 +637,8 @@ if (typeof Slick === "undefined") {
                 viewportHasHScroll = (canvasWidth > viewportW - scrollbarDimensions.width);
             }
 
-            $headerRowSpacer.width(canvasWidth + (viewportHasVScroll ? scrollbarDimensions.width : 0));
+            $headerRowSpacerL.width(canvasWidth + (viewportHasVScroll ? scrollbarDimensions.width : 0));
+            $headerRowSpacerR.width(canvasWidth + (viewportHasVScroll ? scrollbarDimensions.width : 0));
 
             if (widthChanged || forceColumnWidthsUpdate) {
                 applyColumnWidths();
