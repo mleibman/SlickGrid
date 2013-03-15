@@ -3,3 +3,5 @@
 *.orig
 .DS_Store
 .settings/
+.project
+.idea
