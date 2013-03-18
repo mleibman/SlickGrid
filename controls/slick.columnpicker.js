@@ -2,9 +2,16 @@
   function SlickColumnPicker(columns, grid, options) {
     var $menu;
     var columnCheckboxes;
+    var onColumnsChanged = new Slick.Event();
 
     var defaults = {
-      fadeSpeed:250
+      fadeSpeed:250,
+      showForceFitCheckbox: true,
+      showSyncResizeCheckbox: true
+    };
+
+    var columnDefaults = {
+      showInColumnPicker: true
     };
 
     function init() {
@@ -27,39 +34,49 @@
 
       var $li, $input;
       for (var i = 0; i < columns.length; i++) {
-        $li = $("<li />").appendTo($menu);
-        $input = $("<input type='checkbox' />").data("column-id", columns[i].id);
-        columnCheckboxes.push($input);
+        if (columns[i].showInColumnPicker !== false) {
+          $li = $("<li />").appendTo($menu);
+          $input = $("<input type='checkbox' />").data("column-index", i);
+          columnCheckboxes.push($input);
 
-        if (grid.getColumnIndex(columns[i].id) != null) {
-          $input.attr("checked", "checked");
-        }
+          if (grid.getColumnIndex(columns[i].id) != null) {
+            $input.attr("checked", "checked");
+          }
 
-        $("<label />")
+          $("<label />")
             .text(columns[i].name)
             .prepend($input)
             .appendTo($li);
+        }
       }
 
-      $("<hr/>").appendTo($menu);
-      $li = $("<li />").appendTo($menu);
-      $input = $("<input type='checkbox' />").data("option", "autoresize");
-      $("<label />")
+      if (options.showForceFitCheckbox ||
+          options.showSyncResizeCheckbox) {
+        $("<hr/>").appendTo($menu);
+      }
+
+      if (options.showForceFitCheckbox) {
+        $li = $("<li />").appendTo($menu);
+        $input = $("<input type='checkbox' />").data("option", "autoresize");
+        $("<label />")
           .text("Force fit columns")
           .prepend($input)
           .appendTo($li);
-      if (grid.getOptions().forceFitColumns) {
-        $input.attr("checked", "checked");
+        if (grid.getOptions().forceFitColumns) {
+          $input.attr("checked", "checked");
+        }
       }
 
-      $li = $("<li />").appendTo($menu);
-      $input = $("<input type='checkbox' />").data("option", "syncresize");
-      $("<label />")
+      if (options.showSyncResizeCheckbox) {
+        $li = $("<li />").appendTo($menu);
+        $input = $("<input type='checkbox' />").data("option", "syncresize");
+        $("<label />")
           .text("Synchronous resize")
           .prepend($input)
           .appendTo($li);
-      if (grid.getOptions().syncColumnCellResize) {
-        $input.attr("checked", "checked");
+        if (grid.getOptions().syncColumnCellResize) {
+          $input.attr("checked", "checked");
+        }
       }
 
       $menu
@@ -90,11 +107,14 @@
 
       if ($(e.target).is(":checkbox")) {
         var visibleColumns = [];
-        $.each(columnCheckboxes, function (i, e) {
-          if ($(this).is(":checked")) {
+        var checkboxIndex = 0;
+        for (var i = 0; i < columns.length; i++) {
+          var shown = (columns[i].showInColumnPicker !== false);
+          if ((!shown && grid.getColumnIndex(columns[i].id) != null) ||
+              (shown && ($(columnCheckboxes[checkboxIndex++]).is(":checked")))) {
             visibleColumns.push(columns[i]);
           }
-        });
+        }
 
         if (!visibleColumns.length) {
           $(e.target).attr("checked", "checked");
@@ -102,10 +122,15 @@
         }
 
         grid.setColumns(visibleColumns);
+        onColumnsChanged.notify({"columns": visibleColumns});
       }
     }
 
     init();
+
+    return {
+      "onColumnsChanged": onColumnsChanged
+    };
   }
 
   // Slick.Controls.ColumnPicker
