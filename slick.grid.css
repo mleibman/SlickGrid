@@ -22,7 +22,6 @@ classes should alter those!
   position: relative;
   display: inline-block;
   overflow: hidden;
-  -ms-text-overflow: ellipsis;
   -o-text-overflow: ellipsis;
   text-overflow: ellipsis;
   height: 16px;
@@ -91,7 +90,6 @@ classes should alter those!
   border-right: 1px dotted silver;
   border-bottom-color: silver;
   overflow: hidden;
-  -ms-text-overflow: ellipsis;
   -o-text-overflow: ellipsis;
   text-overflow: ellipsis;
   vertical-align: middle;
