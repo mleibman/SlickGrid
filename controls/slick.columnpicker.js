@@ -69,8 +69,26 @@
           .fadeIn(options.fadeSpeed);
     }
 
-    function handleColumnsReordered() {
-      columns = grid.getColumns();
+    function handleColumnsReordered(e, args) {
+      // When columns are re-ordered, we have to update the `columns`
+      // to reflect the new order, however we can't just take `grid.getColumns()`,
+      // as it does not include columns currently hidden by the picker.
+      // We create a new `columns` structure by leaving currently-hidden
+      // columns in their original ordinal position and interleaving the results
+      // of the current column sort.
+      var current = grid.getColumns().slice(0);
+      var ordered = new Array(columns.length);
+      for (var i = 0; i < ordered.length; i++) {
+        if ( grid.getColumnIndex(columns[i].id) === undefined ) {
+          // If the column doesn't return a value from getColumnIndex,
+          // it is hidden. Leave it in this position.
+          ordered[i] = columns[i];
+        } else {
+          // Otherwise, grab the next visible column.
+          ordered[i] = current.shift();
+        }
+      }
+      columns = ordered;
     }
 
     function updateColumn(e) {
