@@ -1056,10 +1056,10 @@ if (typeof Slick === "undefined") {
         var growProportion = availWidth / total;
         for (i = 0; i < columns.length && total < availWidth; i++) {
           c = columns[i];
-          if (!c.resizable || c.maxWidth <= c.width) {
+          if (!c.resizable || c.maxWidth <= widths[i]) {
             continue;
           }
-          var growSize = Math.min(Math.floor(growProportion * c.width) - c.width, (c.maxWidth - c.width) || 1000000) || 1;
+          var growSize = Math.min(Math.floor(growProportion * widths[i]) - widths[i], (c.maxWidth - widths[i]) || 1000000) || 1;
           total += growSize;
           widths[i] += growSize;
         }
