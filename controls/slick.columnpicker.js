@@ -128,7 +128,15 @@
       }
     }
 
+    function getAllColumns() {
+      return columns;
+    }
+
     init();
+
+    return {
+      "getAllColumns": getAllColumns
+    };
   }
 
   // Slick.Controls.ColumnPicker
