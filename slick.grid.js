@@ -2104,7 +2104,7 @@ if (typeof Slick === "undefined") {
         return false;
       }
 
-      retval = trigger(self.onDragInit, dd, e);
+      var retval = trigger(self.onDragInit, dd, e);
       if (e.isImmediatePropagationStopped()) {
         return retval;
       }
