@@ -301,12 +301,16 @@
                 clipTextArr.push(clipTextRows.join("\r\n"));
             }
             var clipText = clipTextArr.join('');
+            var $focus = $(":focus");
+
             var ta = _createTextBox(clipText);
 
             ta.focus();
             
             setTimeout(function(){
                 document.body.removeChild(ta);
+                // restore focus
+                if ($focus && $focus.length>0) { $focus.focus(); }
             }, 100);
 
             return false;
