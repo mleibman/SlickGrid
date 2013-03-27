@@ -4,6 +4,7 @@
   padding: 6px;
   -moz-box-shadow: 2px 2px 2px silver;
   -webkit-box-shadow: 2px 2px 2px silver;
+  box-shadow: 2px 2px 2px silver;
   min-width: 100px;
   cursor: default;
 }
