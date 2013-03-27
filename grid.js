@@ -946,38 +946,30 @@ var Slick = require('./core');
       } else {
         $style[0].appendChild(document.createTextNode(rules.join(" ")));
       }
+
+      stylesheet = $style[0].sheet;
+
+      // cache column CSS rules
+      columnCssRulesL = [];
+      columnCssRulesR = [];
+      var cssRules = (stylesheet.cssRules || stylesheet.rules);
+      var matches, columnIdx;
+      for (var i = 0; i < cssRules.length; i++) {
+        var selector = cssRules[i].selectorText;
+        if (matches = /\.l\d+/.exec(selector)) {
+          columnIdx = parseInt(matches[0].substr(2, matches[0].length - 2), 10);
+          columnCssRulesL[columnIdx] = cssRules[i];
+        } else if (matches = /\.r\d+/.exec(selector)) {
+          columnIdx = parseInt(matches[0].substr(2, matches[0].length - 2), 10);
+          columnCssRulesR[columnIdx] = cssRules[i];
+        }
+      }
     }
 
     function getColumnCssRules(idx) {
       if (!stylesheet) {
-        var sheets = document.styleSheets;
-        for (var i = 0; i < sheets.length; i++) {
-          if ((sheets[i].ownerNode || sheets[i].owningElement) == $style[0]) {
-            stylesheet = sheets[i];
-            break;
-          }
-        }
-
-        if (!stylesheet) {
-          throw new Error("Cannot find stylesheet.");
-        }
-
-        // find and cache column CSS rules
-        columnCssRulesL = [];
-        columnCssRulesR = [];
-        var cssRules = (stylesheet.cssRules || stylesheet.rules);
-        var matches, columnIdx;
-        for (var i = 0; i < cssRules.length; i++) {
-          var selector = cssRules[i].selectorText;
-          if (matches = /\.l\d+/.exec(selector)) {
-            columnIdx = parseInt(matches[0].substr(2, matches[0].length - 2), 10);
-            columnCssRulesL[columnIdx] = cssRules[i];
-          } else if (matches = /\.r\d+/.exec(selector)) {
-            columnIdx = parseInt(matches[0].substr(2, matches[0].length - 2), 10);
-            columnCssRulesR[columnIdx] = cssRules[i];
-          }
-        }
-      }
+        createCssRules()
+      };
 
       return {
         "left": columnCssRulesL[idx],
