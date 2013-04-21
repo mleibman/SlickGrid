@@ -598,15 +598,13 @@
 
     function compileAccumulatorLoop(aggregator) {
       var accumulatorInfo = getFunctionInfo(aggregator.accumulate);
-      var fn = new Function(
+      return new Function(
           "_items",
           "for (var " + accumulatorInfo.params[0] + ", _i=0, _il=_items.length; _i<_il; _i++) {" +
               accumulatorInfo.params[0] + " = _items[_i]; " +
               accumulatorInfo.body +
           "}"
       );
-      fn.displayName = fn.name = "compiledAccumulatorLoop";
-      return fn;
     }
 
     function compileFilter() {
@@ -636,9 +634,7 @@
       tpl = tpl.replace(/\$item\$/gi, filterInfo.params[0]);
       tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
 
-      var fn = new Function("_items,_args", tpl);
-      fn.displayName = fn.name = "compiledFilter";
-      return fn;
+      return new Function("_items,_args", tpl);
     }
 
     function compileFilterWithCaching() {
@@ -672,9 +668,7 @@
       tpl = tpl.replace(/\$item\$/gi, filterInfo.params[0]);
       tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
 
-      var fn = new Function("_items,_args,_cache", tpl);
-      fn.displayName = fn.name = "compiledFilterWithCaching";
-      return fn;
+      return new Function("_items,_args,_cache", tpl);
     }
 
     function uncompiledFilter(items, args) {
