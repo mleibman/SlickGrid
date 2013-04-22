@@ -2239,6 +2239,10 @@ if (typeof Slick === "undefined") {
         return;
       }
 
+      //set the active cell to update the ui
+      var c = getCellFromEvent(e);
+      setActiveCell(c.row, c.cell);
+
       trigger(self.onContextMenu, {}, e);
     }
 
