@@ -613,8 +613,8 @@
       var filterInfo = getFunctionInfo(filter);
 
       var filterBody = filterInfo.body
-          .replace(/return false[;}]/gi, "{ continue _coreloop; }")
-          .replace(/return true[;}]/gi, "{ _retval[_idx++] = $item$; continue _coreloop; }")
+          .replace(/return false\s*([;}]|$)/gi, "{ continue _coreloop; }$1")
+          .replace(/return true\s*([;}]|$)/gi, "{ _retval[_idx++] = $item$; continue _coreloop; }$1")
           .replace(/return ([^;}]+?);/gi,
           "{ if ($1) { _retval[_idx++] = $item$; }; continue _coreloop; }");
 
@@ -645,8 +645,8 @@
       var filterInfo = getFunctionInfo(filter);
 
       var filterBody = filterInfo.body
-          .replace(/return false[;}]/gi, "{ continue _coreloop; }")
-          .replace(/return true[;}]/gi, "{ _cache[_i] = true;_retval[_idx++] = $item$; continue _coreloop; }")
+          .replace(/return false\s*([;}]|$)/gi, "{ continue _coreloop; }$1")
+          .replace(/return true\s*([;}]|$)/gi, "{ _cache[_i] = true;_retval[_idx++] = $item$; continue _coreloop; }$1")
           .replace(/return ([^;}]+?);/gi,
           "{ if ((_cache[_i] = $1)) { _retval[_idx++] = $item$; }; continue _coreloop; }");
 

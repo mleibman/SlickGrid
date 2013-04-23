@@ -377,10 +377,13 @@ test("all then none", function() {
     assertConsistency(dv);
 });
 
-test("inlined returns", function() {
+test("inlining replaces returns", function() {
     var dv = new Slick.Data.DataView({ inlineFilters: true });
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
-    dv.setFilter(function(o) { if (o.val === 1) { return true; } return false });
+    dv.setFilter(function(o) {
+        if (o.val === 1) { return true; }
+        else if (o.val === 4) { return true }
+        return false});
     same(dv.getLength(), 1, "one row is remaining");
 
     dv.onRowsChanged.subscribe(function() { ok(false, "onRowsChanged called") });
