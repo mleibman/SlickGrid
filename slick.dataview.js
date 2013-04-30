@@ -266,7 +266,7 @@
      */
     function setAggregators(groupAggregators, includeCollapsed) {
       if (!groupingInfos.length) {
-        throw new Error("At least must setGrouping must be specified before calling setAggregators().");
+        throw new Error("At least one grouping must be specified before calling setAggregators().");
       }
 
       groupingInfos[0].aggregators = groupAggregators;
@@ -372,7 +372,7 @@
         return null;
       }
 
-      // overrides for setGrouping rows
+      // overrides for grouping rows
       if (item.__group) {
         return options.groupItemMetadataProvider.getGroupRowMetadata(item);
       }

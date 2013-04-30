@@ -1324,6 +1324,14 @@ if (typeof Slick === "undefined") {
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Rendering / Scrolling
 
+    function getRowTop(row) {
+      return options.rowHeight * row - offset;
+    }
+
+    function getRowFromPosition(y) {
+      return Math.floor((y + offset) / options.rowHeight);
+    }
+
     function scrollTo(y) {
       y = Math.max(y, 0);
       y = Math.min(y, th - viewportH + (viewportHasHScroll ? scrollbarDimensions.height : 0));
@@ -1407,7 +1415,7 @@ if (typeof Slick === "undefined") {
         rowCss += " " + metadata.cssClasses;
       }
 
-      stringArray.push("<div class='ui-widget-content " + rowCss + "' style='top:" + (options.rowHeight * row - offset) + "px'>");
+      stringArray.push("<div class='ui-widget-content " + rowCss + "' style='top:" + getRowTop(row) + "px'>");
 
       var colspan, m;
       for (var i = 0, ii = columns.length; i < ii; i++) {
@@ -1676,8 +1684,8 @@ if (typeof Slick === "undefined") {
       }
 
       return {
-        top: Math.floor((viewportTop + offset) / options.rowHeight),
-        bottom: Math.ceil((viewportTop + offset + viewportH) / options.rowHeight),
+        top: getRowFromPosition(viewportTop),
+        bottom: getRowFromPosition(viewportTop + viewportH) + 1,
         leftPx: viewportLeft,
         rightPx: viewportLeft + viewportW
       };
@@ -1911,7 +1919,7 @@ if (typeof Slick === "undefined") {
 
     function updateRowPositions() {
       for (var row in rowsCache) {
-        rowsCache[row].rowNode.style.top = (row * options.rowHeight - offset) + "px";
+        rowsCache[row].rowNode.style.top = getRowTop(row) + "px";
       }
     }
 
@@ -2134,7 +2142,7 @@ if (typeof Slick === "undefined") {
         return false;
       }
 
-      retval = trigger(self.onDragInit, dd, e);
+      var retval = trigger(self.onDragInit, dd, e);
       if (e.isImmediatePropagationStopped()) {
         return retval;
       }
@@ -2319,7 +2327,7 @@ if (typeof Slick === "undefined") {
     }
 
     function getCellFromPoint(x, y) {
-      var row = Math.floor((y + offset) / options.rowHeight);
+      var row = getRowFromPosition(y);
       var cell = 0;
 
       var w = 0;
@@ -2378,7 +2386,7 @@ if (typeof Slick === "undefined") {
         return null;
       }
 
-      var y1 = row * options.rowHeight - offset;
+      var y1 = getRowTop(row);
       var y2 = y1 + options.rowHeight - 1;
       var x1 = 0;
       for (var i = 0; i < cell; i++) {
@@ -2409,7 +2417,9 @@ if (typeof Slick === "undefined") {
       }
     }
 
-    function scrollCellIntoView(row, cell) {
+    function scrollCellIntoView(row, cell, doPaging) {
+      scrollRowIntoView(row, doPaging);
+
       var colspan = getColspan(row, cell);
       var left = columnPosLeft[cell],
         right = columnPosRight[cell + (colspan > 1 ? colspan - 1 : 0)],
@@ -2966,8 +2976,7 @@ if (typeof Slick === "undefined") {
       var pos = stepFn(activeRow, activeCell, activePosX);
       if (pos) {
         var isAddNewRow = (pos.row == getDataLength());
-        scrollRowIntoView(pos.row, !isAddNewRow);
-        scrollCellIntoView(pos.row, pos.cell);
+        scrollCellIntoView(pos.row, pos.cell, !isAddNewRow);
         setActiveCellInternal(getCellNode(pos.row, pos.cell), isAddNewRow || options.autoEdit);
         activePosX = pos.posX;
         return true;
@@ -2995,8 +3004,7 @@ if (typeof Slick === "undefined") {
         return;
       }
 
-      scrollRowIntoView(row, false);
-      scrollCellIntoView(row, cell);
+      scrollCellIntoView(row, cell, false);
       setActiveCellInternal(getCellNode(row, cell), false);
     }
 
@@ -3050,8 +3058,7 @@ if (typeof Slick === "undefined") {
         return;
       }
 
-      scrollRowIntoView(row, false);
-      scrollCellIntoView(row, cell);
+      scrollCellIntoView(row, cell, false);
 
       var newCell = getCellNode(row, cell);
 
