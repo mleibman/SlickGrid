@@ -20,7 +20,7 @@
 		<script src="../lib/firebugx.js"></script>
 		<script src="../lib/jquery-1.7.min.js"></script>
 		<script src="../lib/jquery-ui-1.8.24.custom.min.js"></script>
-		<script src="../lib/jquery.event.drag-2.0.min.js"></script>
+		<script src="../lib/jquery.event.drag-2.2.js"></script>
 
 		<script src="../slick.core.js"></script>
 		<script src="../slick.grid.js"></script>
@@ -42,7 +42,7 @@
         var extraColumns = 100;
 
 		function testPostRender(cellNode, row, dataContext, colDef) {
-			cellNode[0].style.backgroundColor = 'yellow';
+			cellNode.style.backgroundColor = 'yellow';
 		}
 
 		var columns = [

@@ -273,7 +273,7 @@
      */
     function setAggregators(groupAggregators, includeCollapsed) {
       if (!groupingInfos.length) {
-        throw new Error("At least must setGrouping must be specified before calling setAggregators().");
+        throw new Error("At least one grouping must be specified before calling setAggregators().");
       }
 
       groupingInfos[0].aggregators = groupAggregators;
@@ -379,7 +379,7 @@
                 return null;
             }
 
-      // overrides for setGrouping rows
+      // overrides for grouping rows
             if (item.__group) {
                 return options.groupItemMetadataProvider.getGroupRowMetadata(item);
             }
@@ -609,29 +609,45 @@
             };
         }
 
-        function compileAccumulatorLoop(aggregator) {
-            var accumulatorInfo = getFunctionInfo(aggregator.accumulate);
-            var fn = new Function("_items", "for (var " + accumulatorInfo.params[0] + ", _i=0, _il=_items.length; _i<_il; _i++) {" + accumulatorInfo.params[0] + " = _items[_i]; " + accumulatorInfo.body + "}");
+    function compileAccumulatorLoop(aggregator) {
+      var accumulatorInfo = getFunctionInfo(aggregator.accumulate);
+      var fn = new Function(
+          "_items",
+          "for (var " + accumulatorInfo.params[0] + ", _i=0, _il=_items.length; _i<_il; _i++) {" +
+              accumulatorInfo.params[0] + " = _items[_i]; " +
+              accumulatorInfo.body +
           "}"
-            fn.displayName = fn.name = "compiledAccumulatorLoop";
-            return fn;
-        }
+      );
+      fn.displayName = fn.name = "compiledAccumulatorLoop";
+      return fn;
+    }
 
         function compileFilter() {
             var filterInfo = getFunctionInfo(filter);
 
-            var filterBody = filterInfo.body.replace(/return false[;}]/gi, "{ continue _coreloop; }").replace(/return true[;}]/gi, "{ _retval[_idx++] = $item$; continue _coreloop; }").replace(/return ([^;}]+?);/gi, "{ if ($1) { _retval[_idx++] = $item$; }; continue _coreloop; }");
+      var filterBody = filterInfo.body
+          .replace(/return false[;}]/gi, "{ continue _coreloop; }")
+          .replace(/return true[;}]/gi, "{ _retval[_idx++] = $item$; continue _coreloop; }")
+          .replace(/return ([^;}]+?);/gi,
+          "{ if ($1) { _retval[_idx++] = $item$; }; continue _coreloop; }");
 
-            // This preserves the function template code after JS compression,
-            // so that replace() commands still work as expected.
-            var tpl = [
-            //"function(_items, _args) { ",
-            "var _retval = [], _idx = 0; ", "var $item$, $args$ = _args; ", "_coreloop: ", "for (var _i = 0, _il = _items.length; _i < _il; _i++) { ", "$item$ = _items[_i]; ", "$filter$; ", "} ", "return _retval; "
-            //"}"
-            ].join("");
-            tpl = tpl.replace(/\$filter\$/gi, filterBody);
-            tpl = tpl.replace(/\$item\$/gi, filterInfo.params[0]);
-            tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
+      // This preserves the function template code after JS compression,
+      // so that replace() commands still work as expected.
+      var tpl = [
+        //"function(_items, _args) { ",
+        "var _retval = [], _idx = 0; ",
+        "var $item$, $args$ = _args; ",
+        "_coreloop: ",
+        "for (var _i = 0, _il = _items.length; _i < _il; _i++) { ",
+        "$item$ = _items[_i]; ",
+        "$filter$; ",
+        "} ",
+        "return _retval; "
+        //"}"
+      ].join("");
+      tpl = tpl.replace(/\$filter\$/gi, filterBody);
+      tpl = tpl.replace(/\$item\$/gi, filterInfo.params[0]);
+      tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
 
             var fn = new Function("_items,_args", tpl);
             fn.displayName = fn.name = "compiledFilter";
@@ -641,18 +657,33 @@
         function compileFilterWithCaching() {
             var filterInfo = getFunctionInfo(filter);
 
-            var filterBody = filterInfo.body.replace(/return false[;}]/gi, "{ continue _coreloop; }").replace(/return true[;}]/gi, "{ _cache[_i] = true;_retval[_idx++] = $item$; continue _coreloop; }").replace(/return ([^;}]+?);/gi, "{ if ((_cache[_i] = $1)) { _retval[_idx++] = $item$; }; continue _coreloop; }");
+      var filterBody = filterInfo.body
+          .replace(/return false[;}]/gi, "{ continue _coreloop; }")
+          .replace(/return true[;}]/gi, "{ _cache[_i] = true;_retval[_idx++] = $item$; continue _coreloop; }")
+          .replace(/return ([^;}]+?);/gi,
+          "{ if ((_cache[_i] = $1)) { _retval[_idx++] = $item$; }; continue _coreloop; }");
 
-            // This preserves the function template code after JS compression,
-            // so that replace() commands still work as expected.
-            var tpl = [
-            //"function(_items, _args, _cache) { ",
-            "var _retval = [], _idx = 0; ", "var $item$, $args$ = _args; ", "_coreloop: ", "for (var _i = 0, _il = _items.length; _i < _il; _i++) { ", "$item$ = _items[_i]; ", "if (_cache[_i]) { ", "_retval[_idx++] = $item$; ", "continue _coreloop; ", "} ", "$filter$; ", "} ", "return _retval; "
-            //"}"
-            ].join("");
-            tpl = tpl.replace(/\$filter\$/gi, filterBody);
-            tpl = tpl.replace(/\$item\$/gi, filterInfo.params[0]);
-            tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
+      // This preserves the function template code after JS compression,
+      // so that replace() commands still work as expected.
+      var tpl = [
+        //"function(_items, _args, _cache) { ",
+        "var _retval = [], _idx = 0; ",
+        "var $item$, $args$ = _args; ",
+        "_coreloop: ",
+        "for (var _i = 0, _il = _items.length; _i < _il; _i++) { ",
+        "$item$ = _items[_i]; ",
+        "if (_cache[_i]) { ",
+        "_retval[_idx++] = $item$; ",
+        "continue _coreloop; ",
+        "} ",
+        "$filter$; ",
+        "} ",
+        "return _retval; "
+        //"}"
+      ].join("");
+      tpl = tpl.replace(/\$filter\$/gi, filterBody);
+      tpl = tpl.replace(/\$item\$/gi, filterInfo.params[0]);
+      tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
 
             var fn = new Function("_items,_args,_cache", tpl);
             fn.displayName = fn.name = "compiledFilterWithCaching";
@@ -750,23 +781,27 @@
               item.__group !== r.__group ||
               item.__group && !item.equals(r))
               || (eitherIsNonData &&
-                    // no good way to compare totals since they are arbitrary DTOs
-                    // deep object comparison is pretty expensive
-                    // always considering them 'dirty' seems easier for the time being
-                    (item.__groupTotals || r.__groupTotals)) || item[idProperty] != r[idProperty] || (updated && updated[item[idProperty]])) {
-                        diff[diff.length] = i;
-                    }
-                }
-            }
-            return diff;
+              // no good way to compare totals since they are arbitrary DTOs
+              // deep object comparison is pretty expensive
+              // always considering them 'dirty' seems easier for the time being
+              (item.__groupTotals || r.__groupTotals))
+              || item[idProperty] != r[idProperty]
+              || (updated && updated[item[idProperty]])
+              ) {
+            diff[diff.length] = i;
+          }
         }
+      }
+      return diff;
+    }
 
         function recalc(_items) {
             rowsById = null;
 
-            if (refreshHints.isFilterNarrowing != prevRefreshHints.isFilterNarrowing || refreshHints.isFilterExpanding != prevRefreshHints.isFilterExpanding) {
-                filterCache = [];
-            }
+      if (refreshHints.isFilterNarrowing != prevRefreshHints.isFilterNarrowing ||
+          refreshHints.isFilterExpanding != prevRefreshHints.isFilterExpanding) {
+        filterCache = [];
+      }
 
             var filteredItems = getFilteredAndPagedItems(_items);
             totalRows = filteredItems.totalRows;
