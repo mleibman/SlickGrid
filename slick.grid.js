@@ -2664,17 +2664,17 @@ if (typeof Slick === "undefined") {
         function handleMouseWheel(event, delta, deltaX, deltaY) {
             scrollTop = $viewportScrollContainerY[0].scrollTop - (deltaY * options.rowHeight);
             scrollLeft = $viewportScrollContainerX[0].scrollLeft + (deltaX * 10);
-            _handleScroll();
+            _handleScroll(true);
             event.preventDefault();
         }
 
         function handleScroll() {
             scrollTop = $viewportScrollContainerY[0].scrollTop;
             scrollLeft = $viewportScrollContainerX[0].scrollLeft;
-            _handleScroll();
+            _handleScroll(false);
         }
 
-        function _handleScroll() {
+        function _handleScroll(isMouseWheel) {
             var maxScrollDistanceY = $viewportScrollContainerY[0].scrollHeight - $viewportScrollContainerY[0].clientHeight;
             var maxScrollDistanceX = $viewportScrollContainerY[0].scrollWidth - $viewportScrollContainerY[0].clientWidth;
 
@@ -2712,7 +2712,10 @@ if (typeof Slick === "undefined") {
                 vScrollDir = prevScrollTop < scrollTop ? 1 : -1;
                 prevScrollTop = scrollTop
 
-                $viewportScrollContainerY[0].scrollTop = scrollTop;
+                if ( isMouseWheel ) {
+                    $viewportScrollContainerY[0].scrollTop = scrollTop;
+                }
+
                 if ( options.frozenColumn > -1 ) {
                     if ( hasFrozenRows && !options.frozenBottom ) {
                         $viewportBottomL[0].scrollTop = scrollTop;
