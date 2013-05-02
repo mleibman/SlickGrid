@@ -271,7 +271,13 @@
    */
   function Group() {
     this.__group = true;
-    this.__updated = false;
+
+    /**
+     * Grouping level, starting with 0.
+     * @property level
+     * @type {Number}
+     */
+    this.level = 0;
 
     /***
      * Number of rows in the group.
@@ -307,6 +313,28 @@
      * @type {GroupTotals}
      */
     this.totals = null;
+
+    /**
+     * Rows that are part of the group.
+     * @property rows
+     * @type {Array}
+     */
+    this.rows = [];
+
+    /**
+     * Sub-groups that are part of the group.
+     * @property groups
+     * @type {Array}
+     */
+    this.groups = null;
+
+    /**
+     * A unique key used to identify the group.  This key can be used in calls to DataView
+     * collapseGroup() or expandGroup().
+     * @property groupingKey
+     * @type {Object}
+     */
+    this.groupingKey = null;
   }
 
   Group.prototype = new NonDataItem();

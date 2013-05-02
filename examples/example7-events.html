@@ -61,7 +61,7 @@
 
 <script src="../lib/jquery-1.7.min.js"></script>
 <script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
-<script src="../lib/jquery.event.drag-2.0.min.js"></script>
+<script src="../lib/jquery.event.drag-2.2.js"></script>
 
 <script src="../slick.core.js"></script>
 <script src="../slick.editors.js"></script>
@@ -109,6 +109,10 @@
     grid.onClick.subscribe(function (e) {
       var cell = grid.getCellFromEvent(e);
       if (grid.getColumns()[cell.cell].id == "priority") {
+        if (!grid.getEditorLock().commitCurrentEdit()) {
+          return;
+        }
+
         var states = { "Low": "Medium", "Medium": "High", "High": "Low" };
         data[cell.row].priority = states[data[cell.row].priority];
         grid.updateRow(cell.row);
@@ -121,7 +125,9 @@
     if (!$(e.target).is("li")) {
       return;
     }
-
+    if (!grid.getEditorLock().commitCurrentEdit()) {
+      return;
+    }
     var row = $(this).data("row");
     data[row].priority = $(e.target).attr("data");
     grid.updateRow(row);

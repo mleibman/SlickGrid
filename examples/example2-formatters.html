@@ -17,6 +17,9 @@
   </style>
 </head>
 <body>
+
+<input type=text>
+
 <table width="100%">
   <tr>
     <td valign="top" width="50%">
@@ -32,21 +35,28 @@
   </tr>
 </table>
 
+<input type=text>
+
 <script src="../lib/firebugx.js"></script>
 
 <script src="../lib/jquery-1.7.min.js"></script>
 <script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
-<script src="../lib/jquery.event.drag-2.0.min.js"></script>
+<script src="../lib/jquery.event.drag-2.2.js"></script>
 
 <script src="../slick.core.js"></script>
 <script src="../slick.formatters.js"></script>
 <script src="../slick.grid.js"></script>
 
 <script>
+    function formatter(row, cell, value, columnDef, dataContext) {
+        return value;
+    }
+
+
   var grid;
   var data = [];
   var columns = [
-    {id: "title", name: "Title", field: "title", width: 120, cssClass: "cell-title"},
+    {id: "title", name: "Title", field: "title", width: 120, cssClass: "cell-title", formatter: formatter},
     {id: "duration", name: "Duration", field: "duration"},
     {id: "%", name: "% Complete", field: "percentComplete", width: 80, resizable: false, formatter: Slick.Formatters.PercentCompleteBar},
     {id: "start", name: "Start", field: "start", minWidth: 60},
@@ -61,10 +71,10 @@
   };
 
   $(function () {
-    for (var i = 0; i < 500; i++) {
+    for (var i = 0; i < 5; i++) {
       var d = (data[i] = {});
 
-      d["title"] = "Task " + i;
+      d["title"] = "<a href='#' tabindex='0'>Task</a> " + i;
       d["duration"] = "5 days";
       d["percentComplete"] = Math.min(100, Math.round(Math.random() * 110));
       d["start"] = "01/01/2009";
