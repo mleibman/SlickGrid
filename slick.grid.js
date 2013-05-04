@@ -1420,6 +1420,13 @@ if (typeof Slick === "undefined") {
     function appendCellHtml(stringArray, row, cell, colspan) {
       var m = columns[cell];
       var d = getDataItem(row);
+
+      // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
+      if (d) {
+        var value = getDataItemValueForColumn(d, m);
+        var formattedValue = getFormatter(row, m)(row, cell, value, m, d);
+      }
+
       var cellCss = "slick-cell l" + cell + " r" + Math.min(columns.length - 1, cell + colspan - 1) +
           (m.cssClass ? " " + m.cssClass : "");
       if (row === activeRow && cell === activeCell) {
@@ -1434,13 +1441,7 @@ if (typeof Slick === "undefined") {
       }
 
       stringArray.push("<div class='" + cellCss + "'>");
-
-      // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
-      if (d) {
-        var value = getDataItemValueForColumn(d, m);
-        stringArray.push(getFormatter(row, m)(row, cell, value, m, d));
-      }
-
+      stringArray.push(formattedValue);
       stringArray.push("</div>");
 
       rowsCache[row].cellRenderQueue.push(cell);
