@@ -78,6 +78,7 @@ if (typeof Slick === "undefined") {
       formatterFactory: null,
       editorFactory: null,
       cellFlashingCssClass: "flashing",
+      rowFlashingCssClass: "flashing",
       selectedCellCssClass: "selected",
       multiSelect: true,
       enableTextSelectionOnCells: false,
@@ -2095,6 +2096,28 @@ if (typeof Slick === "undefined") {
       }
     }
 
+    function flashRow(row, speed) {
+      speed = speed || 100;
+      if (rowsCache[row]) {
+        var $row = $(getRowNode(row));
+
+        function toggleRowClass(times) {
+          if (!times) {
+            return;
+          }
+          setTimeout(function () {
+                $row.queue(function () {
+                  $row.toggleClass(options.rowFlashingCssClass).dequeue();
+                  toggleRowClass(times - 1);
+                });
+              },
+              speed);
+        }
+
+        toggleRowClass(4);
+      }
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Interactivity
 
@@ -2954,6 +2977,14 @@ if (typeof Slick === "undefined") {
       }
       return null;
     }
+    
+    function getRowNode(row) {
+      if (rowsCache[row]) {
+        ensureCellNodesInRowsCache(row);
+        return rowsCache[row].rowNode;
+      }
+      return null;
+    }
 
     function setActiveCell(row, cell) {
       if (!initialized) { return; }
@@ -3270,6 +3301,7 @@ if (typeof Slick === "undefined") {
       "getHeaderRowColumn": getHeaderRowColumn,
       "getGridPosition": getGridPosition,
       "flashCell": flashCell,
+      "flashRow": flashRow,
       "addCellCssStyles": addCellCssStyles,
       "setCellCssStyles": setCellCssStyles,
       "removeCellCssStyles": removeCellCssStyles,
