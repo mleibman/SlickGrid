@@ -7,7 +7,9 @@
           Avg: AvgAggregator,
           Min: MinAggregator,
           Max: MaxAggregator,
-          Sum: SumAggregator
+          Sum: SumAggregator,
+          Unique: UniqueAggregator,
+          WeightedAverage: WeightedAverageAggregator
         }
       }
     }
@@ -381,6 +383,10 @@
       if (item.__groupTotals) {
         return options.groupItemMetadataProvider.getTotalsRowMetadata(item);
       }
+
+            if (options.groupItemMetadataProvider) {
+                return options.groupItemMetadataProvider.getRowMetadata(item);
+            }
 
       return null;
     }
@@ -1054,6 +1060,67 @@
         groupTotals.sum = {};
       }
       groupTotals.sum[this.field_] = this.sum_;
+    }
+  }
+
+  function UniqueAggregator(field) {
+    this.field_ = field;
+
+    this.init = function () {
+      this.valueSeen_ = null;
+      this.isStillUnique_ = true;
+    };
+
+    this.accumulate = function (item) {
+      var currentValue = item[this.field_];
+      if(!this.isStillUnique_)
+        return;
+
+      if (this.valueSeen_ == null) {
+        this.valueSeen_ = currentValue;
+      } else if(this.valueSeen_ != currentValue) {
+        this.valueSeen_ = null;
+        this.isStillUnique_ = false;
+      }
+    };
+
+    this.storeResult = function (groupTotals) {
+      if (!groupTotals.unique) {
+        groupTotals.unique = {};
+      }
+      groupTotals.unique[this.field_] = this.valueSeen_;
+    }
+  }
+
+  function WeightedAverageAggregator(field, weightField) {
+    this.field_ = field;
+    this.weightField_ = weightField;
+
+    this.init = function () {
+      this.weightedSum_ = null;
+      this.weightSum_ = null;
+    };
+
+    this.accumulate = function (item) {
+      var currentValue = item[this.field_];
+      var currentWeight = item[this.weightField_];
+
+      // we only accumulate if both the value and the weight are numbers
+      // this is equivalent to treating null weights or values as zero
+      // weight or values.
+      if (currentValue != null && currentValue !== "" && currentValue !== NaN &&
+          currentWeight != null & currentWeight !== "" && currentWeight != NaN ) {
+        var parsedWeight = parseFloat(currentWeight);
+        this.weightedSum_ += parseFloat(currentValue)+parsedWeight;
+        this.weightSum_ += parsedWeight;
+      }
+    };
+
+    this.storeResult = function (groupTotals) {
+      if (!groupTotals.weightedAverage) {
+        groupTotals.weightedAverage = {};
+      }
+      groupTotals.weightedAverage[this.field_] = this.weightedSum_/this.weightSum_;
     }
   }
 

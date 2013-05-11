@@ -12,7 +12,8 @@
         "PercentComplete": PercentCompleteFormatter,
         "PercentCompleteBar": PercentCompleteBarFormatter,
         "YesNo": YesNoFormatter,
-        "Checkmark": CheckmarkFormatter
+        "Checkmark": CheckmarkFormatter,
+        "Date" : DateFormatter
       }
     }
   });
@@ -51,5 +52,14 @@
 
   function CheckmarkFormatter(row, cell, value, columnDef, dataContext) {
     return value ? "<img src='../images/tick.png'>" : "";
+  }
+
+  function DateFormatter(row, cell, value, columnDef, dataContext) {
+    if($.type(value) == "date") {
+      return value.toLocaleDateString();
+    } else {
+      var dateCastAttempt = new Date(value);
+      return dateCastAttempt.toLocaleDateString();
+    }
   }
 })(jQuery);
