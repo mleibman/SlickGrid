@@ -1,0 +1,135 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <title>SlickGrid example: Full screen with paging and AJAX-loading</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../controls/slick.pager.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <style>
+    html, body {
+      height:99%;
+    }
+
+    body {
+      overflow: auto;
+    }
+
+    #description {
+      position: fixed;
+      top: 50%;
+      right: 30px;
+      width: 25em;
+      background: #F0F0F0;
+      border: solid 1px gray;
+      z-index: 1000;
+    }
+
+    #description h2 {
+      padding-left: 0.5em;
+    }
+
+		#container {
+		  height: 100%;
+		  width: 100%;
+		}
+
+		#grid	{
+		  width: 100%;
+		  border: 1px solid gray;
+		}
+    
+  </style>
+</head>
+<body>
+<div id="container">
+	<div id="header" class="grid-header" style="width:100%">
+	  <label>StackOverflow questions</label>
+    <span style="float:right" class="ui-icon ui-icon-search" title="Search" onclick="getData()"></span>
+	  <span style="float:right;display:inline-block;">
+			Tagged:
+			<input type="text" id="txtSearch" value="slickgrid">
+    </span>
+	</div>
+	
+	<div id="grid"></div>
+	
+	<div id="pager"></div>	 
+</div>
+
+<div id="description">
+  <h2>Demonstrates:</h2>
+  <ul>
+    <li>Using AJAX-loading</li>
+    <li>Using paging</li>
+    <li>Filling whole window when creating</li>
+  </ul>
+</div>
+
+<script src="../lib/jquery-1.7.min.js"></script>
+<script src="../lib/jquery.event.drag-2.0.min.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../slick.grid.js"></script>
+<script src="../slick.dataview.js"></script>
+<script src="../controls/slick.pager.js"></script>
+
+<script type="text/javascript">
+var columns =
+[ { id: "number", name: "#",     field: "question_id", minWidth: 50, maxWidth: 50 }
+, { id: "title",  name: "Title", field: "title"}
+, { id: "link",   name: "Link",  field: "link"}
+];
+
+var options =
+{ enableCellNavigation: false
+, enableColumnReorder: false
+, forceFitColumns: true
+};
+
+//global closure
+var dataView, grid;
+
+$(document).ready(function () {
+  dataView = new Slick.Data.DataView({inlineFilters: true, idProperty: "question_id"});
+  grid = new Slick.Grid("#grid", dataView, columns, options);
+  var pager = new Slick.Controls.Pager(dataView, grid, $("#pager"));
+
+  $(".slick-viewport").height($("#container").height()-$("#header").height()-$("#pager").height()-$(".slick-header").height());
+  grid.resizeCanvas();
+
+  $(".grid-header .ui-icon")
+	  .addClass("ui-state-default ui-corner-all")
+	  .mouseover(function (e) {
+	    $(e.target).addClass("ui-state-hover")
+	  })
+	  .mouseout(function (e) {
+	    $(e.target).removeClass("ui-state-hover")
+	  });
+  
+  dataView.onRowCountChanged.subscribe(function (e, args) {
+    grid.updateRowCount();
+    grid.render();
+  });
+
+  dataView.onRowsChanged.subscribe(function (e, args) {
+    grid.invalidateRows(args.rows);
+    grid.render();
+  });
+  
+  getData();
+});
+
+var URL = "http://api.stackexchange.com/2.1/search?order=desc&sort=activity&site=stackoverflow&tagged=";
+
+function getData() {
+  $.get(URL + $("#txtSearch").val(), function(data) {
+    dataView.beginUpdate();
+    dataView.setItems(data.items);
+    dataView.endUpdate();    
+  }, "jsonp");
+}
+</script>
+</body>
+</html>
