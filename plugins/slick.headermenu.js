@@ -182,7 +182,7 @@
 
       if (!$menu) {
         $menu = $("<div class='slick-header-menu'></div>")
-          .appendTo(_grid.getContainer());
+          .appendTo(_grid.getContainerNode());
       }
       $menu.empty();
 

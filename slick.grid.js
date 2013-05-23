@@ -1291,8 +1291,8 @@ if (typeof Slick === "undefined") {
       }
     }
 
-    function getContainer() {
-      return $container;
+    function getContainerNode() {
+      return $container.get(0);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3236,7 +3236,7 @@ if (typeof Slick === "undefined") {
       "setSelectionModel": setSelectionModel,
       "getSelectedRows": getSelectedRows,
       "setSelectedRows": setSelectedRows,
-      "getContainer": getContainer,
+      "getContainerNode": getContainerNode,
 
       "render": render,
       "invalidate": invalidate,
