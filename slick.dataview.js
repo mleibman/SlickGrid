@@ -25,14 +25,12 @@
 
     var defaults = {
       groupItemMetadataProvider: null,
-      inlineFilters: false,
-      idProperty: "id"
+      inlineFilters: false
     };
 
-    options = $.extend(true, {}, defaults, options);
 
     // private
-    var idProperty = options.idProperty;  // property holding a unique row id
+    var idProperty = "id";  // property holding a unique row id
     var items = [];         // data by index
     var rows = [];          // data by row
     var idxById = {};       // indexes by id
@@ -77,6 +75,9 @@
     var onRowCountChanged = new Slick.Event();
     var onRowsChanged = new Slick.Event();
     var onPagingInfoChanged = new Slick.Event();
+
+    options = $.extend(true, {}, defaults, options);
+
 
     function beginUpdate() {
       suspend = true;
