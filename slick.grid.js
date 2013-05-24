@@ -548,7 +548,7 @@ if (typeof Slick === "undefined") {
       for (var i = 0; i < columns.length; i++) {
         var m = columns[i];
 
-        var header = $("<div class='ui-state-default slick-header-column' id='" + uid + m.id + "' role='gridcell' />")
+        var header = $("<div class='ui-state-default slick-header-column' id='" + uid + m.id + "' role='columnheader' />")
             .html("<span class='slick-column-name'>" + m.name + "</span>")
             .width(m.width - headerColumnWidthDiff)
             .attr("title", m.toolTip || "")
