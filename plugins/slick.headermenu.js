@@ -83,6 +83,7 @@
     var _handler = new Slick.EventHandler();
     var _defaults = {
       buttonCssClass: null,
+      buttonImage: null
     };
     var $menu;
     var $activeHeaderColumn;
