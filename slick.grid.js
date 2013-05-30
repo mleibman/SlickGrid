@@ -1350,7 +1350,6 @@ if (typeof Slick === "undefined") {
     }
 	
 	function getEditorConfig(row, cell) {
-		debugger;
 		var column = columns[cell], rowMetadata, columnMetadata;
 		if (column && column.editorConfig) {
 			return column.editorConfig;
