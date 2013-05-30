@@ -1,18 +1,20 @@
-(function ($) {
-  // register namespace
-  $.extend(true, window, {
-    "Slick": {
-      "CellSelectionModel": CellSelectionModel
-    }
-  });
-
+// Universal module definition
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery', '../slick.core', './slick.cellrangeselector'], factory);
+  } else {
+    // Browser globals
+    root.Slick.CellSelectionModel = factory(root.jQuery, root.Slick, root.Slick.CellRangeSelector);
+  }
+}(this, function ($, Slick, CellRangeSelector) {
 
   function CellSelectionModel(options) {
     var _grid;
     var _canvas;
     var _ranges = [];
     var _self = this;
-    var _selector = new Slick.CellRangeSelector({
+    var _selector = new CellRangeSelector({
       "selectionCss": {
         "border": "2px solid black"
       }
@@ -89,4 +91,7 @@
       "onSelectedRangesChanged": new Slick.Event()
     });
   }
-})(jQuery);
+
+  return CellSelectionModel;
+
+}));

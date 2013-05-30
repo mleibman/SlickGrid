@@ -1,11 +1,13 @@
-(function ($) {
-  // register namespace
-  $.extend(true, window, {
-    "Slick": {
-      "AutoTooltips": AutoTooltips
-    }
-  });
-
+// Universal module definition
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery'], factory);
+  } else {
+    // Browser globals
+    root.Slick.AutoTooltips = factory(root.jQuery);
+  }
+}(this, function ($) {
 
   function AutoTooltips(options) {
     var _grid;
@@ -45,4 +47,7 @@
       "destroy": destroy
     });
   }
-})(jQuery);
+
+  return AutoTooltips;
+
+}));

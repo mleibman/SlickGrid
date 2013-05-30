@@ -1,10 +1,13 @@
-(function ($) {
-  // register namespace
-  $.extend(true, window, {
-    "Slick": {
-      "RowMoveManager": RowMoveManager
-    }
-  });
+// Universal module definition
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery', '../slick.core'], factory);
+  } else {
+    // Browser globals
+    root.Slick.RowMoveManager = factory(root.jQuery, root.Slick);
+  }
+}(this, function ($, Slick) {
 
   function RowMoveManager() {
     var _grid;
@@ -126,4 +129,7 @@
       "destroy": destroy
     });
   }
-})(jQuery);
+
+  return RowMoveManager;
+
+}));

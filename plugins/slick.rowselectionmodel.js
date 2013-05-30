@@ -1,10 +1,13 @@
-(function ($) {
-  // register namespace
-  $.extend(true, window, {
-    "Slick": {
-      "RowSelectionModel": RowSelectionModel
-    }
-  });
+// Universal module definition
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery', '../slick.core'], factory);
+  } else {
+    // Browser globals
+    root.Slick.RowSelectionModel = factory(root.jQuery, root.Slick);
+  }
+}(this, function ($, Slick) {
 
   function RowSelectionModel(options) {
     var _grid;
@@ -184,4 +187,7 @@
       "onSelectedRangesChanged": new Slick.Event()
     });
   }
-})(jQuery);
+
+  return RowSelectionModel;
+
+}));

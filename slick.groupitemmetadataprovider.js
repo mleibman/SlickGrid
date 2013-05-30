@@ -1,12 +1,14 @@
-(function ($) {
-  $.extend(true, window, {
-    Slick: {
-      Data: {
-        GroupItemMetadataProvider: GroupItemMetadataProvider
-      }
-    }
-  });
-
+// Universal module definition
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery', './slick.core'], factory);
+  } else {
+    // Browser globals
+    root.Slick.Data = root.Slick.Data || {};
+    root.Slick.Data.GroupItemMetadataProvider = factory(root.jQuery, root.Slick);
+  }
+}(this, function ($, Slick) {
 
   /***
    * Provides item metadata for group (Slick.Group) and totals (Slick.Totals) rows produced by the DataView.
@@ -136,4 +138,7 @@
       "getTotalsRowMetadata": getTotalsRowMetadata
     };
   }
-})(jQuery);
+
+  return GroupItemMetadataProvider;
+
+}));
