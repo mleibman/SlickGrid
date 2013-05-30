@@ -5,9 +5,12 @@
         DataView: DataView,
         Aggregators: {
           Avg: AvgAggregator,
+          Mde: MdeAggregator,
+          Mdn: MdnAggregator,
           Min: MinAggregator,
           Max: MaxAggregator,
-          Sum: SumAggregator
+          Sum: SumAggregator,
+          Std: StdAggregator
         }
       }
     }
@@ -496,7 +499,7 @@
           group = groups[i];
           group.groups = extractGroups(group.rows, group);
         }
-      }      
+      }
 
       groups.sort(groupingInfos[level].comparer);
 
@@ -1055,6 +1058,112 @@
       }
       groupTotals.sum[this.field_] = this.sum_;
     }
+  }
+
+  function MdeAggregator(field) {
+    this.field_ = field;
+
+    this.init = function () {
+      this.pairs_ = [];
+    };
+
+    this.accumulate = function (item) {
+      var val = item[this.field_];
+      var found = false;
+      if (val != null && val !== "" && val !== NaN) {
+        for (var i = 0; i < this.pairs_.length; i++) {
+          if (this.pairs_[i].value == val) {
+            this.pairs_[i].count++;
+            found = true;
+            break;
+          }
+        }
+        if (!found) this.pairs_.push({value: val, count: 1});
+      }
+    };
+
+    this.storeResult = function (groupTotals) {
+      if (!groupTotals.mde) {
+        groupTotals.mde = {};
+      }
+      var maxCountI = 0;
+      for (var i = 0; i < this.pairs_.length; i++) {
+        if ((this.pairs_[i].count > this.pairs_[maxCountI].count) || ((this.pairs_[i].count === this.pairs_[maxCountI].count) && (this.pairs_[i].value < this.pairs_[maxCountI].value))) {
+          maxCountI = i;
+        }
+      }
+      if (typeof this.pairs_[maxCountI] !== "undefined") {
+        groupTotals.mde[this.field_] = this.pairs_[maxCountI].value;
+      }
+    };
+  }
+
+  function MdnAggregator(field) {
+    this.field_ = field;
+
+    this.init = function () {
+      this.sorted_ = [];
+    };
+
+    this.accumulate = function (item) {
+      var val = item[this.field_];
+      var spliced = false;
+      if (val != null && val !== "" && val !== NaN) {
+        for (var i = 0; i < this.sorted_.length; i++) {
+          if (val < this.sorted_[i]) {
+            this.sorted_.splice(i,0,val);
+            spliced = true;
+            break;
+          }
+        }
+        if (!spliced) this.sorted_.push(val);
+      }
+    };
+
+    this.storeResult = function (groupTotals) {
+      if (!groupTotals.mdn) {
+        groupTotals.mdn = {};
+      }
+      var n = this.sorted_.length;
+      if (n%2 == 1) {
+        groupTotals.mdn[this.field_] = this.sorted_[(n-1)/2];
+      } else {
+        var i = n/2;
+        groupTotals.mdn[this.field_] = 0.5*(this.sorted_[i]+this.sorted_[i-1]);
+      }
+    };
+  }
+
+  function StdAggregator(field) {
+    this.field_ = field;
+
+    this.init = function () {
+      this.nonNullCount_ = 0;
+      this.Mk_ = null;
+      this.Qk_ = 0;
+    };
+
+    this.accumulate = function (item) {
+      var val = item[this.field_];
+      if (val != null && val !== "" && val !== NaN) {
+        this.nonNullCount_++;
+        if (this.Mk_ != null) {
+          this.Qk_ = this.Qk_+(this.nonNullCount_-1)*Math.pow((val-this.Mk_),2)/this.nonNullCount_;
+          this.Mk_ = this.Mk_+(val-this.Mk_)/this.nonNullCount_;
+        } else {
+          this.Mk_ = val;
+        }
+      }
+    };
+
+    this.storeResult = function (groupTotals) {
+      if (!groupTotals.std) {
+        groupTotals.std = {};
+      }
+      if (this.nonNullCount_ != 0) {
+        groupTotals.std[this.field_] = Math.sqrt(this.Qk_/this.nonNullCount_);
+      }
+    };
   }
 
   // TODO:  add more built-in aggregators
