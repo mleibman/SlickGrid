@@ -1005,8 +1005,8 @@ if (typeof Slick === "undefined") {
         unregisterPlugin(plugins[i]);
       }
 
-      if (options.enableColumnReorder && $headers.sortable) {
-        $headers.sortable("destroy");
+      if (options.enableColumnReorder) {
+          $headers.filter(":ui-sortable").sortable("destroy");
       }
 
       unbindAncestorScrollEvents();
@@ -1321,6 +1321,10 @@ if (typeof Slick === "undefined") {
       }
     }
 
+    function getContainerNode() {
+      return $container.get(0);
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Rendering / Scrolling
 
@@ -1360,7 +1364,7 @@ if (typeof Slick === "undefined") {
       if (value == null) {
         return "";
       } else {
-        return value.toString().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+        return (value + "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
       }
     }
 
@@ -3262,6 +3266,7 @@ if (typeof Slick === "undefined") {
       "setSelectionModel": setSelectionModel,
       "getSelectedRows": getSelectedRows,
       "setSelectedRows": setSelectedRows,
+      "getContainerNode": getContainerNode,
 
       "render": render,
       "invalidate": invalidate,
