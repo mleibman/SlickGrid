@@ -1,6 +1,6 @@
 # Welcome to SlickGrid
 
-For now, please check out [the wiki](https://github.com/mleibman/SlickGrid/wiki).
+Find documentation and examples in [the wiki](https://github.com/mleibman/SlickGrid/wiki).
 
 ## SlickGrid is an advanced JavaScript grid/spreadsheet component
 
