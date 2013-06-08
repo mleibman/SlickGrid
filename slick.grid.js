@@ -3135,6 +3135,27 @@ if (typeof Slick === "undefined") {
       return ranges;
     }
 
+    function getUnselectedRows() {
+      if (!selectionModel) {
+        throw "Selection model is not set";
+      }
+
+      var tmp = 0;
+      var unselectedRows = [];
+
+      for(var i = 0; i < selectedRows.length; i ++){
+        if(selectedRows[i] != tmp){
+          for(var j = tmp; j < selectedRows[i]; j++){
+            unselectedRows[unselectedRows.length] = j;
+          }
+          tmp = selectedRows[i];
+        }
+        tmp++;
+      }
+
+      return unselectedRows;
+    }
+
     function getSelectedRows() {
       if (!selectionModel) {
         throw "Selection model is not set";
@@ -3234,6 +3255,7 @@ if (typeof Slick === "undefined") {
       "setData": setData,
       "getSelectionModel": getSelectionModel,
       "setSelectionModel": setSelectionModel,
+      "getUnselectedRows": getUnselectedRows,
       "getSelectedRows": getSelectedRows,
       "setSelectedRows": setSelectedRows,
       "getContainerNode": getContainerNode,
