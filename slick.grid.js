@@ -1337,7 +1337,7 @@ if (typeof Slick === "undefined") {
 
       var oldOffset = offset;
 
-      page = Math.min(n - 1, Math.floor(y / ph));
+      page = Math.min(n - 1, (ph > 0)? Math.floor(y / ph) : 0);
       offset = Math.round(page * cj);
       var newScrollTop = y - offset;
 
