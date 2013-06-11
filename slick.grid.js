@@ -14,8 +14,6 @@
  *     This increases the speed dramatically, but can only be done safely because there are no event handlers
  *     or data associated with any cell/row DOM nodes.  Cell editors must make sure they implement .destroy()
  *     and do proper cleanup.
- *
- * TODO: Scroll the viewport during column reorder
  */
 
 // make sure required JavaScript modules are loaded
@@ -660,17 +658,6 @@ if (typeof Slick === "undefined") {
 
     function setupColumnReorder() {
       $headers.filter(":ui-sortable").sortable("destroy");
-            var columnScrollTimer = null;
-            var viewportLeft = $viewport.offset().left;
-
-            function scrollColumnsRight() {
-                $viewport[0].scrollLeft = $viewport[0].scrollLeft + 10;
-            }
-
-            function scrollColumnsLeft() {
-                $viewport[0].scrollLeft = $viewport[0].scrollLeft - 10;
-            }
-
       $headers.sortable({
         containment: "parent",
         distance: 3,
@@ -686,24 +673,7 @@ if (typeof Slick === "undefined") {
         beforeStop: function (e, ui) {
           $(ui.helper).removeClass("slick-header-column-active");
         },
-        sort: function(e, ui) {
-                   if ( e.originalEvent.pageX > $viewport[0].clientWidth ) {
-                       if ( !( columnScrollTimer ) ) {
-                           columnScrollTimer = setInterval(scrollColumnsRight, 100);
-                        }
-                    } else if ( e.originalEvent.pageX < viewportLeft ) {
-                        if ( !( columnScrollTimer ) ) {
-                            columnScrollTimer = setInterval(scrollColumnsLeft, 100);
-                        }
-                    } else {
-                        clearInterval(columnScrollTimer);
-                        columnScrollTimer = null;
-                    }
-                },
         stop: function (e) {
-                    clearInterval( columnScrollTimer );
-                    columnScrollTimer = null;
-
           if (!getEditorLock().commitCurrentEdit()) {
             $(this).sortable("cancel");
             return;
@@ -1005,8 +975,8 @@ if (typeof Slick === "undefined") {
         unregisterPlugin(plugins[i]);
       }
 
-      if (options.enableColumnReorder && $headers.sortable) {
-        $headers.sortable("destroy");
+      if (options.enableColumnReorder) {
+          $headers.filter(":ui-sortable").sortable("destroy");
       }
 
       unbindAncestorScrollEvents();
@@ -1321,6 +1291,10 @@ if (typeof Slick === "undefined") {
       }
     }
 
+    function getContainerNode() {
+      return $container.get(0);
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Rendering / Scrolling
 
@@ -1360,7 +1334,7 @@ if (typeof Slick === "undefined") {
       if (value == null) {
         return "";
       } else {
-        return value.toString().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+        return (value + "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
       }
     }
 
@@ -1622,7 +1596,7 @@ if (typeof Slick === "undefined") {
 
       // remove the rows that are now outside of the data range
       // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
-      var l = options.enableAddRow ? getDataLength() : getDataLength() - 1;
+      var l = options.enableAddRow ? getDataLength() + 1 : getDataLength();
       for (var i in rowsCache) {
         if (i >= l) {
           removeRowFromCache(i);
@@ -3262,6 +3236,7 @@ if (typeof Slick === "undefined") {
       "setSelectionModel": setSelectionModel,
       "getSelectedRows": getSelectedRows,
       "setSelectedRows": setSelectedRows,
+      "getContainerNode": getContainerNode,
 
       "render": render,
       "invalidate": invalidate,
