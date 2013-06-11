@@ -788,9 +788,6 @@ if (typeof Slick === "undefined") {
             $headerL.width(headersWidthL);
             $headerR.width(headersWidthR);
 
-            $headerRowL.empty();
-            $headerRowR.empty();
-
             $headerRow.find(".slick-headerrow-column")
                 .each(function() {
                     var columnDef = $(this).data("column");
@@ -801,7 +798,10 @@ if (typeof Slick === "undefined") {
                         });
                     }
                 });
-
+                
+            $headerRowL.empty();
+            $headerRowR.empty();
+            
             for (var i = 0; i < columns.length; i++) {
                 var m = columns[i];
 
