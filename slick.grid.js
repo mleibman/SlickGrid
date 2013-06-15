@@ -196,7 +196,7 @@ if (typeof Slick === "undefined") {
       columnDefaults.width = options.defaultColumnWidth;
 
       columnsById = {};
-      for (var i = 0, len = columns.length; i < len; i++) {
+      for (var i = 0; i < columns.length; i++) {
         var m = columns[i] = $.extend({}, columnDefaults, columns[i]);
         columnsById[m.id] = i;
         if (m.minWidth && m.width < m.minWidth) {
