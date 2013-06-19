@@ -1376,9 +1376,9 @@ if (typeof Slick === "undefined") {
       return item[columnDef.field];
     }
 
-    function appendRowHtml(stringArray, row, range) {
+    function appendRowHtml(stringArray, row, range, dataLength) {
       var d = getDataItem(row);
-      var dataLoading = row < getDataLength() && !d;
+      var dataLoading = row < dataLength && !d;
       var rowCss = "slick-row" +
           (dataLoading ? " loading" : "") +
           (row === activeRow ? " active" : "") +
@@ -1411,7 +1411,7 @@ if (typeof Slick === "undefined") {
             break;
           }
 
-          appendCellHtml(stringArray, row, i, colspan);
+          appendCellHtml(stringArray, row, i, colspan, d);
         }
 
         if (colspan > 1) {
@@ -1422,9 +1422,8 @@ if (typeof Slick === "undefined") {
       stringArray.push("</div>");
     }
 
-    function appendCellHtml(stringArray, row, cell, colspan) {
+    function appendCellHtml(stringArray, row, cell, colspan, item) {
       var m = columns[cell];
-      var d = getDataItem(row);
       var cellCss = "slick-cell l" + cell + " r" + Math.min(columns.length - 1, cell + colspan - 1) +
           (m.cssClass ? " " + m.cssClass : "");
       if (row === activeRow && cell === activeCell) {
@@ -1441,9 +1440,9 @@ if (typeof Slick === "undefined") {
       stringArray.push("<div class='" + cellCss + "'>");
 
       // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
-      if (d) {
-        var value = getDataItemValueForColumn(d, m);
-        stringArray.push(getFormatter(row, m)(row, cell, value, m, d));
+      if (item) {
+        var value = getDataItemValueForColumn(item, m);
+        stringArray.push(getFormatter(row, m)(row, cell, value, m, item));
       }
 
       stringArray.push("</div>");
@@ -1531,6 +1530,8 @@ if (typeof Slick === "undefined") {
 
       ensureCellNodesInRowsCache(row);
 
+      var d = getDataItem(row);
+
       for (var columnIdx in cacheEntry.cellNodesByColumnIdx) {
         if (!cacheEntry.cellNodesByColumnIdx.hasOwnProperty(columnIdx)) {
           continue;
@@ -1538,7 +1539,6 @@ if (typeof Slick === "undefined") {
 
         columnIdx = columnIdx | 0;
         var m = columns[columnIdx],
-            d = getDataItem(row),
             node = cacheEntry.cellNodesByColumnIdx[columnIdx];
 
         if (row === activeRow && columnIdx === activeCell && currentEditor) {
@@ -1586,8 +1586,9 @@ if (typeof Slick === "undefined") {
     }
 
     function updateRowCount() {
+      var dataLength = getDataLength();
       if (!initialized) { return; }
-      numberOfRows = getDataLength() +
+      numberOfRows = dataLength +
           (options.enableAddRow ? 1 : 0) +
           (options.leaveSpaceForNewRows ? numVisibleRows - 1 : 0);
 
@@ -1597,7 +1598,7 @@ if (typeof Slick === "undefined") {
 
       // remove the rows that are now outside of the data range
       // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
-      var l = options.enableAddRow ? getDataLength() : getDataLength() - 1;
+      var l = options.enableAddRow ? dataLength : dataLength - 1;
       for (var i in rowsCache) {
         if (i >= l) {
           removeRowFromCache(i);
@@ -1752,7 +1753,7 @@ if (typeof Slick === "undefined") {
       var totalCellsAdded = 0;
       var colspan;
 
-      for (var row = range.top; row <= range.bottom; row++) {
+      for (var row = range.top, btm = range.bottom; row <= btm; row++) {
         cacheEntry = rowsCache[row];
         if (!cacheEntry) {
           continue;
@@ -1768,6 +1769,8 @@ if (typeof Slick === "undefined") {
 
         var metadata = data.getItemMetadata && data.getItemMetadata(row);
         metadata = metadata && metadata.columns;
+
+        var d = getDataItem(row);
 
         // TODO:  shorten this loop (index? heuristics? binary search?)
         for (var i = 0, ii = columns.length; i < ii; i++) {
@@ -1792,7 +1795,7 @@ if (typeof Slick === "undefined") {
           }
 
           if (columnPosRight[Math.min(ii - 1, i + colspan - 1)] > range.leftPx) {
-            appendCellHtml(stringArray, row, i, colspan);
+            appendCellHtml(stringArray, row, i, colspan, d);
             cellsAdded++;
           }
 
@@ -1829,9 +1832,10 @@ if (typeof Slick === "undefined") {
       var parentNode = $canvas[0],
           stringArray = [],
           rows = [],
-          needToReselectCell = false;
+          needToReselectCell = false,
+          dataLength = getDataLength();
 
-      for (var i = range.top; i <= range.bottom; i++) {
+      for (var i = range.top, ii = range.bottom; i <= ii; i++) {
         if (rowsCache[i]) {
           continue;
         }
@@ -1856,7 +1860,7 @@ if (typeof Slick === "undefined") {
           "cellRenderQueue": []
         };
 
-        appendRowHtml(stringArray, i, range);
+        appendRowHtml(stringArray, i, range, dataLength);
         if (activeCellNode && activeRow === i) {
           needToReselectCell = true;
         }
@@ -2494,7 +2498,7 @@ if (typeof Slick === "undefined") {
         if (d) {
           var column = columns[activeCell];
           var formatter = getFormatter(activeRow, column);
-          activeCellNode.innerHTML = formatter(activeRow, activeCell, getDataItemValueForColumn(d, column), column, getDataItem(activeRow));
+          activeCellNode.innerHTML = formatter(activeRow, activeCell, getDataItemValueForColumn(d, column), column, d);
           invalidatePostProcessingResults(activeRow);
         }
       }
