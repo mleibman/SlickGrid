@@ -3103,9 +3103,10 @@ if (typeof Slick === "undefined") {
             // check whether the lock has been re-acquired by event handlers
             return !getEditorLock().isActive();
           } else {
-            // TODO: remove and put in onValidationError handlers in examples
+            // Re-add the CSS class to trigger transitions, if any.
+            $(activeCellNode).removeClass("invalid");
+            $(activeCellNode).width();  // force layout
             $(activeCellNode).addClass("invalid");
-            $(activeCellNode).stop(true, true).effect("highlight", {color: "red"}, 300);
 
             trigger(self.onValidationError, {
               editor: currentEditor,
