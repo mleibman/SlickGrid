@@ -138,6 +138,16 @@
       var idx = $.inArray(cell.row, selection);
 
       if (!e.ctrlKey && !e.shiftKey && !e.metaKey) {
+        if (selection.length > 1) {
+          var activeCell = _grid.getActiveCell();
+          if (activeCell.cell === cell.cell &&
+            activeCell.row === cell.row) {
+            if (_options.selectActiveRow) {
+              setSelectedRanges([new Slick.Range(cell.row, 0, cell.row, _grid.getColumns().length - 1)]);
+              return true;
+            }
+          }
+        };
         return false;
       }
       else if (_grid.getOptions().multiSelect) {
