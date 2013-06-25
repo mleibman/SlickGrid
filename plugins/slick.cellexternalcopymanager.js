@@ -33,7 +33,8 @@
     
     var keyCodes = {
       'C':67,
-      'V':86
+      'V':86,
+      'ESC':27
     }
 
     function init(grid) {
@@ -66,7 +67,7 @@
       // if a custom getter is not defined, we call serializeValue of the editor to serialize
       if (columnDef.editor){
         var editorArgs = {
-          'container':$(document),  // a dummy container
+          'container':$("body"),  // a dummy container
           'column':columnDef,
           'position':{'top':0, 'left':0}  // a dummy position required by some editors
         };
@@ -74,6 +75,9 @@
         editor.loadValue(item);
         retVal = editor.serializeValue();
         editor.destroy();
+      }
+      else {
+        retVal = item[columnDef.field];
       }
 
       return retVal;
@@ -87,7 +91,7 @@
       // if a custom setter is not defined, we call applyValue of the editor to unserialize
       if (columnDef.editor){
         var editorArgs = {
-          'container':$(document),  // a dummy container
+          'container':$("body"),  // a dummy container
           'column':columnDef,
           'position':{'top':0, 'left':0}  // a dummy position required by some editors
         };
@@ -267,7 +271,7 @@
     function handleKeyDown(e, args) {
       var ranges;
       if (!_grid.getEditorLock().isActive()) {
-        if (e.which == $.ui.keyCode.ESCAPE) {
+        if (e.which == keyCodes.ESC) {
           if (_copiedRanges) {
             e.preventDefault();
             clearCopySelection();
@@ -301,8 +305,7 @@
                 clipTextArr.push(clipTextRows.join("\r\n"));
             }
             var clipText = clipTextArr.join('');
-            var $focus = $(":focus");
-
+            var $focus = $(_grid.getActiveCellNode());
             var ta = _createTextBox(clipText);
 
             ta.focus();
@@ -310,7 +313,11 @@
             setTimeout(function(){
                 document.body.removeChild(ta);
                 // restore focus
-                if ($focus && $focus.length>0) { $focus.focus(); }
+                if ($focus && $focus.length>0) {
+                    $focus.attr('tabIndex', '-1');
+                    $focus.focus();
+                    $focus.removeAttr('tabIndex');
+                }
             }, 100);
 
             return false;
