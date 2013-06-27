@@ -22,6 +22,7 @@
         dataItemColumnValueExtractor : option to specify a custom column value extractor function
         dataItemColumnValueSetter : option to specify a custom column value setter function
         clipboardCommandHandler : option to specify a custom handler for paste actions
+        bodyElement: option to specify a custom DOM element which to will be added the hidden textbox. It's useful if the grid is inside a modal dialog.
     */
     var _grid;
     var _self = this;
@@ -30,6 +31,7 @@
     var _copiedCellStyleLayerKey = _options.copiedCellStyleLayerKey || "copy-manager";
     var _copiedCellStyle = _options.copiedCellStyle || "copied";
     var _clearCopyTI = 0;
+    var _bodyElement = _options.bodyElement || document.body;
     
     var keyCodes = {
       'C':67,
@@ -109,7 +111,7 @@
       ta.style.left = '-1000px';
       ta.style.top = document.body.scrollTop + 'px';
       ta.value = innerText;
-      document.body.appendChild(ta);
+      _bodyElement.appendChild(ta);
       ta.select();
       
       return ta;
@@ -121,7 +123,7 @@
       var clipRows = clipText.split(/[\n\f\r]/);
       var clippedRange = [];
       
-      document.body.removeChild(ta);
+      _bodyElement.removeChild(ta);
 
       for (var i=0; i<clipRows.length; i++) {
         if (clipRows[i]!="")
@@ -311,7 +313,7 @@
             ta.focus();
             
             setTimeout(function(){
-                document.body.removeChild(ta);
+                 _bodyElement.removeChild(ta);
                 // restore focus
                 if ($focus && $focus.length>0) {
                     $focus.attr('tabIndex', '-1');
