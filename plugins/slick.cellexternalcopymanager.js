@@ -30,6 +30,7 @@
     var _copiedCellStyleLayerKey = _options.copiedCellStyleLayerKey || "copy-manager";
     var _copiedCellStyle = _options.copiedCellStyle || "copied";
     var _clearCopyTI = 0;
+    var _bodyElement = _options.bodyElement || document.body;
     
     var keyCodes = {
       'C':67,
@@ -109,7 +110,7 @@
       ta.style.left = '-1000px';
       ta.style.top = document.body.scrollTop + 'px';
       ta.value = innerText;
-      document.body.appendChild(ta);
+      _bodyElement.appendChild(ta);
       ta.select();
       
       return ta;
@@ -121,7 +122,7 @@
       var clipRows = clipText.split(/[\n\f\r]/);
       var clippedRange = [];
       
-      document.body.removeChild(ta);
+      _bodyElement.removeChild(ta);
 
       for (var i=0; i<clipRows.length; i++) {
         if (clipRows[i]!="")
@@ -311,7 +312,7 @@
             ta.focus();
             
             setTimeout(function(){
-                document.body.removeChild(ta);
+                 _bodyElement.removeChild(ta);
                 // restore focus
                 if ($focus && $focus.length>0) {
                     $focus.attr('tabIndex', '-1');
