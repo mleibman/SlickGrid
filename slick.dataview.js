@@ -910,7 +910,7 @@
       this.onRowCountChanged.subscribe(update);
     }
 
-    return {
+    $.extend(this, {
       // methods
       "beginUpdate": beginUpdate,
       "endUpdate": endUpdate,
@@ -956,7 +956,7 @@
       "onRowCountChanged": onRowCountChanged,
       "onRowsChanged": onRowsChanged,
       "onPagingInfoChanged": onPagingInfoChanged
-    };
+    });
   }
 
   function AvgAggregator(field) {
