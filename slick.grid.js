@@ -2456,7 +2456,10 @@ if (typeof Slick === "undefined") {
 
     function clearTextSelection() {
       if (document.selection && document.selection.empty) {
-        document.selection.empty();
+		try {
+				//IE fails here if selected element is not in dom
+				document.selection.empty();
+            } catch (e) { }
       } else if (window.getSelection) {
         var sel = window.getSelection();
         if (sel && sel.removeAllRanges) {
