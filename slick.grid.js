@@ -2164,6 +2164,10 @@ if (typeof Slick === "undefined") {
               return; // no editing mode to cancel, allow bubbling and default processing (exit without cancelling the event)
             }
             cancelEditAndSetFocus();
+          } else if (e.which == 33) {
+            handled = navigatePageUp();
+          } else if (e.which == 34) {
+            handled = navigatePageDown();
           } else if (e.which == 37) {
             handled = navigateLeft();
           } else if (e.which == 39) {
@@ -2800,6 +2804,64 @@ if (typeof Slick === "undefined") {
       }
     }
 
+    function gotoPageDown(row, cell, posX) {
+        var lastRow = getDataLength() - 1;
+        if (row == lastRow) return null;
+        var prevCell;
+        while (true) {
+            row += numVisibleRows;
+            if (row >= lastRow) { 
+                return {
+                    "row": lastRow,
+                    "cell": 0,
+                    "posX": posX
+                };
+            }
+
+            prevCell = cell = 0;
+            while (cell <= posX) {
+                prevCell = cell;
+                cell += getColspan(row, cell);
+            }
+
+            if (canCellBeActive(row, prevCell)) {
+                return {
+                    "row": row,
+                    "cell": prevCell,
+                    "posX": posX
+                };
+            }
+        }
+    }
+
+    function gotoPageUp(row, cell, posX) {
+        var prevCell;
+        while (true) {
+            row -= numVisibleRows;
+            if (row <= 0) {
+                return {
+                    "row": 0,
+                    "cell": 0,
+                    "posX": posX
+                };
+            }
+
+            prevCell = cell = 0;
+            while (cell <= posX) {
+                prevCell = cell;
+                cell += getColspan(row, cell);
+            }
+
+            if (canCellBeActive(row, prevCell)) {
+                return {
+                    "row": row,
+                    "cell": prevCell,
+                    "posX": posX
+                };
+            }
+        }
+    }
+
     function gotoUp(row, cell, posX) {
       var prevCell;
       while (true) {
@@ -2891,6 +2953,14 @@ if (typeof Slick === "undefined") {
       return pos;
     }
 
+    function navigatePageUp() {
+        return navigate("pgUp");
+    }
+
+    function navigatePageDown() {
+        return navigate("pgDn");
+    }
+
     function navigateRight() {
       return navigate("right");
     }
@@ -2934,6 +3004,8 @@ if (typeof Slick === "undefined") {
       setFocus();
 
       var tabbingDirections = {
+        "pgUp": -1,
+        "pgDn": 1,
         "up": -1,
         "down": 1,
         "left": -1,
@@ -2944,6 +3016,8 @@ if (typeof Slick === "undefined") {
       tabbingDirection = tabbingDirections[dir];
 
       var stepFunctions = {
+        "pgUp": gotoPageUp,
+        "pgDn": gotoPageDown,
         "up": gotoUp,
         "down": gotoDown,
         "left": gotoLeft,
@@ -3274,6 +3348,8 @@ if (typeof Slick === "undefined") {
       "getCellNodeBox": getCellNodeBox,
       "canCellBeSelected": canCellBeSelected,
       "canCellBeActive": canCellBeActive,
+      "navigatePageUp": navigatePageUp,
+      "navigatePageDown": navigatePageDown,
       "navigatePrev": navigatePrev,
       "navigateNext": navigateNext,
       "navigateUp": navigateUp,
