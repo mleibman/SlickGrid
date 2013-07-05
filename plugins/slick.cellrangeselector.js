@@ -80,7 +80,9 @@
             return;
         }
 
+      _grid.focus();
         dd.range = {start: cell, end: {}};
+
 
         return _decorator.show(new Slick.Range(cell.row, cell.cell));
     }
