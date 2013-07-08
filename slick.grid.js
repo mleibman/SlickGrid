@@ -1150,8 +1150,8 @@ if (typeof Slick === "undefined") {
         w = columns[i].width;
 
         rule = getColumnCssRules(i);
-        rule.left.style.left = x + "px";
-        rule.right.style.right = (canvasWidth - x - w) + "px";
+        rule[rear].style[rear] = x + "px";
+        rule[front].style[front] = (canvasWidth - x - w) + "px";
 
         x += columns[i].width;
       }
@@ -2662,11 +2662,11 @@ if (typeof Slick === "undefined") {
       var offsetParent = elem.offsetParent;
       while ((elem = elem.parentNode) != document.body) {
         if (box.visible && elem.scrollHeight != elem.offsetHeight && $(elem).css("overflowY") != "visible") {
-          box.visible = box[front] > elem[propScrollRear] && box[rear] < elem[propScrollRear] + elem.clientWidth;
+          box.visible = box.bottom > elem.scrollTop && box.top < elem.scrollTop + elem.clientHeight;
         }
 
         if (box.visible && elem.scrollWidth != elem.offsetWidth && $(elem).css("overflowX") != "visible") {
-          box.visible = box.right > elem.scrollLeft && box.left < elem.scrollLeft + elem.clientWidth;
+       	  box.visible = box[front] > elem[propScrollRear] && box[rear] < elem[propScrollRear] + elem.clientWidth;
         }
 
         box[rear] -= elem[propScrollRear];
