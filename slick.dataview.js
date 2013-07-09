@@ -496,7 +496,7 @@
           group = groups[i];
           group.groups = extractGroups(group.rows, group);
         }
-      }      
+      }
 
       groups.sort(groupingInfos[level].comparer);
 
@@ -857,7 +857,11 @@
 
       grid.onSelectedRowsChanged.subscribe(function(e, args) {
         if (inHandler) { return; }
-        selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());
+        if (preserveHidden) {
+          selectedRowIds = selectedRowIds.concat(self.mapRowsToIds(grid.getSelectedRows()));
+        } else {
+          selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());
+        }
       });
 
       this.onRowsChanged.subscribe(update);
