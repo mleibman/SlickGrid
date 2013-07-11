@@ -598,25 +598,23 @@
 
     function compileAccumulatorLoop(aggregator) {
       var accumulatorInfo = getFunctionInfo(aggregator.accumulate);
-      var fn = new Function(
+      return new Function(
           "_items",
           "for (var " + accumulatorInfo.params[0] + ", _i=0, _il=_items.length; _i<_il; _i++) {" +
               accumulatorInfo.params[0] + " = _items[_i]; " +
               accumulatorInfo.body +
           "}"
       );
-      fn.displayName = fn.name = "compiledAccumulatorLoop";
-      return fn;
     }
 
     function compileFilter() {
       var filterInfo = getFunctionInfo(filter);
 
       var filterBody = filterInfo.body
-          .replace(/return false[;}]/gi, "{ continue _coreloop; }")
-          .replace(/return true[;}]/gi, "{ _retval[_idx++] = $item$; continue _coreloop; }")
-          .replace(/return ([^;}]+?);/gi,
-          "{ if ($1) { _retval[_idx++] = $item$; }; continue _coreloop; }");
+          .replace(/return false([;}]|$)/gi, "{ continue _coreloop; }$1")
+          .replace(/return true([;}]|$)/gi, "{ _retval[_idx++] = $item$; continue _coreloop; }$1")
+          .replace(/return ([^;}]+?)([;}]|$)/gi,
+          "{ if ($1) { _retval[_idx++] = $item$; }; continue _coreloop; }$2");
 
       // This preserves the function template code after JS compression,
       // so that replace() commands still work as expected.
@@ -636,19 +634,17 @@
       tpl = tpl.replace(/\$item\$/gi, filterInfo.params[0]);
       tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
 
-      var fn = new Function("_items,_args", tpl);
-      fn.displayName = fn.name = "compiledFilter";
-      return fn;
+      return new Function("_items,_args", tpl);
     }
 
     function compileFilterWithCaching() {
       var filterInfo = getFunctionInfo(filter);
 
       var filterBody = filterInfo.body
-          .replace(/return false[;}]/gi, "{ continue _coreloop; }")
-          .replace(/return true[;}]/gi, "{ _cache[_i] = true;_retval[_idx++] = $item$; continue _coreloop; }")
-          .replace(/return ([^;}]+?);/gi,
-          "{ if ((_cache[_i] = $1)) { _retval[_idx++] = $item$; }; continue _coreloop; }");
+          .replace(/return false([;}]|$)/gi, "{ continue _coreloop; }$1")
+          .replace(/return true([;}]|$)/gi, "{ _cache[_i] = true;_retval[_idx++] = $item$; continue _coreloop; }$1")
+          .replace(/return ([^;}]+?)([;}]|$)/gi,
+          "{ if ((_cache[_i] = $1)) { _retval[_idx++] = $item$; }; continue _coreloop; }$2");
 
       // This preserves the function template code after JS compression,
       // so that replace() commands still work as expected.
@@ -672,9 +668,7 @@
       tpl = tpl.replace(/\$item\$/gi, filterInfo.params[0]);
       tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
 
-      var fn = new Function("_items,_args,_cache", tpl);
-      fn.displayName = fn.name = "compiledFilterWithCaching";
-      return fn;
+      return new Function("_items,_args,_cache", tpl);
     }
 
     function uncompiledFilter(items, args) {
