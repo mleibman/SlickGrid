@@ -83,7 +83,7 @@
     var _handler = new Slick.EventHandler();
     var _defaults = {
       buttonCssClass: null,
-      buttonImage: "../images/down.gif"
+      buttonImage: null
     };
     var $menu;
     var $activeHeaderColumn;
@@ -182,7 +182,7 @@
 
       if (!$menu) {
         $menu = $("<div class='slick-header-menu'></div>")
-          .appendTo(document.body);
+          .appendTo(_grid.getContainerNode());
       }
       $menu.empty();
 
@@ -225,8 +225,7 @@
 
       // Position the menu.
       $menu
-        .css("top", $(this).offset().top + $(this).height())
-        .css("left", $(this).offset().left);
+        .offset({ top: $(this).offset().top + $(this).height(), left: $(this).offset().left });
 
 
       // Mark the header as active to keep the highlighting.
