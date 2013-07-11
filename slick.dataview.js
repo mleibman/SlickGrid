@@ -613,10 +613,10 @@
       var filterInfo = getFunctionInfo(filter);
 
       var filterBody = filterInfo.body
-          .replace(/return false[;}]/gi, "{ continue _coreloop; }")
-          .replace(/return true[;}]/gi, "{ _retval[_idx++] = $item$; continue _coreloop; }")
-          .replace(/return ([^;}]+?);/gi,
-          "{ if ($1) { _retval[_idx++] = $item$; }; continue _coreloop; }");
+          .replace(/return false\s*([;}]|$)/gi, "{ continue _coreloop; }$1")
+          .replace(/return true\s*([;}]|$)/gi, "{ _retval[_idx++] = $item$; continue _coreloop; }$1")
+          .replace(/return ([^;}]+?)\s*([;}]|$)/gi,
+          "{ if ($1) { _retval[_idx++] = $item$; }; continue _coreloop; }$2");
 
       // This preserves the function template code after JS compression,
       // so that replace() commands still work as expected.
@@ -645,10 +645,10 @@
       var filterInfo = getFunctionInfo(filter);
 
       var filterBody = filterInfo.body
-          .replace(/return false[;}]/gi, "{ continue _coreloop; }")
-          .replace(/return true[;}]/gi, "{ _cache[_i] = true;_retval[_idx++] = $item$; continue _coreloop; }")
-          .replace(/return ([^;}]+?);/gi,
-          "{ if ((_cache[_i] = $1)) { _retval[_idx++] = $item$; }; continue _coreloop; }");
+          .replace(/return false\s*([;}]|$)/gi, "{ continue _coreloop; }$1")
+          .replace(/return true\s*([;}]|$)/gi, "{ _cache[_i] = true;_retval[_idx++] = $item$; continue _coreloop; }$1")
+          .replace(/return ([^;}]+?)\s*([;}]|$)/gi,
+          "{ if ((_cache[_i] = $1)) { _retval[_idx++] = $item$; }; continue _coreloop; }$2");
 
       // This preserves the function template code after JS compression,
       // so that replace() commands still work as expected.
