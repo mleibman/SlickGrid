@@ -68,6 +68,7 @@
 
       if (fromPage > toPage || ((fromPage == toPage) && data[fromPage * PAGESIZE] !== undefined)) {
         // TODO:  look-ahead
+        onDataLoaded.notify({from: from, to: to});
         return;
       }
 
