@@ -195,17 +195,7 @@ if (typeof Slick === "undefined") {
       validateAndEnforceOptions();
       columnDefaults.width = options.defaultColumnWidth;
 
-      columnsById = {};
-      for (var i = 0; i < columns.length; i++) {
-        var m = columns[i] = $.extend({}, columnDefaults, columns[i]);
-        columnsById[m.id] = i;
-        if (m.minWidth && m.width < m.minWidth) {
-          m.width = m.minWidth;
-        }
-        if (m.maxWidth && m.width > m.maxWidth) {
-          m.width = m.maxWidth;
-        }
-      }
+      updateColumnWidthBounds();
 
       // validate loaded JavaScript modules against requested options
       if (options.enableColumnReorder && !$.fn.sortable) {
@@ -1184,18 +1174,7 @@ if (typeof Slick === "undefined") {
     function setColumns(columnDefinitions) {
       columns = columnDefinitions;
 
-      columnsById = {};
-      for (var i = 0; i < columns.length; i++) {
-        var m = columns[i] = $.extend({}, columnDefaults, columns[i]);
-        columnsById[m.id] = i;
-        if (m.minWidth && m.width < m.minWidth) {
-          m.width = m.minWidth;
-        }
-        if (m.maxWidth && m.width > m.maxWidth) {
-          m.width = m.maxWidth;
-        }
-      }
-
+      updateColumnWidthBounds();
       updateColumnCaches();
 
       if (initialized) {
@@ -3156,6 +3135,17 @@ if (typeof Slick === "undefined") {
         throw "Selection model is not set";
       }
       selectionModel.setSelectedRanges(rowsToRanges(rows));
+    }
+    
+    function updateColumnWidthBounds(){
+    	columnsById = {};
+    	$.each(columns, function(i){
+            var m = columns[i] = $.extend({}, columnDefaults, columns[i]);
+            columnsById[m.id] = i;
+            //make m.width be between its bounds
+            m.minWidth && (m.width = Math.max(m.width, m.minWidth));
+            m.maxWidth && (m.width = Math.min(m.width, m.maxWidth));
+    	});
     }
 
 
