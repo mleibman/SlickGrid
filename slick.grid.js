@@ -539,22 +539,23 @@ if (typeof Slick === "undefined") {
       for (var i = 0; i < columns.length; i++) {
         var m = columns[i];
 
-        //render the headers content and append it to the dom
+        // render the headers content and append it to the dom
         var header = renderColumnHeader(m).appendTo($headers);
-        //get the total width of header
-        var headerWidth = header.outerWidth();
 
-        /* fit the header column sizes to its content if corresponding
-         * options are specified */
-        if(options.fitHeaderToContent){
+        // fit the header column sizes to its content if corresponding
+        // options are specified
+        if (options.fitHeaderToContent) {
+          // get the total width of header
+          var headerWidth = header.outerWidth();
           m.width = Math.max(m.width, headerWidth);
-          if(options.forceFitHeaderToContent){
+          if (options.forceFitHeaderToContent) {
               m.minWidth = headerWidth;
-            }
+          }
+        }else{
+          header.width(m.width - headerColumnWidthDiff);
         }
 
         header.data("column", m);
-
 
         if (options.enableColumnReorder || m.sortable) {
           header
@@ -595,7 +596,7 @@ if (typeof Slick === "undefined") {
       applyColumnHeaderWidths();
     }
 
-    function renderColumnHeader(m){
+    function renderColumnHeader (m) {
       return $("<div class='ui-state-default slick-header-column' />")
           //call the headerCellRenderer if specified
               .html(options.headerCellRenderer &&
