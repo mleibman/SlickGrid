@@ -540,22 +540,12 @@ if (typeof Slick === "undefined") {
         var m = columns[i];
 
         // render the headers content and append it to the dom
-        var header = renderColumnHeader(m).appendTo($headers);
-
-        // fit the header column sizes to its content if corresponding
-        // options are specified
-        if (options.fitHeaderToContent) {
-          // get the total width of header
-          var headerWidth = header.outerWidth();
-          m.width = Math.max(m.width, headerWidth);
-          if (options.forceFitHeaderToContent) {
-              m.minWidth = headerWidth;
-          }
-        }else{
-          header.width(m.width - headerColumnWidthDiff);
-        }
-
-        header.data("column", m);
+        var header = $("<div class='ui-state-default slick-header-column' />")
+          .html("<span class='slick-column-name'>" + m.name + "</span>")
+          .attr("id", "" + uid + m.id)
+          .attr("title", m.toolTip || "")
+          .addClass(m.headerCssClass || "")
+          .appendTo($headers);
 
         if (options.enableColumnReorder || m.sortable) {
           header
@@ -572,6 +562,21 @@ if (typeof Slick === "undefined") {
           "node": header[0],
           "column": m
         });
+
+        // fit the header column sizes to its content if corresponding
+        // options are specified
+        if (options.fitHeaderToContent) {
+          // get the total width of header
+          var headerWidth = header.outerWidth();
+          m.width = Math.max(m.width, headerWidth);
+          if (options.forceFitHeaderToContent) {
+            m.minWidth = headerWidth;
+          }
+        } else {
+          header.width(m.width - headerColumnWidthDiff);
+        }
+
+        header.data("column", m);
 
         if (options.showHeaderRow) {
           var headerRowCell = $("<div class='ui-state-default slick-headerrow-column l" + i + " r" + i + "'></div>")
@@ -591,20 +596,9 @@ if (typeof Slick === "undefined") {
         setupColumnReorder();
       }
 
-      /* apply column header widths because the widths
-       * of the columns have changed eventually */
+      // apply column header widths because the widths
+      // of the columns have changed eventually
       applyColumnHeaderWidths();
-    }
-
-    function renderColumnHeader (m) {
-      return $("<div class='ui-state-default slick-header-column' />")
-          //call the headerCellRenderer if specified
-              .html(options.headerCellRenderer &&
-                  options.headerCellRenderer(m) ||
-                  "<span class='slick-column-name'>" + m.name + "</span>")
-              .attr("id", "" + uid + m.id)
-              .attr("title", m.toolTip || "")
-              .addClass(m.headerCssClass || "");
     }
 
     function setupColumnSort() {
