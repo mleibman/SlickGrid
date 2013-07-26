@@ -567,13 +567,11 @@ if (typeof Slick === "undefined") {
         // options are specified
         if (options.fitHeaderToContent) {
           // get the total width of header
-          var headerWidth = header.outerWidth();
-          m.width = Math.max(m.width, headerWidth);
+          var headerWidth = header.width();
+          m.width = Math.max(m.width, headerWidth) + headerColumnWidthDiff;
           if (options.forceFitHeaderToContent) {
-            m.minWidth = headerWidth;
+            m.minWidth = headerWidth + headerColumnWidthDiff;
           }
-        } else {
-          header.width(m.width - headerColumnWidthDiff);
         }
 
         header.data("column", m);
@@ -596,9 +594,12 @@ if (typeof Slick === "undefined") {
         setupColumnReorder();
       }
 
+      // recalculate width of header
+      $headers.width(getHeadersWidth());
       // apply column header widths because the widths
       // of the columns have changed eventually
       applyColumnHeaderWidths();
+
     }
 
     function setupColumnSort() {
@@ -1944,6 +1945,11 @@ if (typeof Slick === "undefined") {
         $headerScroller[0].scrollLeft = scrollLeft;
         $topPanelScroller[0].scrollLeft = scrollLeft;
         $headerRowScroller[0].scrollLeft = scrollLeft;
+      } else {
+        // when width of headers cells changed and h scrolling
+        // has been applied $headerScroller[0].scrollLeft gets 0
+        // seometimes so reset it to previous scorllleft
+        $headerScroller[0].scrollLeft = prevScrollLeft;
       }
 
       if (vScrollDist) {
