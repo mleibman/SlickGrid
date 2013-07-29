@@ -2222,11 +2222,11 @@ if (typeof Slick === "undefined") {
 
     function handleClick(e) {
       if (!currentEditor) {
-        // if this click resulted in some cell child node getting focus,
-        // don't steal it back - keyboard events will still bubble up
-        if (e.target != document.activeElement) {
-          setFocus();
-        }
+        // keyboard events won't bubble up in internet explorer
+        // if the row has been invalidated before (i.e. checkboxselectplugin)
+        // the focus is lost and keyboard events won't fire. So steal back
+        // the focus.
+        setFocus();
       }
 
       var cell = getCellFromEvent(e);
