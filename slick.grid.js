@@ -567,10 +567,10 @@ if (typeof Slick === "undefined") {
         // options are specified
         if (options.fitHeaderToContent) {
           // get the total width of header
-          var headerWidth = header.width();
-          m.width = Math.max(m.width, headerWidth) + headerColumnWidthDiff;
+          var headerWidth = header.outerWidth();
+          m.width = Math.max(m.width, headerWidth);
           if (options.forceFitHeaderToContent) {
-            m.minWidth = headerWidth + headerColumnWidthDiff;
+            m.minWidth = headerWidth;
           }
         }
 
@@ -1649,6 +1649,11 @@ if (typeof Slick === "undefined") {
         autosizeColumns();
       }
       updateCanvasWidth(false);
+
+      // vertical scrollbar could have been added
+      // through update so call handleScroll() to
+      // sync header scrolling
+      handleScroll();
     }
 
     function getVisibleRange(viewportTop, viewportLeft) {
