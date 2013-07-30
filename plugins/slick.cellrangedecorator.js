@@ -1,10 +1,13 @@
-(function ($) {
-  // register namespace
-  $.extend(true, window, {
-    "Slick": {
-      "CellRangeDecorator": CellRangeDecorator
-    }
-  });
+// Universal module definition
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery'], factory);
+  } else {
+    // Browser globals
+    root.Slick.CellRangeDecorator = factory(root.jQuery);
+  }
+}(this, function ($) { 
 
   /***
    * Displays an overlay on top of a given cell range.
@@ -61,4 +64,6 @@
       "hide": hide
     });
   }
-})(jQuery);
+  return CellRangeDecorator;
+
+})); 

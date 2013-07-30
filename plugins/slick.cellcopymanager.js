@@ -1,10 +1,13 @@
-(function ($) {
-  // register namespace
-  $.extend(true, window, {
-    "Slick": {
-      "CellCopyManager": CellCopyManager
-    }
-  });
+// Universal module definition
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery', '../slick.core'], factory);
+  } else {
+    // Browser globals
+    root.Slick.CellCopyManager = factory(root.jQuery, root.Slick);
+  }
+}(this, function ($, Slick) { 
 
 
   function CellCopyManager() {
@@ -83,4 +86,8 @@
       "onPasteCells": new Slick.Event()
     });
   }
-})(jQuery);
+
+
+  return CellCopyManager;
+
+})); 

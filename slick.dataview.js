@@ -1,17 +1,14 @@
-(function ($) {
-  $.extend(true, window, {
-    Slick: {
-      Data: {
-        DataView: DataView,
-        Aggregators: {
-          Avg: AvgAggregator,
-          Min: MinAggregator,
-          Max: MaxAggregator,
-          Sum: SumAggregator
-        }
-      }
-    }
-  });
++// Universal module definition
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery', './slick.core', './slick.groupitemmetadataprovider'], factory);
+  } else {
+    // Browser globals
+    root.Slick.Data = root.Slick.Data || {};
+    root.Slick.Data.DataView = factory(root.jQuery, root.Slick, root.Slick.Data.GroupItemMetadataProvider);
+  }
+}(this, function ($, Slick, GroupItemMetadataProvider) { 
 
 
   /***
@@ -220,7 +217,7 @@
 
     function setGrouping(groupingInfo) {
       if (!options.groupItemMetadataProvider) {
-        options.groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
+        options.groupItemMetadataProvider =  new GroupItemMetadataProvider(); 
       }
 
       groups = [];
@@ -1060,4 +1057,5 @@
   // TODO:  add more built-in aggregators
   // TODO:  merge common aggregators in one to prevent needles iterating
 
-})(jQuery);
+return DataView;
+})); 

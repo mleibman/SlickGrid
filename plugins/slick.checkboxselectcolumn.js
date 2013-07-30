@@ -1,11 +1,13 @@
-(function ($) {
-  // register namespace
-  $.extend(true, window, {
-    "Slick": {
-      "CheckboxSelectColumn": CheckboxSelectColumn
-    }
-  });
-
+// Universal module definition
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery', '../slick.core'], factory);
+  } else {
+    // Browser globals
+    root.Slick.CheckboxSelectColumn = factory(root.jQuery, root.Slick);
+  }
+}(this, function ($, Slick) { 
 
   function CheckboxSelectColumn(options) {
     var _grid;
@@ -150,4 +152,7 @@
       "getColumnDefinition": getColumnDefinition
     });
   }
-})(jQuery);
+
+  return CheckboxSelectColumn;
+
+})); 
