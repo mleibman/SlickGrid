@@ -1,11 +1,13 @@
-(function ($) {
-  $.extend(true, window, {
-    Slick: {
-      Data: {
-        GroupItemMetadataProvider: GroupItemMetadataProvider
-      }
-    }
-  });
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery', './slick.core'], factory);
+  } else {
+    // Browser globals
+    root.Slick.Data = root.Slick.Data || {};
+    root.Slick.Data.GroupItemMetadataProvider = factory(root.jQuery, root.Slick);
+  }
+}(this, function ($, Slick) {
 
 
   /***
@@ -143,4 +145,7 @@
       "getTotalsRowMetadata": getTotalsRowMetadata
     };
   }
-})(jQuery);
+
+  return GroupItemMetadataProvider;
+
+})); 

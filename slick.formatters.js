@@ -8,18 +8,16 @@
  * @namespace Slick
  */
 
-(function ($) {
-  // register namespace
-  $.extend(true, window, {
-    "Slick": {
-      "Formatters": {
-        "PercentComplete": PercentCompleteFormatter,
-        "PercentCompleteBar": PercentCompleteBarFormatter,
-        "YesNo": YesNoFormatter,
-        "Checkmark": CheckmarkFormatter
-      }
-    }
-  });
+// Universal module definition
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(factory);
+  } else {
+    // Browser globals
+    root.Slick.Formatters = factory();
+  }
+}(this, function () { 
 
   function PercentCompleteFormatter(row, cell, value, columnDef, dataContext) {
     if (value == null || value === "") {
@@ -56,4 +54,12 @@
   function CheckmarkFormatter(row, cell, value, columnDef, dataContext) {
     return value ? "<img src='../images/tick.png'>" : "";
   }
-})(jQuery);
+
+  return {
+    "PercentComplete": PercentCompleteFormatter,
+    "PercentCompleteBar": PercentCompleteBarFormatter,
+    "YesNo": YesNoFormatter,
+    "Checkmark": CheckmarkFormatter
+  };
+
+})); 

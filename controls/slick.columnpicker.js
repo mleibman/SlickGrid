@@ -1,4 +1,15 @@
-(function ($) {
+// Universal module definition
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery'], factory);
+  } else {
+    // Browser globals
+    root.Slick.Controls = root.Slick.Controls || {};
+    root.Slick.Controls.ColumnPicker = factory(root.jQuery);
+  }
+}(this, function ($) {
+ 
   function SlickColumnPicker(columns, grid, options) {
     var $menu;
     var columnCheckboxes;
@@ -141,5 +152,6 @@
   }
 
   // Slick.Controls.ColumnPicker
-  $.extend(true, window, { Slick:{ Controls:{ ColumnPicker:SlickColumnPicker }}});
-})(jQuery);
+   return SlickColumnPicker;
+
+})); 

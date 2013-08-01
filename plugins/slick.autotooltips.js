@@ -1,10 +1,13 @@
-(function ($) {
-  // Register namespace
-  $.extend(true, window, {
-    "Slick": {
-      "AutoTooltips": AutoTooltips
-    }
-  });
+// Universal module definition
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery'], factory);
+  } else {
+    // Browser globals
+    root.Slick.AutoTooltips = factory(root.jQuery);
+  }
+}(this, function ($) { 
 
   /**
    * AutoTooltips plugin to show/hide tooltips when columns are too narrow to fit content.
@@ -75,9 +78,11 @@
     }
     
     // Public API
-    $.extend(this, {
+ $.extend(this, {
       "init": init,
       "destroy": destroy
     });
   }
-})(jQuery);
+  return AutoTooltips;
+
+})); 

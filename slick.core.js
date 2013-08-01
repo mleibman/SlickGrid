@@ -4,29 +4,37 @@
  * @namespace Slick
  */
 
-(function ($) {
+// Universal module definition
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(factory);
+  } else {
+    // Browser globals
+    root.Slick = factory();
+  }
+}(this, function () {
+ 
   // register namespace
-  $.extend(true, window, {
-    "Slick": {
-      "Event": Event,
-      "EventData": EventData,
-      "EventHandler": EventHandler,
-      "Range": Range,
-      "NonDataRow": NonDataItem,
-      "Group": Group,
-      "GroupTotals": GroupTotals,
-      "EditorLock": EditorLock,
+var Slick = {
+    "Event": Event,
+    "EventData": EventData,
+    "EventHandler": EventHandler,
+    "Range": Range,
+    "NonDataRow": NonDataItem,
+    "Group": Group,
+    "GroupTotals": GroupTotals,
+    "EditorLock": EditorLock,
 
-      /***
-       * A global singleton editor lock.
-       * @class GlobalEditorLock
-       * @static
-       * @constructor
-       */
-      "GlobalEditorLock": new EditorLock()
-    }
-  });
-
+    /***
+     * A global singleton editor lock.
+     * @class GlobalEditorLock
+     * @static
+     * @constructor
+     */
+    "GlobalEditorLock": new EditorLock()
+  }; 
+  
   /***
    * An event object for passing data to event handlers and letting them control propagation.
    * <p>This is pretty much identical to how W3C and jQuery implement events.</p>
@@ -453,6 +461,8 @@
       return (activeEditController ? activeEditController.cancelCurrentEdit() : true);
     };
   }
-})(jQuery);
+ return Slick;
+ 
+})); 
 
 

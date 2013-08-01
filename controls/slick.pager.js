@@ -1,4 +1,15 @@
-(function ($) {
+// Universal module definition
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery', '../slick.core'], factory);
+  } else {
+    // Browser globals
+    root.Slick.Controls = root.Slick.Controls || {};
+    root.Slick.Controls.Pager = factory(root.jQuery, root.Slick);
+  }
+}(this, function ($, Slick) {
+ 
   function SlickGridPager(dataView, grid, $container) {
     var $status;
 
@@ -142,6 +153,6 @@
     init();
   }
 
-  // Slick.Controls.Pager
-  $.extend(true, window, { Slick:{ Controls:{ Pager:SlickGridPager }}});
-})(jQuery);
+  return SlickGridPager;
+
+})); 
