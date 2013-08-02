@@ -879,23 +879,27 @@ if (typeof Slick === "undefined") {
 
       el = $("<div class='ui-state-default slick-header-column' style='visibility:hidden'>-</div>").appendTo($headers);
       headerColumnWidthDiff = headerColumnHeightDiff = 0;
-      $.each(h, function (n, val) {
-        headerColumnWidthDiff += parseFloat(el.css(val)) || 0;
-      });
-      $.each(v, function (n, val) {
-        headerColumnHeightDiff += parseFloat(el.css(val)) || 0;
-      });
+      if (el.css("box-sizing") != "border-box") {
+        $.each(h, function (n, val) {
+          headerColumnWidthDiff += parseFloat(el.css(val)) || 0;
+        });
+        $.each(v, function (n, val) {
+          headerColumnHeightDiff += parseFloat(el.css(val)) || 0;
+        });
+      }
       el.remove();
 
       var r = $("<div class='slick-row' />").appendTo($canvas);
       el = $("<div class='slick-cell' id='' style='visibility:hidden'>-</div>").appendTo(r);
       cellWidthDiff = cellHeightDiff = 0;
-      $.each(h, function (n, val) {
-        cellWidthDiff += parseFloat(el.css(val)) || 0;
-      });
-      $.each(v, function (n, val) {
-        cellHeightDiff += parseFloat(el.css(val)) || 0;
-      });
+      if (el.css("box-sizing") != "border-box") {
+        $.each(h, function (n, val) {
+          cellWidthDiff += parseFloat(el.css(val)) || 0;
+        });
+        $.each(v, function (n, val) {
+          cellHeightDiff += parseFloat(el.css(val)) || 0;
+        });
+      }
       r.remove();
 
       absoluteColumnMinWidth = Math.max(headerColumnWidthDiff, cellWidthDiff);
