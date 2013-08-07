@@ -49,7 +49,7 @@
       if (cell) {
         var $node = $(_grid.getCellNode(cell.row, cell.cell));
         var text;
-        if ($node.innerWidth() < $node[0].scrollWidth) {
+        if ($node.innerWidth() <= $node[0].scrollWidth) {
           text = $.trim($node.text());
           if (options.maxToolTipLength && text.length > options.maxToolTipLength) {
             text = text.substr(0, options.maxToolTipLength - 3) + "...";
@@ -70,7 +70,7 @@
       var column = args.column,
           $node = $(e.target).closest(".slick-header-column");
       if (!column.toolTip) {
-        $node.attr("title", ($node.innerWidth() < $node[0].scrollWidth) ? column.name : "");
+        $node.attr("title", ($node.innerWidth() <= $node[0].scrollWidth) ? column.name : "");
       }
     }
     
