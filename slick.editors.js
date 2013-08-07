@@ -311,7 +311,7 @@
     };
 
     this.serializeValue = function () {
-      return !!$select.prop('checked');
+      return $select.prop('checked');
     };
 
     this.applyValue = function (item, state) {
