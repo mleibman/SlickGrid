@@ -902,7 +902,8 @@ if (typeof Slick === "undefined") {
     }
 
     function createCssRules() {
-      $style = $("<style type='text/css' rel='stylesheet' />").appendTo($("head"));
+		$style = $('<style>', { type: 'text/css', rel: 'stylesheet' }).appendTo($("head"));
+
       var rowHeight = (options.rowHeight - cellHeightDiff);
       var rules = [
         "." + uid + " .slick-header-column { left: 1000px; }",
