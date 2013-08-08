@@ -2214,7 +2214,8 @@ if (typeof Slick === "undefined") {
       if (!currentEditor) {
         // if this click resulted in some cell child node getting focus,
         // don't steal it back - keyboard events will still bubble up
-        if (e.target != document.activeElement) {
+        // IE9+ seems to default DIVs to tabIndex=0 instead of -1, so check for cell clicks directly.
+        if (e.target != document.activeElement || $(e.target).hasClass("slick-cell")) {
           setFocus();
         }
       }
@@ -2456,7 +2457,10 @@ if (typeof Slick === "undefined") {
 
     function clearTextSelection() {
       if (document.selection && document.selection.empty) {
-        document.selection.empty();
+        try {
+          //IE fails here if selected element is not in dom
+          document.selection.empty();
+        } catch (e) { }
       } else if (window.getSelection) {
         var sel = window.getSelection();
         if (sel && sel.removeAllRanges) {
