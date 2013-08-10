@@ -1,13 +1,13 @@
 /**
  * @license
- * (c) 2009-2012 Michael Leibman
+ * (c) 2009-2013 Michael Leibman
  * michael{dot}leibman{at}gmail{dot}com
  * http://github.com/mleibman/slickgrid
  *
  * Distributed under MIT license.
  * All rights reserved.
  *
- * SlickGrid v2.1
+ * SlickGrid v2.2
  *
  * NOTES:
  *     Cell/row DOM manipulations are done directly bypassing jQuery's DOM manipulation methods.
