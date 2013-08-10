@@ -31,7 +31,7 @@
 
     function show(range) {
       if (!_elem) {
-        _elem = $("<div></div>", {css: options.selectionCss})
+        _elem = $("<div class='slick-range-decorator'></div>", {css: options.selectionCss})
             .css("position", "absolute")
             .appendTo(grid.getCanvasNode());
       }
