@@ -20,6 +20,7 @@
   function CellRangeDecorator(grid, options) {
     var _elem;
     var _defaults = {
+      selectionCssClass: 'slick-range-decorator',
       selectionCss: {
         "zIndex": "9999",
         "border": "2px dashed red"
@@ -31,7 +32,8 @@
 
     function show(range) {
       if (!_elem) {
-        _elem = $("<div class='slick-range-decorator'></div>", {css: options.selectionCss})
+        _elem = $("<div></div>", {css: options.selectionCss})
+            .addClass(options.selectionCssClass)
             .css("position", "absolute")
             .appendTo(grid.getCanvasNode());
       }
