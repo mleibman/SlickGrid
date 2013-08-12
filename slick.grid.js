@@ -2169,10 +2169,10 @@ if (typeof Slick === "undefined") {
             }
             cancelEditAndSetFocus();
           } else if (e.which == 34) {
-            scrollPageDown();
+            navigatePageDown();
             handled = true;           
           } else if (e.which == 33) {
-            scrollPageUp();
+            navigatePageUp();
             handled = true;
           } else if (e.which == 37) {
             handled = navigateLeft();
@@ -2739,11 +2739,11 @@ if (typeof Slick === "undefined") {
       }
     }
 
-    function scrollPageDown() {
+    function navigatePageDown() {
       scrollPage(1);
     }
 
-    function scrollPageUp() {
+    function navigatePageUp() {
       scrollPage(-1);
     }
 
@@ -3338,8 +3338,8 @@ if (typeof Slick === "undefined") {
       "navigateDown": navigateDown,
       "navigateLeft": navigateLeft,
       "navigateRight": navigateRight,
-      "scrollPageUp": scrollPageUp,
-      "scrollPageDown": scrollPageDown,
+      "navigatePageUp": navigatePageUp,
+      "navigatePageDown": navigatePageDown,
       "gotoCell": gotoCell,
       "getTopPanel": getTopPanel,
       "setTopPanelVisibility": setTopPanelVisibility,
