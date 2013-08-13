@@ -2170,10 +2170,14 @@ if (typeof Slick === "undefined") {
             cancelEditAndSetFocus();
           } else if (e.which == 34) {
             scrollPageDown();
-            handled = true;           
+            handled = true;
           } else if (e.which == 33) {
             scrollPageUp();
             handled = true;
+          } else if (e.which == 35) {
+            handled = navigateEnd();
+          } else if (e.which == 36) {
+            handled = navigateHome();
           } else if (e.which == 37) {
             handled = navigateLeft();
           } else if (e.which == 39) {
@@ -2725,7 +2729,7 @@ if (typeof Slick === "undefined") {
         var prevActivePosX = activePosX;
         while (cell <= activePosX) {
           if (canCellBeActive(row, cell)) {
-            prevCell = cell;  
+            prevCell = cell;
           }
           cell += getColspan(row, cell);
         }
@@ -2858,6 +2862,35 @@ if (typeof Slick === "undefined") {
       }
     }
 
+    function gotoHome(row, cell, posX) {
+      if (cell <= 0) {
+          return null;
+      }
+
+      var firstFocusableCell = findFirstFocusableCell(row);
+      if (firstFocusableCell === null || firstFocusableCell >= cell) {
+          return null;
+      }
+
+      return  {
+          "row": row,
+          "cell": 0,
+          "posX": 0
+      };
+    }
+
+    function gotoEnd(row, cell, posX) {
+      if (cell >= columns.length) {
+          return null;
+      }
+
+      return  {
+          "row": row,
+          "cell": columns.length - 1,
+          "posX": columns.length- 1
+       };
+     }
+
     function gotoUp(row, cell, posX) {
       var prevCell;
       while (true) {
@@ -2949,6 +2982,14 @@ if (typeof Slick === "undefined") {
       return pos;
     }
 
+    function navigateHome() {
+      return navigate("home");
+    }
+
+    function navigateEnd() {
+      return navigate("end");
+    }
+
     function navigateRight() {
       return navigate("right");
     }
@@ -2994,6 +3035,8 @@ if (typeof Slick === "undefined") {
       var tabbingDirections = {
         "up": -1,
         "down": 1,
+        "home": -1,
+        "end": 1,
         "left": -1,
         "right": 1,
         "prev": -1,
@@ -3002,6 +3045,8 @@ if (typeof Slick === "undefined") {
       tabbingDirection = tabbingDirections[dir];
 
       var stepFunctions = {
+        "home": gotoHome,
+        "end": gotoEnd,
         "up": gotoUp,
         "down": gotoDown,
         "left": gotoLeft,
@@ -3332,6 +3377,8 @@ if (typeof Slick === "undefined") {
       "getCellNodeBox": getCellNodeBox,
       "canCellBeSelected": canCellBeSelected,
       "canCellBeActive": canCellBeActive,
+      "navigateHome": navigateHome,
+      "navigateEnd": navigateEnd,
       "navigatePrev": navigatePrev,
       "navigateNext": navigateNext,
       "navigateUp": navigateUp,
