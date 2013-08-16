@@ -838,7 +838,7 @@
       }
     }
 
-    function syncGridSelection(grid, preserveHidden) {
+    function syncGridSelection(grid, preserveHidden, keepIdsOnChange, selChangeCallback) {
       var self = this;
       var selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());;
       var inHandler;
@@ -847,7 +847,7 @@
         if (selectedRowIds.length > 0) {
           inHandler = true;
           var selectedRows = self.mapIdsToRows(selectedRowIds);
-          if (!preserveHidden) {
+          if (!preserveHidden && !keepIdsOnChange) {
             selectedRowIds = self.mapRowsToIds(selectedRows);
           }
           grid.setSelectedRows(selectedRows);
@@ -857,7 +857,27 @@
 
       grid.onSelectedRowsChanged.subscribe(function(e, args) {
         if (inHandler) { return; }
-        selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());
+        if (keepIdsOnChange) {
+          var keepIds = [];
+          $.each(selectedRowIds, function(i,id) {
+            if (self.getRowById(id) === undefined) { keepIds.push(id); }
+          });
+          if (groupingInfos.length) {
+            selectedRowIds = keepIds.concat($.grep(self.mapRowsToIds(grid.getSelectedRows()), function(a) { return a !== undefined; }));
+          }
+          else {
+            selectedRowIds = keepIds.concat(self.mapRowsToIds(grid.getSelectedRows()));
+          }
+        }
+        else {
+          if (groupingInfos.length) {
+            selectedRowIds = $.grep(self.mapRowsToIds(grid.getSelectedRows()), function(a) { return a !== undefined; });
+          }
+          else {
+            selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());
+          }
+        }
+        if (selChangeCallback) { selChangeCallback(selectedRowIds); }
       });
 
       this.onRowsChanged.subscribe(update);
