@@ -1034,7 +1034,7 @@
     this.accumulate = function (item) {
       var val = item[this.field_];
       this.count_++;
-      if (val != null && val !== "" && !isNaN(val)) {
+      if (val != null && val !== "" && !isFinite(val)) {
         this.nonNullCount_++;
         this.sum_ += parseFloat(val);
       }
@@ -1059,7 +1059,7 @@
 
     this.accumulate = function (item) {
       var val = item[this.field_];
-      if (val != null && val !== "" && !isNaN(val)) {
+      if (val != null && val !== "" && !isFinite(val)) {
         if (this.min_ == null || val < this.min_) {
           this.min_ = val;
         }
@@ -1083,7 +1083,7 @@
 
     this.accumulate = function (item) {
       var val = item[this.field_];
-      if (val != null && val !== "" && !isNaN(val)) {
+      if (val != null && val !== "" && !isFinite(val)) {
         if (this.max_ == null || val > this.max_) {
           this.max_ = val;
         }
@@ -1107,7 +1107,7 @@
 
     this.accumulate = function (item) {
       var val = item[this.field_];
-      if (val != null && val !== "" && !isNaN(val)) {
+      if (val != null && val !== "" && !isFinite(val)) {
         this.sum_ += parseFloat(val);
       }
     };
