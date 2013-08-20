@@ -377,6 +377,40 @@ test("all then none", function() {
     assertConsistency(dv);
 });
 
+test("inlining replaces absolute returns", function() {
+    var dv = new Slick.Data.DataView({ inlineFilters: true });
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
+    dv.setFilter(function(o) {
+        if (o.val === 1) { return true; }
+        else if (o.val === 4) { return true }
+        return false});
+    same(dv.getLength(), 1, "one row is remaining");
+
+    dv.onRowsChanged.subscribe(function() { ok(false, "onRowsChanged called") });
+    dv.onRowCountChanged.subscribe(function() { ok(false, "onRowCountChanged called") });
+    dv.onPagingInfoChanged.subscribe(function() { ok(false, "onPagingInfoChanged called") });
+    same(dv.getItems().length, 3, "original data is still there");
+    same(dv.getLength(), 1, "rows are filtered");
+    assertConsistency(dv);
+});
+
+test("inlining replaces evaluated returns", function() {
+    var dv = new Slick.Data.DataView({ inlineFilters: true });
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
+    dv.setFilter(function(o) {
+        if (o.val === 0) { return o.id === 2; }
+        else if (o.val === 1) { return o.id === 2 }
+        return o.val === 2});
+    same(dv.getLength(), 1, "one row is remaining");
+
+    dv.onRowsChanged.subscribe(function() { ok(false, "onRowsChanged called") });
+    dv.onRowCountChanged.subscribe(function() { ok(false, "onRowCountChanged called") });
+    dv.onPagingInfoChanged.subscribe(function() { ok(false, "onPagingInfoChanged called") });
+    same(dv.getItems().length, 3, "original data is still there");
+    same(dv.getLength(), 1, "rows are filtered");
+    assertConsistency(dv);
+});
+
 module("updateItem");
 
 test("basic", function() {

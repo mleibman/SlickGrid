@@ -37,10 +37,10 @@
 <body>
 <div style="width:700px;float:left;">
   <div class="grid-header" style="width:100%">
-    <label>Digg stories</label>
+    <label>Hackernews stories</label>
         <span style="float:right;display:inline-block;">
           Search:
-          <input type="text" id="txtSearch" value="apple">
+          <input type="text" id="txtSearch" value="github">
         </span>
   </div>
   <div id="myGrid" style="width:100%;height:600px;"></div>
@@ -55,8 +55,7 @@
 
   <h2>WARNING:</h2>
   <ul>
-    <li>Digg API uses request rate limiting. You may occasionally get an error if you do a frequent
-      scrolling/resorting/searching.
+    <li>API access to Hackernews provided through ThriftDB has some latency when paging through results. Be patient.
     </li>
   </ul>
 </div>
@@ -66,7 +65,7 @@
 <script src="../lib/jquery-1.7.min.js"></script>
 <script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
 <script src="../lib/jquery.event.drag-2.2.js"></script>
-<script src="../lib/jquery.jsonp-1.1.0.min.js"></script>
+<script src="../lib/jquery.jsonp-2.4.min.js"></script>
 
 <script src="../slick.core.js"></script>
 <script src="../slick.remotemodel.js"></script>
@@ -77,15 +76,25 @@
   var loader = new Slick.Data.RemoteModel();
 
   var storyTitleFormatter = function (row, cell, value, columnDef, dataContext) {
-    return "<b><a href='" + dataContext["link"] + "' target=_blank>" +
-        dataContext["title"] + "</a></b><br/>" + dataContext["description"];
+    s ="<b><a href='" + dataContext["url"] + "' target=_blank>" +
+              dataContext["title"] + "</a></b><br/>";
+    desc = dataContext["text"];
+    if (desc) { // on Hackernews many stories don't have a description
+        s += desc;
+    }
+    return s;
+  };
+
+  var dateFormatter = function (row, cell, value, columnDef, dataContext) {
+    return (value.getMonth()+1) + "/" + value.getDate() + "/" + value.getFullYear();
   };
 
 
   var columns = [
     {id: "num", name: "#", field: "index", width: 40},
-    {id: "story", name: "Story", width: 580, formatter: storyTitleFormatter, cssClass: "cell-story"},
-    {id: "diggs", name: "Diggs", field: "diggs", width: 60, sortable: true}
+    {id: "story", name: "Story", width: 520, formatter: storyTitleFormatter, cssClass: "cell-story"},
+    {id: "date", name: "Date", field: "create_ts", width: 60, formatter: dateFormatter, sortable: true},
+    {id: "points", name: "Points", field: "points", width: 60, sortable: true}
   ];
 
   var options = {
@@ -144,6 +153,10 @@
         loader.ensureData(vp.top, vp.bottom);
       }
     });
+
+    loader.setSearch($("#txtSearch").val());
+    loader.setSort("create_ts", -1);
+    grid.setSortColumn("date", false);
 
     // load the first page
     grid.onViewportChanged.notify();
