@@ -133,7 +133,6 @@ if (typeof Slick === "undefined") {
     var headerColumnWidthDiff = 0, headerColumnHeightDiff = 0, // border+padding
         cellWidthDiff = 0, cellHeightDiff = 0;
     var absoluteColumnMinWidth;
-    var numberOfRows = 0;
 
     var tabbingDirection = 1;
     var activePosX;
@@ -1593,9 +1592,10 @@ if (typeof Slick === "undefined") {
     }
 
     function updateRowCount() {
-      var dataLength = getDataLength();
       if (!initialized) { return; }
-      numberOfRows = getDataLengthIncludingAddNew() +
+
+      var dataLength = getDataLengthIncludingAddNew();
+      var numberOfRows = dataLength +
           (options.leaveSpaceForNewRows ? numVisibleRows - 1 : 0);
 
       var oldViewportHasVScroll = viewportHasVScroll;
@@ -1604,7 +1604,7 @@ if (typeof Slick === "undefined") {
 
       // remove the rows that are now outside of the data range
       // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
-      var l = getDataLengthIncludingAddNew() - 1;
+      var l = dataLength - 1;
       for (var i in rowsCache) {
         if (i >= l) {
           removeRowFromCache(i);
