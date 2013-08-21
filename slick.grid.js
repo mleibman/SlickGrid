@@ -1397,12 +1397,12 @@ if (typeof Slick === "undefined") {
 
       stringArray.push("<div class='ui-widget-content " + rowCss + "' style='top:" + getRowTop(row) + "px'>");
 
-      var colspan, m;
+      var colspan, m, columnData;
       for (var i = 0, ii = columns.length; i < ii; i++) {
         m = columns[i];
         colspan = 1;
         if (metadata && metadata.columns) {
-          var columnData = metadata.columns[m.id] || metadata.columns[i];
+          columnData = metadata.columns[m.id] || metadata.columns[i];
           colspan = (columnData && columnData.colspan) || 1;
           if (colspan === "*") {
             colspan = ii - i;
@@ -1416,7 +1416,7 @@ if (typeof Slick === "undefined") {
             break;
           }
 
-          appendCellHtml(stringArray, row, i, colspan, d);
+          appendCellHtml(stringArray, row, i, colspan, columnData, d);
         }
 
         if (colspan > 1) {
@@ -1427,12 +1427,16 @@ if (typeof Slick === "undefined") {
       stringArray.push("</div>");
     }
 
-    function appendCellHtml(stringArray, row, cell, colspan, item) {
+    function appendCellHtml(stringArray, row, cell, colspan, columMetadata, item) {
       var m = columns[cell];
       var cellCss = "slick-cell l" + cell + " r" + Math.min(columns.length - 1, cell + colspan - 1) +
           (m.cssClass ? " " + m.cssClass : "");
       if (row === activeRow && cell === activeCell) {
         cellCss += (" active");
+      }
+
+      if (columMetadata && columMetadata.cssClass) {
+          cellCss += " " + columMetadata.cssClass;
       }
 
       // TODO:  merge them together in the setter
