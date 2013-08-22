@@ -133,7 +133,6 @@ if (typeof Slick === "undefined") {
     var headerColumnWidthDiff = 0, headerColumnHeightDiff = 0, // border+padding
         cellWidthDiff = 0, cellHeightDiff = 0;
     var absoluteColumnMinWidth;
-    var numberOfRows = 0;
 
     var tabbingDirection = 1;
     var activePosX;
