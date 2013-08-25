@@ -3133,10 +3133,20 @@ if (typeof Slick === "undefined") {
                 execute: function () {
                   this.editor.applyValue(item, this.serializedValue);
                   updateRow(this.row);
+                  trigger(self.onCellChange, {
+                    row: activeRow,
+                    cell: activeCell,
+                    item: item
+                  });
                 },
                 undo: function () {
                   this.editor.applyValue(item, this.prevSerializedValue);
                   updateRow(this.row);
+                  trigger(self.onCellChange, {
+                    row: activeRow,
+                    cell: activeCell,
+                    item: item
+                  });
                 }
               };
 
@@ -3148,11 +3158,6 @@ if (typeof Slick === "undefined") {
                 makeActiveCellNormal();
               }
 
-              trigger(self.onCellChange, {
-                row: activeRow,
-                cell: activeCell,
-                item: item
-              });
             } else {
               var newItem = {};
               currentEditor.applyValue(newItem, currentEditor.serializeValue());
