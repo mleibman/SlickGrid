@@ -1805,7 +1805,7 @@ if (typeof Slick === "undefined") {
           }
 
           if (columnPosRight[Math.min(ii - 1, i + colspan - 1)] > range.leftPx) {
-            appendCellHtml(stringArray, row, i, colspan, d);
+            appendCellHtml(stringArray, row, i, colspan, columnData, d);
             cellsAdded++;
           }
 
