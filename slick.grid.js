@@ -779,6 +779,7 @@ if (typeof Slick === "undefined") {
               }
               maxPageX = pageX + Math.min(shrinkLeewayOnRight, stretchLeewayOnLeft);
               minPageX = pageX - Math.min(shrinkLeewayOnLeft, stretchLeewayOnRight);
+			  trigger(self.onColumnsStartResize, {});
             })
             .bind("drag", function (e, dd) {
               var actualMinWidth, d = Math.min(maxPageX, Math.max(minPageX, e.pageX)) - pageX, x;
@@ -864,9 +865,69 @@ if (typeof Slick === "undefined") {
               updateCanvasWidth(true);
               render();
               trigger(self.onColumnsResized, {});
+            })
+			.bind("dblclick", function(e){
+                var columnId = $($(this).parent()).attr('id').replace(uid,'');
+                for(var j = 0; j < columns.length; j++){
+                    if(columns[j].id == columnId){
+                        var aux_width = calculateWordDimensions(columnElements[i].children[0].innerHTML).width;
+                        if(columns[j].values != undefined && columns[j].values.length > 0){
+                            for(var k = 0; k < columns[j].values.length; k++){
+                                if(calculateWordDimensions(columns[j].values[k].Description.toString()).width > aux_width){
+                                    aux_width = calculateWordDimensions(columns[j].values[k].Description.toString()).width;
+                                }
+                            }
+                        }else{
+                            var data_col = $.map(data.getItems(),function(e){
+                                return e[columnId];
+                            });
+                            for(var k = 0; k < data_col.length; k++){
+                                if(calculateWordDimensions(data_col[k].toString()).width > aux_width){
+                                    aux_width = calculateWordDimensions(data_col[k].toString()).width;
+                                }
+                            }
+                        }
+                        columns[j].width = aux_width;
+                        break;
+                    }
+                }
+                applyColumnHeaderWidths();
+                updateCanvasWidth(true);
+                render();
+                trigger(self.onColumnsResized, {});
             });
       });
     }
+	
+	function calculateWordDimensions(text, classes, escape){
+		classes = classes || [];
+
+        if (escape === undefined) {
+            escape = true;
+        }
+
+        classes.push('textDimensionCalculation');
+
+        var div = document.createElement('div');
+        div.setAttribute('class', classes.join(' '));
+
+        if (escape) {
+            $(div).text(text);
+        } else {
+            div.innerHTML = text;
+        }
+
+        document.body.appendChild(div);
+
+        var dimensions = {
+            width : jQuery(div).outerWidth() + 30,
+            height : jQuery(div).outerHeight()
+        };
+
+        div.parentNode.removeChild(div);
+
+        return dimensions;
+	}
 
     function getVBoxDelta($el) {
       var p = ["borderTopWidth", "borderBottomWidth", "paddingTop", "paddingBottom"];
@@ -3273,6 +3334,8 @@ if (typeof Slick === "undefined") {
 	  "onColumnsStartReorder": new Slick.Event(),
       "onColumnsReordering": new Slick.Event(),
       "onColumnsReordered": new Slick.Event(),
+	  "onColumnsStartResize": new Slick.Event(),
+	  "onColumnsResizing": new Slick.Event(),
       "onColumnsResized": new Slick.Event(),
       "onCellChange": new Slick.Event(),
       "onBeforeEditCell": new Slick.Event(),
