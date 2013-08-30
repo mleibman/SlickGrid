@@ -95,7 +95,7 @@
                     columnScrollTimer = setInterval(
                         scrollColumnsRight, 100);
                 }
-            }else if(args.e.originalEvent.pageX < $('#myGrid > .slick-viewport').offset.left ){
+            }else if(args.e.originalEvent.pageX < $('#myGrid > .slick-viewport').offset().left ){
                 if (!(columnScrollTimer)) {
                     columnScrollTimer = setInterval(
                         scrollColumnsLeft, 100);
