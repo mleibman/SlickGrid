@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <title>SlickGrid example 1: Basic grid</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+</head>
+<body>
+<table width="100%">
+  <tr>
+    <td valign="top" width="50%">
+      <div id="myGrid" style="width:600px;height:500px;"></div>
+    </td>
+    <td valign="top">
+      <h2>Demonstrates:</h2>
+      <ul>
+        <li>basic grid with minimal configuration and order columns (horizontal scrolling)</li>
+      </ul>
+    </td>
+  </tr>
+</table>
+
+<script src="../lib/jquery-1.7.min.js"></script>
+<script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
+<script src="../lib/jquery.event.drag-2.2.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../slick.grid.js"></script>
+
+<script>
+  var grid;
+  var columns = [
+    {id: "title", name: "Title", field: "title"},
+    {id: "duration", name: "Duration", field: "duration"},
+    {id: "%", name: "% Complete", field: "percentComplete"},
+    {id: "start", name: "Start", field: "start"},
+    {id: "finish", name: "Finish", field: "finish"},
+    {id: "effort-driven", name: "Effort Driven", field: "effortDriven"},
+	{id: "col1", name: "Col Example1", field: "col1"},
+	{id: "col2", name: "Col Example2", field: "col2"},
+	{id: "col3", name: "Col Example3", field: "col3"},
+	{id: "col4", name: "Col Example4", field: "col4"},
+	{id: "col5", name: "Col Example5", field: "col5"},
+	{id: "col6", name: "Col Example6", field: "col6"},
+	{id: "col7", name: "Col Example7", field: "col7"},
+	{id: "col8", name: "Col Example8", field: "col8"},
+	{id: "col9", name: "Col Example9", field: "col9"},
+	{id: "col10", name: "Col Example10", field: "col10"},
+	{id: "col11", name: "Col Example11", field: "col11"},
+	{id: "col12", name: "Col Example12", field: "col12"},
+	{id: "col13", name: "Col Example13", field: "col13"},
+	{id: "col14", name: "Col Example14", field: "col14"},
+	{id: "col15", name: "Col Example15", field: "col15"},
+	{id: "col16", name: "Col Example16", field: "col16"},
+	{id: "col17", name: "Col Example17", field: "col17"},
+	{id: "col18", name: "Col Example18", field: "col18"},
+  ];
+
+  var options = {
+    enableCellNavigation: true,
+    enableColumnReorder: true
+  };
+
+  $(function () {
+    var data = [];
+    for (var i = 0; i < 500; i++) {
+      data[i] = {
+        title: "Task " + i,
+        duration: "5 days",
+        percentComplete: Math.round(Math.random() * 100),
+        start: "01/01/2009",
+        finish: "01/05/2009",
+        effortDriven: (i % 5 == 0)
+      };
+	  for (var j = 0; j < 19; j++) { data[i]['col'+(j+1).toString()] = 'Col Example ' + (j+1).toString();}
+    }
+	var columnScrollTimer = null;
+    grid = new Slick.Grid("#myGrid", data, columns, options);
+	grid.onColumnsReordered.subscribe(function(e,args){
+            clearInterval(columnScrollTimer);
+            columnScrollTimer = null;
+        });
+	grid.onColumnsReordering.subscribe(function(e,args){
+            function scrollColumnsRight() {
+                $('#myGrid > .slick-viewport')[0].scrollLeft = $('#myGrid > .slick-viewport')[0].scrollLeft + 10;
+            }
+
+            function scrollColumnsLeft() {
+                $('#myGrid > .slick-viewport')[0].scrollLeft = $('#myGrid > .slick-viewport')[0].scrollLeft - 10;
+            }
+            if(args.e.originalEvent.pageX > $('#myGrid')[0].clientWidth){
+                if (!(columnScrollTimer)) {
+                    columnScrollTimer = setInterval(
+                        scrollColumnsRight, 100);
+                }
+            }else if(args.e.originalEvent.pageX < $('#myGrid > .slick-viewport').offset().left ){
+                if (!(columnScrollTimer)) {
+                    columnScrollTimer = setInterval(
+                        scrollColumnsLeft, 100);
+                }
+            }else {
+                clearInterval(columnScrollTimer);
+                columnScrollTimer = null;
+            }
+		});
+  })
+</script>
+</body>
+</html>
