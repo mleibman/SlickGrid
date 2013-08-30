@@ -670,10 +670,14 @@ if (typeof Slick === "undefined") {
         placeholder: "slick-sortable-placeholder ui-state-default slick-header-column",
         forcePlaceholderSize: true,
         start: function (e, ui) {
+		  trigger(self.onColumnsStartReorder, {e: e, ui: ui});
           $(ui.helper).addClass("slick-header-column-active");
         },
         beforeStop: function (e, ui) {
           $(ui.helper).removeClass("slick-header-column-active");
+        },
+		sort: function(e, ui){
+          trigger(self.onColumnsReordering,{e:e, ui:ui});
         },
         stop: function (e) {
           if (!getEditorLock().commitCurrentEdit()) {
