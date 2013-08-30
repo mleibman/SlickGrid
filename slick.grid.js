@@ -878,7 +878,7 @@ if (typeof Slick === "undefined") {
                                 }
                             }
                         }else{
-                            var data_col = $.map(data.getItems(),function(e){
+                            var data_col = $.map(data instanceof Array ? data : data.getItems(),function(e){
                                 return e[columnId];
                             });
                             for(var k = 0; k < data_col.length; k++){
@@ -899,18 +899,17 @@ if (typeof Slick === "undefined") {
       });
     }
 	
-	function calculateWordDimensions(text, classes, escape){
-		classes = classes || [];
-
+	function calculateWordDimensions(text, escape){
         if (escape === undefined) {
             escape = true;
         }
 
-        classes.push('textDimensionCalculation');
-
         var div = document.createElement('div');
-        div.setAttribute('class', classes.join(' '));
-
+		$(div).css({'position':'absolute','visibility':'hidden',
+					'height':'auto','width':'auto',
+					'white-space':'nowrap','font-family':'Verdana, Arial, sans-serif',
+					'font-size':'13px','border':'1px solid transparent',
+					'padding':'1px 4px 2px'})
         if (escape) {
             $(div).text(text);
         } else {
