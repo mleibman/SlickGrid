@@ -51,8 +51,9 @@ if (typeof Slick === "undefined") {
    * @param {Array,Object}      data        An array of objects for databinding.
    * @param {Array}             columns     An array of column definitions.
    * @param {Object}            options     Grid options.
+   * @param {Array}             pluginlist  list of plugins.
    **/
-  function SlickGrid(container, data, columns, options) {
+  function SlickGrid(container, data, columns, options, pluginlist) {
     // settings
     var defaults = {
       explicitInitialization: false,
@@ -262,6 +263,24 @@ if (typeof Slick === "undefined") {
       if (!options.explicitInitialization) {
         finishInitialization();
       }
+
+      //register Plugin provided
+      if( pluginlist !== undefined && 
+          Object.prototype.toString.call( pluginlist ) === '[object Array]' ) {
+        
+        for (var j = 0; j < pluginlist.length; j++) {
+          registerPlugin(pluginlist[j]);
+        }
+
+        //Raise Post Init Event
+        postInit();
+      }
+    }
+
+    function postInit(){
+      trigger(self.onPostInit, {
+          "node": $container
+      });
     }
 
     function finishInitialization() {
@@ -3280,6 +3299,7 @@ if (typeof Slick === "undefined") {
       "onDragEnd": new Slick.Event(),
       "onSelectedRowsChanged": new Slick.Event(),
       "onCellCssStylesChanged": new Slick.Event(),
+      "onPostInit": new Slick.Event(),
 
       // Methods
       "registerPlugin": registerPlugin,
