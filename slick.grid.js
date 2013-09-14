@@ -2406,10 +2406,12 @@ if (typeof Slick === "undefined") {
     }
 
     function setFocus() {
-      if (tabbingDirection == -1) {
-        $focusSink[0].focus();
-      } else {
-        $focusSink2[0].focus();
+      if ($(":focus").length > 0) {
+        if (tabbingDirection == -1) {
+          $focusSink[0].focus();
+        } else {
+          $focusSink2[0].focus();
+        }
       }
     }
 
