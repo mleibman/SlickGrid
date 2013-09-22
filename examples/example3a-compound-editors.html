@@ -5,6 +5,7 @@
   <title>SlickGrid example 3a: Advanced Editing</title>
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
   <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js" ></script>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
   <style>
     .cell-title {
@@ -26,6 +27,12 @@
       <li>providing validation from the editor</li>
       <li>hooking into validation events</li>
     </ul>
+
+    <h2>View Source:</h2>
+    <ul>
+      <li id="viewsource">View Source Code</li>
+	 <div id="displaycode"></div>
+    </ul>
   </div>
 </div>
 
@@ -38,8 +45,9 @@
 <script src="../slick.core.js"></script>
 <script src="../slick.editors.js"></script>
 <script src="../slick.grid.js"></script>
+<script src="examples.showcode.js"></script>
 
-<script>
+<script id="script_tag_example">
   var grid;
   var data = [];
   var columns = [

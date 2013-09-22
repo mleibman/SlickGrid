@@ -29,6 +29,10 @@
       background: url(../images/collapse.gif) no-repeat center center;
     }
 
+    #displaycode {
+        width: 500px;
+    }
+
   </style>
 </head>
 <body>
@@ -54,6 +58,11 @@
       <ul>
         <li>implementing expand/collapse as a filter for DataView</li>
       </ul>
+        <h2>View Source:</h2>
+        <ul>
+            <li id="viewsource">View Source Code</li>
+            <div id="displaycode"></div>
+        </ul>
     </td>
   </tr>
 </table>
@@ -70,7 +79,10 @@
 <script src="../slick.grid.js"></script>
 <script src="../slick.dataview.js"></script>
 
-<script>
+<script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js" ></script>
+<script src="examples.showcode.js"></script>
+
+<script id="script_tag_example">
 function requiredFieldValidator(value) {
   if (value == null || value == undefined || !value.length) {
     return {valid: false, msg: "This is a required field"};

@@ -77,7 +77,7 @@ li {
   background: #f0f0f0;
   padding: 4px;
   margin-bottom: 20px;
-  width: 320px;
+  width: 450px;
   position: absolute;
   top: 0px;
   left: 650px;
@@ -227,4 +227,17 @@ input.editor-checkbox {
   border: 0;
 }
 
+#displaycode {
+    display:none; /*initially hidden */
+}
+
+/* Formatted Code Block */
+#displaycode pre {
+  font-size: normal;
+  background-color : #ffffff;
+  overflow:scroll;
+  height:500px;
+
+
+}
 
