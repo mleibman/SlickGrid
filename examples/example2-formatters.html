@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
   <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js" ></script>
   <style>
     .cell-title {
       font-weight: bold;
@@ -14,6 +15,8 @@
     .cell-effort-driven {
       text-align: center;
     }
+
+
   </style>
 </head>
 <body>
@@ -31,6 +34,12 @@
         <li>width, minWidth, maxWidth, resizable, cssClass column attributes</li>
         <li>custom column formatters</li>
       </ul>
+
+      <h2>Source Code:</h2>
+      <ul>
+        <li id="viewsource">Show Source code.</li>
+		<div id="displaycode"></div>
+      </ul>
     </td>
   </tr>
 </table>
@@ -46,8 +55,9 @@
 <script src="../slick.core.js"></script>
 <script src="../slick.formatters.js"></script>
 <script src="../slick.grid.js"></script>
+<script src="examples.showcode.js"></script>
 
-<script>
+<script id="script_tag_example">
     function formatter(row, cell, value, columnDef, dataContext) {
         return value;
     }
