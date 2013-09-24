@@ -6,17 +6,17 @@ classes should alter those!
 */
 
 .slick-header-columns {
-  background: url('../images/header-columns-bg.gif') repeat-x center bottom;
+  background: url('images/header-columns-bg.gif') repeat-x center bottom;
   border-bottom: 1px solid silver;
 }
 
 .slick-header-column {
-  background: url('../images/header-columns-bg.gif') repeat-x center bottom;
+  background: url('images/header-columns-bg.gif') repeat-x center bottom;
   border-right: 1px solid silver;
 }
 
 .slick-header-column:hover, .slick-header-column-active {
-  background: white url('../images/header-columns-over-bg.gif') repeat-x center bottom;
+  background: white url('images/header-columns-over-bg.gif') repeat-x center bottom;
 }
 
 .slick-headerrow {
@@ -61,11 +61,11 @@ classes should alter those!
 }
 
 .slick-group-toggle.expanded {
-  background: url(../images/collapse.gif) no-repeat center center;
+  background: url(images/collapse.gif) no-repeat center center;
 }
 
 .slick-group-toggle.collapsed {
-  background: url(../images/expand.gif) no-repeat center center;
+  background: url(images/expand.gif) no-repeat center center;
 }
 
 .slick-group-totals {
@@ -101,4 +101,18 @@ classes should alter those!
 
 .slick-cell.invalid {
   border-color: red;
+  -moz-animation-duration: 0.2s;
+  -webkit-animation-duration: 0.2s;
+  -moz-animation-name: slickgrid-invalid-hilite;
+  -webkit-animation-name: slickgrid-invalid-hilite;  
+}
+
+@-moz-keyframes slickgrid-invalid-hilite {
+  from { box-shadow: 0 0 6px red; }
+  to { box-shadow: none; }
+}
+
+@-webkit-keyframes slickgrid-invalid-hilite {
+  from { box-shadow: 0 0 6px red; }
+  to { box-shadow: none; }
 }

@@ -43,18 +43,31 @@
     dv.setFilterArgs(0);
     //dv.setPagingOptions({pageSize:25});
 
-    dv.groupBy(
-        "percentComplete",
-        function (g) {
-            return "Group:  " + g.value;
+    dv.setGrouping([
+        {
+            getter: "duration",
+            formatter: function (g) {
+                return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+            },
+            aggregators: [
+                new Slick.Data.Aggregators.Avg("percentComplete"),
+                new Slick.Data.Aggregators.Sum("cost")
+            ],
+            aggregateCollapsed: true,
+            aggregateChildGroups: true
         },
-        function (a, b) {
-            return a.value - b.value;
+        {
+            getter: "effortDriven",
+            formatter: function (g) {
+                return "Effort-Driven:  " + (g.value ? "True" : "False") + "  <span style='color:green'>(" + g.count + " items)</span>";
+            },
+            aggregators: [
+                new Slick.Data.Aggregators.Avg("percentComplete"),
+                new Slick.Data.Aggregators.Sum("cost")
+            ],
+            aggregateCollapsed: false
         }
-    );
-    dv.setAggregators([
-        new Slick.Data.Aggregators.Avg("percentComplete")
-    ], false);
+    ]);
 
     dv.endUpdate();
 
