@@ -204,7 +204,7 @@
                 if (oneCellToMultiple)
                   this.setDataItemValueForColumn(dt, columns[destx], clippedRange[0][0]);
                 else
-                  this.setDataItemValueForColumn(dt, columns[destx], clippedRange[y][x]);
+                  this.setDataItemValueForColumn(dt, columns[destx], clippedRange[y] ? clippedRange[y][x] : '');
                 _grid.updateCell(desty, destx);
               }
             }
