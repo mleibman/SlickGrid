@@ -272,7 +272,7 @@
     
     function handleKeyDown(e, args) {
       var ranges;
-      if (!_grid.getEditorLock().isActive()) {
+      if (!_grid.getEditorLock().isActive() || _grid.getOptions().autoEdit) {
         if (e.which == keyCodes.ESC) {
           if (_copiedRanges) {
             e.preventDefault();
