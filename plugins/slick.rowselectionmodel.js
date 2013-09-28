@@ -12,9 +12,12 @@
     var _self = this;
     var _handler = new Slick.EventHandler();
     var _inHandler;
+    var _dragging;
+    var _canvas;
     var _options;
     var _defaults = {
-      selectActiveRow: true
+      selectActiveRow: true,
+      dragToMultiSelect: false
     };
 
     function init(grid) {
@@ -26,6 +29,19 @@
           wrapHandler(handleKeyDown));
       _handler.subscribe(_grid.onClick,
           wrapHandler(handleClick));
+          
+      if(_options.dragToMultiSelect){
+          if(_grid.getOptions().multiSelect){
+          _handler.subscribe(_grid.onDragInit, handleDragInit)
+            .subscribe(_grid.onDragStart, handleDragStart)
+            .subscribe(_grid.onDrag, handleDrag)
+            .subscribe(_grid.onDragEnd, handleDragEnd);
+          _dragging=false;
+          _canvas = _grid.getCanvasNode(); 
+          }else{
+            console.log("Can't do drag to Multi Select unless multiSelect is enabled for the grid");
+          }
+      }
     }
 
     function destroy() {
@@ -66,10 +82,43 @@
       for (i = from; i <= to; i++) {
         rows.push(i);
       }
-      for (i = to; i < from; i++) {
+      for (i = to; i <= from; i++) {
         rows.push(i);
       }
       return rows;
+    }
+    
+    function union_arrays(x, y) {
+      var obj = {};
+      for (var i = x.length-1; i >= 0; -- i)
+         obj[x[i]] = x[i];
+      for (var i = y.length-1; i >= 0; -- i)
+         obj[y[i]] = y[i];
+      var res = [];
+      for (var k in obj) {
+        if (obj.hasOwnProperty(k))
+          res.push(obj[k]);
+      }
+      return res;
+    }
+    
+    function xor_arrays(x,y){
+      var obj = {};
+      for (var i = x.length-1; i >= 0; -- i)
+         obj[x[i]] = x[i];
+      for (var i = y.length-1; i >= 0; -- i){
+         if(obj.hasOwnProperty(y[i])){
+            delete obj[y[i]];
+         }else{
+            obj[y[i]] = y[i];
+         }
+      }
+      var res = [];
+      for (var k in obj) {
+        if (obj.hasOwnProperty(k))
+          res.push(obj[k]);
+      }
+      return res;
     }
 
     function getSelectedRows() {
@@ -169,6 +218,78 @@
       e.stopImmediatePropagation();
 
       return true;
+    }
+    
+    function handleDragInit(e, dd) {
+      // prevent the grid from cancelling drag'n'drop by default
+      e.stopImmediatePropagation();
+    }
+
+    function handleDragStart(e, dd) {
+      var cell = _grid.getCellFromEvent(e);
+
+        if (_grid.canCellBeSelected(cell.row, cell.cell)) {
+          _dragging = true;
+          e.stopImmediatePropagation();
+        }
+
+      if (!_dragging) {
+        return;
+      }
+
+      _grid.focus();
+
+      var start = _grid.getCellFromPoint(
+          dd.startX - $(_canvas).offset().left,
+          dd.startY - $(_canvas).offset().top);
+      
+      var combinationMode='replace';
+      if(e.shiftKey){
+          combinationMode='union';
+      }
+      if(e.ctrlKey || e.metaKey){
+          combinationMode='xor';
+      }
+      
+      dd.range = {start: start,        end: {}};
+      dd.alreadySelectedRows=rangesToRows(_ranges);
+      dd.combinationMode=combinationMode;
+    }
+
+    function handleDrag(e, dd) {
+      if (!_dragging) {
+        return;
+      }
+      e.stopImmediatePropagation();
+
+      var end = _grid.getCellFromPoint(
+          e.pageX - $(_canvas).offset().left,
+          e.pageY - $(_canvas).offset().top);
+
+      if (!_grid.canCellBeSelected(end.row, end.cell)) {
+        return;
+      }
+      _grid.setActiveCell(end.row, end.cell);
+      dd.range.end = end;
+      var rows = getRowsRange(dd.range.start.row,dd.range.end.row);
+      if(dd.combinationMode==='union'){
+         rows=union_arrays(rows,dd.alreadySelectedRows);
+      }else if(dd.combinationMode==='xor'){
+         rows=xor_arrays(rows,dd.alreadySelectedRows);
+      }
+      
+      _ranges = rowsToRanges(rows);
+      setSelectedRanges(_ranges);
+      return true;
+    }
+
+    function handleDragEnd(e, dd) {
+      if (!_dragging) {
+        return;
+      }
+
+      _dragging = false;
+      e.stopImmediatePropagation();
     }
 
     $.extend(this, {
