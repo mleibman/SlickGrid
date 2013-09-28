@@ -1,0 +1,131 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="../plugins/slick.headermenu.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <style>
+  
+
+    .icon-help {
+      background-image: url(../images/help.png);
+    }
+    .slick-plugin-menu-container{
+      position:absolute;
+      left:0px;
+      top:0px;
+      width:100%;
+    }
+  </style>
+</head>
+<body>
+<div style="position:absolute;">
+
+  <div style="width:600px;">
+    <div id="myGrid" style="width:100%;height:500px;"></div>
+  </div>
+
+  <div class="options-panel">
+    <p>
+      This example demonstrates using the <b>Slick.Plugins.Menu</b> Plugin - which can be registered as a parameter in constructor.
+      
+      <h2>Demonstrates:</h2>
+      <ul>
+        <li>Passing Plugin as parameter to the constructor</li>
+        <li>plugin creates DOM elements and attach itself to grid node and it's parent node</li>
+        <li>
+          show / hide columns
+        </li>
+        <li>entire grid and other plugin DOM can be created on the fly.</li>
+        <li> note: based on Example 4-model. </li>
+        
+      </ul>
+    </p>
+  </div>
+</div>
+
+<script src="../lib/jquery-1.7.min.js"></script>
+<script src="../lib/jquery.event.drag-2.2.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../slick.grid.js"></script>
+<script src="../plugins/slick.menu.js"></script>
+
+<script>
+  var grid;
+  var columns = [
+    {id: "title", name: "Title", field: "title"},
+    {id: "duration", name: "Duration", field: "duration"},
+    {id: "%", name: "% Complete", field: "percentComplete"},
+    {id: "start", name: "Start", field: "start"},
+    {id: "finish", name: "Finish", field: "finish"},
+    {id: "effort-driven", name: "Effort Driven", field: "effortDriven"}
+  ];
+
+  for (var i = 0; i < columns.length; i++) {
+    columns[i].header = {
+      menu: {
+        items: [
+          {
+            iconImage: "../images/sort-asc.gif",
+            title: "Sort Ascending",
+            command: "sort-asc"
+          },
+          {
+            iconImage: "../images/sort-desc.gif",
+            title: "Sort Descending",
+            command: "sort-desc"
+          },
+          {
+            title: "Hide Column",
+            command: "hide",
+            disabled: true,
+            tooltip: "Can't hide this column"
+          },
+          {
+            iconCssClass: "icon-help",
+            title: "Help",
+            command: "help"
+          }
+        ]
+      }
+    };
+  }
+
+
+  var options = {
+    enableColumnReorder: false
+  };
+
+  $(function () {
+    var data = [];
+    for (var i = 0; i < 500; i++) {
+      data[i] = {
+        title: "Task " + i,
+        duration: "5 days",
+        percentComplete: Math.round(Math.random() * 100),
+        start: "01/01/2009",
+        finish: "01/05/2009",
+        effortDriven: (i % 5 == 0)
+      };
+    }
+
+    
+    var MenuPlugin = new Slick.Plugins.Menu({});
+
+    MenuPlugin.onBeforeMenuShow.subscribe(function(e, args) {
+      var menu = args.menu;
+    });
+
+    MenuPlugin.onCommand.subscribe(function(e, args) {
+      //alert("Command: " + args.command);
+    });
+
+    grid = new Slick.Grid("#myGrid", data, columns, options, [ MenuPlugin ]);
+
+  })
+</script>
+</body>
+</html>
