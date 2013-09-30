@@ -66,6 +66,11 @@
 
       var retVal = '';
 
+      // use formatter if available; much faster than editor
+      if (columnDef.formatter) {
+          return columnDef.formatter(0, 0, item[columnDef.field], columnDef, item);
+      }
+
       // if a custom getter is not defined, we call serializeValue of the editor to serialize
       if (columnDef.editor){
         var editorArgs = {
@@ -290,7 +295,7 @@
             _self.onCopyCells.notify({ranges: ranges});
             
             var columns = _grid.getColumns();
-            var clipTextArr = [];
+            var clipText = "";
             
             for (var rg = 0; rg < ranges.length; rg++){
                 var range = ranges[rg];
@@ -299,14 +304,23 @@
                     var clipTextCells = [];
                     var dt = _grid.getDataItem(i);
                     
+                    if (clipText == "" && _options.includeHeaderWhenCopying) {
+                        var clipTextHeaders = [];
+                        for (var j = range.fromCell; j < range.toCell + 1 ; j++) {
+                            if (columns[j].name.length > 0)
+                                clipTextHeaders.push(columns[j].name);
+                        }
+                        clipTextRows.push(clipTextHeaders.join("\t"));
+                    }
+
                     for (var j=range.fromCell; j< range.toCell+1 ; j++){
                         clipTextCells.push(getDataItemValueForColumn(dt, columns[j]));
                     }
                     clipTextRows.push(clipTextCells.join("\t"));
                 }
-                clipTextArr.push(clipTextRows.join("\r\n"));
+                clipText += clipTextRows.join("\r\n") + "\r\n";
             }
-            var clipText = clipTextArr.join('');
+            
             var $focus = $(_grid.getActiveCellNode());
             var ta = _createTextBox(clipText);
 
