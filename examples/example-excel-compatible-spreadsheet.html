@@ -177,7 +177,8 @@
   });
 
   var pluginOptions = {
-    clipboardCommandHandler: function(editCommand){ undoRedoBuffer.queueAndExecuteCommand.call(undoRedoBuffer,editCommand); }
+    clipboardCommandHandler: function(editCommand){ undoRedoBuffer.queueAndExecuteCommand.call(undoRedoBuffer,editCommand); },
+    includeHeaderWhenCopying : false
   };
 
   var columns = [
