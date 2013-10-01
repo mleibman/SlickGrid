@@ -1715,8 +1715,10 @@ if (typeof Slick === "undefined") {
         if (cacheEntry.cellRenderQueue.length) {
           var lastChild = cacheEntry.rowNode.lastChild;
           while (cacheEntry.cellRenderQueue.length) {
-            var columnIdx = cacheEntry.cellRenderQueue.pop();
-            cacheEntry.cellNodesByColumnIdx[columnIdx] = lastChild;
+            if (lastChild.className.indexOf('slick-cell') >= 0) {
+              var columnIdx = cacheEntry.cellRenderQueue.pop();
+              cacheEntry.cellNodesByColumnIdx[columnIdx] = lastChild;
+            }
             lastChild = lastChild.previousSibling;
           }
         }
