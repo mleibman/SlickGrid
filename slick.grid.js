@@ -1339,6 +1339,18 @@ if (typeof Slick === "undefined") {
       }
     }
 
+    function scrollToHorizontal(x) {
+      x = Math.max(x, 0);
+
+      var newScrollLeft = x;
+
+      if (prevScrollLeft != newScrollLeft) {
+        $viewport[0].scrollLeft = (lastRenderedScrollLeft = scrollLeft = prevScrollLeft = newScrollLeft);
+
+        trigger(self.onViewportChanged, {});
+      }
+    }
+
     function defaultFormatter(row, cell, value, columnDef, dataContext) {
       if (value == null) {
         return "";
@@ -3327,6 +3339,8 @@ if (typeof Slick === "undefined") {
       "scrollRowIntoView": scrollRowIntoView,
       "scrollRowToTop": scrollRowToTop,
       "scrollCellIntoView": scrollCellIntoView,
+      "scrollTo": scrollTo,
+      "scrollToHorizontal": scrollToHorizontal,
       "getCanvasNode": getCanvasNode,
       "focus": setFocus,
 
