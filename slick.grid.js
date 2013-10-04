@@ -1355,11 +1355,16 @@ if (typeof Slick === "undefined") {
           rowMetadata.columns &&
           (rowMetadata.columns[column.id] || rowMetadata.columns[getColumnIndex(column.id)]);
 
-      return (columnOverrides && columnOverrides.formatter) ||
+      var formatterFunction = (columnOverrides && columnOverrides.formatter) ||
           (rowMetadata && rowMetadata.formatter) ||
           column.formatter ||
           (options.formatterFactory && options.formatterFactory.getFormatter(column)) ||
           options.defaultFormatter;
+  
+      if (typeof formatterFunction === 'string' && typeof window[formatterFunction] === 'function')
+          formatterFunction = window[formatterFunction];
+          
+      return formatterFunction;
     }
 
     function getEditor(row, cell) {
