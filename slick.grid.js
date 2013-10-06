@@ -1382,7 +1382,7 @@ if (typeof Slick === "undefined") {
         var fieldpart1 = field.substring(0,field.indexOf('['));
         var index = field.substring(field.indexOf('[')+1,field.indexOf(']'));
         var fieldremain = field.substring(field.indexOf(']')+2);
-        if (fieldpart.indexOf('.')>=0){
+        if (fieldpart1.indexOf('.')>=0){
           item=getDataItemValue(item,fieldpart1);
         }
         return getDataItemValue(item[fieldpart1][index],fieldremain);
