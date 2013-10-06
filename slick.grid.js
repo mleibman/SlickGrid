@@ -1376,12 +1376,28 @@ if (typeof Slick === "undefined") {
 
       return column.editor || (options.editorFactory && options.editorFactory.getEditor(column));
     }
+    
+    function getDataItemValue(item,field){
+      if (field.indexOf('[')>=0){
+        var fieldpart1 = field.substring(0,field.indexOf('['));
+        var index = field.substring(field.indexOf('[')+1,field.indexOf(']'));
+        var fieldremain = field.substring(field.indexOf(']')+2);
+        if (fieldpart.indexOf('.')>=0){
+          item=getDataItemValue(item,fieldpart1);
+        }
+        return getDataItemValue(item[fieldpart1][index],fieldremain);
+      } else if (field.indexOf('.')>=0){
+        var fieldpart1 = field.substring(0,field.indexOf('.'));
+        var fieldremain = field.substring(field.indexOf('.')+1);
+        return getDataItemValue(item[fieldpart1],fieldremain);
+      } else return item[field];
+    }
 
     function getDataItemValueForColumn(item, columnDef) {
       if (options.dataItemColumnValueExtractor) {
         return options.dataItemColumnValueExtractor(item, columnDef);
       }
-      return item[columnDef.field];
+      return getDataItemValue(item,columnDef.field);
     }
 
     function appendRowHtml(stringArray, row, range, dataLength) {
