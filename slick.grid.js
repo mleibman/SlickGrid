@@ -1379,19 +1379,28 @@ if (typeof Slick === "undefined") {
     
     function getDataItemValue(item,field){
       if (field.indexOf('[')>=0){
-        var fieldpart1 = field.substring(0,field.indexOf('['));
-        var index = field.substring(field.indexOf('[')+1,field.indexOf(']'));
-        var fieldremain = field.substring(field.indexOf(']')+2);
-        if (fieldpart1.indexOf('.')>=0){
-          item=getDataItemValue(item,fieldpart1);
+        try {
+          var fieldpart1 = field.substring(0,field.indexOf('['));
+          var index = field.substring(field.indexOf('[')+1,field.indexOf(']'));
+          var fieldremain = field.substring(field.indexOf(']')+2);
+          if (fieldpart1.indexOf('.')>=0){
+            item=getDataItemValue(item,fieldpart1);
+          }        
+          return getDataItemValue(item[fieldpart1][index],fieldremain);  
+        } catch(e){
+          return '';
         }
-        return getDataItemValue(item[fieldpart1][index],fieldremain);
       } else if (field.indexOf('.')>=0){
-        var fieldpart1 = field.substring(0,field.indexOf('.'));
-        var fieldremain = field.substring(field.indexOf('.')+1);
-        return getDataItemValue(item[fieldpart1],fieldremain);
+        try {
+          var fieldpart1 = field.substring(0,field.indexOf('.'));
+          var fieldremain = field.substring(field.indexOf('.')+1);        
+          return getDataItemValue(item[fieldpart1],fieldremain);
+        } catch(e){
+          return '';
+        }  
       } else return item[field];
     }
+
 
     function getDataItemValueForColumn(item, columnDef) {
       if (options.dataItemColumnValueExtractor) {
