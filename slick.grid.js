@@ -3137,6 +3137,17 @@ if (typeof Slick === "undefined") {
       selectionModel.setSelectedRanges(rowsToRanges(rows));
     }
 
+    function hideColumns(hidecolumnids, flag) {
+    	self.columnhider.hideColumns(hidecolumnids, flag);
+    }
+    
+    function registerDefaultPlugins() {
+	    if (Slick.ColumnHider) {
+	      k.ColumnHider(columns, self, options);
+        registerPlugin(self.columnhider);
+    	}
+    }
+
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Debug
@@ -3273,6 +3284,7 @@ if (typeof Slick === "undefined") {
       "setCellCssStyles": setCellCssStyles,
       "removeCellCssStyles": removeCellCssStyles,
       "getCellCssStyles": getCellCssStyles,
+      "hideColumns": hideColumns,
 
       "init": finishInitialization,
       "destroy": destroy,
