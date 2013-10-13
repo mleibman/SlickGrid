@@ -3283,5 +3283,6 @@ if (typeof Slick === "undefined") {
     });
 
     init();
+    registerDefaultPlugins();
   }
 }(jQuery));
