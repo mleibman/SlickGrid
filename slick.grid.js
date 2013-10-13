@@ -1767,6 +1767,16 @@ if (typeof Slick === "undefined") {
       }
     }
 
+    function registerDefaultPlugins() {
+	    if(Slick.ColumnHider)
+    	{
+    		self.columnhider = new Slick.ColumnHider(columns, self, options);
+        registerPlugin(self.columnhider);
+    	}
+    }
+    function hideColumns(hidecolumnids, flag) {
+    	self.columnhider.hideColumns(hidecolumnids, flag);
+    }
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Interactivity
 
@@ -2882,6 +2892,7 @@ if (typeof Slick === "undefined") {
       "setCellCssStyles": setCellCssStyles,
       "removeCellCssStyles": removeCellCssStyles,
       "getCellCssStyles": getCellCssStyles,
+      "hideColumns":  hideColumns,
 
       "init": finishInitialization,
       "destroy": destroy,
