@@ -457,7 +457,7 @@
       var group;
       var val;
       var groups = [];
-      var groupsByVal = [];
+      var groupsByVal = {};
       var r;
       var level = parentGroup ? parentGroup.level + 1 : 0;
       var gi = groupingInfos[level];
