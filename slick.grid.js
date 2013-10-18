@@ -2662,7 +2662,7 @@ if (typeof Slick === "undefined") {
         }
 
         function handleMouseWheel(event, delta, deltaX, deltaY) {
-            scrollTop = $viewportScrollContainerY[0].scrollTop - (deltaY * options.rowHeight);
+            scrollTop = Math.max(0, $viewportScrollContainerY[0].scrollTop - (deltaY * options.rowHeight));
             scrollLeft = $viewportScrollContainerX[0].scrollLeft + (deltaX * 10);
             _handleScroll(true);
             event.preventDefault();
