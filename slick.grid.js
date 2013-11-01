@@ -598,9 +598,11 @@ if (typeof Slick === "undefined") {
 
                     $paneHeaderL.width(canvasWidthL);
                     $paneHeaderR.css('left', canvasWidthL);
+                    $paneHeaderR.css('width', viewportW - canvasWidthL);
 
                     $paneTopL.width(canvasWidthL);
                     $paneTopR.css('left', canvasWidthL);
+                    $paneTopR.css('width', viewportW - canvasWidthL);
 
                     $headerRowScrollerL.width(canvasWidthL);
                     $headerRowScrollerR.width(viewportW - canvasWidthL);
