@@ -3060,1240 +3060,1240 @@ if (typeof Slick === "undefined") {
                     }
                 }
             }
+        }
 
-            function handleContextMenu(e) {
-                var $cell = $(e.target).closest(".slick-cell", $canvas);
-                if ($cell.length === 0) {
-                    return;
-                }
-
-                // are we editing this cell?
-                if (activeCellNode === $cell[0] && currentEditor !== null) {
-                    return;
-                }
-
-                trigger(self.onContextMenu, {}, e);
+        function handleContextMenu(e) {
+            var $cell = $(e.target).closest(".slick-cell", $canvas);
+            if ($cell.length === 0) {
+                return;
             }
 
-            function handleDblClick(e) {
-                var cell = getCellFromEvent(e);
-                if (!cell || (currentEditor !== null && activeRow == cell.row && activeCell == cell.cell)) {
-                    return;
-                }
-
-                trigger(self.onDblClick, {
-                    row: cell.row,
-                    cell: cell.cell
-                }, e);
-                if (e.isImmediatePropagationStopped()) {
-                    return;
-                }
-
-                if (options.editable) {
-                    gotoCell(cell.row, cell.cell, true);
-                }
+            // are we editing this cell?
+            if (activeCellNode === $cell[0] && currentEditor !== null) {
+                return;
             }
 
-            function handleHeaderMouseEnter(e) {
-                trigger(self.onHeaderMouseEnter, {
-                    "column": $(this).data("column")
-                }, e);
+            trigger(self.onContextMenu, {}, e);
+        }
+
+        function handleDblClick(e) {
+            var cell = getCellFromEvent(e);
+            if (!cell || (currentEditor !== null && activeRow == cell.row && activeCell == cell.cell)) {
+                return;
             }
 
-            function handleHeaderMouseLeave(e) {
-                trigger(self.onHeaderMouseLeave, {
-                    "column": $(this).data("column")
-                }, e);
+            trigger(self.onDblClick, {
+                row: cell.row,
+                cell: cell.cell
+            }, e);
+            if (e.isImmediatePropagationStopped()) {
+                return;
             }
 
-            function handleHeaderContextMenu(e) {
-                var $header = $(e.target).closest(".slick-header-column", ".slick-header-columns");
-                var column = $header && $header.data("column");
-                trigger(self.onHeaderContextMenu, {
+            if (options.editable) {
+                gotoCell(cell.row, cell.cell, true);
+            }
+        }
+
+        function handleHeaderMouseEnter(e) {
+            trigger(self.onHeaderMouseEnter, {
+                "column": $(this).data("column")
+            }, e);
+        }
+
+        function handleHeaderMouseLeave(e) {
+            trigger(self.onHeaderMouseLeave, {
+                "column": $(this).data("column")
+            }, e);
+        }
+
+        function handleHeaderContextMenu(e) {
+            var $header = $(e.target).closest(".slick-header-column", ".slick-header-columns");
+            var column = $header && $header.data("column");
+            trigger(self.onHeaderContextMenu, {
+                column: column
+            }, e);
+        }
+
+        function handleHeaderClick(e) {
+            var $header = $(e.target).closest(".slick-header-column", ".slick-header-columns");
+            var column = $header && $header.data("column");
+            if (column) {
+                trigger(self.onHeaderClick, {
                     column: column
                 }, e);
             }
+        }
 
-            function handleHeaderClick(e) {
-                var $header = $(e.target).closest(".slick-header-column", ".slick-header-columns");
-                var column = $header && $header.data("column");
-                if (column) {
-                    trigger(self.onHeaderClick, {
-                        column: column
-                    }, e);
+        function handleMouseEnter(e) {
+            trigger(self.onMouseEnter, {}, e);
+        }
+
+        function handleMouseLeave(e) {
+            trigger(self.onMouseLeave, {}, e);
+        }
+
+        function cellExists(row, cell) {
+            return !(row < 0 || row >= getDataLength() || cell < 0 || cell >= columns.length);
+        }
+
+        function getCellFromPoint(x, y) {
+            var row = getRowFromPosition(y);
+            var cell = 0;
+
+            var w = 0;
+            for (var i = 0; i < columns.length && w < x; i++) {
+                w += columns[i].width;
+                cell++;
+            }
+
+            if (cell < 0) {
+                cell = 0;
+            }
+
+            return {
+                row: row,
+                cell: cell - 1
+            };
+        }
+
+        function getCellFromNode(cellNode) {
+            // read column number from .l<columnNumber> CSS class
+            var cls = /l\d+/.exec(cellNode.className);
+            if (!cls) {
+                throw "getCellFromNode: cannot get cell - " + cellNode.className;
+            }
+            return parseInt(cls[0].substr(1, cls[0].length - 1), 10);
+        }
+
+        function getRowFromNode(rowNode) {
+            for (var row in rowsCache) {
+                if (rowsCache[row].rowNode[0] === rowNode[0]) {
+                    return row | 0;
                 }
             }
 
-            function handleMouseEnter(e) {
-                trigger(self.onMouseEnter, {}, e);
-            }
+            return null;
+        }
 
-            function handleMouseLeave(e) {
-                trigger(self.onMouseLeave, {}, e);
-            }
+        function getFrozenRowOffset(row) {
+            var offset =
+                ( hasFrozenRows )
+                    ? ( options.frozenBottom )
+                    ? ( row >= actualFrozenRow )
+                    ? ( h < viewportTopH )
+                    ? ( actualFrozenRow * options.rowHeight )
+                    : h
+                    : 0
+                    : ( row >= actualFrozenRow )
+                    ? frozenRowsHeight
+                    : 0
+                    : 0;
 
-            function cellExists(row, cell) {
-                return !(row < 0 || row >= getDataLength() || cell < 0 || cell >= columns.length);
-            }
+            return offset;
+        }
 
-            function getCellFromPoint(x, y) {
-                var row = getRowFromPosition(y);
-                var cell = 0;
-
-                var w = 0;
-                for (var i = 0; i < columns.length && w < x; i++) {
-                    w += columns[i].width;
-                    cell++;
-                }
-
-                if (cell < 0) {
-                    cell = 0;
-                }
-
-                return {
-                    row: row,
-                    cell: cell - 1
-                };
-            }
-
-            function getCellFromNode(cellNode) {
-                // read column number from .l<columnNumber> CSS class
-                var cls = /l\d+/.exec(cellNode.className);
-                if (!cls) {
-                    throw "getCellFromNode: cannot get cell - " + cellNode.className;
-                }
-                return parseInt(cls[0].substr(1, cls[0].length - 1), 10);
-            }
-
-            function getRowFromNode(rowNode) {
-                for (var row in rowsCache) {
-                    if (rowsCache[row].rowNode[0] === rowNode[0]) {
-                        return row | 0;
-                    }
-                }
-
+        function getCellFromEvent(e) {
+            var $cell = $(e.target).closest(".slick-cell", $canvas);
+            if (!$cell.length) {
                 return null;
             }
 
-            function getFrozenRowOffset(row) {
-                var offset =
-                    ( hasFrozenRows )
-                        ? ( options.frozenBottom )
-                        ? ( row >= actualFrozenRow )
-                        ? ( h < viewportTopH )
-                        ? ( actualFrozenRow * options.rowHeight )
-                        : h
-                        : 0
-                        : ( row >= actualFrozenRow )
-                        ? frozenRowsHeight
-                        : 0
-                        : 0;
+            // TODO: This change eliminates the need for getCellFromEvent since
+            //  we're ultimately calling getCellFromPoint.  Need to further analyze
+            //  if getCellFromEvent can work with frozen columns
 
-                return offset;
+            var c = $cell.parents('.grid-canvas').offset();
+
+            var rowOffset = 0;
+            var isBottom = $cell.parents('.grid-canvas-bottom').length;
+
+            if (hasFrozenRows && isBottom) {
+                rowOffset = ( options.frozenBottom ) ? $canvasTopL.height() : frozenRowsHeight;
             }
 
-            function getCellFromEvent(e) {
-                var $cell = $(e.target).closest(".slick-cell", $canvas);
-                if (!$cell.length) {
-                    return null;
+            var row = getCellFromPoint(e.clientX - c.left, e.clientY - c.top + rowOffset + $(document).scrollTop()).row;
+            var cell = getCellFromNode($cell[0]);
+
+            if (row == null || cell == null) {
+                return null;
+            } else {
+                return {
+                    "row": row,
+                    "cell": cell
+                };
+            }
+        }
+
+        function getCellNodeBox(row, cell) {
+            if (!cellExists(row, cell)) {
+                return null;
+            }
+
+            var frozenRowOffset = getFrozenRowOffset(row);
+
+            var y1 = getRowTop(row) - frozenRowOffset;
+            var y2 = y1 + options.rowHeight - 1;
+            var x1 = 0;
+            for (var i = 0; i < cell; i++) {
+                x1 += columns[i].width;
+
+                if (options.frozenColumn == i) {
+                    x1 = 0;
                 }
+            }
+            var x2 = x1 + columns[cell].width;
 
-                // TODO: This change eliminates the need for getCellFromEvent since
-                //  we're ultimately calling getCellFromPoint.  Need to further analyze
-                //  if getCellFromEvent can work with frozen columns
+            return {
+                top: y1,
+                left: x1,
+                bottom: y2,
+                right: x2
+            };
+        }
 
-                var c = $cell.parents('.grid-canvas').offset();
+        // ////////////////////////////////////////////////////////////////////////////////////////////
+        // Cell switching
 
-                var rowOffset = 0;
-                var isBottom = $cell.parents('.grid-canvas-bottom').length;
+        function resetActiveCell() {
+            setActiveCellInternal(null, false);
+        }
+
+        function setFocus() {
+            if (tabbingDirection == -1) {
+                $focusSink[0].focus();
+            } else {
+                $focusSink2[0].focus();
+            }
+        }
+
+        function scrollCellIntoView(row, cell, doPaging) {
+            // Don't scroll to frozen cells
+            if (cell <= options.frozenColumn) {
+                return;
+            }
+
+            if (row < actualFrozenRow) {
+                scrollRowIntoView(row, doPaging);
+            }
+
+            var colspan = getColspan(row, cell);
+            var left = columnPosLeft[cell],
+                right = columnPosRight[cell + (colspan > 1 ? colspan - 1 : 0)],
+                scrollRight = scrollLeft + $viewportScrollContainerX.width();
+
+            if (left < scrollLeft) {
+                $viewportScrollContainerX.scrollLeft(left);
+                handleScroll();
+                render();
+            } else if (right > scrollRight) {
+                $viewportScrollContainerX.scrollLeft(Math.min(left, right - $viewportScrollContainerX[0].clientWidth));
+                handleScroll();
+                render();
+            }
+        }
+
+        function setActiveCellInternal(newCell, opt_editMode) {
+            if (activeCellNode !== null) {
+                makeActiveCellNormal();
+                $(activeCellNode).removeClass("active");
+                if (rowsCache[activeRow]) {
+                    $(rowsCache[activeRow].rowNode).removeClass("active");
+                }
+            }
+
+            var activeCellChanged = (activeCellNode !== newCell);
+            activeCellNode = newCell;
+
+            if (activeCellNode != null) {
+                var $activeCellNode = $(activeCellNode);
+                var $activeCellOffset = $activeCellNode.offset();
+
+                var rowOffset = Math.floor($activeCellNode.parents('.grid-canvas').offset().top);
+                var isBottom = $activeCellNode.parents('.grid-canvas-bottom').length;
 
                 if (hasFrozenRows && isBottom) {
-                    rowOffset = ( options.frozenBottom ) ? $canvasTopL.height() : frozenRowsHeight;
+                    rowOffset -= ( options.frozenBottom )
+                        ? $canvasTopL.height()
+                        : frozenRowsHeight;
                 }
 
-                var row = getCellFromPoint(e.clientX - c.left, e.clientY - c.top + rowOffset + $(document).scrollTop()).row;
-                var cell = getCellFromNode($cell[0]);
+                cell = getCellFromPoint($activeCellOffset.left, Math.ceil($activeCellOffset.top) - rowOffset);
 
-                if (row == null || cell == null) {
-                    return null;
-                } else {
-                    return {
-                        "row": row,
-                        "cell": cell
-                    };
-                }
-            }
+                activeRow = cell.row;
+                activeCell = activePosX = activeCell = activePosX = getCellFromNode(activeCellNode[0]);
 
-            function getCellNodeBox(row, cell) {
-                if (!cellExists(row, cell)) {
-                    return null;
+                $activeCellNode.addClass("active");
+
+                if (opt_editMode == null) {
+                    opt_editMode = (activeRow == getDataLength()) || options.autoEdit;
                 }
 
-                var frozenRowOffset = getFrozenRowOffset(row);
+                if (options.editable && opt_editMode && isCellPotentiallyEditable(activeRow, activeCell)) {
+                    clearTimeout(h_editorLoader);
 
-                var y1 = getRowTop(row) - frozenRowOffset;
-                var y2 = y1 + options.rowHeight - 1;
-                var x1 = 0;
-                for (var i = 0; i < cell; i++) {
-                    x1 += columns[i].width;
-
-                    if (options.frozenColumn == i) {
-                        x1 = 0;
-                    }
-                }
-                var x2 = x1 + columns[cell].width;
-
-                return {
-                    top: y1,
-                    left: x1,
-                    bottom: y2,
-                    right: x2
-                };
-            }
-
-            // ////////////////////////////////////////////////////////////////////////////////////////////
-            // Cell switching
-
-            function resetActiveCell() {
-                setActiveCellInternal(null, false);
-            }
-
-            function setFocus() {
-                if (tabbingDirection == -1) {
-                    $focusSink[0].focus();
-                } else {
-                    $focusSink2[0].focus();
-                }
-            }
-
-            function scrollCellIntoView(row, cell, doPaging) {
-                // Don't scroll to frozen cells
-                if (cell <= options.frozenColumn) {
-                    return;
-                }
-
-                if (row < actualFrozenRow) {
-                    scrollRowIntoView(row, doPaging);
-                }
-
-                var colspan = getColspan(row, cell);
-                var left = columnPosLeft[cell],
-                    right = columnPosRight[cell + (colspan > 1 ? colspan - 1 : 0)],
-                    scrollRight = scrollLeft + $viewportScrollContainerX.width();
-
-                if (left < scrollLeft) {
-                    $viewportScrollContainerX.scrollLeft(left);
-                    handleScroll();
-                    render();
-                } else if (right > scrollRight) {
-                    $viewportScrollContainerX.scrollLeft(Math.min(left, right - $viewportScrollContainerX[0].clientWidth));
-                    handleScroll();
-                    render();
-                }
-            }
-
-            function setActiveCellInternal(newCell, opt_editMode) {
-                if (activeCellNode !== null) {
-                    makeActiveCellNormal();
-                    $(activeCellNode).removeClass("active");
-                    if (rowsCache[activeRow]) {
-                        $(rowsCache[activeRow].rowNode).removeClass("active");
-                    }
-                }
-
-                var activeCellChanged = (activeCellNode !== newCell);
-                activeCellNode = newCell;
-
-                if (activeCellNode != null) {
-                    var $activeCellNode = $(activeCellNode);
-                    var $activeCellOffset = $activeCellNode.offset();
-
-                    var rowOffset = Math.floor($activeCellNode.parents('.grid-canvas').offset().top);
-                    var isBottom = $activeCellNode.parents('.grid-canvas-bottom').length;
-
-                    if (hasFrozenRows && isBottom) {
-                        rowOffset -= ( options.frozenBottom )
-                            ? $canvasTopL.height()
-                            : frozenRowsHeight;
-                    }
-
-                    cell = getCellFromPoint($activeCellOffset.left, Math.ceil($activeCellOffset.top) - rowOffset);
-
-                    activeRow = cell.row;
-                    activeCell = activePosX = activeCell = activePosX = getCellFromNode(activeCellNode[0]);
-
-                    $activeCellNode.addClass("active");
-
-                    if (opt_editMode == null) {
-                        opt_editMode = (activeRow == getDataLength()) || options.autoEdit;
-                    }
-
-                    if (options.editable && opt_editMode && isCellPotentiallyEditable(activeRow, activeCell)) {
-                        clearTimeout(h_editorLoader);
-
-                        if (options.asyncEditorLoading) {
-                            h_editorLoader = setTimeout(function () {
-                                makeActiveCellEditable();
-                            }, options.asyncEditorLoadDelay);
-                        } else {
+                    if (options.asyncEditorLoading) {
+                        h_editorLoader = setTimeout(function () {
                             makeActiveCellEditable();
-                        }
-                    }
-                } else {
-                    activeRow = activeCell = null;
-                }
-
-                if (activeCellChanged) {
-                    setTimeout(scrollActiveCellIntoView, 50);
-                    trigger(self.onActiveCellChanged, getActiveCell());
-                }
-            }
-
-            function clearTextSelection() {
-                if (document.selection && document.selection.empty) {
-                    try {
-                        //IE fails here if selected element is not in dom
-                        document.selection.empty();
-                    } catch (e) {
-                    }
-                } else if (window.getSelection) {
-                    var sel = window.getSelection();
-                    if (sel && sel.removeAllRanges) {
-                        sel.removeAllRanges();
+                        }, options.asyncEditorLoadDelay);
+                    } else {
+                        makeActiveCellEditable();
                     }
                 }
+            } else {
+                activeRow = activeCell = null;
             }
 
-            function isCellPotentiallyEditable(row, cell) {
-                var dataLength = getDataLength();
-                // is the data for this row loaded?
-                if (row < dataLength && !getDataItem(row)) {
-                    return false;
-                }
+            if (activeCellChanged) {
+                setTimeout(scrollActiveCellIntoView, 50);
+                trigger(self.onActiveCellChanged, getActiveCell());
+            }
+        }
 
-                // are we in the Add New row? can we create new from this cell?
-                if (columns[cell].cannotTriggerInsert && row >= dataLength) {
-                    return false;
+        function clearTextSelection() {
+            if (document.selection && document.selection.empty) {
+                try {
+                    //IE fails here if selected element is not in dom
+                    document.selection.empty();
+                } catch (e) {
                 }
-
-                // does this cell have an editor?
-                if (!getEditor(row, cell)) {
-                    return false;
+            } else if (window.getSelection) {
+                var sel = window.getSelection();
+                if (sel && sel.removeAllRanges) {
+                    sel.removeAllRanges();
                 }
+            }
+        }
 
-                return true;
+        function isCellPotentiallyEditable(row, cell) {
+            var dataLength = getDataLength();
+            // is the data for this row loaded?
+            if (row < dataLength && !getDataItem(row)) {
+                return false;
             }
 
-            function makeActiveCellNormal() {
-                if (!currentEditor) {
-                    return;
-                }
-                trigger(self.onBeforeCellEditorDestroy, {
-                    editor: currentEditor
-                });
-                currentEditor.destroy();
-                currentEditor = null;
-
-                if (activeCellNode) {
-                    var d = getDataItem(activeRow);
-                    $(activeCellNode).removeClass("editable invalid");
-                    if (d) {
-                        var column = columns[activeCell];
-                        var formatter = getFormatter(activeRow, column);
-                        activeCellNode[0].innerHTML = formatter(activeRow, activeCell, getDataItemValueForColumn(d, column), column, d);
-                        invalidatePostProcessingResults(activeRow);
-                    }
-                }
-
-                // if there previously was text selected on a page (such as selected
-                // text in the edit cell just removed),
-                // IE can't set focus to anything else correctly
-                if (navigator.userAgent.toLowerCase().match(/msie/)) {
-                    clearTextSelection();
-                }
-
-                getEditorLock().deactivate(editController);
+            // are we in the Add New row? can we create new from this cell?
+            if (columns[cell].cannotTriggerInsert && row >= dataLength) {
+                return false;
             }
 
-            function makeActiveCellEditable(editor) {
-                if (!activeCellNode) {
-                    return;
-                }
-                if (!options.editable) {
-                    throw "Grid : makeActiveCellEditable : should never get called when options.editable is false";
-                }
+            // does this cell have an editor?
+            if (!getEditor(row, cell)) {
+                return false;
+            }
 
-                // cancel pending async call if there is one
-                clearTimeout(h_editorLoader);
+            return true;
+        }
 
-                if (!isCellPotentiallyEditable(activeRow, activeCell)) {
-                    return;
-                }
+        function makeActiveCellNormal() {
+            if (!currentEditor) {
+                return;
+            }
+            trigger(self.onBeforeCellEditorDestroy, {
+                editor: currentEditor
+            });
+            currentEditor.destroy();
+            currentEditor = null;
 
-                var columnDef = columns[activeCell];
-                var item = getDataItem(activeRow);
-
-                if (trigger(self.onBeforeEditCell, {
-                    row: activeRow,
-                    cell: activeCell,
-                    item: item,
-                    column: columnDef
-                }) === false) {
-                    setFocus();
-                    return;
-                }
-
-                getEditorLock().activate(editController);
-                $(activeCellNode).addClass("editable");
-
-                // don't clear the cell if a custom editor is passed through
-                if (!editor) {
-                    activeCellNode[0].innerHTML = "";
-                }
-
-                currentEditor = new (editor || getEditor(activeRow, activeCell))({
-                    grid: self,
-                    gridPosition: absBox($container[0]),
-                    position: absBox(activeCellNode[0]),
-                    container: activeCellNode,
-                    column: columnDef,
-                    item: item || {},
-                    commitChanges: commitEditAndSetFocus,
-                    cancelChanges: cancelEditAndSetFocus
-                });
-
-                if (item) {
-                    currentEditor.loadValue(item);
-                }
-
-                serializedEditorValue = currentEditor.serializeValue();
-
-                if (currentEditor.position) {
-                    handleActiveCellPositionChange();
+            if (activeCellNode) {
+                var d = getDataItem(activeRow);
+                $(activeCellNode).removeClass("editable invalid");
+                if (d) {
+                    var column = columns[activeCell];
+                    var formatter = getFormatter(activeRow, column);
+                    activeCellNode[0].innerHTML = formatter(activeRow, activeCell, getDataItemValueForColumn(d, column), column, d);
+                    invalidatePostProcessingResults(activeRow);
                 }
             }
 
-            function commitEditAndSetFocus() {
-                // if the commit fails, it would do so due to a validation error
-                // if so, do not steal the focus from the editor
-                if (getEditorLock().commitCurrentEdit()) {
-                    setFocus();
-                    if (options.autoEdit) {
-                        navigateDown();
-                    }
-                }
+            // if there previously was text selected on a page (such as selected
+            // text in the edit cell just removed),
+            // IE can't set focus to anything else correctly
+            if (navigator.userAgent.toLowerCase().match(/msie/)) {
+                clearTextSelection();
             }
 
-            function cancelEditAndSetFocus() {
-                if (getEditorLock().cancelCurrentEdit()) {
-                    setFocus();
-                }
+            getEditorLock().deactivate(editController);
+        }
+
+        function makeActiveCellEditable(editor) {
+            if (!activeCellNode) {
+                return;
+            }
+            if (!options.editable) {
+                throw "Grid : makeActiveCellEditable : should never get called when options.editable is false";
             }
 
-            function absBox(elem) {
-                var box = {
-                    top: elem.offsetTop,
-                    left: elem.offsetLeft,
-                    bottom: 0,
-                    right: 0,
-                    width: $(elem).outerWidth(),
-                    height: $(elem).outerHeight(),
-                    visible: true
-                };
+            // cancel pending async call if there is one
+            clearTimeout(h_editorLoader);
+
+            if (!isCellPotentiallyEditable(activeRow, activeCell)) {
+                return;
+            }
+
+            var columnDef = columns[activeCell];
+            var item = getDataItem(activeRow);
+
+            if (trigger(self.onBeforeEditCell, {
+                row: activeRow,
+                cell: activeCell,
+                item: item,
+                column: columnDef
+            }) === false) {
+                setFocus();
+                return;
+            }
+
+            getEditorLock().activate(editController);
+            $(activeCellNode).addClass("editable");
+
+            // don't clear the cell if a custom editor is passed through
+            if (!editor) {
+                activeCellNode[0].innerHTML = "";
+            }
+
+            currentEditor = new (editor || getEditor(activeRow, activeCell))({
+                grid: self,
+                gridPosition: absBox($container[0]),
+                position: absBox(activeCellNode[0]),
+                container: activeCellNode,
+                column: columnDef,
+                item: item || {},
+                commitChanges: commitEditAndSetFocus,
+                cancelChanges: cancelEditAndSetFocus
+            });
+
+            if (item) {
+                currentEditor.loadValue(item);
+            }
+
+            serializedEditorValue = currentEditor.serializeValue();
+
+            if (currentEditor.position) {
+                handleActiveCellPositionChange();
+            }
+        }
+
+        function commitEditAndSetFocus() {
+            // if the commit fails, it would do so due to a validation error
+            // if so, do not steal the focus from the editor
+            if (getEditorLock().commitCurrentEdit()) {
+                setFocus();
+                if (options.autoEdit) {
+                    navigateDown();
+                }
+            }
+        }
+
+        function cancelEditAndSetFocus() {
+            if (getEditorLock().cancelCurrentEdit()) {
+                setFocus();
+            }
+        }
+
+        function absBox(elem) {
+            var box = {
+                top: elem.offsetTop,
+                left: elem.offsetLeft,
+                bottom: 0,
+                right: 0,
+                width: $(elem).outerWidth(),
+                height: $(elem).outerHeight(),
+                visible: true
+            };
+            box.bottom = box.top + box.height;
+            box.right = box.left + box.width;
+
+            // walk up the tree
+            var offsetParent = elem.offsetParent;
+            while ((elem = elem.parentNode) != document.body) {
+                if (box.visible && elem.scrollHeight != elem.offsetHeight && $(elem).css("overflowY") != "visible") {
+                    box.visible = box.bottom > elem.scrollTop && box.top < elem.scrollTop + elem.clientHeight;
+                }
+
+                if (box.visible && elem.scrollWidth != elem.offsetWidth && $(elem).css("overflowX") != "visible") {
+                    box.visible = box.right > elem.scrollLeft && box.left < elem.scrollLeft + elem.clientWidth;
+                }
+
+                box.left -= elem.scrollLeft;
+                box.top -= elem.scrollTop;
+
+                if (elem === offsetParent) {
+                    box.left += elem.offsetLeft;
+                    box.top += elem.offsetTop;
+                    offsetParent = elem.offsetParent;
+                }
+
                 box.bottom = box.top + box.height;
                 box.right = box.left + box.width;
-
-                // walk up the tree
-                var offsetParent = elem.offsetParent;
-                while ((elem = elem.parentNode) != document.body) {
-                    if (box.visible && elem.scrollHeight != elem.offsetHeight && $(elem).css("overflowY") != "visible") {
-                        box.visible = box.bottom > elem.scrollTop && box.top < elem.scrollTop + elem.clientHeight;
-                    }
-
-                    if (box.visible && elem.scrollWidth != elem.offsetWidth && $(elem).css("overflowX") != "visible") {
-                        box.visible = box.right > elem.scrollLeft && box.left < elem.scrollLeft + elem.clientWidth;
-                    }
-
-                    box.left -= elem.scrollLeft;
-                    box.top -= elem.scrollTop;
-
-                    if (elem === offsetParent) {
-                        box.left += elem.offsetLeft;
-                        box.top += elem.offsetTop;
-                        offsetParent = elem.offsetParent;
-                    }
-
-                    box.bottom = box.top + box.height;
-                    box.right = box.left + box.width;
-                }
-
-                return box;
             }
 
-            function getActiveCellPosition() {
-                return absBox(activeCellNode[0]);
+            return box;
+        }
+
+        function getActiveCellPosition() {
+            return absBox(activeCellNode[0]);
+        }
+
+        function getGridPosition() {
+            return absBox($container[0]);
+        }
+
+        function handleActiveCellPositionChange() {
+            if (!activeCellNode) {
+                return;
             }
 
-            function getGridPosition() {
-                return absBox($container[0]);
-            }
+            trigger(self.onActiveCellPositionChanged, {});
 
-            function handleActiveCellPositionChange() {
-                if (!activeCellNode) {
-                    return;
-                }
-
-                trigger(self.onActiveCellPositionChanged, {});
-
-                if (currentEditor) {
-                    var cellBox = getActiveCellPosition();
-                    if (currentEditor.show && currentEditor.hide) {
-                        if (!cellBox.visible) {
-                            currentEditor.hide();
-                        } else {
-                            currentEditor.show();
-                        }
-                    }
-
-                    if (currentEditor.position) {
-                        currentEditor.position(cellBox);
-                    }
-                }
-            }
-
-            function getCellEditor() {
-                return currentEditor;
-            }
-
-            function getActiveCell() {
-                if (!activeCellNode) {
-                    return null;
-                } else {
-                    return {
-                        row: activeRow,
-                        cell: activeCell
-                    };
-                }
-            }
-
-            function getActiveCellNode() {
-                return activeCellNode;
-            }
-
-            function scrollActiveCellIntoView() {
-                if (activeRow != null && activeCell != null) {
-                    scrollCellIntoView(activeRow, activeCell);
-                }
-            }
-
-            function scrollRowIntoView(row, doPaging) {
-                if (hasFrozenRows && !options.frozenBottom) {
-                    row -= actualFrozenRow;
-                }
-
-                var viewportScrollH = $viewportScrollContainerY.height();
-
-                var rowAtTop = row * options.rowHeight;
-                var rowAtBottom = (row + 1) * options.rowHeight
-                    - viewportScrollH
-                    + (viewportHasHScroll ? scrollbarDimensions.height : 0);
-
-                // need to page down?
-                if ((row + 1) * options.rowHeight > scrollTop + viewportScrollH + offset) {
-                    scrollTo(doPaging ? rowAtTop : rowAtBottom);
-                    render();
-                }
-                // or page up?
-                else if (row * options.rowHeight < scrollTop + offset) {
-                    scrollTo(doPaging ? rowAtBottom : rowAtTop);
-                    render();
-                }
-            }
-
-            function scrollRowToTop(row) {
-                scrollTo(row * options.rowHeight);
-                render();
-            }
-
-            function scrollPage(dir) {
-                var deltaRows = dir * numVisibleRows;
-                scrollTo((getRowFromPosition(scrollTop) + deltaRows) * options.rowHeight);
-                render();
-
-                if (options.enableCellNavigation && activeRow != null) {
-                    var row = activeRow + deltaRows;
-                    var dataLengthIncludingAddNew = getDataLengthIncludingAddNew();
-                    if (row >= dataLengthIncludingAddNew) {
-                        row = dataLengthIncludingAddNew - 1;
-                    }
-                    if (row < 0) {
-                        row = 0;
-                    }
-
-                    var cell = 0, prevCell = null;
-                    var prevActivePosX = activePosX;
-                    while (cell <= activePosX) {
-                        if (canCellBeActive(row, cell)) {
-                            prevCell = cell;
-                        }
-                        cell += getColspan(row, cell);
-                    }
-
-                    if (prevCell !== null) {
-                        setActiveCellInternal(getCellNode(row, prevCell));
-                        activePosX = prevActivePosX;
+            if (currentEditor) {
+                var cellBox = getActiveCellPosition();
+                if (currentEditor.show && currentEditor.hide) {
+                    if (!cellBox.visible) {
+                        currentEditor.hide();
                     } else {
-                        resetActiveCell();
+                        currentEditor.show();
                     }
                 }
+
+                if (currentEditor.position) {
+                    currentEditor.position(cellBox);
+                }
+            }
+        }
+
+        function getCellEditor() {
+            return currentEditor;
+        }
+
+        function getActiveCell() {
+            if (!activeCellNode) {
+                return null;
+            } else {
+                return {
+                    row: activeRow,
+                    cell: activeCell
+                };
+            }
+        }
+
+        function getActiveCellNode() {
+            return activeCellNode;
+        }
+
+        function scrollActiveCellIntoView() {
+            if (activeRow != null && activeCell != null) {
+                scrollCellIntoView(activeRow, activeCell);
+            }
+        }
+
+        function scrollRowIntoView(row, doPaging) {
+            if (hasFrozenRows && !options.frozenBottom) {
+                row -= actualFrozenRow;
             }
 
-            function navigatePageDown() {
-                scrollPage(1);
-            }
+            var viewportScrollH = $viewportScrollContainerY.height();
 
-            function navigatePageUp() {
-                scrollPage(-1);
-            }
+            var rowAtTop = row * options.rowHeight;
+            var rowAtBottom = (row + 1) * options.rowHeight
+                - viewportScrollH
+                + (viewportHasHScroll ? scrollbarDimensions.height : 0);
 
-            function getColspan(row, cell) {
-                var metadata = data.getItemMetadata && data.getItemMetadata(row);
-                if (!metadata || !metadata.columns) {
-                    return 1;
+            // need to page down?
+            if ((row + 1) * options.rowHeight > scrollTop + viewportScrollH + offset) {
+                scrollTo(doPaging ? rowAtTop : rowAtBottom);
+                render();
+            }
+            // or page up?
+            else if (row * options.rowHeight < scrollTop + offset) {
+                scrollTo(doPaging ? rowAtBottom : rowAtTop);
+                render();
+            }
+        }
+
+        function scrollRowToTop(row) {
+            scrollTo(row * options.rowHeight);
+            render();
+        }
+
+        function scrollPage(dir) {
+            var deltaRows = dir * numVisibleRows;
+            scrollTo((getRowFromPosition(scrollTop) + deltaRows) * options.rowHeight);
+            render();
+
+            if (options.enableCellNavigation && activeRow != null) {
+                var row = activeRow + deltaRows;
+                var dataLengthIncludingAddNew = getDataLengthIncludingAddNew();
+                if (row >= dataLengthIncludingAddNew) {
+                    row = dataLengthIncludingAddNew - 1;
+                }
+                if (row < 0) {
+                    row = 0;
                 }
 
-                var columnData = metadata.columns[columns[cell].id] || metadata.columns[cell];
-                var colspan = (columnData && columnData.colspan);
-                if (colspan === "*") {
-                    colspan = columns.length - cell;
-                } else {
-                    colspan = colspan || 1;
-                }
-                return (colspan || 1);
-            }
-
-            function findFirstFocusableCell(row) {
-                var cell = 0;
-                while (cell < columns.length) {
+                var cell = 0, prevCell = null;
+                var prevActivePosX = activePosX;
+                while (cell <= activePosX) {
                     if (canCellBeActive(row, cell)) {
-                        return cell;
+                        prevCell = cell;
                     }
                     cell += getColspan(row, cell);
                 }
+
+                if (prevCell !== null) {
+                    setActiveCellInternal(getCellNode(row, prevCell));
+                    activePosX = prevActivePosX;
+                } else {
+                    resetActiveCell();
+                }
+            }
+        }
+
+        function navigatePageDown() {
+            scrollPage(1);
+        }
+
+        function navigatePageUp() {
+            scrollPage(-1);
+        }
+
+        function getColspan(row, cell) {
+            var metadata = data.getItemMetadata && data.getItemMetadata(row);
+            if (!metadata || !metadata.columns) {
+                return 1;
+            }
+
+            var columnData = metadata.columns[columns[cell].id] || metadata.columns[cell];
+            var colspan = (columnData && columnData.colspan);
+            if (colspan === "*") {
+                colspan = columns.length - cell;
+            } else {
+                colspan = colspan || 1;
+            }
+            return (colspan || 1);
+        }
+
+        function findFirstFocusableCell(row) {
+            var cell = 0;
+            while (cell < columns.length) {
+                if (canCellBeActive(row, cell)) {
+                    return cell;
+                }
+                cell += getColspan(row, cell);
+            }
+            return null;
+        }
+
+        function findLastFocusableCell(row) {
+            var cell = 0;
+            var lastFocusableCell = null;
+            while (cell < columns.length) {
+                if (canCellBeActive(row, cell)) {
+                    lastFocusableCell = cell;
+                }
+                cell += getColspan(row, cell);
+            }
+            return lastFocusableCell;
+        }
+
+        function gotoRight(row, cell, posX) {
+            if (cell >= columns.length) {
                 return null;
             }
 
-            function findLastFocusableCell(row) {
-                var cell = 0;
-                var lastFocusableCell = null;
-                while (cell < columns.length) {
-                    if (canCellBeActive(row, cell)) {
-                        lastFocusableCell = cell;
-                    }
-                    cell += getColspan(row, cell);
-                }
-                return lastFocusableCell;
+            do {
+                cell += getColspan(row, cell);
+            } while (cell < columns.length && !canCellBeActive(row, cell));
+
+            if (cell < columns.length) {
+                return {
+                    "row": row,
+                    "cell": cell,
+                    "posX": cell
+                };
+            }
+            return null;
+        }
+
+        function gotoLeft(row, cell, posX) {
+            if (cell <= 0) {
+                return null;
             }
 
-            function gotoRight(row, cell, posX) {
-                if (cell >= columns.length) {
+            var firstFocusableCell = findFirstFocusableCell(row);
+            if (firstFocusableCell === null || firstFocusableCell >= cell) {
+                return null;
+            }
+
+            var prev = {
+                "row": row,
+                "cell": firstFocusableCell,
+                "posX": firstFocusableCell
+            };
+            var pos;
+            while (true) {
+                pos = gotoRight(prev.row, prev.cell, prev.posX);
+                if (!pos) {
+                    return null;
+                }
+                if (pos.cell >= cell) {
+                    return prev;
+                }
+                prev = pos;
+            }
+        }
+
+        function gotoDown(row, cell, posX) {
+            var prevCell;
+            var dataLengthIncludingAddNew = getDataLengthIncludingAddNew();
+            while (true) {
+                if (++row >= dataLengthIncludingAddNew) {
                     return null;
                 }
 
-                do {
+                prevCell = cell = 0;
+                while (cell <= posX) {
+                    prevCell = cell;
                     cell += getColspan(row, cell);
-                } while (cell < columns.length && !canCellBeActive(row, cell));
+                }
 
-                if (cell < columns.length) {
+                if (canCellBeActive(row, prevCell)) {
+                    return {
+                        "row": row,
+                        "cell": prevCell,
+                        "posX": posX
+                    };
+                }
+            }
+        }
+
+        function gotoUp(row, cell, posX) {
+            var prevCell;
+            while (true) {
+                if (--row < 0) {
+                    return null;
+                }
+
+                prevCell = cell = 0;
+                while (cell <= posX) {
+                    prevCell = cell;
+                    cell += getColspan(row, cell);
+                }
+
+                if (canCellBeActive(row, prevCell)) {
+                    return {
+                        "row": row,
+                        "cell": prevCell,
+                        "posX": posX
+                    };
+                }
+            }
+        }
+
+        function gotoNext(row, cell, posX) {
+            if (row == null && cell == null) {
+                row = cell = posX = 0;
+                if (canCellBeActive(row, cell)) {
                     return {
                         "row": row,
                         "cell": cell,
                         "posX": cell
                     };
                 }
-                return null;
             }
 
-            function gotoLeft(row, cell, posX) {
-                if (cell <= 0) {
-                    return null;
-                }
-
-                var firstFocusableCell = findFirstFocusableCell(row);
-                if (firstFocusableCell === null || firstFocusableCell >= cell) {
-                    return null;
-                }
-
-                var prev = {
-                    "row": row,
-                    "cell": firstFocusableCell,
-                    "posX": firstFocusableCell
-                };
-                var pos;
-                while (true) {
-                    pos = gotoRight(prev.row, prev.cell, prev.posX);
-                    if (!pos) {
-                        return null;
-                    }
-                    if (pos.cell >= cell) {
-                        return prev;
-                    }
-                    prev = pos;
-                }
-            }
-
-            function gotoDown(row, cell, posX) {
-                var prevCell;
-                var dataLengthIncludingAddNew = getDataLengthIncludingAddNew();
-                while (true) {
-                    if (++row >= dataLengthIncludingAddNew) {
-                        return null;
-                    }
-
-                    prevCell = cell = 0;
-                    while (cell <= posX) {
-                        prevCell = cell;
-                        cell += getColspan(row, cell);
-                    }
-
-                    if (canCellBeActive(row, prevCell)) {
-                        return {
-                            "row": row,
-                            "cell": prevCell,
-                            "posX": posX
-                        };
-                    }
-                }
-            }
-
-            function gotoUp(row, cell, posX) {
-                var prevCell;
-                while (true) {
-                    if (--row < 0) {
-                        return null;
-                    }
-
-                    prevCell = cell = 0;
-                    while (cell <= posX) {
-                        prevCell = cell;
-                        cell += getColspan(row, cell);
-                    }
-
-                    if (canCellBeActive(row, prevCell)) {
-                        return {
-                            "row": row,
-                            "cell": prevCell,
-                            "posX": posX
-                        };
-                    }
-                }
-            }
-
-            function gotoNext(row, cell, posX) {
-                if (row == null && cell == null) {
-                    row = cell = posX = 0;
-                    if (canCellBeActive(row, cell)) {
-                        return {
-                            "row": row,
-                            "cell": cell,
-                            "posX": cell
-                        };
-                    }
-                }
-
-                var pos = gotoRight(row, cell, posX);
-                if (pos) {
-                    return pos;
-                }
-
-                var firstFocusableCell = null;
-                var dataLengthIncludingAddNew = getDataLengthIncludingAddNew();
-                while (++row < dataLengthIncludingAddNew) {
-                    firstFocusableCell = findFirstFocusableCell(row);
-                    if (firstFocusableCell !== null) {
-                        return {
-                            "row": row,
-                            "cell": firstFocusableCell,
-                            "posX": firstFocusableCell
-                        };
-                    }
-                }
-                return null;
-            }
-
-            function gotoPrev(row, cell, posX) {
-                if (row == null && cell == null) {
-                    row = getDataLengthIncludingAddNew() - 1;
-                    cell = posX = columns.length - 1;
-                    if (canCellBeActive(row, cell)) {
-                        return {
-                            "row": row,
-                            "cell": cell,
-                            "posX": cell
-                        };
-                    }
-                }
-
-                var pos;
-                var lastSelectableCell;
-                while (!pos) {
-                    pos = gotoLeft(row, cell, posX);
-                    if (pos) {
-                        break;
-                    }
-                    if (--row < 0) {
-                        return null;
-                    }
-
-                    cell = 0;
-                    lastSelectableCell = findLastFocusableCell(row);
-                    if (lastSelectableCell !== null) {
-                        pos = {
-                            "row": row,
-                            "cell": lastSelectableCell,
-                            "posX": lastSelectableCell
-                        };
-                    }
-                }
+            var pos = gotoRight(row, cell, posX);
+            if (pos) {
                 return pos;
             }
 
-            function navigateRight() {
-                return navigate("right");
-            }
-
-            function navigateLeft() {
-                return navigate("left");
-            }
-
-            function navigateDown() {
-                return navigate("down");
-            }
-
-            function navigateUp() {
-                return navigate("up");
-            }
-
-            function navigateNext() {
-                return navigate("next");
-            }
-
-            function navigatePrev() {
-                return navigate("prev");
-            }
-
-            /**
-             * @param {string} dir Navigation direction.
-             * @return {boolean} Whether navigation resulted in a change of active cell.
-             */
-            function navigate(dir) {
-                if (!options.enableCellNavigation) {
-                    return false;
+            var firstFocusableCell = null;
+            var dataLengthIncludingAddNew = getDataLengthIncludingAddNew();
+            while (++row < dataLengthIncludingAddNew) {
+                firstFocusableCell = findFirstFocusableCell(row);
+                if (firstFocusableCell !== null) {
+                    return {
+                        "row": row,
+                        "cell": firstFocusableCell,
+                        "posX": firstFocusableCell
+                    };
                 }
+            }
+            return null;
+        }
 
-                if (!activeCellNode && dir != "prev" && dir != "next") {
-                    return false;
+        function gotoPrev(row, cell, posX) {
+            if (row == null && cell == null) {
+                row = getDataLengthIncludingAddNew() - 1;
+                cell = posX = columns.length - 1;
+                if (canCellBeActive(row, cell)) {
+                    return {
+                        "row": row,
+                        "cell": cell,
+                        "posX": cell
+                    };
                 }
+            }
 
-                if (!getEditorLock().commitCurrentEdit()) {
-                    return true;
-                }
-
-                setFocus();
-
-                var tabbingDirections = {
-                    "up": -1,
-                    "down": 1,
-                    "left": -1,
-                    "right": 1,
-                    "prev": -1,
-                    "next": 1
-                };
-                tabbingDirection = tabbingDirections[dir];
-
-                var stepFunctions = {
-                    "up": gotoUp,
-                    "down": gotoDown,
-                    "left": gotoLeft,
-                    "right": gotoRight,
-                    "prev": gotoPrev,
-                    "next": gotoNext
-                };
-                var stepFn = stepFunctions[dir];
-                var pos = stepFn(activeRow, activeCell, activePosX);
-
+            var pos;
+            var lastSelectableCell;
+            while (!pos) {
+                pos = gotoLeft(row, cell, posX);
                 if (pos) {
-                    if (hasFrozenRows && options.frozenBottom & pos.row == getDataLength()) {
-                        return;
-                    }
+                    break;
+                }
+                if (--row < 0) {
+                    return null;
+                }
 
-                    var isAddNewRow = (pos.row == getDataLength());
-
-                    if (( !options.frozenBottom && pos.row >= actualFrozenRow )
-                        || ( options.frozenBottom && pos.row < actualFrozenRow )
-                        ) {
-                        scrollCellIntoView(pos.row, pos.cell, !isAddNewRow);
-                    }
-
-                    setActiveCellInternal(getCellNode(pos.row, pos.cell))
-                    activePosX = pos.posX;
-                    return true;
-                } else {
-                    setActiveCellInternal(getCellNode(activeRow, activeCell));
-                    return false;
+                cell = 0;
+                lastSelectableCell = findLastFocusableCell(row);
+                if (lastSelectableCell !== null) {
+                    pos = {
+                        "row": row,
+                        "cell": lastSelectableCell,
+                        "posX": lastSelectableCell
+                    };
                 }
             }
+            return pos;
+        }
 
-            function getCellNode(row, cell) {
-                if (rowsCache[row]) {
-                    ensureCellNodesInRowsCache(row);
-                    return rowsCache[row].cellNodesByColumnIdx[cell];
-                }
-                return null;
+        function navigateRight() {
+            return navigate("right");
+        }
+
+        function navigateLeft() {
+            return navigate("left");
+        }
+
+        function navigateDown() {
+            return navigate("down");
+        }
+
+        function navigateUp() {
+            return navigate("up");
+        }
+
+        function navigateNext() {
+            return navigate("next");
+        }
+
+        function navigatePrev() {
+            return navigate("prev");
+        }
+
+        /**
+         * @param {string} dir Navigation direction.
+         * @return {boolean} Whether navigation resulted in a change of active cell.
+         */
+        function navigate(dir) {
+            if (!options.enableCellNavigation) {
+                return false;
             }
 
-            function setActiveCell(row, cell) {
-                if (!initialized) {
-                    return;
-                }
-                if (row > getDataLength() || row < 0 || cell >= columns.length || cell < 0) {
-                    return;
-                }
-
-                if (!options.enableCellNavigation) {
-                    return;
-                }
-
-                scrollCellIntoView(row, cell, false);
-                setActiveCellInternal(getCellNode(row, cell), false);
+            if (!activeCellNode && dir != "prev" && dir != "next") {
+                return false;
             }
 
-            function canCellBeActive(row, cell) {
-                if (!options.enableCellNavigation || row >= getDataLengthIncludingAddNew() ||
-                    row < 0 || cell >= columns.length || cell < 0) {
-                    return false;
-                }
-
-                var rowMetadata = data.getItemMetadata && data.getItemMetadata(row);
-                if (rowMetadata && typeof rowMetadata.focusable === "boolean") {
-                    return rowMetadata.focusable;
-                }
-
-                var columnMetadata = rowMetadata && rowMetadata.columns;
-                if (columnMetadata && columnMetadata[columns[cell].id] && typeof columnMetadata[columns[cell].id].focusable === "boolean") {
-                    return columnMetadata[columns[cell].id].focusable;
-                }
-                if (columnMetadata && columnMetadata[cell] && typeof columnMetadata[cell].focusable === "boolean") {
-                    return columnMetadata[cell].focusable;
-                }
-
-                return columns[cell].focusable;
+            if (!getEditorLock().commitCurrentEdit()) {
+                return true;
             }
 
-            function canCellBeSelected(row, cell) {
-                if (row >= getDataLength() || row < 0 || cell >= columns.length || cell < 0) {
-                    return false;
-                }
+            setFocus();
 
-                var rowMetadata = data.getItemMetadata && data.getItemMetadata(row);
-                if (rowMetadata && typeof rowMetadata.selectable === "boolean") {
-                    return rowMetadata.selectable;
-                }
+            var tabbingDirections = {
+                "up": -1,
+                "down": 1,
+                "left": -1,
+                "right": 1,
+                "prev": -1,
+                "next": 1
+            };
+            tabbingDirection = tabbingDirections[dir];
 
-                var columnMetadata = rowMetadata && rowMetadata.columns && (rowMetadata.columns[columns[cell].id] || rowMetadata.columns[cell]);
-                if (columnMetadata && typeof columnMetadata.selectable === "boolean") {
-                    return columnMetadata.selectable;
-                }
+            var stepFunctions = {
+                "up": gotoUp,
+                "down": gotoDown,
+                "left": gotoLeft,
+                "right": gotoRight,
+                "prev": gotoPrev,
+                "next": gotoNext
+            };
+            var stepFn = stepFunctions[dir];
+            var pos = stepFn(activeRow, activeCell, activePosX);
 
-                return columns[cell].selectable;
-            }
-
-            function gotoCell(row, cell, forceEdit) {
-                if (!initialized) {
-                    return;
-                }
-                if (!canCellBeActive(row, cell)) {
+            if (pos) {
+                if (hasFrozenRows && options.frozenBottom & pos.row == getDataLength()) {
                     return;
                 }
 
-                if (!getEditorLock().commitCurrentEdit()) {
-                    return;
+                var isAddNewRow = (pos.row == getDataLength());
+
+                if (( !options.frozenBottom && pos.row >= actualFrozenRow )
+                    || ( options.frozenBottom && pos.row < actualFrozenRow )
+                    ) {
+                    scrollCellIntoView(pos.row, pos.cell, !isAddNewRow);
                 }
 
-                scrollCellIntoView(row, cell, false);
+                setActiveCellInternal(getCellNode(pos.row, pos.cell))
+                activePosX = pos.posX;
+                return true;
+            } else {
+                setActiveCellInternal(getCellNode(activeRow, activeCell));
+                return false;
+            }
+        }
 
-                var newCell = getCellNode(row, cell);
+        function getCellNode(row, cell) {
+            if (rowsCache[row]) {
+                ensureCellNodesInRowsCache(row);
+                return rowsCache[row].cellNodesByColumnIdx[cell];
+            }
+            return null;
+        }
 
-                // if selecting the 'add new' row, start editing right away
-                setActiveCellInternal(newCell, forceEdit || (row === getDataLength()) || options.autoEdit);
-
-                // if no editor was created, set the focus back on the grid
-                if (!currentEditor) {
-                    setFocus();
-                }
+        function setActiveCell(row, cell) {
+            if (!initialized) {
+                return;
+            }
+            if (row > getDataLength() || row < 0 || cell >= columns.length || cell < 0) {
+                return;
             }
 
-            // ////////////////////////////////////////////////////////////////////////////////////////////
-            // IEditor implementation for the editor lock
+            if (!options.enableCellNavigation) {
+                return;
+            }
 
-            function commitCurrentEdit() {
-                var item = getDataItem(activeRow);
-                var column = columns[activeCell];
+            scrollCellIntoView(row, cell, false);
+            setActiveCellInternal(getCellNode(row, cell), false);
+        }
 
-                if (currentEditor) {
-                    if (currentEditor.isValueChanged()) {
-                        var validationResults = currentEditor.validate();
+        function canCellBeActive(row, cell) {
+            if (!options.enableCellNavigation || row >= getDataLengthIncludingAddNew() ||
+                row < 0 || cell >= columns.length || cell < 0) {
+                return false;
+            }
 
-                        if (validationResults.valid) {
-                            if (activeRow < getDataLength()) {
-                                var editCommand = {
-                                    row: activeRow,
-                                    cell: activeCell,
-                                    editor: currentEditor,
-                                    serializedValue: currentEditor.serializeValue(),
-                                    prevSerializedValue: serializedEditorValue,
-                                    execute: function () {
-                                        this.editor.applyValue(item, this.serializedValue);
-                                        updateRow(this.row);
-                                    },
-                                    undo: function () {
-                                        this.editor.applyValue(item, this.prevSerializedValue);
-                                        updateRow(this.row);
-                                    }
-                                };
+            var rowMetadata = data.getItemMetadata && data.getItemMetadata(row);
+            if (rowMetadata && typeof rowMetadata.focusable === "boolean") {
+                return rowMetadata.focusable;
+            }
 
-                                if (options.editCommandHandler) {
-                                    makeActiveCellNormal();
-                                    options.editCommandHandler(item, column, editCommand);
-                                } else {
-                                    editCommand.execute();
-                                    makeActiveCellNormal();
-                                }
+            var columnMetadata = rowMetadata && rowMetadata.columns;
+            if (columnMetadata && columnMetadata[columns[cell].id] && typeof columnMetadata[columns[cell].id].focusable === "boolean") {
+                return columnMetadata[columns[cell].id].focusable;
+            }
+            if (columnMetadata && columnMetadata[cell] && typeof columnMetadata[cell].focusable === "boolean") {
+                return columnMetadata[cell].focusable;
+            }
 
-                                trigger(self.onCellChange, {
-                                    row: activeRow,
-                                    cell: activeCell,
-                                    item: item
-                                });
-                            } else {
-                                var newItem = {};
-                                currentEditor.applyValue(newItem, currentEditor.serializeValue());
-                                makeActiveCellNormal();
-                                trigger(self.onAddNewRow, {
-                                    item: newItem,
-                                    column: column
-                                });
-                            }
+            return columns[cell].focusable;
+        }
 
-                            // check whether the lock has been re-acquired by event handlers
-                            return !getEditorLock().isActive();
-                        } else {
-                            // Re-add the CSS class to trigger transitions, if any.
-                            $(activeCellNode).removeClass("invalid");
-                            $(activeCellNode).width();  // force layout
-                            $(activeCellNode).addClass("invalid");
+        function canCellBeSelected(row, cell) {
+            if (row >= getDataLength() || row < 0 || cell >= columns.length || cell < 0) {
+                return false;
+            }
 
-                            trigger(self.onValidationError, {
-                                editor: currentEditor,
-                                cellNode: activeCellNode,
-                                validationResults: validationResults,
+            var rowMetadata = data.getItemMetadata && data.getItemMetadata(row);
+            if (rowMetadata && typeof rowMetadata.selectable === "boolean") {
+                return rowMetadata.selectable;
+            }
+
+            var columnMetadata = rowMetadata && rowMetadata.columns && (rowMetadata.columns[columns[cell].id] || rowMetadata.columns[cell]);
+            if (columnMetadata && typeof columnMetadata.selectable === "boolean") {
+                return columnMetadata.selectable;
+            }
+
+            return columns[cell].selectable;
+        }
+
+        function gotoCell(row, cell, forceEdit) {
+            if (!initialized) {
+                return;
+            }
+            if (!canCellBeActive(row, cell)) {
+                return;
+            }
+
+            if (!getEditorLock().commitCurrentEdit()) {
+                return;
+            }
+
+            scrollCellIntoView(row, cell, false);
+
+            var newCell = getCellNode(row, cell);
+
+            // if selecting the 'add new' row, start editing right away
+            setActiveCellInternal(newCell, forceEdit || (row === getDataLength()) || options.autoEdit);
+
+            // if no editor was created, set the focus back on the grid
+            if (!currentEditor) {
+                setFocus();
+            }
+        }
+
+        // ////////////////////////////////////////////////////////////////////////////////////////////
+        // IEditor implementation for the editor lock
+
+        function commitCurrentEdit() {
+            var item = getDataItem(activeRow);
+            var column = columns[activeCell];
+
+            if (currentEditor) {
+                if (currentEditor.isValueChanged()) {
+                    var validationResults = currentEditor.validate();
+
+                    if (validationResults.valid) {
+                        if (activeRow < getDataLength()) {
+                            var editCommand = {
                                 row: activeRow,
                                 cell: activeCell,
+                                editor: currentEditor,
+                                serializedValue: currentEditor.serializeValue(),
+                                prevSerializedValue: serializedEditorValue,
+                                execute: function () {
+                                    this.editor.applyValue(item, this.serializedValue);
+                                    updateRow(this.row);
+                                },
+                                undo: function () {
+                                    this.editor.applyValue(item, this.prevSerializedValue);
+                                    updateRow(this.row);
+                                }
+                            };
+
+                            if (options.editCommandHandler) {
+                                makeActiveCellNormal();
+                                options.editCommandHandler(item, column, editCommand);
+                            } else {
+                                editCommand.execute();
+                                makeActiveCellNormal();
+                            }
+
+                            trigger(self.onCellChange, {
+                                row: activeRow,
+                                cell: activeCell,
+                                item: item
+                            });
+                        } else {
+                            var newItem = {};
+                            currentEditor.applyValue(newItem, currentEditor.serializeValue());
+                            makeActiveCellNormal();
+                            trigger(self.onAddNewRow, {
+                                item: newItem,
                                 column: column
                             });
-
-                            currentEditor.focus();
-                            return false;
                         }
+
+                        // check whether the lock has been re-acquired by event handlers
+                        return !getEditorLock().isActive();
+                    } else {
+                        // Re-add the CSS class to trigger transitions, if any.
+                        $(activeCellNode).removeClass("invalid");
+                        $(activeCellNode).width();  // force layout
+                        $(activeCellNode).addClass("invalid");
+
+                        trigger(self.onValidationError, {
+                            editor: currentEditor,
+                            cellNode: activeCellNode,
+                            validationResults: validationResults,
+                            row: activeRow,
+                            cell: activeCell,
+                            column: column
+                        });
+
+                        currentEditor.focus();
+                        return false;
                     }
-
-                    makeActiveCellNormal();
                 }
-                return true;
-            }
 
-            function cancelCurrentEdit() {
                 makeActiveCellNormal();
-                return true;
             }
-
-            function rowsToRanges(rows) {
-                var ranges = [];
-                var lastCell = columns.length - 1;
-                for (var i = 0; i < rows.length; i++) {
-                    ranges.push(new Slick.Range(rows[i], 0, rows[i], lastCell));
-                }
-                return ranges;
-            }
-
-            function getSelectedRows() {
-                if (!selectionModel) {
-                    throw "Selection model is not set";
-                }
-                return selectedRows;
-            }
-
-            function setSelectedRows(rows) {
-                if (!selectionModel) {
-                    throw "Selection model is not set";
-                }
-                selectionModel.setSelectedRanges(rowsToRanges(rows));
-            }
-
-            // ////////////////////////////////////////////////////////////////////////////////////////////
-            // Debug
-
-            this.debug = function () {
-                var s = "";
-
-                s += ("\n" + "counter_rows_rendered:  " + counter_rows_rendered);
-                s += ("\n" + "counter_rows_removed:  " + counter_rows_removed);
-                s += ("\n" + "renderedRows:  " + renderedRows);
-                s += ("\n" + "numVisibleRows:  " + numVisibleRows);
-                s += ("\n" + "maxSupportedCssHeight:  " + maxSupportedCssHeight);
-                s += ("\n" + "n(umber of pages):  " + n);
-                s += ("\n" + "(current) page:  " + page);
-                s += ("\n" + "page height (ph):  " + ph);
-                s += ("\n" + "vScrollDir:  " + vScrollDir);
-
-                alert(s);
-            };
-
-            // a debug helper to be able to access private members
-            this.eval = function (expr) {
-                return eval(expr);
-            };
-
-            // ////////////////////////////////////////////////////////////////////////////////////////////
-            // Public API
-
-            $.extend(this, {
-                "slickGridVersion": "2.1",
-
-                // Events
-                "onScroll": new Slick.Event(),
-                "onSort": new Slick.Event(),
-                "onHeaderMouseEnter": new Slick.Event(),
-                "onHeaderMouseLeave": new Slick.Event(),
-                "onHeaderContextMenu": new Slick.Event(),
-                "onHeaderClick": new Slick.Event(),
-                "onHeaderCellRendered": new Slick.Event(),
-                "onBeforeHeaderCellDestroy": new Slick.Event(),
-                "onHeaderRowCellRendered": new Slick.Event(),
-                "onBeforeHeaderRowCellDestroy": new Slick.Event(),
-                "onMouseEnter": new Slick.Event(),
-                "onMouseLeave": new Slick.Event(),
-                "onClick": new Slick.Event(),
-                "onDblClick": new Slick.Event(),
-                "onContextMenu": new Slick.Event(),
-                "onKeyDown": new Slick.Event(),
-                "onAddNewRow": new Slick.Event(),
-                "onValidationError": new Slick.Event(),
-                "onViewportChanged": new Slick.Event(),
-                "onColumnsReordered": new Slick.Event(),
-                "onColumnsResized": new Slick.Event(),
-                "onCellChange": new Slick.Event(),
-                "onBeforeEditCell": new Slick.Event(),
-                "onBeforeCellEditorDestroy": new Slick.Event(),
-                "onBeforeDestroy": new Slick.Event(),
-                "onActiveCellChanged": new Slick.Event(),
-                "onActiveCellPositionChanged": new Slick.Event(),
-                "onDragInit": new Slick.Event(),
-                "onDragStart": new Slick.Event(),
-                "onDrag": new Slick.Event(),
-                "onDragEnd": new Slick.Event(),
-                "onSelectedRowsChanged": new Slick.Event(),
-                "onCellCssStylesChanged": new Slick.Event(),
-
-                // Methods
-                "registerPlugin": registerPlugin,
-                "unregisterPlugin": unregisterPlugin,
-                "getColumns": getColumns,
-                "setColumns": setColumns,
-                "getColumnIndex": getColumnIndex,
-                "updateColumnHeader": updateColumnHeader,
-                "setSortColumn": setSortColumn,
-                "setSortColumns": setSortColumns,
-                "getSortColumns": getSortColumns,
-                "autosizeColumns": autosizeColumns,
-                "getOptions": getOptions,
-                "setOptions": setOptions,
-                "getData": getData,
-                "getDataLength": getDataLength,
-                "getDataItem": getDataItem,
-                "setData": setData,
-                "getSelectionModel": getSelectionModel,
-                "setSelectionModel": setSelectionModel,
-                "getSelectedRows": getSelectedRows,
-                "setSelectedRows": setSelectedRows,
-                "getContainerNode": getContainerNode,
-
-                "render": render,
-                "invalidate": invalidate,
-                "invalidateRow": invalidateRow,
-                "invalidateRows": invalidateRows,
-                "invalidateAllRows": invalidateAllRows,
-                "updateCell": updateCell,
-                "updateRow": updateRow,
-                "getViewport": getVisibleRange,
-                "getRenderedRange": getRenderedRange,
-                "resizeCanvas": resizeCanvas,
-                "updateRowCount": updateRowCount,
-                "scrollRowIntoView": scrollRowIntoView,
-                "scrollRowToTop": scrollRowToTop,
-                "scrollCellIntoView": scrollCellIntoView,
-                "getCanvasNode": getCanvasNode,
-                "getCanvases": getCanvases,
-                "getActiveCanvasNode": getActiveCanvasNode,
-                "setActiveCanvasNode": setActiveCanvasNode,
-                "getViewportNode": getViewportNode,
-                "getActiveViewportNode": getActiveViewportNode,
-                "setActiveViewportNode": setActiveViewportNode,
-                "focus": setFocus,
-                "getCellFromPoint": getCellFromPoint,
-                "getCellFromEvent": getCellFromEvent,
-                "getActiveCell": getActiveCell,
-                "setActiveCell": setActiveCell,
-                "getActiveCellNode": getActiveCellNode,
-                "getActiveCellPosition": getActiveCellPosition,
-                "resetActiveCell": resetActiveCell,
-                "editActiveCell": makeActiveCellEditable,
-                "getCellEditor": getCellEditor,
-                "getCellNode": getCellNode,
-                "getCellNodeBox": getCellNodeBox,
-                "canCellBeSelected": canCellBeSelected,
-                "canCellBeActive": canCellBeActive,
-                "navigatePrev": navigatePrev,
-                "navigateNext": navigateNext,
-                "navigateUp": navigateUp,
-                "navigateDown": navigateDown,
-                "navigateLeft": navigateLeft,
-                "navigateRight": navigateRight,
-                "navigatePageUp": navigatePageUp,
-                "navigatePageDown": navigatePageDown,
-                "gotoCell": gotoCell,
-                "getTopPanel": getTopPanel,
-                "setTopPanelVisibility": setTopPanelVisibility,
-                "setHeaderRowVisibility": setHeaderRowVisibility,
-                "getHeaderRow": getHeaderRow,
-                "getHeaderRowColumn": getHeaderRowColumn,
-                "getGridPosition": getGridPosition,
-                "flashCell": flashCell,
-                "addCellCssStyles": addCellCssStyles,
-                "setCellCssStyles": setCellCssStyles,
-                "removeCellCssStyles": removeCellCssStyles,
-                "getCellCssStyles": getCellCssStyles,
-                "getFrozenRowOffset": getFrozenRowOffset,
-
-                "init": finishInitialization,
-                "destroy": destroy,
-
-                // IEditor implementation
-                "getEditorLock": getEditorLock,
-                "getEditController": getEditController
-            });
-
-            init();
+            return true;
         }
+
+        function cancelCurrentEdit() {
+            makeActiveCellNormal();
+            return true;
+        }
+
+        function rowsToRanges(rows) {
+            var ranges = [];
+            var lastCell = columns.length - 1;
+            for (var i = 0; i < rows.length; i++) {
+                ranges.push(new Slick.Range(rows[i], 0, rows[i], lastCell));
+            }
+            return ranges;
+        }
+
+        function getSelectedRows() {
+            if (!selectionModel) {
+                throw "Selection model is not set";
+            }
+            return selectedRows;
+        }
+
+        function setSelectedRows(rows) {
+            if (!selectionModel) {
+                throw "Selection model is not set";
+            }
+            selectionModel.setSelectedRanges(rowsToRanges(rows));
+        }
+
+        // ////////////////////////////////////////////////////////////////////////////////////////////
+        // Debug
+
+        this.debug = function () {
+            var s = "";
+
+            s += ("\n" + "counter_rows_rendered:  " + counter_rows_rendered);
+            s += ("\n" + "counter_rows_removed:  " + counter_rows_removed);
+            s += ("\n" + "renderedRows:  " + renderedRows);
+            s += ("\n" + "numVisibleRows:  " + numVisibleRows);
+            s += ("\n" + "maxSupportedCssHeight:  " + maxSupportedCssHeight);
+            s += ("\n" + "n(umber of pages):  " + n);
+            s += ("\n" + "(current) page:  " + page);
+            s += ("\n" + "page height (ph):  " + ph);
+            s += ("\n" + "vScrollDir:  " + vScrollDir);
+
+            alert(s);
+        };
+
+        // a debug helper to be able to access private members
+        this.eval = function (expr) {
+            return eval(expr);
+        };
+
+        // ////////////////////////////////////////////////////////////////////////////////////////////
+        // Public API
+
+        $.extend(this, {
+            "slickGridVersion": "2.1",
+
+            // Events
+            "onScroll": new Slick.Event(),
+            "onSort": new Slick.Event(),
+            "onHeaderMouseEnter": new Slick.Event(),
+            "onHeaderMouseLeave": new Slick.Event(),
+            "onHeaderContextMenu": new Slick.Event(),
+            "onHeaderClick": new Slick.Event(),
+            "onHeaderCellRendered": new Slick.Event(),
+            "onBeforeHeaderCellDestroy": new Slick.Event(),
+            "onHeaderRowCellRendered": new Slick.Event(),
+            "onBeforeHeaderRowCellDestroy": new Slick.Event(),
+            "onMouseEnter": new Slick.Event(),
+            "onMouseLeave": new Slick.Event(),
+            "onClick": new Slick.Event(),
+            "onDblClick": new Slick.Event(),
+            "onContextMenu": new Slick.Event(),
+            "onKeyDown": new Slick.Event(),
+            "onAddNewRow": new Slick.Event(),
+            "onValidationError": new Slick.Event(),
+            "onViewportChanged": new Slick.Event(),
+            "onColumnsReordered": new Slick.Event(),
+            "onColumnsResized": new Slick.Event(),
+            "onCellChange": new Slick.Event(),
+            "onBeforeEditCell": new Slick.Event(),
+            "onBeforeCellEditorDestroy": new Slick.Event(),
+            "onBeforeDestroy": new Slick.Event(),
+            "onActiveCellChanged": new Slick.Event(),
+            "onActiveCellPositionChanged": new Slick.Event(),
+            "onDragInit": new Slick.Event(),
+            "onDragStart": new Slick.Event(),
+            "onDrag": new Slick.Event(),
+            "onDragEnd": new Slick.Event(),
+            "onSelectedRowsChanged": new Slick.Event(),
+            "onCellCssStylesChanged": new Slick.Event(),
+
+            // Methods
+            "registerPlugin": registerPlugin,
+            "unregisterPlugin": unregisterPlugin,
+            "getColumns": getColumns,
+            "setColumns": setColumns,
+            "getColumnIndex": getColumnIndex,
+            "updateColumnHeader": updateColumnHeader,
+            "setSortColumn": setSortColumn,
+            "setSortColumns": setSortColumns,
+            "getSortColumns": getSortColumns,
+            "autosizeColumns": autosizeColumns,
+            "getOptions": getOptions,
+            "setOptions": setOptions,
+            "getData": getData,
+            "getDataLength": getDataLength,
+            "getDataItem": getDataItem,
+            "setData": setData,
+            "getSelectionModel": getSelectionModel,
+            "setSelectionModel": setSelectionModel,
+            "getSelectedRows": getSelectedRows,
+            "setSelectedRows": setSelectedRows,
+            "getContainerNode": getContainerNode,
+
+            "render": render,
+            "invalidate": invalidate,
+            "invalidateRow": invalidateRow,
+            "invalidateRows": invalidateRows,
+            "invalidateAllRows": invalidateAllRows,
+            "updateCell": updateCell,
+            "updateRow": updateRow,
+            "getViewport": getVisibleRange,
+            "getRenderedRange": getRenderedRange,
+            "resizeCanvas": resizeCanvas,
+            "updateRowCount": updateRowCount,
+            "scrollRowIntoView": scrollRowIntoView,
+            "scrollRowToTop": scrollRowToTop,
+            "scrollCellIntoView": scrollCellIntoView,
+            "getCanvasNode": getCanvasNode,
+            "getCanvases": getCanvases,
+            "getActiveCanvasNode": getActiveCanvasNode,
+            "setActiveCanvasNode": setActiveCanvasNode,
+            "getViewportNode": getViewportNode,
+            "getActiveViewportNode": getActiveViewportNode,
+            "setActiveViewportNode": setActiveViewportNode,
+            "focus": setFocus,
+            "getCellFromPoint": getCellFromPoint,
+            "getCellFromEvent": getCellFromEvent,
+            "getActiveCell": getActiveCell,
+            "setActiveCell": setActiveCell,
+            "getActiveCellNode": getActiveCellNode,
+            "getActiveCellPosition": getActiveCellPosition,
+            "resetActiveCell": resetActiveCell,
+            "editActiveCell": makeActiveCellEditable,
+            "getCellEditor": getCellEditor,
+            "getCellNode": getCellNode,
+            "getCellNodeBox": getCellNodeBox,
+            "canCellBeSelected": canCellBeSelected,
+            "canCellBeActive": canCellBeActive,
+            "navigatePrev": navigatePrev,
+            "navigateNext": navigateNext,
+            "navigateUp": navigateUp,
+            "navigateDown": navigateDown,
+            "navigateLeft": navigateLeft,
+            "navigateRight": navigateRight,
+            "navigatePageUp": navigatePageUp,
+            "navigatePageDown": navigatePageDown,
+            "gotoCell": gotoCell,
+            "getTopPanel": getTopPanel,
+            "setTopPanelVisibility": setTopPanelVisibility,
+            "setHeaderRowVisibility": setHeaderRowVisibility,
+            "getHeaderRow": getHeaderRow,
+            "getHeaderRowColumn": getHeaderRowColumn,
+            "getGridPosition": getGridPosition,
+            "flashCell": flashCell,
+            "addCellCssStyles": addCellCssStyles,
+            "setCellCssStyles": setCellCssStyles,
+            "removeCellCssStyles": removeCellCssStyles,
+            "getCellCssStyles": getCellCssStyles,
+            "getFrozenRowOffset": getFrozenRowOffset,
+
+            "init": finishInitialization,
+            "destroy": destroy,
+
+            // IEditor implementation
+            "getEditorLock": getEditorLock,
+            "getEditController": getEditController
+        });
+
+        init();
     }
-(jQuery));
+}(jQuery));
