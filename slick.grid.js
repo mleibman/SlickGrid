@@ -3326,6 +3326,10 @@ if (typeof Slick === "undefined") {
                 activeCell = activePosX = activeCell = activePosX = getCellFromNode(activeCellNode[0]);
 
                 $activeCellNode.addClass("active");
+                if (rowsCache[activeRow]) {
+                    $(rowsCache[activeRow].rowNode).addClass('active');
+                }
+
 
                 if (opt_editMode == null) {
                     opt_editMode = (activeRow == getDataLength()) || options.autoEdit;
