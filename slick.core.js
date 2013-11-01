@@ -348,7 +348,8 @@
   Group.prototype.equals = function (group) {
     return this.value === group.value &&
         this.count === group.count &&
-        this.collapsed === group.collapsed;
+        this.collapsed === group.collapsed &&
+        this.title === group.title;
   };
 
   /***
