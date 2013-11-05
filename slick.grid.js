@@ -1432,8 +1432,9 @@ if (typeof Slick === "undefined") {
 
     function appendCellHtml(stringArray, row, cell, colspan, item) {
       var m = columns[cell];
+      var cssClass = (typeof m.cssClass === 'function') ? m.cssClass(row, cell, m, item) : m.cssClass;
       var cellCss = "slick-cell l" + cell + " r" + Math.min(columns.length - 1, cell + colspan - 1) +
-          (m.cssClass ? " " + m.cssClass : "");
+          (cssClass ? " " + cssClass : "");
       if (row === activeRow && cell === activeCell) {
         cellCss += (" active");
       }
