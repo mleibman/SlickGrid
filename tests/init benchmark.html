@@ -1,0 +1,57 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>SlickGrid Initialization Benchmark</title>
+        <link rel="stylesheet" href="../slick.grid.css" type="text/css" media="screen" charset="utf-8" />
+        <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" media="screen" charset="utf-8" />
+        <link rel="stylesheet" href="../examples/examples.css" type="text/css" media="screen" charset="utf-8" />
+    </head>
+    <body>
+        <script src="http://code.jquery.com/jquery-1.7.2.js"></script>
+        <script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
+        <script src="../lib/jquery.event.drag-2.2.js"></script>
+
+        <script src="../slick.core.js"></script>
+        <script src="../slick.grid.js"></script>
+        <script src="../slick.formatters.js"></script>
+
+        <button onclick="bench(false)">Run w/o disposing</button>
+        <button onclick="bench(true)">Run w/ disposing</button>
+
+        <hr/>
+
+        <div id="container" style="width:600px;height:100000px;"></div>
+
+        <script>
+        function bench(dispose) {
+          var startTime = new Date();
+          var container = $("#container");
+          for (var i = 0; i < 20; i++) {
+            var parentEl = $("<div style='width:600px;height:400px;'></div>").appendTo(container);
+            var grid = createGrid(parentEl);
+            if (dispose) {
+              grid.destroy();
+              parentEl.remove();
+            }
+          }
+          alert((new Date() - startTime));
+        }
+
+        function createGrid(parentEl) {
+          var data = [{}, {}, {}];
+          var columns = [];
+          for (var i = 0; i < 20; i++) {
+            columns.push({id: "field" + i, name: "field" + i, field: "field" + i});
+          }
+
+          var options = {
+            enableCellNavigation: true,
+            enableColumnReorder: false
+          };
+
+          return new Slick.Grid(parentEl, data, columns, options);
+        }
+        </script>
+    </body>
+</html>
