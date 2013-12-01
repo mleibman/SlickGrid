@@ -123,7 +123,18 @@
 
       var returnValue;
       for (var i = 0; i < handlers.length && !(e.isPropagationStopped() || e.isImmediatePropagationStopped()); i++) {
-        returnValue = handlers[i].call(scope, e, args);
+
+        try {
+
+          returnValue = handlers[i].call(scope, e, args);
+
+        } catch (e) {
+
+          console.error("Exception thrown in event ["+e+"], ignoring. Stack trace: ", e.stack);
+          return null;
+
+        }
+
       }
 
       return returnValue;
