@@ -1061,7 +1061,7 @@ if (typeof Slick === "undefined") {
           shrinkLeeway -= shrinkSize;
           widths[i] -= shrinkSize;
         }
-        if (prevTotal == total) {  // avoid infinite loop
+        if (prevTotal <= total) {  // avoid infinite loop
           break;
         }
         prevTotal = total;
@@ -1084,7 +1084,7 @@ if (typeof Slick === "undefined") {
           total += growSize;
           widths[i] += growSize;
         }
-        if (prevTotal == total) {  // avoid infinite loop
+        if (prevTotal >= total) {  // avoid infinite loop
           break;
         }
         prevTotal = total;
