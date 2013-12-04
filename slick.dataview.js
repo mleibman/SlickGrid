@@ -366,7 +366,7 @@
     function getItem(i) {
       var item = rows[i];
 
-      // if this is a grou row, make sure totals are calculated and update the title
+      // if this is a group row, make sure totals are calculated and update the title
       if (item && item.__group && item.totals && !item.totals.initialized) {
         var gi = groupingInfos[item.level];
         if (!gi.displayTotalsRow) {
