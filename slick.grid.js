@@ -1061,7 +1061,7 @@ if (typeof Slick === "undefined") {
           shrinkLeeway -= shrinkSize;
           widths[i] -= shrinkSize;
         }
-        if (prevTotal == total) {  // avoid infinite loop
+        if (prevTotal <= total) {  // avoid infinite loop
           break;
         }
         prevTotal = total;
@@ -1073,14 +1073,18 @@ if (typeof Slick === "undefined") {
         var growProportion = availWidth / total;
         for (i = 0; i < columns.length && total < availWidth; i++) {
           c = columns[i];
-          if (!c.resizable || c.maxWidth <= c.width) {
-            continue;
+          var currentWidth = widths[i];
+          var growSize;
+
+          if (!c.resizable || c.maxWidth <= currentWidth) {
+            growSize = 0;
+          } else {
+            growSize = Math.min(Math.floor(growProportion * currentWidth) - currentWidth, (c.maxWidth - currentWidth) || 1000000) || 1;
           }
-          var growSize = Math.min(Math.floor(growProportion * c.width) - c.width, (c.maxWidth - c.width) || 1000000) || 1;
           total += growSize;
           widths[i] += growSize;
         }
-        if (prevTotal == total) {  // avoid infinite loop
+        if (prevTotal >= total) {  // avoid infinite loop
           break;
         }
         prevTotal = total;
