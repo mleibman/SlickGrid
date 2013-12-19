@@ -2146,7 +2146,7 @@ if (typeof Slick === "undefined") {
           }
           setTimeout(function () {
                 $cell.queue(function () {
-                  $cell.toggleClass(options.cellFlashingCssClass).dequeue();
+                  $cell.toggleClass(cssClass || options.cellFlashingCssClass).dequeue();
                   toggleCellClass(times - 1);
                 });
               },
