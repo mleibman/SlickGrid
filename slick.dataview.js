@@ -819,6 +819,10 @@
         }
       }
 
+      if (options.rowProcessor && typeof options.rowProcessor === "function") {
+        newRows = options.rowProcessor(newRows);
+      }
+
       var diff = getRowDiffs(rows, newRows);
 
       rows = newRows;
