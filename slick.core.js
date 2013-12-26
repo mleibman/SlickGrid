@@ -15,6 +15,10 @@
       "NonDataRow": NonDataItem,
       "Group": Group,
       "GroupTotals": GroupTotals,
+      "Nesting": Nesting,
+      "NestedRow": NestedRow,
+      "LoadingRow": LoadingRow,
+      "MissingRow": MissingRow,
       "EditorLock": EditorLock,
 
       /***
@@ -252,6 +256,91 @@
     }
   }
 
+  /***
+   * Information about a group of expanded/collapsed rows.
+   * @class Nesting
+   * @param nestingKey {Object} Key uniquely identifying group.
+   * @constructor
+   */
+  function Nesting(nestingKey) {
+
+    /**
+     * Nesting level, starting with 0.
+     * @property level
+     * @type {Number}
+     */
+    this.level = 0;
+
+    /***
+     * Number of rows in the nesting.
+     * @property count
+     * @type {Integer}
+     */
+    this.count = 0;
+
+    /**
+     * Rows that are part of the nesting.
+     * @property rows
+     * @type {Array}
+     */
+    this.rows = [];
+
+    /***
+     * Whether a nesting is expanded.
+     * @property expanded
+     * @type {Boolean}
+     */
+    this.expanded = false;
+
+    /**
+     * A unique key used to identify the nesting group. This key
+     * can be used in calls to NestedModel collapse() or expand().
+     * @property nestingKey
+     * @type {Object}
+     */
+    this.nestingKey = (undefined === nestingKey) ? null : nestingKey;
+  }
+
+  /***
+   * Used to mark related nested rows.
+   * @class NestedRow
+   * @param parentId {Object} Id of the parent row.
+   * @param idProperty {String} Defaults to "id".
+   * @constructor
+   */
+  function NestedRow(parentId, idProperty) {
+
+    /**
+     * Id of the parent row.
+     * @property id
+     * @type {Object}
+     */
+    this[idProperty || "id"] = parentId;
+  }
+
+  /***
+   * A dummy loading data row.
+   * @class LoadingRow
+   * @param id {Object} Unique Id of the row.
+   * @param idProperty {String} Defaults to "id".
+   * @constructor
+   */
+  function LoadingRow(id, idProperty) {
+    this.__loading = true;
+    this[idProperty || "id"] = id;
+  }
+
+    /***
+   * A dummy missing data row.
+   * @class MissingRow
+   * @param id {Object} Unique Id of the row.
+   * @param idProperty {String} Defaults to "id".
+   * @constructor
+   */
+  function MissingRow(id, idProperty) {
+    this.__missing = true;
+    this[idProperty || "id"] = "_m" + id;
+  }
 
   /***
    * A base class that all special / non-data rows (like Group and GroupTotals) derive from.
