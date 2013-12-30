@@ -15,7 +15,7 @@
       "NonDataRow": NonDataItem,
       "Group": Group,
       "GroupTotals": GroupTotals,
-      "Nesting": Nesting,
+      "MasterRow": MasterRow,
       "NestedRow": NestedRow,
       "LoadingRow": LoadingRow,
       "MissingRow": MissingRow,
@@ -257,12 +257,12 @@
   }
 
   /***
-   * Information about a group of expanded/collapsed rows.
-   * @class Nesting
-   * @param nestingKey {Object} Key uniquely identifying group.
+   * Used to decorate a master data row with information about a group of nested child rows.
+   * @class MasterRow
+   * @param nestingKey {Object} Key uniquely identifying the group.
    * @constructor
    */
-  function Nesting(nestingKey) {
+  function MasterRow(nestingKey) {
 
     /**
      * Nesting level, starting with 0.
@@ -302,20 +302,20 @@
   }
 
   /***
-   * Used to mark related nested rows.
+   * Used to decorate related nested rows.
    * @class NestedRow
-   * @param parentId {Object} Id of the parent row.
+   * @param masterId {Object} Id of related master row.
    * @param idProperty {String} Defaults to "id".
    * @constructor
    */
-  function NestedRow(parentId, idProperty) {
+  function NestedRow(masterId, idProperty) {
 
     /**
-     * Id of the parent row.
+     * Id of related master row.
      * @property id
      * @type {Object}
      */
-    this[idProperty || "id"] = parentId;
+    this[idProperty || "id"] = masterId;
   }
 
   /***
@@ -339,7 +339,7 @@
    */
   function MissingRow(id, idProperty) {
     this.__missing = true;
-    this[idProperty || "id"] = "_m" + id;
+    this[idProperty || "id"] = id;
   }
 
   /***
