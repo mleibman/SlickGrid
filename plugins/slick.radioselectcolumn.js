@@ -50,8 +50,9 @@
           _grid.setSelectedRows(args.row === _selectedRow ? [] : [args.row]); // deselect if currently selected
           e.stopPropagation();
         }
-        _grid.setActiveCell(args.row, args.cell);
         e.stopImmediatePropagation();
+        _grid.setActiveCell(args.row, args.cell);
+        _grid.focus();
       }
     }
 
