@@ -80,6 +80,10 @@
         Personally, this is just the coolest slickest thing I've ever seen done with DHTML grids!
       </li>
     </ul>
+      <h2>View Source:</h2>
+      <ul>
+          <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-grouping.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+      </ul>
   </div>
 </div>
 
@@ -166,7 +170,8 @@ function groupByDuration() {
       new Slick.Data.Aggregators.Avg("percentComplete"),
       new Slick.Data.Aggregators.Sum("cost")
     ],
-    aggregateCollapsed: false
+    aggregateCollapsed: false,
+    lazyTotalsCalculation: true
   });
 }
 
@@ -183,7 +188,8 @@ function groupByDurationOrderByCount(aggregateCollapsed) {
       new Slick.Data.Aggregators.Avg("percentComplete"),
       new Slick.Data.Aggregators.Sum("cost")
     ],
-    aggregateCollapsed: aggregateCollapsed
+    aggregateCollapsed: aggregateCollapsed,
+    lazyTotalsCalculation: true
   });
 }
 
@@ -198,7 +204,8 @@ function groupByDurationEffortDriven() {
         new Slick.Data.Aggregators.Sum("duration"),
         new Slick.Data.Aggregators.Sum("cost")
       ],
-      aggregateCollapsed: true
+      aggregateCollapsed: true,
+      lazyTotalsCalculation: true
     },
     {
       getter: "effortDriven",
@@ -209,7 +216,8 @@ function groupByDurationEffortDriven() {
         new Slick.Data.Aggregators.Avg("percentComplete"),
         new Slick.Data.Aggregators.Sum("cost")
       ],
-      collapsed: true
+      collapsed: true,
+      lazyTotalsCalculation: true
     }
   ]);
 }
@@ -225,7 +233,8 @@ function groupByDurationEffortDrivenPercent() {
         new Slick.Data.Aggregators.Sum("duration"),
         new Slick.Data.Aggregators.Sum("cost")
       ],
-      aggregateCollapsed: true
+      aggregateCollapsed: true,
+      lazyTotalsCalculation: true
     },
     {
       getter: "effortDriven",
@@ -235,7 +244,8 @@ function groupByDurationEffortDrivenPercent() {
       aggregators :[
         new Slick.Data.Aggregators.Sum("duration"),
         new Slick.Data.Aggregators.Sum("cost")
-      ]
+      ],
+      lazyTotalsCalculation: true
     },
     {
       getter: "percentComplete",
@@ -246,7 +256,8 @@ function groupByDurationEffortDrivenPercent() {
         new Slick.Data.Aggregators.Avg("percentComplete")
       ],
       aggregateCollapsed: true,
-      collapsed: true
+      collapsed: true,
+      lazyTotalsCalculation: true
     }
   ]);
 }
@@ -261,7 +272,7 @@ function loadData(count) {
     d["id"] = "id_" + i;
     d["num"] = i;
     d["title"] = "Task " + i;
-    d["duration"] = Math.round(Math.random() * 14);
+    d["duration"] = Math.round(Math.random() * 30);
     d["percentComplete"] = Math.round(Math.random() * 100);
     d["start"] = someDates[ Math.floor((Math.random()*2)) ];
     d["finish"] = someDates[ Math.floor((Math.random()*2)) ];
