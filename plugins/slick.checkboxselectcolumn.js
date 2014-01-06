@@ -51,7 +51,21 @@
       _selectedRowsLookup = lookup;
       _grid.render();
 
-      if (selectedRows.length && selectedRows.length == _grid.getDataLength()) {
+      // calculate how many disabled rows there are
+      var disabledRows = 0;
+      var checkboxColIndex = getColumnIndex();
+      for (var i = 0; i < _grid.getDataLength(); i++) {
+        // keep track of any rows that are disabled
+        var rowCheckbox = _grid.getCellNode(i, checkboxColIndex);
+        var rowCheckboxDomElement = $(rowCheckbox).find('input:checkbox');
+        
+        if (rowCheckboxDomElement.is(':disabled')) {
+          disabledRows++;
+        }
+      }
+
+      // take in to consideration disabled rows when checking to see if all rows are selected
+      if (selectedRows.length && selectedRows.length == _grid.getDataLength() - disabledRows) {
         _grid.updateColumnHeader(_options.columnId, "<input type='checkbox' checked='checked'>", _options.toolTip);
       } else {
         _grid.updateColumnHeader(_options.columnId, "<input type='checkbox'>", _options.toolTip);
@@ -107,10 +121,20 @@
         }
 
         if ($(e.target).is(":checked")) {
+          // find the column that has the checkboxselection plugin
+          var checkboxColIndex = getColumnIndex();
+
           var rows = [];
           for (var i = 0; i < _grid.getDataLength(); i++) {
-            rows.push(i);
+            // don't check row checkbox if it is disabled
+            var rowCheckbox = _grid.getCellNode(i, checkboxColIndex);
+            var rowCheckboxDomElement = $(rowCheckbox).find('input:checkbox');
+            
+            if (!rowCheckboxDomElement.is(':disabled')) {
+              rows.push(i);
+            }
           }
+
           _grid.setSelectedRows(rows);
         } else {
           _grid.setSelectedRows([]);
@@ -132,6 +156,22 @@
         cssClass: _options.cssClass,
         formatter: checkboxSelectionFormatter
       };
+    }
+
+    /**
+     * Returns the index of where this column is located in the grid.
+     */
+    function getColumnIndex() {
+      // find the column that has the checkboxselection plugin
+      var columns = _grid.getColumns();
+      for (var i = 0; i < columns.length; i++) {
+        var id = columns[i].id;
+        if (id && id === '_checkbox_selector') {
+          return i;
+        }
+      }
+
+      return null;
     }
 
     function checkboxSelectionFormatter(row, cell, value, columnDef, dataContext) {
