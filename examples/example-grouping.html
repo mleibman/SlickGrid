@@ -66,6 +66,9 @@
       <button onclick="groupByDurationEffortDrivenPercent()">Group by duration then effort-driven then percent.</button>
       <br/>
       <br/>
+      <button onclick="groupByStartAndAggregatePercent()">Group by Start & Agregate Percent</button>
+      <br/>
+      <br/>
       <button onclick="dataView.collapseAllGroups()">Collapse all groups</button>
       <br/>
       <button onclick="dataView.expandAllGroups()">Expand all groups</button>
@@ -260,6 +263,34 @@ function groupByDurationEffortDrivenPercent() {
       lazyTotalsCalculation: true
     }
   ]);
+}
+
+function groupByStartAndAggregatePercent() {
+    dataView.setGrouping({
+        getter: "start",
+        formatter: function (g) {
+            return "Start:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+        },
+        aggregators: [
+            new Slick.Data.Aggregators.WeightedAvg("percentComplete", "duration")
+        ],
+        aggregateCollapsed: true,
+        lazyTotalsCalculation: true
+    });
+}
+
+function groupByStartAndAggregatePercent_() {
+    dataView.setGrouping({
+        getter: "start",
+        formatter: function (g) {
+            return "Start:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+        },
+        aggregators: [
+            new Slick.Data.Aggregators.Avg("percentComplete")
+        ],
+        aggregateCollapsed: true,
+        lazyTotalsCalculation: true
+    });
 }
 
 function loadData(count) {
