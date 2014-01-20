@@ -4,13 +4,15 @@
     var columnCheckboxes;
 
     var defaults = {
-      fadeSpeed:250
+      fadeSpeed:250,
+      forceFitColumnsText: "Force fit columns",
+      syncColumnCellResizeText: "Synchronous resize"
     };
 
     function init() {
+      options = $.extend({}, defaults, options);
       grid.onHeaderContextMenu.subscribe(handleHeaderContextMenu);
       grid.onColumnsReordered.subscribe(updateColumnOrder);
-      options = $.extend({}, defaults, options);
 
       $menu = $("<span class='slick-columnpicker' style='display:none;position:absolute;z-index:20;' />").appendTo(document.body);
 
@@ -53,7 +55,7 @@
       $li = $("<li />").appendTo($menu);
       $input = $("<input type='checkbox' />").data("option", "autoresize");
       $("<label />")
-          .text("Force fit columns")
+          .text(options.forceFitColumnsText)
           .prepend($input)
           .appendTo($li);
       if (grid.getOptions().forceFitColumns) {
@@ -63,7 +65,7 @@
       $li = $("<li />").appendTo($menu);
       $input = $("<input type='checkbox' />").data("option", "syncresize");
       $("<label />")
-          .text("Synchronous resize")
+          .text(options.syncColumnCellResizeText)
           .prepend($input)
           .appendTo($li);
       if (grid.getOptions().syncColumnCellResize) {
