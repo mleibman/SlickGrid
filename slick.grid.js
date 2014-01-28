@@ -2459,7 +2459,7 @@ if (typeof Slick === "undefined") {
     //This get/set methods are used for keeping text-selection. These don't consider IE because they don't loose text-selection.
     function getTextSelection(){
       var selection = null;
-      if (window.getSelection) {
+      if (window.getSelection && window.getSelection().rangeCount > 0) {
         selection = window.getSelection().getRangeAt(0);
       }
       return selection;
