@@ -2,7 +2,7 @@
 
 Find documentation and examples in [the wiki](https://github.com/mleibman/SlickGrid/wiki).
 
-## SlickGrid is an advanced JavaScript grid/spreadsheet component
+## SlickGrid is an advanced jQuery grid/spreadsheet component
 
 Some highlights:
 
