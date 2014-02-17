@@ -93,7 +93,7 @@
       grid.render();
     });
 
-    grid.onBottomRowCellRendered.subscribe(function(e, args) {
+    grid.onFooterRowCellRendered.subscribe(function(e, args) {
       var total = 0;
       $.each(data, function() {
         total += this[args.column.field];

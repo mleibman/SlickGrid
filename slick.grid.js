@@ -329,7 +329,7 @@ if (typeof Slick === "undefined") {
             .bind("scroll", handleHeaderRowScroll);
 
         $footerRowScroller
-            .bind("scroll", handleBottomRowScroll);
+            .bind("scroll", handleFooterRowScroll);
 
         $focusSink.add($focusSink2)
             .bind("keydown", handleKeyDown);
@@ -542,11 +542,11 @@ if (typeof Slick === "undefined") {
       return $header && $header[0];
     }
 
-    function getBottomRow() {
+    function getFooterRow() {
       return $footerRow[0];
     }
 
-    function getBottomRowColumn(columnId) {
+    function getFooterRowColumn(columnId) {
       var idx = getColumnIndex(columnId);
       var $header = $footerRow.children().eq(idx);
       return $header && $header[0];
@@ -557,7 +557,7 @@ if (typeof Slick === "undefined") {
         .each(function() {
           var columnDef = $(this).data("column");
           if (columnDef) {
-            trigger(self.onBeforeBottomRowCellDestroy, {
+            trigger(self.onBeforeFooterRowCellDestroy, {
               "node": this,
               "column": columnDef
             });
@@ -569,12 +569,12 @@ if (typeof Slick === "undefined") {
         var m = columns[i];
 
         if (options.showFooterRow) {
-          var bottomRowCell = $("<div class='ui-state-default slick-footerrow-column l" + i + " r" + i + "'></div>")
+          var footerRowCell = $("<div class='ui-state-default slick-footerrow-column l" + i + " r" + i + "'></div>")
             .data("column", m)
             .appendTo($footerRow);
 
-          trigger(self.onBottomRowCellRendered, {
-            "node": bottomRowCell[0],
+          trigger(self.onFooterRowCellRendered, {
+            "node": footerRowCell[0],
             "column": m
           });
         }
@@ -615,18 +615,6 @@ if (typeof Slick === "undefined") {
         });
       $headerRow.empty();
 
-//      $footerRow.find(".slick-footerrow-column")
-//        .each(function() {
-//          var columnDef = $(this).data("column");
-//          if (columnDef) {
-//            trigger(self.onBeforeBottomRowCellDestroy, {
-//              "node": this,
-//              "column": columnDef
-//            });
-//          }
-//        });
-//      $footerRow.empty();
-
       for (var i = 0; i < columns.length; i++) {
         var m = columns[i];
 
@@ -665,17 +653,6 @@ if (typeof Slick === "undefined") {
             "column": m
           });
         }
-
-//        if (options.showFooterRow) {
-//          var bottomRowCell = $("<div class='ui-state-default slick-footerrow-column l" + i + " r" + i + "'></div>")
-//            .data("column", m)
-//            .appendTo($footerRow);
-//
-//          trigger(self.onBottomRowCellRendered, {
-//            "node": bottomRowCell[0],
-//            "column": m
-//          });
-//        }
       }
 
       setSortColumns(sortColumns);
@@ -1400,7 +1377,7 @@ if (typeof Slick === "undefined") {
       }
     }
 
-    function setBottomRowVisibility(visible) {
+    function setFooterRowVisibility(visible) {
       if (options.showFooterRow != visible) {
         options.showFooterRow = visible;
         if (visible) {
@@ -2069,7 +2046,7 @@ if (typeof Slick === "undefined") {
       }
     }
 
-    function handleBottomRowScroll() {
+    function handleFooterRowScroll() {
       var scrollLeft = $footerRowScroller[0].scrollLeft;
       if (scrollLeft != $viewport[0].scrollLeft) {
         $viewport[0].scrollLeft = scrollLeft;
@@ -3414,9 +3391,9 @@ if (typeof Slick === "undefined") {
       "onHeaderCellRendered": new Slick.Event(),
       "onBeforeHeaderCellDestroy": new Slick.Event(),
       "onHeaderRowCellRendered": new Slick.Event(),
-      "onBottomRowCellRendered": new Slick.Event(),
+      "onFooterRowCellRendered": new Slick.Event(),
       "onBeforeHeaderRowCellDestroy": new Slick.Event(),
-      "onBeforeBottomRowCellDestroy": new Slick.Event(),
+      "onBeforeFooterRowCellDestroy": new Slick.Event(),
       "onMouseEnter": new Slick.Event(),
       "onMouseLeave": new Slick.Event(),
       "onClick": new Slick.Event(),
@@ -3508,9 +3485,9 @@ if (typeof Slick === "undefined") {
       "setHeaderRowVisibility": setHeaderRowVisibility,
       "getHeaderRow": getHeaderRow,
       "getHeaderRowColumn": getHeaderRowColumn,
-      "setBottomRowVisibility": setBottomRowVisibility,
-      "getBottomRow": getBottomRow,
-      "getBottomRowColumn": getBottomRowColumn,
+      "setFooterRowVisibility": setFooterRowVisibility,
+      "getFooterRow": getFooterRow,
+      "getFooterRowColumn": getFooterRowColumn,
       "getGridPosition": getGridPosition,
       "flashCell": flashCell,
       "addCellCssStyles": addCellCssStyles,
