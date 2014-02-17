@@ -19,11 +19,11 @@ classes should alter those!
   background: white url('images/header-columns-over-bg.gif') repeat-x center bottom;
 }
 
-.slick-headerrow {
+.slick-headerrow, .slick-footerrow {
   background: #fafafa;
 }
 
-.slick-headerrow-column {
+.slick-headerrow-column, .slick-footerrow-column {
   background: #fafafa;
   border-bottom: 0;
   height: 100%;
