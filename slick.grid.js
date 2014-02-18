@@ -1369,18 +1369,13 @@ if (typeof Slick === "undefined") {
       return column.editor || (options.editorFactory && options.editorFactory.getEditor(column));
     }
 
-    function getDataItemValueForColumn(item, columnDef) {
-      if (options.dataItemColumnValueExtractor) {
-        return options.dataItemColumnValueExtractor(item, columnDef);
-      }
-      
-      /**
-        * Gets the value that is going to be placed into the column
-        *
-        * @param item: the object containing the row information
-        *
-        * @columnDef: the column definition
-        **/
+    /**
+      * Gets the value that is going to be placed into the column
+      *
+      * @param item: the object containing the row information
+      *
+      * @columnDef: the column definition
+      **/
     function getDataItemValueForColumn(item, columnDef) {
       if (options.dataItemColumnValueExtractor) {
         return options.dataItemColumnValueExtractor(item, columnDef);
