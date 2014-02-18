@@ -1399,10 +1399,10 @@ if (typeof Slick === "undefined") {
         
         if(subfieldValue === null) return null;
         
-           for(i = 1; i < subfieldNames.length; i++) {
+          for(i = 1; i < subfieldNames.length; i++) {
             subfieldValue = subfieldValue[subfieldNames[i]];
-           }
-           return subfieldValue;
+          }
+          return subfieldValue;
       }
     }
 
