@@ -1373,7 +1373,37 @@ if (typeof Slick === "undefined") {
       if (options.dataItemColumnValueExtractor) {
         return options.dataItemColumnValueExtractor(item, columnDef);
       }
-      return item[columnDef.field];
+      
+      /**
+        * Gets the value that is going to be placed into the column
+        *
+        * @param item: the object containing the row information
+        *
+        * @columnDef: the column definition
+        **/
+    function getDataItemValueForColumn(item, columnDef) {
+      if (options.dataItemColumnValueExtractor) {
+        return options.dataItemColumnValueExtractor(item, columnDef);
+      }
+      
+      //To return the value of nested objects is nedded to loop inside the objects name
+      var fieldName = columnDef.field,
+          subfieldNames,
+          subfieldValue,
+          i;
+      if(fieldName.indexOf('.') === -1){
+        return item[columnDef.field];
+      } else {
+        subfieldNames = fieldName.split('.');
+        subfieldValue = item[subfieldNames[0]];
+        
+        if(subfieldValue === null) return null;
+        
+           for(i = 1; i < subfieldNames.length; i++) {
+            subfieldValue = subfieldValue[subfieldNames[i]];
+           }
+           return subfieldValue;
+      }
     }
 
     function appendRowHtml(stringArray, row, range, dataLength) {
