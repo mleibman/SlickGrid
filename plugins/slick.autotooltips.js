@@ -70,7 +70,8 @@
       var column = args.column,
           $node = $(e.target).closest(".slick-header-column");
       if (!column.toolTip) {
-        $node.attr("title", ($node.innerWidth() < $node[0].scrollWidth) ? column.name : "");
+        var tooltipName = column.longName ? column.longName : column.name;
+        $node.attr("title", ($node.innerWidth() < $node[0].scrollWidth) ? tooltipName : "");
       }
     }
     
