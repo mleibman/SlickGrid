@@ -204,6 +204,7 @@ if (typeof Slick === "undefined") {
         if (m.maxWidth && m.width > m.maxWidth) {
           m.width = m.maxWidth;
         }
+        m.haveSubValues=(m.field.indexOf('.')||m.field.indexOf('['));
       }
 
       // validate loaded JavaScript modules against requested options
