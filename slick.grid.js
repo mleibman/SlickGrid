@@ -1406,7 +1406,11 @@ if (typeof Slick === "undefined") {
       if (options.dataItemColumnValueExtractor) {
         return options.dataItemColumnValueExtractor(item, columnDef);
       }
-      return getDataItemValue(item,columnDef.field);
+      if (columnDef.haveSubValues){
+        return getDataItemValue(item,columnDef.field);  
+      } else {
+        return item[columnDef.field];
+      }
     }
 
     function appendRowHtml(stringArray, row, range, dataLength) {
