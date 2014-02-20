@@ -1376,38 +1376,13 @@ if (typeof Slick === "undefined") {
 
       return column.editor || (options.editorFactory && options.editorFactory.getEditor(column));
     }
-    
-    function getDataItemValue(item,field){
-      if (field.indexOf('[')>=0){
-        try {
-          var fieldpart1 = field.substring(0,field.indexOf('['));
-          var index = field.substring(field.indexOf('[')+1,field.indexOf(']'));
-          var fieldremain = field.substring(field.indexOf(']')+2);
-          if (fieldpart1.indexOf('.')>=0){
-            item=getDataItemValue(item,fieldpart1);
-          }        
-          return getDataItemValue(item[fieldpart1][index],fieldremain);  
-        } catch(e){
-          return '';
-        }
-      } else if (field.indexOf('.')>=0){
-        try {
-          var fieldpart1 = field.substring(0,field.indexOf('.'));
-          var fieldremain = field.substring(field.indexOf('.')+1);        
-          return getDataItemValue(item[fieldpart1],fieldremain);
-        } catch(e){
-          return '';
-        }  
-      } else return item[field];
-    }
-
 
     function getDataItemValueForColumn(item, columnDef) {
       if (options.dataItemColumnValueExtractor) {
         return options.dataItemColumnValueExtractor(item, columnDef);
       }
       if (columnDef.haveSubValues){
-        return getDataItemValue(item,columnDef.field);  
+         return new Function("itm","return itm."+columnDef.field)(item)
       } else {
         return item[columnDef.field];
       }
