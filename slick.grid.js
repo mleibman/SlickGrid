@@ -420,6 +420,7 @@ if (typeof Slick === "undefined") {
 
       if (canvasWidth != oldCanvasWidth || forceColumnWidthsUpdate) {
         applyColumnWidths();
+        applyColumnHeaderWidths();
       }
     }
 
@@ -1225,6 +1226,7 @@ if (typeof Slick === "undefined") {
         createCssRules();
         resizeCanvas();
         applyColumnWidths();
+        applyColumnHeaderWidths();
         handleScroll();
       }
     }
