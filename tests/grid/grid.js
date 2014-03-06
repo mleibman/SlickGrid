@@ -49,15 +49,25 @@
     grid.render();
   }
 
+
+
+  module("grid - data", { setup: setUpGrid });
+
+  test("getData should return data", function () {
+    equal(grid.getData(), data);
+  });
+
+
+
   module("grid - column resizing", { setup: setUpGrid });
-  
+
   test("minWidth is respected", function () {
     var firstCol = $("#container .slick-header-column:first");
     firstCol.find(".slick-resizable-handle:first").simulate("drag", { dx: 100,  dy: 0 });
     firstCol.find(".slick-resizable-handle:first").simulate("drag", { dx: -200, dy: 0 });
     equal(firstCol.outerWidth(), 70, "width set to minWidth");
   });
-  
+
   test("onColumnsResized is fired on column resize", function () {
     expect(2);
     grid.onColumnsResized.subscribe(function() { ok(true,"onColumnsResized called") });
@@ -66,10 +76,18 @@
     equal(cols[0].width, oldWidth+100-1, "columns array is updated");
   });
 
-  module("grid - data", { setup: setUpGrid });
-
-  test("getData should return data", function () {
-    equal(grid.getData(), data);
+  test("width can be set using `setColumns`", function () {
+    cols = grid.getColumns();
+    col = cols[1];
+    $cell = $( grid.getCellNode(0,1) );
+    equal($cell.outerWidth(), col.width, "before adjusting, the measured width matches the set width");
+    col.width = 123;
+    notEqual($cell.outerWidth(), col.width, "after configuring, but before setColumns, the measured width does NOT match the set width");
+    grid.setColumns(cols);
+    $cell = $( grid.getCellNode(0,1) ); // Need to re-query the dom because the whole grid has been redrawn
+    equal($cell.outerWidth(), col.width, "after configuring and setColumns, the set width matches the measured width");
   });
+
+
   
 })(jQuery);
