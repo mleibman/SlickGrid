@@ -83,7 +83,7 @@
     start = Date.now();
     grid.setColumns(cols);
     time = Date.now() - start;
-    console.log("grid.setColumns() time: " + time + "ms"); // Informational output only. Not using console.time because of compatibility.
+    console.log("grid.setColumns() time:           " + time + "ms"); // Informational output only. Not using console.time because of compatibility.
     $cell = $( grid.getCellNode(0,1) ); // Need to re-query the dom because the whole grid has been redrawn
     equal($cell.outerWidth(), col.width, "after configuring and setColumns, cell width matches the measured width");
     $headerCell = $("#container .slick-header-column").eq(1);
@@ -95,12 +95,11 @@
     col = cols[1];
     $cell = $( grid.getCellNode(0,1) );
     equal($cell.outerWidth(), col.width, "before adjusting, the measured width matches the set width");
-    ok(typeof grid.updateColumnWidths === "function", "Added a function");
     col.width = 200;
     start = Date.now();
     grid.updateColumnWidths(cols);
     time = Date.now() - start;
-    console.log("grid.updateColumnWidths() time: " + time + "ms"); // Informational output only. Not using console.time because of compatibility.
+    console.log("grid.updateColumnWidths() time:   " + time + "ms"); // Informational output only. Not using console.time because of compatibility.
     $cell = $( grid.getCellNode(0,1) ); // Need to re-query the dom because the whole grid has been redrawn
     equal($cell.outerWidth(), col.width, "after configuring and setColumns, cell width matches the measured width");
     $headerCell = $("#container .slick-header-column").eq(1);

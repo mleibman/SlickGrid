@@ -1239,21 +1239,15 @@ if (typeof Slick === "undefined") {
       enforceWidthLimits(columns);
       updateColumnCaches();
       if (initialized) {
-//        invalidateAllRows();   // This removes rows from cache. Would be needed if we were changing rows.
-//        createColumnHeaders(); // This completely redraws the headers and re-binds events
         $headers.width(getHeadersWidth()); // Set the full width of all the headers together
         // Surgically update only the widths of the header cells
         $headerCells = $headers.children()
         for (var i = 0; i < columns.length; i++) {
           var m = columns[i];
           $el = $headerCells.eq( getColumnIndex(m.id) ); // Get the jQuery-wrapped instance of this column header
-          $el.width(m.width - headerColumnWidthDiff)
+          $el.width(m.width - headerColumnWidthDiff);
         }
-//        removeCssRules();
-//        createCssRules(); // These rules are responsible for heights and cell widths, but not column header widths.
-//        resizeCanvas(); // Might be needed, if the width changes cause a change in SlickGrid's canvas size
         applyColumnWidths(); // Surgically update only cell widths (but not header cells, unfortunately)
-//        handleScroll();
       }
     }
 
