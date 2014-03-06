@@ -24,7 +24,7 @@
     if (grid) {
       grid.destroy(); // doing the destroy at the start of setup, instead of in teardown, leaves a nice grid to see when you're viewing the test page.
     }
-    var ROWS = 500, COLS = 10, row;
+    var ROWS = 500, COLS = 20, row;
     data = [];
     for (var i = 0; i < ROWS; i++) {
       row = { id: "id_" + i };
@@ -76,14 +76,17 @@
     equal(cols[0].width, oldWidth+100-1, "columns array is updated");
   });
 
-  test("width can be set using `setColumns`", function () {
+  test("width can be set using setColumns", function () {
     cols = grid.getColumns();
     col = cols[1];
     $cell = $( grid.getCellNode(0,1) );
     equal($cell.outerWidth(), col.width, "before adjusting, the measured width matches the set width");
     col.width = 123;
     notEqual($cell.outerWidth(), col.width, "after configuring, but before setColumns, the measured width does NOT match the set width");
+    start = Date.now()
     grid.setColumns(cols);
+    time = Date.now() - start;
+    console.log('grid.setColumns() time: ' + time + 'ms'); // Informational output only
     $cell = $( grid.getCellNode(0,1) ); // Need to re-query the dom because the whole grid has been redrawn
     equal($cell.outerWidth(), col.width, "after configuring and setColumns, the set width matches the measured width");
   });
