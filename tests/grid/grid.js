@@ -1,7 +1,7 @@
 (function ($) {
   
   var grid;
-  var el, offsetBefore, offsetAfter, dragged;
+  var el, offsetBefore, offsetAfter, dragged, cols, col, data;
   
   var drag = function(handle, dx, dy) {
     offsetBefore = el.offset();
@@ -20,31 +20,36 @@
     same(actual, expected, 'dragged[' + dragged.dx + ', ' + dragged.dy + '] ' + msg);
   }
   
-  var ROWS = 500, COLS = 10;
-  var data = [], row;
-  for (var i = 0; i < ROWS; i++) {
-    row = { id: "id_" + i };
-    for (var j = 0; j < COLS; j++) {
-      row["col_" + j] = i + "." + j;
+  var setUpGrid = function () {
+    if (grid) {
+      grid.destroy(); // doing the destroy at the start of setup, instead of in teardown, leaves a nice grid to see when you're viewing the test page.
     }
-    data.push(row);
-  }
-  
-  var cols = [], col;
-  for (var i = 0; i < COLS; i++) {
-    cols.push({
-      id: "col" + i,
-      field: "col_" + i,
-      name: "col_" + i
-    });
-  }
-  
-  cols[0].minWidth = 70;
+    var ROWS = 500, COLS = 10, row;
+    data = [];
+    for (var i = 0; i < ROWS; i++) {
+      row = { id: "id_" + i };
+      for (var j = 0; j < COLS; j++) {
+        row["col_" + j] = i + "." + j;
+      }
+      data.push(row);
+    }
 
-  grid = new Slick.Grid("#container", data, cols);
-  grid.render();
+    cols = []
+    for (var i = 0; i < COLS; i++) {
+      cols.push({
+        id: "col" + i,
+        field: "col_" + i,
+        name: "col_" + i
+      });
+    }
 
-  module("grid - column resizing");
+    cols[0].minWidth = 70;
+
+    grid = new Slick.Grid("#container", data, cols);
+    grid.render();
+  }
+
+  module("grid - column resizing", { setup: setUpGrid });
   
   test("minWidth is respected", function () {
     var firstCol = $("#container .slick-header-column:first");
@@ -60,7 +65,9 @@
     $("#container .slick-resizable-handle:first").simulate("drag", { dx: 100, dy: 0 });
     equal(cols[0].width, oldWidth+100-1, "columns array is updated");
   });
-  
+
+  module("grid - data", { setup: setUpGrid });
+
   test("getData should return data", function () {
     equal(grid.getData(), data);
   });
