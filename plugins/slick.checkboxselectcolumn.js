@@ -15,6 +15,7 @@
     var _defaults = {
       columnId: "_checkbox_selector",
       cssClass: null,
+      selectable: true,
       toolTip: "Select/Deselect All",
       width: 30
     };
@@ -130,15 +131,22 @@
         resizable: false,
         sortable: false,
         cssClass: _options.cssClass,
+        selectable: _options.selectable,
         formatter: checkboxSelectionFormatter
       };
     }
 
     function checkboxSelectionFormatter(row, cell, value, columnDef, dataContext) {
-      if (dataContext) {
-        return _selectedRowsLookup[row]
-            ? "<input type='checkbox' checked='checked'>"
-            : "<input type='checkbox'>";
+        if (dataContext) {
+            if (columnDef.selectable) {
+                return _selectedRowsLookup[row]
+                    ? "<input type='checkbox' checked='checked' >"
+                    : "<input type='checkbox' >";
+            } else {
+                return _selectedRowsLookup[row]
+                ? "<input type='checkbox' checked='checked' disabled>"
+                : "<input type='checkbox' disabled>";
+            }
       }
       return null;
     }
