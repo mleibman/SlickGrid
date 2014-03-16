@@ -70,7 +70,8 @@
     }
 
     var checkboxSelector = new Slick.CheckboxSelectColumn({
-      cssClass: "slick-cell-checkboxsel"
+      cssClass: "slick-cell-checkboxsel",
+      selectable: true // false to disable the checkbox
     });
 
     columns.push(checkboxSelector.getColumnDefinition());
@@ -88,7 +89,16 @@
     grid = new Slick.Grid("#myGrid", data, columns, options);
     grid.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow: false}));
     grid.registerPlugin(checkboxSelector);
-
+    /*
+    grid.getItemMetadata = function (row) {
+       if (row >= view.getLength() - 2){ //only on last two rows.
+          return { selectable: false };
+       } else {
+          return {};
+       }
+    }
+    */
+    grid.setSelectedRows([4, 6, 8, 2]);
     var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
   })
 </script>
