@@ -1364,7 +1364,11 @@ if (typeof Slick === "undefined") {
     }
 
     function getFormatter(row, column) {
-      var rowMetadata = data.getItemMetadata && data.getItemMetadata(row);
+      var rowMetadata;
+      if(arguments.length>1)
+      	rowMetadata = data.getItemMetadata && data.getItemMetadata(row);
+      else	// the row parameter must be omitted
+      	column = row;
 
       // look up by id, then index
       var columnOverrides = rowMetadata &&
@@ -1379,8 +1383,12 @@ if (typeof Slick === "undefined") {
     }
 
     function getEditor(row, cell) {
+      var rowMetadata;
+      if(arguments.length>1)
+      	rowMetadata = data.getItemMetadata && data.getItemMetadata(row);
+      else	// the row parameter must be omitted
+      	cell = row;
       var column = columns[cell];
-      var rowMetadata = data.getItemMetadata && data.getItemMetadata(row);
       var columnMetadata = rowMetadata && rowMetadata.columns;
 
       if (columnMetadata && columnMetadata[column.id] && columnMetadata[column.id].editor !== undefined) {
@@ -3408,6 +3416,9 @@ if (typeof Slick === "undefined") {
       "setCellCssStyles": setCellCssStyles,
       "removeCellCssStyles": removeCellCssStyles,
       "getCellCssStyles": getCellCssStyles,
+
+ 	  "getFormatter":getFormatter,
+	  "getEditor":getEditor,
 
       "init": finishInitialization,
       "destroy": destroy,
