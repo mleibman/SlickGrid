@@ -8,6 +8,7 @@ grid.updateColumnWidths(columnDefinitions)
 
 Using this method improves the performance of changing the width of one or more grid columns by a lot. The existing API only allows for a whole grid redraw, which can be very slow. Pull request with notes [here](https://github.com/mleibman/SlickGrid/pull/897). Use cases for fast column size adjustment may be: auto-sizing columns to fit content, responsive sizing cells to fill the screen, and similar. 
 
+Tagged as `2.2.1` so that it meets semver requirements but shows after the latest slickgrid tag of `2.02`.
 
 # Welcome to SlickGrid
 
