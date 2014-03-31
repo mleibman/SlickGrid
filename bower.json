@@ -1,0 +1,20 @@
+{
+  "name": "slickgrid-fastColumnSizing",
+  "version": "2.1.1",
+  "homepage": "https://github.com/SimpleAsCouldBe/SlickGrid",
+  "authors": [
+    "Eric Miller <eric@simpleascouldbe.com>"
+  ],
+  "description": "Slickgrid with an extra method for fast, surgical column sizing.",
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "slickgrid",
+    "performance",
+    "autosize",
+    "column",
+    "size"
+  ],
+  "license": "MIT"
+}
