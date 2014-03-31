@@ -1,3 +1,14 @@
+# About this Fork
+
+This fork adds the following method:
+
+```
+grid.updateColumnWidths(columnDefinitions)
+```
+
+Using this method improves the performance of changing the width(s) of the grid columns by a lot. The existing API only allows for a whole grid redraw, which can be very slow. Pull request with notes [here](https://github.com/mleibman/SlickGrid/pull/897).
+
+
 # Welcome to SlickGrid
 
 Find documentation and examples in [the wiki](https://github.com/mleibman/SlickGrid/wiki).
