@@ -3369,6 +3369,7 @@ if (typeof Slick === "undefined") {
       "setSortColumns": setSortColumns,
       "getSortColumns": getSortColumns,
       "autosizeColumns": autosizeColumns,
+      "setupColumnResize": setupColumnResize,
       "getOptions": getOptions,
       "setOptions": setOptions,
       "getData": getData,
