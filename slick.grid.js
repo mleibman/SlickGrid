@@ -1626,7 +1626,8 @@ if (typeof Slick === "undefined") {
       if (!initialized) { return; }
 
       var dataLengthIncludingAddNew = getDataLengthIncludingAddNew();
-      var numberOfRows = dataLengthIncludingAddNew +
+      
+      numberOfRows = dataLengthIncludingAddNew +
           (options.leaveSpaceForNewRows ? numVisibleRows - 1 : 0);
 
       var oldViewportHasVScroll = viewportHasVScroll;
