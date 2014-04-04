@@ -2614,6 +2614,8 @@ if (typeof Slick === "undefined") {
         gridPosition: absBox($container[0]),
         position: absBox(activeCellNode),
         container: activeCellNode,
+        row: activeRow,
+        cell: activeCell,
         column: columnDef,
         item: item || {},
         commitChanges: commitEditAndSetFocus,
