@@ -5,17 +5,17 @@ No built-in (selected, editable, highlight, flashing, invalid, loading, :focus) 
 classes should alter those!
 */
 
-.slick-header-columns {
+.slick-header-columns, .slick-group-header-columns {
   background: url('images/header-columns-bg.gif') repeat-x center bottom;
   border-bottom: 1px solid silver;
 }
 
-.slick-header-column {
+.slick-header-column, .slick-group-header-column {
   background: url('images/header-columns-bg.gif') repeat-x center bottom;
   border-right: 1px solid silver;
 }
 
-.slick-header-column:hover, .slick-header-column-active {
+.slick-header-column:hover, .slick-header-column-active, .slick-group-header-column:hover, .slick-group-header-column-active {
   background: white url('images/header-columns-over-bg.gif') repeat-x center bottom;
 }
 

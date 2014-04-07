@@ -120,6 +120,7 @@ if (typeof Slick === "undefined") {
     var uid = "slickgrid_" + Math.round(1000000 * Math.random());
     var self = this;
     var $focusSink, $focusSink2;
+    var $groupHeaders = [];
     var $headerScroller;
     var $headers;
     var $headerRow, $headerRowScroller, $headerRowSpacer;
@@ -130,6 +131,7 @@ if (typeof Slick === "undefined") {
     var $canvas;
     var $style;
     var $boundAncestors;
+    var groupHeader;
     var stylesheet, columnCssRulesL, columnCssRulesR;
     var viewportH, viewportW;
     var canvasWidth;
@@ -189,6 +191,92 @@ if (typeof Slick === "undefined") {
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Initialization
 
+    function GroupHeader(treeColumns) {
+
+      function getDepth(node) {
+        if (node.hasOwnProperty('length'))
+          for (var i in node)
+            return getDepth(node[i]);
+        else
+          if (node.hasOwnProperty('columns'))
+            return 1 + getDepth(node.columns);
+          else
+            return 1;
+      }
+
+      function getColumnsInDepth(node, depth, current) {
+        var columns = [];
+        current = current || 0;
+
+        if (depth == current)
+          return node;
+        else
+          for (var i in node)
+            if (node[i].columns)
+              columns = columns.concat( getColumnsInDepth(node[i].columns, depth, current + 1) );
+
+        return columns;
+      }
+
+      function extractColumns(node) {
+        var result = [];
+
+        if (node.hasOwnProperty('length')) {
+
+          for (var i = 0; i < node.length; i++)
+            result = result.concat(extractColumns(node[i]));
+
+        } else {
+
+          if (node.hasOwnProperty('columns'))
+
+            result = result.concat(extractColumns(node.columns));
+
+          else
+            return node;
+
+        }
+
+        return result;
+      }
+
+      return  {
+
+        'hasGroup': function() {
+
+          for(var i in treeColumns)
+            if (treeColumns[i].hasOwnProperty('columns'))
+              return true;
+
+          return false;
+        },
+
+        'getTreeColumns': function() {
+          return treeColumns;
+        },
+
+        'extractColumns': function() {
+          return extractColumns(treeColumns);
+        },
+
+        'getDepth': function() {
+          return getDepth(treeColumns);
+        },
+
+        'getGroupColumnsInDepth':function(depth) {
+          return getColumnsInDepth(treeColumns, depth);
+        },
+
+        'getColumnsInGroup':function(groups) {
+          return extractColumns(groups);
+        }
+
+      }
+
+    }
+
+
+
     function init() {
       $container = $(container);
       if ($container.length < 1) {
@@ -202,6 +290,9 @@ if (typeof Slick === "undefined") {
       options = $.extend({}, defaults, options);
       validateAndEnforceOptions();
       columnDefaults.width = options.defaultColumnWidth;
+
+      groupHeader = new GroupHeader(columns);
+      columns = groupHeader.extractColumns();
 
       columnsById = {};
       for (var i = 0; i < columns.length; i++) {
@@ -240,6 +331,13 @@ if (typeof Slick === "undefined") {
       $focusSink = $("<div tabIndex='0' hideFocus style='position:fixed;width:0;height:0;top:0;left:0;outline:0;'></div>").appendTo($container);
 
       $headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+
+      if (groupHeader.hasGroup())
+        for (var index = 0; index < groupHeader.getDepth() - 1; index++)
+          $groupHeaders[index] = $("<div class='slick-group-header-columns' />")
+            .appendTo($headerScroller)
+            .width(getHeadersWidth());
+
       $headers = $("<div class='slick-header-columns' style='left:-1000px' />").appendTo($headerScroller);
       $headers.width(getHeadersWidth());
 
@@ -309,6 +407,7 @@ if (typeof Slick === "undefined") {
 
         updateColumnCaches();
         createColumnHeaders();
+        createColumnGroupHeaders();
         createColumnFooter();
         setupColumnSort();
         createCssRules();
@@ -581,6 +680,31 @@ if (typeof Slick === "undefined") {
       }
     }
 
+    function createColumnGroupHeaders() {
+      for(var depth in $groupHeaders) {
+
+        var $groupHeader = $groupHeaders[depth];
+
+        $groupHeader.empty().width(getHeadersWidth());
+
+        var groupColumns = groupHeader.getGroupColumnsInDepth(depth);
+
+        for (var indexGroup in groupColumns) {
+          var m = groupColumns[indexGroup];
+
+          $("<div class='ui-state-default slick-group-header-column' />")
+            .html("<span class='slick-column-name'>" + m.name + "</span>")
+            .attr("id", "" + uid + m.id)
+            .attr("title", m.toolTip || "")
+            .data("column", m)
+            .addClass(m.headerCssClass || "")
+            .appendTo($groupHeader);
+        }
+      }
+
+      applyColumnGroupHeaderWidths();
+    }
+
     function createColumnHeaders() {
       function onMouseEnter() {
         $(this).addClass("ui-state-hover");
@@ -728,6 +852,47 @@ if (typeof Slick === "undefined") {
       });
     }
 
+    function columnPositionValidInGroup($item) {
+      var idColumnItem = $item.data('column').id;
+      var startLimit = 0,
+        endLimit = startLimit;
+
+      var currentPosition = 0;
+      $headers.children().each(function (i) {
+        if (this.id == $item[0].id) {
+          currentPosition = i;
+          return false;
+        }
+      });
+
+      var groupColumnOfPreviousPosition;
+
+      var groupColumns = groupHeader.getGroupColumnsInDepth($groupHeaders.length - 1);
+      groupColumns.some(function (groupColumn, i) {
+        startLimit = endLimit;
+        endLimit += groupColumn.columns.length;
+
+        groupColumn.columns.some(function (column) {
+
+          if (column.id == idColumnItem)
+            groupColumnOfPreviousPosition = groupColumn;
+
+          return groupColumnOfPreviousPosition;
+        });
+
+        return groupColumnOfPreviousPosition;
+      });
+
+      endLimit--;
+
+      var positionValid = startLimit <= currentPosition && currentPosition <= endLimit;
+
+      if (!positionValid)
+        alert('Column "'.concat($item.text(), '" can be reordered only within the "', groupColumnOfPreviousPosition.name, '" group!'));
+
+      return positionValid;
+    }
+
     function setupColumnReorder() {
       $headers.filter(":ui-sortable").sortable("destroy");
       $headers.sortable({
@@ -745,11 +910,14 @@ if (typeof Slick === "undefined") {
         beforeStop: function (e, ui) {
           $(ui.helper).removeClass("slick-header-column-active");
         },
-        stop: function (e) {
+        stop: function (e, ui) {
           if (!getEditorLock().commitCurrentEdit()) {
             $(this).sortable("cancel");
             return;
           }
+
+          if ($groupHeaders.length && !columnPositionValidInGroup.call(this, ui.item))
+              $(this).sortable("cancel");
 
           var reorderedIds = $headers.sortable("toArray");
           var reorderedColumns = [];
@@ -912,6 +1080,7 @@ if (typeof Slick === "undefined") {
                 }
               }
               applyColumnHeaderWidths();
+              applyColumnGroupHeaderWidths();
               if (options.syncColumnCellResize) {
                 applyColumnWidths();
               }
@@ -1159,10 +1328,36 @@ if (typeof Slick === "undefined") {
       }
 
       applyColumnHeaderWidths();
+      applyColumnGroupHeaderWidths();
       updateCanvasWidth(true);
       if (reRender) {
         invalidateAllRows();
         render();
+      }
+    }
+
+    function applyColumnGroupHeaderWidths() {
+      for(var depth = $groupHeaders.length - 1; depth >= 0; depth--) {
+
+        var $groupHeader = $groupHeaders[depth];
+
+        $groupHeader.width(getHeadersWidth());
+
+        var currentColumnIndex = 0;
+
+        var groupColumns = groupHeader.getGroupColumnsInDepth(depth);
+
+        for (var indexGroup in groupColumns) {
+          var m = groupColumns[indexGroup];
+
+          m.width = 0;
+          for (var indexColumn in m.columns) {
+            var $headerColumn = $groupHeader.next().children(':eq(' + (currentColumnIndex++) + ')');
+            m.width += $headerColumn.outerWidth();
+          }
+
+          $groupHeader.children(':eq('+indexGroup+')').width(m.width-headerColumnWidthDiff);
+        }
       }
     }
 
@@ -1281,6 +1476,7 @@ if (typeof Slick === "undefined") {
       if (initialized) {
         invalidateAllRows();
         createColumnHeaders();
+        createColumnGroupHeaders();
         createColumnFooter();
         removeCssRules();
         createCssRules();
