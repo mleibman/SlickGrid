@@ -441,7 +441,7 @@
      *     the 'high' group.
      */
     function collapseGroup(varArgs) {
-      var args = Array.prototype.slice.call(arguments);
+      var args = Array.prototype.slice.call(varArgs);
       var arg0 = args[0];
       if (args.length == 1 && arg0.indexOf(groupingDelimiter) != -1) {
         expandCollapseGroup(arg0.split(groupingDelimiter).length - 1, arg0, true);
@@ -457,7 +457,7 @@
      *     the 'high' group.
      */
     function expandGroup(varArgs) {
-      var args = Array.prototype.slice.call(arguments);
+      var args = Array.prototype.slice.call(varArgs);
       var arg0 = args[0];
       if (args.length == 1 && arg0.indexOf(groupingDelimiter) != -1) {
         expandCollapseGroup(arg0.split(groupingDelimiter).length - 1, arg0, false);

@@ -131,7 +131,7 @@ if (typeof Slick === "undefined") {
     var $canvas;
     var $style;
     var $boundAncestors;
-    var groupHeader;
+    var treeColumns;
     var stylesheet, columnCssRulesL, columnCssRulesR;
     var viewportH, viewportW;
     var canvasWidth;
@@ -191,92 +191,6 @@ if (typeof Slick === "undefined") {
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Initialization
 
-    function GroupHeader(treeColumns) {
-
-      function getDepth(node) {
-        if (node.hasOwnProperty('length'))
-          for (var i in node)
-            return getDepth(node[i]);
-        else
-          if (node.hasOwnProperty('columns'))
-            return 1 + getDepth(node.columns);
-          else
-            return 1;
-      }
-
-      function getColumnsInDepth(node, depth, current) {
-        var columns = [];
-        current = current || 0;
-
-        if (depth == current)
-          return node;
-        else
-          for (var i in node)
-            if (node[i].columns)
-              columns = columns.concat( getColumnsInDepth(node[i].columns, depth, current + 1) );
-
-        return columns;
-      }
-
-      function extractColumns(node) {
-        var result = [];
-
-        if (node.hasOwnProperty('length')) {
-
-          for (var i = 0; i < node.length; i++)
-            result = result.concat(extractColumns(node[i]));
-
-        } else {
-
-          if (node.hasOwnProperty('columns'))
-
-            result = result.concat(extractColumns(node.columns));
-
-          else
-            return node;
-
-        }
-
-        return result;
-      }
-
-      return  {
-
-        'hasGroup': function() {
-
-          for(var i in treeColumns)
-            if (treeColumns[i].hasOwnProperty('columns'))
-              return true;
-
-          return false;
-        },
-
-        'getTreeColumns': function() {
-          return treeColumns;
-        },
-
-        'extractColumns': function() {
-          return extractColumns(treeColumns);
-        },
-
-        'getDepth': function() {
-          return getDepth(treeColumns);
-        },
-
-        'getGroupColumnsInDepth':function(depth) {
-          return getColumnsInDepth(treeColumns, depth);
-        },
-
-        'getColumnsInGroup':function(groups) {
-          return extractColumns(groups);
-        }
-
-      }
-
-    }
-
-
-
     function init() {
       $container = $(container);
       if ($container.length < 1) {
@@ -291,8 +205,8 @@ if (typeof Slick === "undefined") {
       validateAndEnforceOptions();
       columnDefaults.width = options.defaultColumnWidth;
 
-      groupHeader = new GroupHeader(columns);
-      columns = groupHeader.extractColumns();
+      treeColumns = new Slick.TreeColumns(columns);
+      columns = treeColumns.extractColumns();
 
       columnsById = {};
       for (var i = 0; i < columns.length; i++) {
@@ -332,8 +246,8 @@ if (typeof Slick === "undefined") {
 
       $headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
 
-      if (groupHeader.hasGroup())
-        for (var index = 0; index < groupHeader.getDepth() - 1; index++)
+      if (treeColumns.hasDepth())
+        for (var index = 0; index < treeColumns.getDepth() - 1; index++)
           $groupHeaders[index] = $("<div class='slick-group-header-columns' />")
             .appendTo($headerScroller)
             .width(getHeadersWidth());
@@ -687,7 +601,7 @@ if (typeof Slick === "undefined") {
 
         $groupHeader.empty().width(getHeadersWidth());
 
-        var groupColumns = groupHeader.getGroupColumnsInDepth(depth);
+        var groupColumns = treeColumns.getColumnsInDepth(depth);
 
         for (var indexGroup in groupColumns) {
           var m = groupColumns[indexGroup];
@@ -867,8 +781,8 @@ if (typeof Slick === "undefined") {
 
       var groupColumnOfPreviousPosition;
 
-      var groupColumns = groupHeader.getGroupColumnsInDepth($groupHeaders.length - 1);
-      groupColumns.some(function (groupColumn, i) {
+      var groupColumns = treeColumns.getColumnsInDepth($groupHeaders.length - 1);
+      groupColumns.some(function (groupColumn) {
         startLimit = endLimit;
         endLimit += groupColumn.columns.length;
 
@@ -1345,7 +1259,7 @@ if (typeof Slick === "undefined") {
 
         var currentColumnIndex = 0;
 
-        var groupColumns = groupHeader.getGroupColumnsInDepth(depth);
+        var groupColumns = treeColumns.getColumnsInDepth(depth);
 
         for (var indexGroup in groupColumns) {
           var m = groupColumns[indexGroup];
@@ -1457,7 +1371,13 @@ if (typeof Slick === "undefined") {
     }
 
     function setColumns(columnDefinitions) {
-      columns = columnDefinitions;
+      var _treeColumns = new Slick.TreeColumns(columnDefinitions);
+      if (_treeColumns.hasDepth()) {
+        treeColumns = _treeColumns;
+        columns = treeColumns.extractColumns();
+      } else {
+        columns = columnDefinitions;
+      }
 
       columnsById = {};
       for (var i = 0; i < columns.length; i++) {

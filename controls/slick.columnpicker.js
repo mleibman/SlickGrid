@@ -1,16 +1,36 @@
 (function ($) {
+  /**
+   *
+   * @param {Array, Slick.TreeColumns} columns
+   * @param grid
+   * @param options
+   * @returns {{getAllColumns: getAllColumns, getTreeColumns: "getTreeColumns", destroy: destroy}}
+   * @constructor
+   */
   function SlickColumnPicker(columns, grid, options) {
     var $menu;
-    var columnCheckboxes;
+    var treeColumns;
 
     var defaults = {
       fadeSpeed:250,
       forceFitColumnsText: "Force fit columns",
-      syncColumnCellResizeText: "Synchronous resize"
+      syncColumnCellResizeText: "Synchronous resize",
+      classIconLevel: '',
+      formatter: function(column) {
+        var columnShown = grid.getColumnIndex(column.id) >= 0;
+        var menu = '<label>';
+        menu += '<input id="'+column.id+'" type="checkbox" data-column-id="'+column.id+'" '+(columnShown? 'checked="checked"': '')+' >';
+        menu += column.name;
+        menu += '</label>';
+        return menu;
+      }
     };
 
     function init() {
       options = $.extend({}, defaults, options);
+
+      treeColumns = new Slick.TreeColumns(columns);
+
       grid.onHeaderContextMenu.subscribe(handleHeaderContextMenu);
       grid.onColumnsReordered.subscribe(updateColumnOrder);
 
@@ -20,7 +40,10 @@
         $(this).fadeOut(options.fadeSpeed)
       });
       $menu.bind("click", updateColumn);
+    }
 
+    function isCheckbox(column) {
+      return column.name.indexOf('checkbox') >= 0;
     }
 
     function destroy() {
@@ -29,79 +52,76 @@
       $menu.remove();
     }
 
+    function iconLevel() {
+      return '<i class="' + options.classIconLevel + '"></i>';
+    }
+
+    function createColumnsList(_columns, firstLevel) {
+      var menu = '<ul>'
+
+      _columns.forEach(function(column, i) {
+        menu += '<li id="picker-'+column.id+'" '+(isCheckbox(column)? 'style="display: none;"': '')+'>';
+
+        if (!firstLevel)
+          menu += iconLevel();
+
+        if (column.columns) {
+          menu += column.name;
+          menu += createColumnsList(column.columns, false);
+        } else {
+          menu += options.formatter(column);
+        }
+
+        menu += '</li>';
+      });
+
+      menu += '</ul>';
+      return menu;
+    }
+
     function handleHeaderContextMenu(e, args) {
+      var $li, $input;
       e.preventDefault();
       $menu.empty();
       updateColumnOrder();
-      columnCheckboxes = [];
 
-      var $li, $input;
-      for (var i = 0; i < columns.length; i++) {
-        $li = $("<li />").appendTo($menu);
-        $input = $("<input type='checkbox' />").data("column-id", columns[i].id);
-        columnCheckboxes.push($input);
+      $('<div class="tree" />')
+        .append(createColumnsList(columns, true))
+        .appendTo($menu);
 
-        if (grid.getColumnIndex(columns[i].id) != null) {
-          $input.attr("checked", "checked");
-        }
-
-        $("<label />")
-            .text(columns[i].name)
-            .prepend($input)
-            .appendTo($li);
-      }
-
-      $("<hr/>").appendTo($menu);
-      $li = $("<li />").appendTo($menu);
+      $li = $("<p />").appendTo($menu);
       $input = $("<input type='checkbox' />").data("option", "autoresize");
       $("<label />")
-          .text(options.forceFitColumnsText)
-          .prepend($input)
-          .appendTo($li);
+        .text(options.forceFitColumnsText)
+        .prepend($input)
+        .appendTo($li);
       if (grid.getOptions().forceFitColumns) {
         $input.attr("checked", "checked");
       }
 
-      $li = $("<li />").appendTo($menu);
+      $li = $("<p />").appendTo($menu);
       $input = $("<input type='checkbox' />").data("option", "syncresize");
       $("<label />")
-          .text(options.syncColumnCellResizeText)
-          .prepend($input)
-          .appendTo($li);
-      if (grid.getOptions().syncColumnCellResize) {
+        .text(options.syncColumnCellResizeText)
+        .prepend($input)
+        .appendTo($li);
+
+      if (grid.getOptions().syncColumnCellResize)
         $input.attr("checked", "checked");
-      }
 
       $menu
-          .css("top", e.pageY - 10)
-          .css("left", e.pageX - 10)
-          .fadeIn(options.fadeSpeed);
+        .css("top", e.pageY - 10)
+        .css("left", e.pageX - 10)
+        .fadeIn(options.fadeSpeed);
     }
 
     function updateColumnOrder() {
-      // Because columns can be reordered, we have to update the `columns`
-      // to reflect the new order, however we can't just take `grid.getColumns()`,
-      // as it does not include columns currently hidden by the picker.
-      // We create a new `columns` structure by leaving currently-hidden
-      // columns in their original ordinal position and interleaving the results
-      // of the current column sort.
-      var current = grid.getColumns().slice(0);
-      var ordered = new Array(columns.length);
-      for (var i = 0; i < ordered.length; i++) {
-        if ( grid.getColumnIndex(columns[i].id) === undefined ) {
-          // If the column doesn't return a value from getColumnIndex,
-          // it is hidden. Leave it in this position.
-          ordered[i] = columns[i];
-        } else {
-          // Otherwise, grab the next visible column.
-          ordered[i] = current.shift();
-        }
-      }
-      columns = ordered;
+      treeColumns.reOrder(grid);
     }
 
     function updateColumn(e) {
-      if ($(e.target).data("option") == "autoresize") {
+      var $target = $(e.target);
+      if ($target.data("option") == "autoresize") {
         if (e.target.checked) {
           grid.setOptions({forceFitColumns:true});
           grid.autosizeColumns();
@@ -111,7 +131,7 @@
         return;
       }
 
-      if ($(e.target).data("option") == "syncresize") {
+      if ($target.data("option") == "syncresize") {
         if (e.target.checked) {
           grid.setOptions({syncColumnCellResize:true});
         } else {
@@ -120,31 +140,52 @@
         return;
       }
 
-      if ($(e.target).is(":checkbox")) {
+      if ($target.is(":checkbox")) {
+
         var visibleColumns = [];
-        $.each(columnCheckboxes, function (i, e) {
-          if ($(this).is(":checked")) {
-            visibleColumns.push(columns[i]);
-          }
+        $('.tree input', $menu).each(function () {
+          var $input = $(this);
+          if ($input.is(":checked"))
+            visibleColumns.push($input.data('columnId'));
         });
 
         if (!visibleColumns.length) {
-          $(e.target).attr("checked", "checked");
+          $target.attr("checked", "checked");
           return;
         }
 
-        grid.setColumns(visibleColumns);
+        var $visibleColumns = treeColumns
+          .filter(function() {
+            return this.columns || visibleColumns.indexOf(this.id) >= 0;
+          });
+
+        var showFooterRow = grid.getOptions().showFooterRow;
+
+        grid.setFooterRowVisibility(true);
+        grid.setColumns(
+          $visibleColumns
+        );
+        grid.setFooterRowVisibility(showFooterRow);
+
+        var columnId = $target.data('columnId');
+        $('#picker-'+ columnId)
+          .html(
+            iconLevel() + options.formatter(treeColumns.getById(columnId))
+          );
       }
     }
 
     function getAllColumns() {
-      return columns;
+      return treeColumns.visibleColumns();
     }
 
     init();
 
     return {
       "getAllColumns": getAllColumns,
+      "getTreeColumns": function() {
+        return treeColumns;
+      },
       "destroy": destroy
     };
   }
@@ -152,3 +193,4 @@
   // Slick.Controls.ColumnPicker
   $.extend(true, window, { Slick:{ Controls:{ ColumnPicker:SlickColumnPicker }}});
 })(jQuery);
+
