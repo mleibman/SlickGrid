@@ -71,8 +71,8 @@
       }
 
       $menu
-          .css("top", e.pageY - 10)
-          .css("left", e.pageX - 10)
+          .css("top", Math.min(e.pageY, $(window).height() - $menu.height()) - 10)
+          .css("left", Math.min(e.pageX, $(window).width() - $menu.width()) - 10)
           .fadeIn(options.fadeSpeed);
     }
 
