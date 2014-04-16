@@ -472,7 +472,7 @@
    */
   function TreeColumns(treeColumns) {
 
-    var columnsById = [];
+    var columnsById = {};
 
     function init() {
       mapToId(treeColumns);
@@ -618,6 +618,16 @@
 
     this.getById = function (id) {
       return columnsById[id];
+    }
+
+    this.getInIds = function(ids) {
+      return Object.getOwnPropertyNames(columnsById)
+        .filter(function(id) {
+          return ids.indexOf(id) >= 0;
+        })
+        .map(function(id) {
+          return columnsById[id];
+        });
     }
   }
 

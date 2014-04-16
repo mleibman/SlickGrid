@@ -1497,9 +1497,9 @@ if (typeof Slick === "undefined") {
       if (options.showFooterRow != visible) {
         options.showFooterRow = visible;
         if (visible) {
-          $footerRowScroller.slideDown("fast", resizeCanvas);
+          $footerRowScroller.fadeIn("fast", resizeCanvas);
         } else {
-          $footerRowScroller.slideUp("fast", resizeCanvas);
+          $footerRowScroller.slideDown("fast", resizeCanvas);
         }
       }
     }

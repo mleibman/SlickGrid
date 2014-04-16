@@ -16,13 +16,30 @@
       forceFitColumnsText: "Force fit columns",
       syncColumnCellResizeText: "Synchronous resize",
       classIconLevel: '',
-      formatter: function(column) {
-        var columnShown = grid.getColumnIndex(column.id) >= 0;
-        var menu = '<label>';
-        menu += '<input id="'+column.id+'" type="checkbox" data-column-id="'+column.id+'" '+(columnShown? 'checked="checked"': '')+' >';
-        menu += column.name;
-        menu += '</label>';
-        return menu;
+      groups: [],
+      totals: [],
+      formatters: {
+        show: function(column) {
+          var columnShown = grid.getColumnIndex(column.id) >= 0;
+          var picker = '<label>';
+          picker += '<input id="picker-show-'+column.id+'" type="checkbox" class="picker-show" title="Ocultar/Exibir" data-column-id="'+column.id+'" '+(columnShown? 'checked="checked"': '')+' >';
+          picker += '</label>';
+          return picker;
+        },
+        group: function(column, groups) {
+          var columnGrouped = groups.indexOf(column.id) >= 0;
+          var picker = '<label>';
+          picker += '<input id="picker-group-'+column.id+'" type="checkbox" class="picker-group" title="Agrupar/Desagrupar" data-column-id="'+column.id+'" '+(columnGrouped? 'checked="checked"': '')+' >';
+          picker += '</label>';
+          return picker;
+        },
+        total: function(column, totals) {
+          var columnGrouped = totals.indexOf(column.id) >= 0;
+          var picker = '<label>';
+          picker += '<input id="picker-total-'+column.id+'" type="checkbox" class="picker-total" title="Totalizar/Remover Total" data-column-id="'+column.id+'" '+(columnGrouped? 'checked="checked"': '')+' >';
+          picker += '</label>';
+          return picker;
+        }
       }
     };
 
@@ -33,6 +50,11 @@
 
       grid.onHeaderContextMenu.subscribe(handleHeaderContextMenu);
       grid.onColumnsReordered.subscribe(updateColumnOrder);
+      grid.onFooterRowCellRendered.subscribe(footerRowCellRendered);
+
+      if (isGrouped())
+        group(groupColumns(), totalsColumns());
+
 
       $menu = $("<span class='slick-columnpicker' style='display:none;position:absolute;z-index:20;' />").appendTo(document.body);
 
@@ -56,6 +78,22 @@
       return '<i class="' + options.classIconLevel + '"></i>';
     }
 
+    function picker(showIconLevel, column) {
+      var picker = showIconLevel? iconLevel(): '';
+
+      picker += options.formatters.show(column);
+
+      if (Slick.Data.GroupItemMetadataProvider && grid.getData() instanceof Slick.Data.DataView)
+        picker += options.formatters.group(column, options.groups);
+
+      if (column.totalizable)
+        picker += options.formatters.total(column, options.totals);
+
+      picker += column.name;
+
+      return picker;
+    }
+
     function createColumnsList(_columns, firstLevel) {
       var menu = '<ul>'
 
@@ -69,7 +107,7 @@
           menu += column.name;
           menu += createColumnsList(column.columns, false);
         } else {
-          menu += options.formatter(column);
+          menu += picker(false, column);
         }
 
         menu += '</li>';
@@ -141,38 +179,191 @@
       }
 
       if ($target.is(":checkbox")) {
+        var columnId = $target.data('columnId');
 
-        var visibleColumns = [];
-        $('.tree input', $menu).each(function () {
-          var $input = $(this);
-          if ($input.is(":checked"))
-            visibleColumns.push($input.data('columnId'));
+        if ($target.attr('id').indexOf('picker-show') >= 0)
+          onShowClick($target, columnId);
+
+        if ($target.attr('id').indexOf('picker-group') >= 0)
+          onGroupClick($target, columnId);
+
+        if ($target.attr('id').indexOf('picker-total') >= 0)
+          onTotalClick($target, columnId);
+      }
+    }
+
+    function onShowClick($target, columnId) {
+      var visibleColumns = [];
+      $('.tree .picker-show', $menu).each(function () {
+        var $input = $(this);
+        if ($input.is(":checked"))
+          visibleColumns.push($input.data('columnId'));
+      });
+
+      var $visibleColumns = treeColumns
+        .filter(function() {
+          return this.columns || visibleColumns.indexOf(this.id) >= 0;
         });
 
-        if (!visibleColumns.length) {
-          $target.attr("checked", "checked");
-          return;
-        }
+      var showFooterRow = grid.getOptions().showFooterRow;
 
-        var $visibleColumns = treeColumns
-          .filter(function() {
-            return this.columns || visibleColumns.indexOf(this.id) >= 0;
-          });
+      grid.setFooterRowVisibility(true);
+      grid.setColumns(
+        $visibleColumns
+      );
+      grid.setFooterRowVisibility(showFooterRow);
 
-        var showFooterRow = grid.getOptions().showFooterRow;
+      $('#picker-'+ columnId)
+        .html(picker(true, treeColumns.getById(columnId)));
+    }
 
-        grid.setFooterRowVisibility(true);
-        grid.setColumns(
-          $visibleColumns
-        );
-        grid.setFooterRowVisibility(showFooterRow);
+    function onGroupClick($target, columnId) {
 
-        var columnId = $target.data('columnId');
-        $('#picker-'+ columnId)
-          .html(
-            iconLevel() + options.formatter(treeColumns.getById(columnId))
-          );
+      if ($target.is(':checked'))
+        options.groups.push(columnId);
+      else {
+        options.groups = options.groups.filter(function(group) {
+          return group !== columnId;
+        })
       }
+
+      group( groupColumns(), totalsColumns() );
+
+      $target.parents('li:first').find('.picker-show')[0].click();
+    }
+
+    function onTotalClick($target, columnId) {
+      var column  = treeColumns.getById(columnId)
+      column.totalized = $target.is(':checked');
+
+      if (column.totalized)
+
+        options.totals.push(columnId);
+
+      else
+
+        options.totals = options.totals.filter(function (total) {
+          return total !== columnId;
+        });
+
+      if (isGrouped())
+        group(options.groups, options.totals);
+
+      totalizeOrClean(column);
+
+      grid.setFooterRowVisibility(isTotalized());
+    }
+
+    function group(columns, agregators) {
+      var grouping =
+        columns.map(function(column) {
+          var group = {
+            getter: column.field,
+            formatter :function (g) {
+              var groupValue = (column.formatter ? column.formatter(null, null, g.value, column, g.rows[0]) : g.value);
+
+              var extractText = $('<div>'+groupValue+'</div>').text();
+
+              return column.name + ":  " + extractText + "  <span>(" + g.count + " items)</span>";
+            },
+            aggregators: [],
+            aggregateCollapsed: true,
+            lazyTotalsCalculation: true
+          }
+
+          if (agregators)
+            agregators.forEach(function (agregator) {
+              group.aggregators.push(
+                  agregator.totalizationType === Slick.Data.Aggregators.WeightedAvg ?
+                  new agregator.totalizationType(agregator.field, agregator.idWeightedAvgColumn) :
+                  new agregator.totalizationType(agregator.field)
+              )
+            });
+
+          return group;
+        });
+
+      grid.getData().setGrouping(grouping);
+    }
+
+    function isTotalized() {
+      return options.totals.length;
+    }
+
+    function isGrouped() {
+      return options.groups.length;
+    }
+
+    function totalizeOrClean(column) {
+
+      if (column.totalized) {
+
+        column.total = 0;
+        updateTotalizedColumns(grid.getData().getItems(), column);
+
+      } else
+        $(grid.getFooterRowColumn(column.id)).empty();
+    }
+
+    function updateTotalizedColumns(items, column) {
+      $.each(column? $(column): grid.getColumns(), function () {
+
+        if (this.totalized)
+          updateColumnTotal(this, items);
+
+      });
+    }
+
+    function updateColumnTotal(column, items) {
+      calculateTotal(column, items);
+
+      if (column.total != null) {
+
+        var footerColumn = grid.getFooterRowColumn(column.id);
+        $(footerColumn).text(column.formatter? column.formatter(null, null, column.total, column): column.total);
+
+      }
+    }
+
+    function footerRowCellRendered (e, args) {
+      totalizeOrClean(args.column)
+    }
+
+    function calculateTotal(column, items) {
+      var field = column.field,
+        totals = {};
+
+      var aggregator = column.totalizationType === Slick.Data.Aggregators.WeightedAvg ?
+        new column.totalizationType(field, column.idWeightedAvgColumn) :
+        new column.totalizationType(field);
+
+      aggregator.init();
+
+      $.each(items, function () {
+        aggregator.accumulate(this);
+      });
+
+      aggregator.storeResult(totals);
+
+      if (typeof column.total === 'undefined')
+        column.total = 0;
+
+      switch(column.totalizationType) {
+        case Slick.Data.Aggregators.Sum:
+          column.total += totals.sum[field];
+          break;
+        case Slick.Data.Aggregators.Avg:
+          column.total += totals.avg[field];
+          break;
+      }
+    }
+
+    function groupColumns() {
+      return treeColumns.getInIds(options.groups);
+    }
+
+    function totalsColumns() {
+      return treeColumns.getInIds(options.totals);
     }
 
     function getAllColumns() {
@@ -185,6 +376,9 @@
       "getAllColumns": getAllColumns,
       "getTreeColumns": function() {
         return treeColumns;
+      },
+      "updateTotalizedColumns": function(items, columns) {
+        updateTotalizedColumns(items, columns);
       },
       "destroy": destroy
     };
