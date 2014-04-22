@@ -621,13 +621,9 @@
     }
 
     this.getInIds = function(ids) {
-      return Object.getOwnPropertyNames(columnsById)
-        .filter(function(id) {
-          return ids.indexOf(id) >= 0;
-        })
-        .map(function(id) {
-          return columnsById[id];
-        });
+      return ids.map(function(id) {
+        return columnsById[id];
+      });
     }
   }
 
