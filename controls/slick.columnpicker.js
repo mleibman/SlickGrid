@@ -271,6 +271,12 @@
             lazyTotalsCalculation: true
           }
 
+          if (typeof column.collapsed)
+            group.collapsed = column.collapsed;
+
+          if (typeof column.aggregateCollapsed)
+            group.aggregateCollapsed = column.aggregateCollapsed;
+
           if (agregators)
             agregators.forEach(function (agregator) {
               group.aggregators.push(
