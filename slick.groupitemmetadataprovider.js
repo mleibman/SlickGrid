@@ -82,8 +82,8 @@
         var range = _grid.getRenderedRange();
         this.getData().setRefreshHints({
           ignoreDiffsBefore: range.top,
-          ignoreDiffsAfter: range.bottom
-        });
+          ignoreDiffsAfter: range.bottom + 1
+        }); //take diff till range.bottom , and ignore it after.
 
         if (item.collapsed) {
           this.getData().expandGroup(item.groupingKey);
@@ -106,8 +106,8 @@
             var range = _grid.getRenderedRange();
             this.getData().setRefreshHints({
               ignoreDiffsBefore: range.top,
-              ignoreDiffsAfter: range.bottom
-            });
+              ignoreDiffsAfter: range.bottom + 1
+            }); //take diff till range.bottom , and ignore it after.
 
             if (item.collapsed) {
               this.getData().expandGroup(item.groupingKey);
