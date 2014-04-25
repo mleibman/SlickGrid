@@ -2275,7 +2275,9 @@ if (typeof Slick === "undefined") {
         if (e.target != document.activeElement || $(e.target).hasClass("slick-cell")) {
           var selection = getTextSelection(); //store text-selection and restore it after
           setFocus();
-          setTextSelection(selection); 
+          if ( options.enableTextSelectionOnCells ) {
+            setTextSelection(selection);
+          }
         }
       }
 
