@@ -62,18 +62,18 @@
       dd.selectedRows = selectedRows;
 
       dd.selectionProxy = $("<div class='slick-reorder-proxy'/>")
-          .css("position", "absolute")
-          .css("zIndex", "99999")
-          .css("width", $(_canvas).innerWidth())
-          .css("height", rowHeight * selectedRows.length)
-          .appendTo(_canvas);
+        .css("position", "absolute")
+        .css("zIndex", "99999")
+        .css("width", $(_canvas).innerWidth())
+        .css("height", rowHeight * selectedRows.length)
+        .appendTo(_canvas);
 
       dd.guide = $("<div class='slick-reorder-guide'/>")
-          .css("position", "absolute")
-          .css("zIndex", "99998")
-          .css("width", $(_canvas).innerWidth())
-          .css("top", -1000)
-          .appendTo(_canvas);
+        .css("position", "absolute")
+        .css("zIndex", "99998")
+        .css("width", $(_canvas).innerWidth())
+        .css("top", -1000)
+        .appendTo(_canvas);
 
       dd.insertBefore = -1;
     }

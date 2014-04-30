@@ -94,10 +94,10 @@
       _decorator.hide();
       _self.onCellRangeSelected.notify({
         range: new Slick.Range(
-            dd.range.start.row,
-            dd.range.start.cell,
-            dd.range.end.row,
-            dd.range.end.cell
+          dd.range.start.row,
+          dd.range.start.cell,
+          dd.range.end.row,
+          dd.range.end.cell
         )
       });
     }

@@ -15,7 +15,7 @@
     }
 
     .slick-footerrow-column i {
-        color: #ffffff;
+      color: #ffffff;
     }
 
   </style>
@@ -31,10 +31,11 @@
     <ul>
       <li>Using a fixed footer row to implement summary column-level</li>
     </ul>
-      <h2>View Source:</h2>
-      <ul>
-          <li><A href="https://github.com/ddomingues/SlickGrid/blob/gh-pages/examples/example-footer-row.html" target="_sourcewindow"> View the source for this example on Github</a></li>
-      </ul>
+    <h2>View Source:</h2>
+    <ul>
+      <li><A href="https://github.com/ddomingues/SlickGrid/blob/gh-pages/examples/example-footer-row.html"
+             target="_sourcewindow"> View the source for this example on Github</a></li>
+    </ul>
   </div>
 </div>
 
@@ -93,9 +94,9 @@
       grid.render();
     });
 
-    grid.onFooterRowCellRendered.subscribe(function(e, args) {
+    grid.onFooterRowCellRendered.subscribe(function (e, args) {
       var total = 0;
-      $.each(data, function() {
+      $.each(data, function () {
         total += this[args.column.field];
       });
 

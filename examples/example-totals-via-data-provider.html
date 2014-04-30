@@ -5,11 +5,11 @@
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
   <style>
-  .totals {
-    font-weight: bold;
-    color: gray;
-    font-style: italic;
-  }
+    .totals {
+      font-weight: bold;
+      color: gray;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
@@ -22,13 +22,14 @@
     <h2>Demonstrates:</h2>
     <ul>
       <li>Implementing a data provider to create a totals row at the end of the grid.</li>
-      <li>This is a simplification of what the DataView does. </li>
+      <li>This is a simplification of what the DataView does.</li>
     </ul>
   </div>
-    <h2>View Source:</h2>
-    <ul>
-        <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-totals-via-data-provider.html" target="_sourcewindow"> View the source for this example on Github</a></li>
-    </ul>
+  <h2>View Source:</h2>
+  <ul>
+    <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-totals-via-data-provider.html"
+           target="_sourcewindow"> View the source for this example on Github</a></li>
+  </ul>
 </div>
 
 <script src="../lib/firebugx.js"></script>
@@ -62,7 +63,6 @@
   }
 
 
-
   function TotalsDataProvider(data, columns) {
     var totals = {};
     var totalsMetadata = {
@@ -77,15 +77,15 @@
     }
 
 
-    this.getLength = function() {
+    this.getLength = function () {
       return data.length + 1;
     };
 
-    this.getItem = function(index) {
+    this.getItem = function (index) {
       return (index < data.length) ? data[index] : totals;
     };
 
-    this.updateTotals = function() {
+    this.updateTotals = function () {
       var columnIdx = columns.length;
       while (columnIdx--) {
         var columnId = columns[columnIdx].id;
@@ -98,13 +98,12 @@
       }
     };
 
-    this.getItemMetadata = function(index) {
+    this.getItemMetadata = function (index) {
       return (index != data.length) ? null : totalsMetadata;
     };
 
     this.updateTotals();
   }
-
 
 
   $(function () {
@@ -120,7 +119,7 @@
 
     grid = new Slick.Grid("#myGrid", dataProvider, columns, options);
 
-    grid.onCellChange.subscribe(function(e, args) {
+    grid.onCellChange.subscribe(function (e, args) {
       // The data has changed - recalculate the totals.
       dataProvider.updateTotals();
 

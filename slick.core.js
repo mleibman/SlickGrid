@@ -148,7 +148,7 @@
       var i = handlers.length;
       while (i--) {
         if (handlers[i].event === event &&
-            handlers[i].handler === handler) {
+          handlers[i].handler === handler) {
           handlers.splice(i, 1);
           event.unsubscribe(handler);
           return;
@@ -235,7 +235,7 @@
      */
     this.contains = function (row, cell) {
       return row >= this.fromRow && row <= this.toRow &&
-          cell >= this.fromCell && cell <= this.toCell;
+        cell >= this.fromCell && cell <= this.toCell;
     };
 
     /***
@@ -348,9 +348,9 @@
    */
   Group.prototype.equals = function (group) {
     return this.value === group.value &&
-        this.count === group.count &&
-        this.collapsed === group.collapsed &&
-        this.title === group.title;
+      this.count === group.count &&
+      this.collapsed === group.collapsed &&
+      this.title === group.title;
   };
 
   /***
@@ -480,7 +480,7 @@
 
     function mapToId(columns) {
       columns
-        .forEach(function(column) {
+        .forEach(function (column) {
           columnsById[column.id] = column;
 
           if (column.columns)
@@ -490,7 +490,7 @@
 
     function filter(node, condition) {
 
-      return node.filter(function(column) {
+      return node.filter(function (column) {
 
         var valid = condition.call(column);
 
@@ -504,28 +504,27 @@
 
     function sort(columns, grid) {
       columns
-        .sort(function(a, b) {
+        .sort(function (a, b) {
           var indexA = getOrDefault(grid.getColumnIndex(a.id)),
             indexB = getOrDefault(grid.getColumnIndex(b.id));
 
           return indexA - indexB;
         })
-        .forEach(function(column) {
+        .forEach(function (column) {
           if (column.columns)
             sort(column.columns, grid);
         });
     }
 
     function getOrDefault(value) {
-      return typeof value === 'undefined'? -1: value;
+      return typeof value === 'undefined' ? -1 : value;
     }
 
     function getDepth(node) {
       if (node.length)
         for (var i in node)
           return getDepth(node[i]);
-      else
-      if (node.columns)
+      else if (node.columns)
         return 1 + getDepth(node.columns);
       else
         return 1;
@@ -540,7 +539,7 @@
       else
         for (var i in node)
           if (node[i].columns)
-            columns = columns.concat( getColumnsInDepth(node[i].columns, depth, current + 1) );
+            columns = columns.concat(getColumnsInDepth(node[i].columns, depth, current + 1));
 
       return columns;
     }
@@ -573,37 +572,37 @@
 
     init();
 
-    this.hasDepth = function() {
+    this.hasDepth = function () {
 
-      for(var i in treeColumns)
+      for (var i in treeColumns)
         if (treeColumns[i].hasOwnProperty('columns'))
           return true;
 
       return false;
     };
 
-    this.getTreeColumns = function() {
+    this.getTreeColumns = function () {
       return treeColumns;
     };
 
-    this.extractColumns = function() {
+    this.extractColumns = function () {
       return extractColumns(treeColumns);
     };
 
-    this.getDepth = function() {
+    this.getDepth = function () {
       return getDepth(treeColumns);
     };
 
-    this.getColumnsInDepth =function(depth) {
+    this.getColumnsInDepth = function (depth) {
       return getColumnsInDepth(treeColumns, depth);
     };
 
-    this.getColumnsInGroup =function(groups) {
+    this.getColumnsInGroup = function (groups) {
       return extractColumns(groups);
     };
 
     this.visibleColumns = function () {
-      return filter(cloneTreeColumns(), function() {
+      return filter(cloneTreeColumns(), function () {
         return this.visible;
       });
     };
@@ -612,7 +611,7 @@
       return filter(cloneTreeColumns(), condition);
     };
 
-    this.reOrder = function(grid) {
+    this.reOrder = function (grid) {
       return sort(treeColumns, grid);
     };
 
@@ -620,8 +619,8 @@
       return columnsById[id];
     }
 
-    this.getInIds = function(ids) {
-      return ids.map(function(id) {
+    this.getInIds = function (ids) {
+      return ids.map(function (id) {
         return columnsById[id];
       });
     }

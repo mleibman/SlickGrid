@@ -13,7 +13,7 @@
       line-height: 19px !important;
     }
 
-      /* alternating offsets */
+    /* alternating offsets */
     .slick-row .cell-inner {
       margin-right: 60px;
     }
@@ -73,10 +73,11 @@
           SlickGrid's virtual rendering technology.
         </li>
       </ul>
-        <h2>View Source:</h2>
-        <ul>
-            <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example8-alternative-display.html" target="_sourcewindow"> View the source for this example on Github</a></li>
-        </ul>
+      <h2>View Source:</h2>
+      <ul>
+        <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example8-alternative-display.html"
+               target="_sourcewindow"> View the source for this example on Github</a></li>
+      </ul>
 
     </td>
   </tr>
@@ -113,7 +114,7 @@
       // Figure out if we're getting a template, or if we need to
       // load the template - and be sure to cache the result.
       var fn = !/\W/.test(str) ?
-          cache[str] = cache[str] ||
+        cache[str] = cache[str] ||
           tmpl(document.getElementById(str).innerHTML) :
 
         // Generate a reusable function that will serve as a template
@@ -125,14 +126,14 @@
             "with(obj){p.push('" +
 
             // Convert the template into pure JavaScript
-              str
-                  .replace(/[\r\t\n]/g, " ")
-                  .split("<%").join("\t")
-                  .replace(/((^|%>)[^\t]*)'/g, "$1\r")
-                  .replace(/\t=(.*?)%>/g, "',$1,'")
-                  .split("\t").join("');")
-                  .split("%>").join("p.push('")
-                  .split("\r").join("\\'") + "');}return p.join('');");
+            str
+              .replace(/[\r\t\n]/g, " ")
+              .split("<%").join("\t")
+              .replace(/((^|%>)[^\t]*)'/g, "$1\r")
+              .replace(/\t=(.*?)%>/g, "',$1,'")
+              .split("\t").join("');")
+              .split("%>").join("p.push('")
+              .split("\r").join("\\'") + "');}return p.join('');");
 
       // Provide some basic currying to the user
       return data ? fn(data) : fn;

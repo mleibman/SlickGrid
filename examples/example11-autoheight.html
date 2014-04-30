@@ -39,10 +39,11 @@
   <ul>
     <li>autoHeight:true grid option</li>
   </ul>
-    <h2>View Source:</h2>
-    <ul>
-        <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example11-autoheight.html" target="_sourcewindow"> View the source for this example on Github</a></li>
-    </ul>
+  <h2>View Source:</h2>
+  <ul>
+    <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example11-autoheight.html"
+           target="_sourcewindow"> View the source for this example on Github</a></li>
+  </ul>
 </div>
 
 <script src="../lib/jquery-1.7.min.js"></script>
@@ -54,21 +55,21 @@
 
 <script>
   var grid,
-      data = [],
-      columns = [
-        { id: "title", name: "Title", field: "title" },
-        { id: "duration", name: "Duration", field: "duration" },
-        { id: "%", name: "% Complete", field: "percentComplete" },
-        { id: "start", name: "Start", field: "start" },
-        { id: "finish", name: "Finish", field: "finish" },
-        { id: "effort-driven", name: "Effort Driven", field: "effortDriven" }
-      ],
-      options = {
-        editable: false,
-        enableAddRow: false,
-        enableCellNavigation: false,
-        autoHeight: true
-      };
+    data = [],
+    columns = [
+      { id: "title", name: "Title", field: "title" },
+      { id: "duration", name: "Duration", field: "duration" },
+      { id: "%", name: "% Complete", field: "percentComplete" },
+      { id: "start", name: "Start", field: "start" },
+      { id: "finish", name: "Finish", field: "finish" },
+      { id: "effort-driven", name: "Effort Driven", field: "effortDriven" }
+    ],
+    options = {
+      editable: false,
+      enableAddRow: false,
+      enableCellNavigation: false,
+      autoHeight: true
+    };
 
   for (var i = 100; i-- > 0;) {
     data[i] = {

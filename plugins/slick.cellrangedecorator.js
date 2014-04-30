@@ -33,9 +33,9 @@
     function show(range) {
       if (!_elem) {
         _elem = $("<div></div>", {css: options.selectionCss})
-            .addClass(options.selectionCssClass)
-            .css("position", "absolute")
-            .appendTo(grid.getCanvasNode());
+          .addClass(options.selectionCssClass)
+          .css("position", "absolute")
+          .appendTo(grid.getCanvasNode());
       }
 
       var from = grid.getCellNodeBox(range.fromRow, range.fromCell);

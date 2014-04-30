@@ -54,7 +54,9 @@
     var groupingInfoDefaults = {
       getter: null,
       formatter: null,
-      comparer: function(a, b) { return a.value - b.value; },
+      comparer: function (a, b) {
+        return a.value - b.value;
+      },
       predefinedValues: [],
       aggregators: [],
       aggregateEmpty: false,
@@ -513,7 +515,7 @@
           group = groups[i];
           group.groups = extractGroups(group.rows, group);
         }
-      }      
+      }
 
       groups.sort(groupingInfos[level].comparer);
 
@@ -563,7 +565,7 @@
       level = level || 0;
       var gi = groupingInfos[level];
       var groupCollapsed = gi.collapsed;
-      var toggledGroups = toggledGroupsByLevel[level];      
+      var toggledGroups = toggledGroupsByLevel[level];
       var idx = groups.length, g;
       while (idx--) {
         g = groups[idx];
@@ -578,14 +580,14 @@
         }
 
         if (gi.aggregators.length && (
-            gi.aggregateEmpty || g.rows.length || (g.groups && g.groups.length))) {
+          gi.aggregateEmpty || g.rows.length || (g.groups && g.groups.length))) {
           addGroupTotals(g);
         }
 
         g.collapsed = groupCollapsed ^ toggledGroups[g.groupingKey];
         g.title = gi.formatter ? gi.formatter(g) : g.value;
       }
-    } 
+    }
 
     function flattenGroupedRows(groups, level) {
       level = level || 0;
@@ -621,10 +623,10 @@
     function compileAccumulatorLoop(aggregator) {
       var accumulatorInfo = getFunctionInfo(aggregator.accumulate);
       var fn = new Function(
-          "_items",
+        "_items",
           "for (var " + accumulatorInfo.params[0] + ", _i=0, _il=_items.length; _i<_il; _i++) {" +
-              accumulatorInfo.params[0] + " = _items[_i]; " +
-              accumulatorInfo.body +
+          accumulatorInfo.params[0] + " = _items[_i]; " +
+          accumulatorInfo.body +
           "}"
       );
       fn.displayName = fn.name = "compiledAccumulatorLoop";
@@ -635,10 +637,10 @@
       var filterInfo = getFunctionInfo(filter);
 
       var filterBody = filterInfo.body
-          .replace(/return false\s*([;}]|$)/gi, "{ continue _coreloop; }$1")
-          .replace(/return true\s*([;}]|$)/gi, "{ _retval[_idx++] = $item$; continue _coreloop; }$1")
-          .replace(/return ([^;}]+?)\s*([;}]|$)/gi,
-          "{ if ($1) { _retval[_idx++] = $item$; }; continue _coreloop; }$2");
+        .replace(/return false\s*([;}]|$)/gi, "{ continue _coreloop; }$1")
+        .replace(/return true\s*([;}]|$)/gi, "{ _retval[_idx++] = $item$; continue _coreloop; }$1")
+        .replace(/return ([^;}]+?)\s*([;}]|$)/gi,
+        "{ if ($1) { _retval[_idx++] = $item$; }; continue _coreloop; }$2");
 
       // This preserves the function template code after JS compression,
       // so that replace() commands still work as expected.
@@ -667,10 +669,10 @@
       var filterInfo = getFunctionInfo(filter);
 
       var filterBody = filterInfo.body
-          .replace(/return false\s*([;}]|$)/gi, "{ continue _coreloop; }$1")
-          .replace(/return true\s*([;}]|$)/gi, "{ _cache[_i] = true;_retval[_idx++] = $item$; continue _coreloop; }$1")
-          .replace(/return ([^;}]+?)\s*([;}]|$)/gi,
-          "{ if ((_cache[_i] = $1)) { _retval[_idx++] = $item$; }; continue _coreloop; }$2");
+        .replace(/return false\s*([;}]|$)/gi, "{ continue _coreloop; }$1")
+        .replace(/return true\s*([;}]|$)/gi, "{ _cache[_i] = true;_retval[_idx++] = $item$; continue _coreloop; }$1")
+        .replace(/return ([^;}]+?)\s*([;}]|$)/gi,
+        "{ if ((_cache[_i] = $1)) { _retval[_idx++] = $item$; }; continue _coreloop; }$2");
 
       // This preserves the function template code after JS compression,
       // so that replace() commands still work as expected.
@@ -766,12 +768,12 @@
 
       if (refreshHints && refreshHints.ignoreDiffsBefore) {
         from = Math.max(0,
-            Math.min(newRows.length, refreshHints.ignoreDiffsBefore));
+          Math.min(newRows.length, refreshHints.ignoreDiffsBefore));
       }
 
       if (refreshHints && refreshHints.ignoreDiffsAfter) {
         to = Math.min(newRows.length,
-            Math.max(0, refreshHints.ignoreDiffsAfter));
+          Math.max(0, refreshHints.ignoreDiffsAfter));
       }
 
       for (var i = from, rl = rows.length; i < to; i++) {
@@ -782,16 +784,16 @@
           r = rows[i];
 
           if ((groupingInfos.length && (eitherIsNonData = (item.__nonDataRow) || (r.__nonDataRow)) &&
-              item.__group !== r.__group ||
-              item.__group && !item.equals(r))
-              || (eitherIsNonData &&
+            item.__group !== r.__group ||
+            item.__group && !item.equals(r))
+            || (eitherIsNonData &&
               // no good way to compare totals since they are arbitrary DTOs
               // deep object comparison is pretty expensive
               // always considering them 'dirty' seems easier for the time being
               (item.__groupTotals || r.__groupTotals))
-              || item[idProperty] != r[idProperty]
-              || (updated && updated[item[idProperty]])
-              ) {
+            || item[idProperty] != r[idProperty]
+            || (updated && updated[item[idProperty]])
+            ) {
             diff[diff.length] = i;
           }
         }
@@ -803,7 +805,7 @@
       rowsById = null;
 
       if (refreshHints.isFilterNarrowing != prevRefreshHints.isFilterNarrowing ||
-          refreshHints.isFilterExpanding != prevRefreshHints.isFilterExpanding) {
+        refreshHints.isFilterExpanding != prevRefreshHints.isFilterExpanding) {
         filterCache = [];
       }
 
@@ -902,21 +904,25 @@
           inHandler = true;
           var selectedRows = self.mapIdsToRows(selectedRowIds);
           if (!preserveHidden) {
-            setSelectedRowIds(self.mapRowsToIds(selectedRows));       
+            setSelectedRowIds(self.mapRowsToIds(selectedRows));
           }
           grid.setSelectedRows(selectedRows);
           inHandler = false;
         }
       }
 
-      grid.onSelectedRowsChanged.subscribe(function(e, args) {
-        if (inHandler) { return; }
+      grid.onSelectedRowsChanged.subscribe(function (e, args) {
+        if (inHandler) {
+          return;
+        }
         var newSelectedRowIds = self.mapRowsToIds(grid.getSelectedRows());
         if (!preserveHiddenOnSelectionChange || !grid.getOptions().multiSelect) {
           setSelectedRowIds(newSelectedRowIds);
         } else {
           // keep the ones that are hidden
-          var existing = $.grep(selectedRowIds, function(id) { return self.getRowById(id) === undefined; });
+          var existing = $.grep(selectedRowIds, function (id) {
+            return self.getRowById(id) === undefined;
+          });
           // add the newly selected ones
           setSelectedRowIds(existing.concat(newSelectedRowIds));
         }
@@ -961,9 +967,13 @@
         }
       }
 
-      grid.onCellCssStylesChanged.subscribe(function(e, args) {
-        if (inHandler) { return; }
-        if (key != args.key) { return; }
+      grid.onCellCssStylesChanged.subscribe(function (e, args) {
+        if (inHandler) {
+          return;
+        }
+        if (key != args.key) {
+          return;
+        }
         if (args.hash) {
           storeCellCssStyles(args.hash);
         }

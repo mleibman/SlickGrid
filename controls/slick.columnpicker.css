@@ -1,12 +1,12 @@
 .slick-columnpicker {
-  border: 1px solid #718BB7;
-  background: #f0f0f0;
-  padding: 6px;
-  -moz-box-shadow: 2px 2px 2px silver;
-  -webkit-box-shadow: 2px 2px 2px silver;
-  box-shadow: 2px 2px 2px silver;
-  min-width: 100px;
-  cursor: default;
+    border: 1px solid #718BB7;
+    background: #f0f0f0;
+    padding: 6px;
+    -moz-box-shadow: 2px 2px 2px silver;
+    -webkit-box-shadow: 2px 2px 2px silver;
+    box-shadow: 2px 2px 2px silver;
+    min-width: 100px;
+    cursor: default;
 }
 
 .slick-columnpicker .tree ul {
@@ -36,7 +36,7 @@
     vertical-align: middle;
 }
 
-.slick-columnpicker .tree ul li i{
+.slick-columnpicker .tree ul li i {
     margin-left: 5px;
     margin-right: 5px;
 }

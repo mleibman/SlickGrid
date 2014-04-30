@@ -172,10 +172,10 @@
       // Let the user modify the menu or cancel altogether,
       // or provide alternative menu implementation.
       if (_self.onBeforeMenuShow.notify({
-          "grid": _grid,
-          "column": columnDef,
-          "menu": menu
-        }, e, _self) == false) {
+        "grid": _grid,
+        "column": columnDef,
+        "menu": menu
+      }, e, _self) == false) {
         return;
       }
 
@@ -252,11 +252,11 @@
 
       if (command != null && command != '') {
         _self.onCommand.notify({
-            "grid": _grid,
-            "column": columnDef,
-            "command": command,
-            "item": item
-          }, e, _self);
+          "grid": _grid,
+          "column": columnDef,
+          "command": command,
+          "item": item
+        }, e, _self);
       }
 
       // Stop propagation so that it doesn't register as a header click event.

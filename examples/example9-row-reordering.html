@@ -72,10 +72,11 @@
       <div id="dropzone" class="recycle-bin">
         Recycle Bin
       </div>
-        <h2>View Source:</h2>
-        <ul>
-            <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example9-row-reordering.html" target="_sourcewindow"> View the source for this example on Github</a></li>
-        </ul>
+      <h2>View Source:</h2>
+      <ul>
+        <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example9-row-reordering.html"
+               target="_sourcewindow"> View the source for this example on Github</a></li>
+      </ul>
     </div>
   </div>
 </div>
@@ -180,7 +181,9 @@ $(function () {
     left = data.slice(0, insertBefore);
     right = data.slice(insertBefore, data.length);
 
-    rows.sort(function(a,b) { return a-b; });
+    rows.sort(function (a, b) {
+      return a - b;
+    });
 
     for (var i = 0; i < rows.length; i++) {
       extractedRows.push(data[rows[i]]);
@@ -245,18 +248,18 @@ $(function () {
     dd.count = selectedRows.length;
 
     var proxy = $("<span></span>")
-        .css({
-          position: "absolute",
-          display: "inline-block",
-          padding: "4px 10px",
-          background: "#e0e0e0",
-          border: "1px solid gray",
-          "z-index": 99999,
-          "-moz-border-radius": "8px",
-          "-moz-box-shadow": "2px 2px 6px silver"
-        })
-        .text("Drag to Recycle Bin to delete " + dd.count + " selected row(s)")
-        .appendTo("body");
+      .css({
+        position: "absolute",
+        display: "inline-block",
+        padding: "4px 10px",
+        background: "#e0e0e0",
+        border: "1px solid gray",
+        "z-index": 99999,
+        "-moz-border-radius": "8px",
+        "-moz-box-shadow": "2px 2px 6px silver"
+      })
+      .text("Drag to Recycle Bin to delete " + dd.count + " selected row(s)")
+      .appendTo("body");
 
     dd.helper = proxy;
 
@@ -282,29 +285,29 @@ $(function () {
 
   $.drop({mode: "mouse"});
   $("#dropzone")
-      .bind("dropstart", function (e, dd) {
-        if (dd.mode != "recycle") {
-          return;
-        }
-        $(this).css("background", "yellow");
-      })
-      .bind("dropend", function (e, dd) {
-        if (dd.mode != "recycle") {
-          return;
-        }
-        $(dd.available).css("background", "pink");
-      })
-      .bind("drop", function (e, dd) {
-        if (dd.mode != "recycle") {
-          return;
-        }
-        var rowsToDelete = dd.rows.sort().reverse();
-        for (var i = 0; i < rowsToDelete.length; i++) {
-          data.splice(rowsToDelete[i], 1);
-        }
-        grid.invalidate();
-        grid.setSelectedRows([]);
-      });
+    .bind("dropstart", function (e, dd) {
+      if (dd.mode != "recycle") {
+        return;
+      }
+      $(this).css("background", "yellow");
+    })
+    .bind("dropend", function (e, dd) {
+      if (dd.mode != "recycle") {
+        return;
+      }
+      $(dd.available).css("background", "pink");
+    })
+    .bind("drop", function (e, dd) {
+      if (dd.mode != "recycle") {
+        return;
+      }
+      var rowsToDelete = dd.rows.sort().reverse();
+      for (var i = 0; i < rowsToDelete.length; i++) {
+        data.splice(rowsToDelete[i], 1);
+      }
+      grid.invalidate();
+      grid.setSelectedRows([]);
+    });
 
 
   grid.onAddNewRow.subscribe(function (e, args) {

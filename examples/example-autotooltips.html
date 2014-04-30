@@ -19,16 +19,19 @@
         <li>AutoTooltips plugin</li>
       </ul>
       <h2>Instructions:</h2>
-      <p>Resize the columns until see ellipsis in column or header.  Hover over cell to see tooltip.</p>
+
+      <p>Resize the columns until see ellipsis in column or header. Hover over cell to see tooltip.</p>
+
       <h2>Usage:</h2>
       <pre style="background-color: white; font-size: 110%; border-radius: 5px; padding: 20px; ">plugin = new Slick.AutoTooltips(pluginOptions);
 grid.registerPlugin(plugin);
 grid.render();</pre>
 
-        <h2>View Source:</h2>
-        <ul>
-            <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-autotooltips.html" target="_sourcewindow"> View the source for this example on Github</a></li>
-        </ul>
+      <h2>View Source:</h2>
+      <ul>
+        <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-autotooltips.html"
+               target="_sourcewindow"> View the source for this example on Github</a></li>
+      </ul>
     </td>
   </tr>
 </table>
@@ -70,7 +73,7 @@ grid.render();</pre>
     }
 
     grid = new Slick.Grid("#myGrid", data, columns, options);
-    grid.registerPlugin( new Slick.AutoTooltips({ enableForHeaderCells: true }) );
+    grid.registerPlugin(new Slick.AutoTooltips({ enableForHeaderCells: true }));
     grid.render();
   })
 </script>

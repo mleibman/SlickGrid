@@ -59,10 +59,11 @@
     </li>
   </ul>
 
-    <h2>View Source:</h2>
-    <ul>
-        <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example6-ajax-loading.html" target="_sourcewindow"> View the source for this example on Github</a></li>
-    </ul>
+  <h2>View Source:</h2>
+  <ul>
+    <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example6-ajax-loading.html"
+           target="_sourcewindow"> View the source for this example on Github</a></li>
+  </ul>
 </div>
 
 <script src="../lib/firebugx.js"></script>
@@ -81,17 +82,17 @@
   var loader = new Slick.Data.RemoteModel();
 
   var storyTitleFormatter = function (row, cell, value, columnDef, dataContext) {
-    s ="<b><a href='" + dataContext["url"] + "' target=_blank>" +
-              dataContext["title"] + "</a></b><br/>";
+    s = "<b><a href='" + dataContext["url"] + "' target=_blank>" +
+      dataContext["title"] + "</a></b><br/>";
     desc = dataContext["text"];
     if (desc) { // on Hackernews many stories don't have a description
-        s += desc;
+      s += desc;
     }
     return s;
   };
 
   var dateFormatter = function (row, cell, value, columnDef, dataContext) {
-    return (value.getMonth()+1) + "/" + value.getDate() + "/" + value.getFullYear();
+    return (value.getMonth() + 1) + "/" + value.getDate() + "/" + value.getFullYear();
   };
 
 
@@ -132,9 +133,9 @@
         var $g = $("#myGrid");
 
         loadingIndicator
-            .css("position", "absolute")
-            .css("top", $g.position().top + $g.height() / 2 - loadingIndicator.height() / 2)
-            .css("left", $g.position().left + $g.width() / 2 - loadingIndicator.width() / 2);
+          .css("position", "absolute")
+          .css("top", $g.position().top + $g.height() / 2 - loadingIndicator.height() / 2)
+          .css("left", $g.position().left + $g.width() / 2 - loadingIndicator.width() / 2);
       }
 
       loadingIndicator.show();

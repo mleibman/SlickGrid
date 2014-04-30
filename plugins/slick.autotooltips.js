@@ -21,7 +21,7 @@
       enableForHeaderCells: false,
       maxToolTipLength: null
     };
-    
+
     /**
      * Initialize plugin.
      */
@@ -31,7 +31,7 @@
       if (options.enableForCells) _grid.onMouseEnter.subscribe(handleMouseEnter);
       if (options.enableForHeaderCells) _grid.onHeaderMouseEnter.subscribe(handleHeaderMouseEnter);
     }
-    
+
     /**
      * Destroy plugin.
      */
@@ -39,7 +39,7 @@
       if (options.enableForCells) _grid.onMouseEnter.unsubscribe(handleMouseEnter);
       if (options.enableForHeaderCells) _grid.onHeaderMouseEnter.unsubscribe(handleHeaderMouseEnter);
     }
-    
+
     /**
      * Handle mouse entering grid cell to add/remove tooltip.
      * @param {jQuery.Event} e - The event
@@ -60,7 +60,7 @@
         $node.attr("title", text);
       }
     }
-    
+
     /**
      * Handle mouse entering header cell to add/remove tooltip.
      * @param {jQuery.Event} e     - The event
@@ -68,12 +68,12 @@
      */
     function handleHeaderMouseEnter(e, args) {
       var column = args.column,
-          $node = $(e.target).closest(".slick-header-column");
+        $node = $(e.target).closest(".slick-header-column");
       if (!column.toolTip) {
         $node.attr("title", ($node.innerWidth() < $node[0].scrollWidth) ? column.name : "");
       }
     }
-    
+
     // Public API
     $.extend(this, {
       "init": init,

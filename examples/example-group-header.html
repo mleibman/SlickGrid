@@ -77,10 +77,11 @@
         <li>Paging.</li>
         <li>inline filter panel</li>
       </ul>
-        <h2>View Source:</h2>
-        <ul>
-            <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example4-model.html" target="_sourcewindow"> View the source for this example on Github</a></li>
-        </ul>
+      <h2>View Source:</h2>
+      <ul>
+        <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example4-model.html"
+               target="_sourcewindow"> View the source for this example on Github</a></li>
+      </ul>
 
     </div>
   </div>
@@ -115,7 +116,7 @@ var data = [];
 var columns = [
   {
     id: 'detail',
-    name:'Detail',
+    name: 'Detail',
     headerCssClass: 'text-center',
     columns: [
       {id: "sel", name: "#", field: "num", behavior: "select", cssClass: "cell-selection", width: 40, cannotTriggerInsert: true, resizable: false, selectable: false },
@@ -197,13 +198,13 @@ function toggleFilterRow() {
 
 
 $(".grid-header .ui-icon")
-        .addClass("ui-state-default ui-corner-all")
-        .mouseover(function (e) {
-          $(e.target).addClass("ui-state-hover")
-        })
-        .mouseout(function (e) {
-          $(e.target).removeClass("ui-state-hover")
-        });
+  .addClass("ui-state-default ui-corner-all")
+  .mouseover(function (e) {
+    $(e.target).addClass("ui-state-hover")
+  })
+  .mouseout(function (e) {
+    $(e.target).removeClass("ui-state-hover")
+  });
 
 $(function () {
   // prepare the data
@@ -233,8 +234,8 @@ $(function () {
 
   // move the filter panel defined in a hidden div into grid top panel
   $("#inlineFilterPanel")
-      .appendTo(grid.getTopPanel())
-      .show();
+    .appendTo(grid.getTopPanel())
+    .show();
 
   grid.onCellChange.subscribe(function (e, args) {
     dataView.updateItem(args.item.id, args.item);

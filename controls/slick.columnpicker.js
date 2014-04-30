@@ -12,31 +12,31 @@
     var treeColumns;
 
     var defaults = {
-      fadeSpeed:250,
+      fadeSpeed: 250,
       forceFitColumnsText: "Force fit columns",
       syncColumnCellResizeText: "Synchronous resize",
       classIconLevel: '',
       groups: [],
       totals: [],
       formatters: {
-        show: function(column) {
+        show: function (column) {
           var columnShown = grid.getColumnIndex(column.id) >= 0;
           var picker = '<label>';
-          picker += '<input id="picker-show-'+column.id+'" type="checkbox" class="picker-show" title="Ocultar/Exibir" data-column-id="'+column.id+'" '+(columnShown? 'checked="checked"': '')+' >';
+          picker += '<input id="picker-show-' + column.id + '" type="checkbox" class="picker-show" title="Ocultar/Exibir" data-column-id="' + column.id + '" ' + (columnShown ? 'checked="checked"' : '') + ' >';
           picker += '</label>';
           return picker;
         },
-        group: function(column, groups) {
+        group: function (column, groups) {
           var columnGrouped = groups.indexOf(column.id) >= 0;
           var picker = '<label>';
-          picker += '<input id="picker-group-'+column.id+'" type="checkbox" class="picker-group" title="Agrupar/Desagrupar" data-column-id="'+column.id+'" '+(columnGrouped? 'checked="checked"': '')+' >';
+          picker += '<input id="picker-group-' + column.id + '" type="checkbox" class="picker-group" title="Agrupar/Desagrupar" data-column-id="' + column.id + '" ' + (columnGrouped ? 'checked="checked"' : '') + ' >';
           picker += '</label>';
           return picker;
         },
-        total: function(column, totals) {
+        total: function (column, totals) {
           var columnGrouped = totals.indexOf(column.id) >= 0;
           var picker = '<label>';
-          picker += '<input id="picker-total-'+column.id+'" type="checkbox" class="picker-total" title="Totalizar/Remover Total" data-column-id="'+column.id+'" '+(columnGrouped? 'checked="checked"': '')+' >';
+          picker += '<input id="picker-total-' + column.id + '" type="checkbox" class="picker-total" title="Totalizar/Remover Total" data-column-id="' + column.id + '" ' + (columnGrouped ? 'checked="checked"' : '') + ' >';
           picker += '</label>';
           return picker;
         }
@@ -79,7 +79,7 @@
     }
 
     function picker(showIconLevel, column) {
-      var picker = showIconLevel? iconLevel(): '';
+      var picker = showIconLevel ? iconLevel() : '';
 
       picker += options.formatters.show(column);
 
@@ -97,8 +97,8 @@
     function createColumnsList(_columns, firstLevel) {
       var menu = '<ul>'
 
-      _columns.forEach(function(column, i) {
-        menu += '<li id="picker-'+column.id+'" '+(isCheckbox(column)? 'style="display: none;"': '')+'>';
+      _columns.forEach(function (column, i) {
+        menu += '<li id="picker-' + column.id + '" ' + (isCheckbox(column) ? 'style="display: none;"' : '') + '>';
 
         if (!firstLevel)
           menu += iconLevel();
@@ -161,19 +161,19 @@
       var $target = $(e.target);
       if ($target.data("option") == "autoresize") {
         if (e.target.checked) {
-          grid.setOptions({forceFitColumns:true});
+          grid.setOptions({forceFitColumns: true});
           grid.autosizeColumns();
         } else {
-          grid.setOptions({forceFitColumns:false});
+          grid.setOptions({forceFitColumns: false});
         }
         return;
       }
 
       if ($target.data("option") == "syncresize") {
         if (e.target.checked) {
-          grid.setOptions({syncColumnCellResize:true});
+          grid.setOptions({syncColumnCellResize: true});
         } else {
-          grid.setOptions({syncColumnCellResize:false});
+          grid.setOptions({syncColumnCellResize: false});
         }
         return;
       }
@@ -201,7 +201,7 @@
       });
 
       var $visibleColumns = treeColumns
-        .filter(function() {
+        .filter(function () {
           return this.columns || visibleColumns.indexOf(this.id) >= 0;
         });
 
@@ -213,7 +213,7 @@
       );
       grid.setFooterRowVisibility(showFooterRow);
 
-      $('#picker-'+ columnId)
+      $('#picker-' + columnId)
         .html(picker(true, treeColumns.getById(columnId)));
     }
 
@@ -222,18 +222,18 @@
       if ($target.is(':checked'))
         options.groups.push(columnId);
       else {
-        options.groups = options.groups.filter(function(group) {
+        options.groups = options.groups.filter(function (group) {
           return group !== columnId;
         })
       }
 
-      group( groupColumns(), totalsColumns() );
+      group(groupColumns(), totalsColumns());
 
       $target.parents('li:first').find('.picker-show')[0].click();
     }
 
     function onTotalClick($target, columnId) {
-      var column  = treeColumns.getById(columnId)
+      var column = treeColumns.getById(columnId)
       column.totalized = $target.is(':checked');
 
       if (column.totalized)
@@ -256,13 +256,13 @@
 
     function group(columns, agregators) {
       var grouping =
-        columns.map(function(column) {
+        columns.map(function (column) {
           var group = {
             getter: column.field,
-            formatter :function (g) {
+            formatter: function (g) {
               var groupValue = (column.formatter ? column.formatter(null, null, g.value, column, g.rows[0]) : g.value);
 
-              var extractText = $('<div>'+groupValue+'</div>').text();
+              var extractText = $('<div>' + groupValue + '</div>').text();
 
               return column.name + ":  " + extractText + "  <span>(" + g.count + " items)</span>";
             },
@@ -312,7 +312,7 @@
     }
 
     function updateTotalizedColumns(items, column) {
-      $.each(column? $(column): grid.getColumns(), function () {
+      $.each(column ? $(column) : grid.getColumns(), function () {
 
         if (this.totalized)
           updateColumnTotal(this, items);
@@ -326,12 +326,12 @@
       if (column.total != null) {
 
         var footerColumn = grid.getFooterRowColumn(column.id);
-        $(footerColumn).text(column.formatter? column.formatter(null, null, column.total, column): column.total);
+        $(footerColumn).text(column.formatter ? column.formatter(null, null, column.total, column) : column.total);
 
       }
     }
 
-    function footerRowCellRendered (e, args) {
+    function footerRowCellRendered(e, args) {
       totalizeOrClean(args.column)
     }
 
@@ -354,7 +354,7 @@
       if (typeof column.total === 'undefined')
         column.total = 0;
 
-      switch(column.totalizationType) {
+      switch (column.totalizationType) {
         case Slick.Data.Aggregators.Sum:
           column.total += totals.sum[field];
           break;
@@ -380,10 +380,10 @@
 
     return {
       "getAllColumns": getAllColumns,
-      "getTreeColumns": function() {
+      "getTreeColumns": function () {
         return treeColumns;
       },
-      "updateTotalizedColumns": function(items, columns) {
+      "updateTotalizedColumns": function (items, columns) {
         updateTotalizedColumns(items, columns);
       },
       "destroy": destroy
@@ -391,6 +391,6 @@
   }
 
   // Slick.Controls.ColumnPicker
-  $.extend(true, window, { Slick:{ Controls:{ ColumnPicker:SlickColumnPicker }}});
+  $.extend(true, window, { Slick: { Controls: { ColumnPicker: SlickColumnPicker }}});
 })(jQuery);
 
