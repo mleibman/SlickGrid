@@ -152,11 +152,11 @@
 
       if (command != null) {
         _self.onCommand.notify({
-            "grid": _grid,
-            "column": columnDef,
-            "command": command,
-            "button": button
-          }, e, _self);
+          "grid": _grid,
+          "column": columnDef,
+          "command": command,
+          "button": button
+        }, e, _self);
 
         // Update the header in case the user updated the button definition in the handler.
         _grid.updateColumnHeader(columnDef.id);

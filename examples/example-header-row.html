@@ -35,10 +35,11 @@
       <li>Using a fixed header row to implement column-level filters</li>
       <li>Type numbers in textboxes to filter grid data</li>
     </ul>
-      <h2>View Source:</h2>
-      <ul>
-          <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-header-row.html" target="_sourcewindow"> View the source for this example on Github</a></li>
-      </ul>
+    <h2>View Source:</h2>
+    <ul>
+      <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-header-row.html"
+             target="_sourcewindow"> View the source for this example on Github</a></li>
+    </ul>
   </div>
 </div>
 
@@ -57,10 +58,7 @@
   var grid;
   var data = [];
   var options = {
-     enableCellNavigation: true
-    ,showHeaderRow: true
-    ,headerRowHeight: 30
-    ,explicitInitialization: true
+    enableCellNavigation: true, showHeaderRow: true, headerRowHeight: 30, explicitInitialization: true
   };
   var columns = [];
   var columnFilters = {};
@@ -73,7 +71,6 @@
       width: 60
     });
   }
-
 
 
   function filter(item) {
@@ -120,12 +117,12 @@
       }
     });
 
-    grid.onHeaderRowCellRendered.subscribe(function(e, args) {
-        $(args.node).empty();
-        $("<input type='text'>")
-           .data("columnId", args.column.id)
-           .val(columnFilters[args.column.id])
-           .appendTo(args.node);
+    grid.onHeaderRowCellRendered.subscribe(function (e, args) {
+      $(args.node).empty();
+      $("<input type='text'>")
+        .data("columnId", args.column.id)
+        .val(columnFilters[args.column.id])
+        .appendTo(args.node);
     });
 
     grid.init();

@@ -56,9 +56,7 @@
     enableAddRow: true,
     enableCellNavigation: true,
     asyncEditorLoading: false,
-    autoEdit: false
-    ,frozenColumn: 3
-    ,frozenRow: 7
+    autoEdit: false, frozenColumn: 3, frozenRow: 7
   };
 
   var columns = [
@@ -111,11 +109,11 @@
     this.handleCellRangeSelected = function (e, args) {
       _editor.setValue(
           _editor.getValue() +
-              grid.getColumns()[args.range.fromCell].name +
-              args.range.fromRow +
-              ":" +
-              grid.getColumns()[args.range.toCell].name +
-              args.range.toRow
+          grid.getColumns()[args.range.fromCell].name +
+          args.range.fromRow +
+          ":" +
+          grid.getColumns()[args.range.toCell].name +
+          args.range.toRow
       );
     };
 

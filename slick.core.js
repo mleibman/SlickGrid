@@ -147,7 +147,7 @@
       var i = handlers.length;
       while (i--) {
         if (handlers[i].event === event &&
-            handlers[i].handler === handler) {
+          handlers[i].handler === handler) {
           handlers.splice(i, 1);
           event.unsubscribe(handler);
           return;
@@ -234,7 +234,7 @@
      */
     this.contains = function (row, cell) {
       return row >= this.fromRow && row <= this.toRow &&
-          cell >= this.fromCell && cell <= this.toCell;
+        cell >= this.fromCell && cell <= this.toCell;
     };
 
     /***
@@ -347,9 +347,9 @@
    */
   Group.prototype.equals = function (group) {
     return this.value === group.value &&
-        this.count === group.count &&
-        this.collapsed === group.collapsed &&
-        this.title === group.title;
+      this.count === group.count &&
+      this.collapsed === group.collapsed &&
+      this.title === group.title;
   };
 
   /***

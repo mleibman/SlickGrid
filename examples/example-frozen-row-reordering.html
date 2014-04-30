@@ -217,7 +217,9 @@ $(function () {
     left = data.slice(0, insertBefore);
     right = data.slice(insertBefore, data.length);
 
-    rows.sort(function(a,b) { return a-b; });
+    rows.sort(function (a, b) {
+      return a - b;
+    });
 
     for (var i = 0; i < rows.length; i++) {
       extractedRows.push(data[rows[i]]);
@@ -282,18 +284,18 @@ $(function () {
     dd.count = selectedRows.length;
 
     var proxy = $("<span></span>")
-        .css({
-          position: "absolute",
-          display: "inline-block",
-          padding: "4px 10px",
-          background: "#e0e0e0",
-          border: "1px solid gray",
-          "z-index": 99999,
-          "-moz-border-radius": "8px",
-          "-moz-box-shadow": "2px 2px 6px silver"
-        })
-        .text("Drag to Recycle Bin to delete " + dd.count + " selected row(s)")
-        .appendTo("body");
+      .css({
+        position: "absolute",
+        display: "inline-block",
+        padding: "4px 10px",
+        background: "#e0e0e0",
+        border: "1px solid gray",
+        "z-index": 99999,
+        "-moz-border-radius": "8px",
+        "-moz-box-shadow": "2px 2px 6px silver"
+      })
+      .text("Drag to Recycle Bin to delete " + dd.count + " selected row(s)")
+      .appendTo("body");
 
     dd.helper = proxy;
 
@@ -321,20 +323,20 @@ $(function () {
 
   $.drop({mode: "mouse"});
   $("#dropzone")
-      .bind("dropstart", function (e, dd) {
-        $(this).css("background", "yellow");
-      })
-      .bind("dropend", function (e, dd) {
-        $(dd.available).css("background", "pink");
-      })
-      .bind("drop", function (e, dd) {
-        var rowsToDelete = dd.rows.sort().reverse();
-        for (var i = 0; i < rowsToDelete.length; i++) {
-          data.splice(rowsToDelete[i], 1);
-        }
-        grid.invalidate();
-        grid.setSelectedRows([]);
-      });
+    .bind("dropstart", function (e, dd) {
+      $(this).css("background", "yellow");
+    })
+    .bind("dropend", function (e, dd) {
+      $(dd.available).css("background", "pink");
+    })
+    .bind("drop", function (e, dd) {
+      var rowsToDelete = dd.rows.sort().reverse();
+      for (var i = 0; i < rowsToDelete.length; i++) {
+        data.splice(rowsToDelete[i], 1);
+      }
+      grid.invalidate();
+      grid.setSelectedRows([]);
+    });
 
 
   grid.onAddNewRow.subscribe(function (e, args) {

@@ -71,10 +71,12 @@
     <h2>Options:</h2>
     <button onclick="openDetails()">Open Item Edit for active row</button>
 
-      <h2>View Source:</h2>
-      <ul>
-          <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-composite-editor-item-details.html" target="_sourcewindow"> View the source for this example on Github</a></li>
-      </ul>
+    <h2>View Source:</h2>
+    <ul>
+      <li><A
+        href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-composite-editor-item-details.html"
+        target="_sourcewindow"> View the source for this example on Github</a></li>
+    </ul>
   </div>
 </div>
 
@@ -93,6 +95,7 @@
       <button data-action='cancel'>Cancel</button>
     </div>
   </div>
+
 </script>
 
 
@@ -148,11 +151,11 @@
     var $modal = $("<div class='item-details-form'></div>");
 
     $modal = $("#itemDetailsTemplate")
-        .tmpl({
-          context: grid.getDataItem(grid.getActiveCell().row),
-          columns: columns
-        })
-        .appendTo("body");
+      .tmpl({
+        context: grid.getDataItem(grid.getActiveCell().row),
+        columns: columns
+      })
+      .appendTo("body");
 
     $modal.keydown(function (e) {
       if (e.which == $.ui.keyCode.ENTER) {
@@ -180,13 +183,13 @@
     });
 
     var compositeEditor = new Slick.CompositeEditor(
-        columns,
-        containers,
-        {
-          destroy: function () {
-            $modal.remove();
-          }
+      columns,
+      containers,
+      {
+        destroy: function () {
+          $modal.remove();
         }
+      }
     );
 
     grid.editActiveCell(compositeEditor);

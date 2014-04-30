@@ -26,10 +26,11 @@
       <li>providing validation from the editor</li>
       <li>hooking into validation events</li>
     </ul>
-      <h2>View Source:</h2>
-      <ul>
-          <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example3a-compound-editors.html" target="_sourcewindow"> View the source for this example on Github</a></li>
-      </ul>
+    <h2>View Source:</h2>
+    <ul>
+      <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example3a-compound-editors.html"
+             target="_sourcewindow"> View the source for this example on Github</a></li>
+    </ul>
 
 
   </div>
@@ -70,14 +71,14 @@
 
     this.init = function () {
       $from = $("<INPUT type=text style='width:40px' />")
-          .appendTo(args.container)
-          .bind("keydown", scope.handleKeyDown);
+        .appendTo(args.container)
+        .bind("keydown", scope.handleKeyDown);
 
       $(args.container).append("&nbsp; to &nbsp;");
 
       $to = $("<INPUT type=text style='width:40px' />")
-          .appendTo(args.container)
-          .bind("keydown", scope.handleKeyDown);
+        .appendTo(args.container)
+        .bind("keydown", scope.handleKeyDown);
 
       scope.focus();
     };

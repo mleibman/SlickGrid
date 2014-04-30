@@ -29,10 +29,11 @@
       <li>Use Esc to cancel a copy and paste operation</li>
       <li>Edit the cell and select a cell range to paste the range</li>
     </ul>
-      <h2>View Source:</h2>
-      <ul>
-          <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-spreadsheet.html" target="_sourcewindow"> View the source for this example on Github</a></li>
-      </ul>
+    <h2>View Source:</h2>
+    <ul>
+      <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-spreadsheet.html"
+             target="_sourcewindow"> View the source for this example on Github</a></li>
+    </ul>
   </div>
 </div>
 
@@ -75,7 +76,7 @@
     columns.push({
       id: i,
       name: String.fromCharCode("A".charCodeAt(0) + (i / 26) | 0) +
-            String.fromCharCode("A".charCodeAt(0) + (i % 26)),
+        String.fromCharCode("A".charCodeAt(0) + (i % 26)),
       field: i,
       width: 60,
       editor: FormulaEditor
@@ -111,11 +112,11 @@
     this.handleCellRangeSelected = function (e, args) {
       _editor.setValue(
           _editor.getValue() +
-              grid.getColumns()[args.range.fromCell].name +
-              args.range.fromRow +
-              ":" +
-              grid.getColumns()[args.range.toCell].name +
-              args.range.toRow
+          grid.getColumns()[args.range.fromCell].name +
+          args.range.fromRow +
+          ":" +
+          grid.getColumns()[args.range.toCell].name +
+          args.range.toRow
       );
     };
 

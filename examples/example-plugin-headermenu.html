@@ -21,7 +21,6 @@
       z-index: 20;
     }
 
-
     .slick-header-menuitem {
       padding: 2px 4px;
       border: 1px solid transparent;
@@ -52,12 +51,14 @@
   <div class="options-panel">
     <p>
       This example demonstrates using the <b>Slick.Plugins.HeaderMenu</b> plugin to add drop-down menus to column
-      headers.  (Hover over the headers.)
+      headers. (Hover over the headers.)
     </p>
-      <h2>View Source:</h2>
-      <ul>
-          <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-plugin-headermenu.html" target="_sourcewindow"> View the source for this example on Github</a></li>
-      </ul>
+
+    <h2>View Source:</h2>
+    <ul>
+      <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-plugin-headermenu.html"
+             target="_sourcewindow"> View the source for this example on Github</a></li>
+    </ul>
   </div>
 </div>
 
@@ -131,7 +132,7 @@
 
     var headerMenuPlugin = new Slick.Plugins.HeaderMenu({});
 
-    headerMenuPlugin.onBeforeMenuShow.subscribe(function(e, args) {
+    headerMenuPlugin.onBeforeMenuShow.subscribe(function (e, args) {
       var menu = args.menu;
 
       // We can add or modify the menu here, or cancel it by returning false.
@@ -142,7 +143,7 @@
       });
     });
 
-    headerMenuPlugin.onCommand.subscribe(function(e, args) {
+    headerMenuPlugin.onCommand.subscribe(function (e, args) {
       alert("Command: " + args.command);
     });
 

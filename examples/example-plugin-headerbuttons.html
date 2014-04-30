@@ -29,12 +29,14 @@
   <div class="options-panel">
     <p>
       This example demonstrates using the <b>Slick.Plugins.HeaderButtons</b> plugin to easily add buttons to column
-      headers.  These buttons can be specified directly in the column definition, and are very easy to configure and use.
+      headers. These buttons can be specified directly in the column definition, and are very easy to configure and use.
     </p>
-      <h2>View Source:</h2>
-      <ul>
-          <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-plugin-headerbuttons.html" target="_sourcewindow"> View the source for this example on Github</a></li>
-      </ul>
+
+    <h2>View Source:</h2>
+    <ul>
+      <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-plugin-headerbuttons.html"
+             target="_sourcewindow"> View the source for this example on Github</a></li>
+    </ul>
   </div>
 </div>
 
@@ -106,13 +108,12 @@
         image: "../images/help.png",
         showOnHover: true,
         tooltip: "This button only appears on hover.",
-        handler: function(e) {
+        handler: function (e) {
           alert('Help');
         }
       }
     ]
   };
-
 
 
   // Set up some test data.
@@ -134,13 +135,12 @@
   }
 
 
-
   $(function () {
     grid = new Slick.Grid("#myGrid", data, columns, options);
 
     var headerButtonsPlugin = new Slick.Plugins.HeaderButtons();
 
-    headerButtonsPlugin.onCommand.subscribe(function(e, args) {
+    headerButtonsPlugin.onCommand.subscribe(function (e, args) {
       var column = args.column;
       var button = args.button;
       var command = args.command;

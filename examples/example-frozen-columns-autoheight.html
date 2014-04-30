@@ -51,22 +51,21 @@
 
 <script>
   var grid,
-      data = [],
-      columns = [
-        { id: "title", name: "Title", field: "title", width: 100},
-        { id: "duration", name: "Duration", field: "duration" },
-        { id: "%", name: "% Complete", field: "percentComplete" },
-        { id: "start", name: "Start", field: "start" },
-        { id: "finish", name: "Finish", field: "finish" },
-        { id: "effort-driven", name: "Effort Driven", field: "effortDriven" }
-      ],
-      options = {
-        editable: false,
-        enableAddRow: false,
-        enableCellNavigation: false,
-        autoHeight: true
-        ,frozenColumn: 2
-      };
+    data = [],
+    columns = [
+      { id: "title", name: "Title", field: "title", width: 100},
+      { id: "duration", name: "Duration", field: "duration" },
+      { id: "%", name: "% Complete", field: "percentComplete" },
+      { id: "start", name: "Start", field: "start" },
+      { id: "finish", name: "Finish", field: "finish" },
+      { id: "effort-driven", name: "Effort Driven", field: "effortDriven" }
+    ],
+    options = {
+      editable: false,
+      enableAddRow: false,
+      enableCellNavigation: false,
+      autoHeight: true, frozenColumn: 2
+    };
 
   for (var i = 10; i-- > 0;) {
     data[i] = {

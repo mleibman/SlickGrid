@@ -21,11 +21,11 @@
       _options = $.extend(true, {}, _defaults, options);
       _grid = grid;
       _handler.subscribe(_grid.onActiveCellChanged,
-          wrapHandler(handleActiveCellChange));
+        wrapHandler(handleActiveCellChange));
       _handler.subscribe(_grid.onKeyDown,
-          wrapHandler(handleKeyDown));
+        wrapHandler(handleKeyDown));
       _handler.subscribe(_grid.onClick,
-          wrapHandler(handleClick));
+        wrapHandler(handleClick));
     }
 
     function destroy() {
@@ -135,7 +135,7 @@
       }
 
       if (!_grid.getOptions().multiSelect || (
-          !e.ctrlKey && !e.shiftKey && !e.metaKey)) {
+        !e.ctrlKey && !e.shiftKey && !e.metaKey)) {
         return false;
       }
 

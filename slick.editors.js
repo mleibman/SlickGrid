@@ -27,14 +27,14 @@
 
     this.init = function () {
       $input = $("<INPUT type=text class='editor-text' />")
-          .appendTo(args.container)
-          .bind("keydown.nav", function (e) {
-            if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
-              e.stopImmediatePropagation();
-            }
-          })
-          .focus()
-          .select();
+        .appendTo(args.container)
+        .bind("keydown.nav", function (e) {
+          if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
+            e.stopImmediatePropagation();
+          }
+        })
+        .focus()
+        .select();
     };
 
     this.destroy = function () {
@@ -199,8 +199,8 @@
         return;
       }
       $.datepicker.dpDiv
-          .css("top", position.top + 30)
-          .css("left", position.left);
+        .css("top", position.top + 30)
+        .css("left", position.left);
     };
 
     this.focus = function () {
@@ -421,13 +421,13 @@
       var $container = $("body");
 
       $wrapper = $("<DIV style='z-index:10000;position:absolute;background:white;padding:5px;border:3px solid gray; -moz-border-radius:10px; border-radius:10px;'/>")
-          .appendTo($container);
+        .appendTo($container);
 
       $input = $("<TEXTAREA hidefocus rows=5 style='backround:white;width:250px;height:80px;border:0;outline:0'>")
-          .appendTo($wrapper);
+        .appendTo($wrapper);
 
       $("<DIV style='text-align:right'><BUTTON>Save</BUTTON><BUTTON>Cancel</BUTTON></DIV>")
-          .appendTo($wrapper);
+        .appendTo($wrapper);
 
       $wrapper.find("button:first").bind("click", this.save);
       $wrapper.find("button:last").bind("click", this.cancel);
@@ -471,8 +471,8 @@
 
     this.position = function (position) {
       $wrapper
-          .css("top", position.top - 5)
-          .css("left", position.left - 5)
+        .css("top", position.top - 5)
+        .css("left", position.left - 5)
     };
 
     this.destroy = function () {

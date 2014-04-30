@@ -25,9 +25,9 @@
       font-style: italic;
     }
 
-		.row-green {
-			background-color: #C3FDB8
-		}
+    .row-green {
+      background-color: #C3FDB8
+    }
   </style>
 </head>
 <body>
@@ -84,10 +84,11 @@
         Personally, this is just the coolest slickest thing I've ever seen done with DHTML grids!
       </li>
     </ul>
-      <h2>View Source:</h2>
-      <ul>
-          <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-grouping.html" target="_sourcewindow"> View the source for this example on Github</a></li>
-      </ul>
+    <h2>View Source:</h2>
+    <ul>
+      <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-grouping.html"
+             target="_sourcewindow"> View the source for this example on Github</a></li>
+    </ul>
   </div>
 </div>
 
@@ -146,7 +147,7 @@ function avgTotalsFormatter(totals, columnDef) {
 function sumTotalsFormatter(totals, columnDef) {
   var val = totals.sum && totals.sum[columnDef.field];
   if (val != null) {
-    return "total: " + ((Math.round(parseFloat(val)*100)/100));
+    return "total: " + ((Math.round(parseFloat(val) * 100) / 100));
   }
   return "";
 }
@@ -199,7 +200,7 @@ function groupByDurationEffortDriven() {
   dataView.setGrouping([
     {
       getter: "duration",
-      formatter :function (g) {
+      formatter: function (g) {
         return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
       },
       aggregators: [
@@ -210,7 +211,7 @@ function groupByDurationEffortDriven() {
     },
     {
       getter: "effortDriven",
-      formatter :function (g) {
+      formatter: function (g) {
         return "Effort-Driven:  " + (g.value ? "True" : "False") + "  <span style='color:green'>(" + g.count + " items)</span>";
       },
       aggregators: [
@@ -240,7 +241,7 @@ function groupByDurationEffortDrivenPercent() {
       formatter: function (g) {
         return "Effort-Driven:  " + (g.value ? "True" : "False") + "  <span style='color:green'>(" + g.count + " items)</span>";
       },
-      aggregators :[
+      aggregators: [
         new Slick.Data.Aggregators.Sum("duration"),
         new Slick.Data.Aggregators.Sum("cost")
       ]
@@ -271,34 +272,34 @@ function loadData(count) {
     d["title"] = "Task " + i;
     d["duration"] = Math.round(Math.random() * 14);
     d["percentComplete"] = Math.round(Math.random() * 100);
-    d["start"] = someDates[ Math.floor((Math.random()*2)) ];
-    d["finish"] = someDates[ Math.floor((Math.random()*2)) ];
+    d["start"] = someDates[ Math.floor((Math.random() * 2)) ];
+    d["finish"] = someDates[ Math.floor((Math.random() * 2)) ];
     d["cost"] = Math.round(Math.random() * 10000) / 100;
     d["effortDriven"] = (i % 5 == 0);
   }
   dataView.setItems(data);
 }
 
-			function myRowCss(item) {
-				if (item.effortDriven) {
-					return {
-						cssClasses: "row-green"
-					}
-				}
-			}
+function myRowCss(item) {
+  if (item.effortDriven) {
+    return {
+      cssClasses: "row-green"
+    }
+  }
+}
 
-            var groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider({
-				getRowMetadata: myRowCss
-			});
+var groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider({
+  getRowMetadata: myRowCss
+});
 
 $(".grid-header .ui-icon")
-    .addClass("ui-state-default ui-corner-all")
-    .mouseover(function (e) {
-      $(e.target).addClass("ui-state-hover")
-    })
-    .mouseout(function (e) {
-      $(e.target).removeClass("ui-state-hover")
-    });
+  .addClass("ui-state-default ui-corner-all")
+  .mouseover(function (e) {
+    $(e.target).addClass("ui-state-hover")
+  })
+  .mouseout(function (e) {
+    $(e.target).removeClass("ui-state-hover")
+  });
 
 $(function () {
   dataView = new Slick.Data.DataView({
