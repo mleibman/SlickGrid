@@ -39,16 +39,12 @@
   <ul>
     <li>autoHeight:true grid option</li>
   </ul>
-  <h2>View Source:</h2>
-  <ul>
-    <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example11-autoheight.html"
-           target="_sourcewindow"> View the source for this example on Github</a></li>
-  </ul>
 </div>
 
 <script src="../lib/jquery-1.7.min.js"></script>
 <script src="../lib/jquery-ui-1.8.24.custom.min.js"></script>
 <script src="../lib/jquery.event.drag-2.2.js"></script>
+<script src="../lib/jquery.mousewheel.js"></script>
 
 <script src="../slick.core.js"></script>
 <script src="../slick.grid.js"></script>
@@ -57,7 +53,7 @@
   var grid,
     data = [],
     columns = [
-      { id: "title", name: "Title", field: "title" },
+      { id: "title", name: "Title", field: "title", width: 100},
       { id: "duration", name: "Duration", field: "duration" },
       { id: "%", name: "% Complete", field: "percentComplete" },
       { id: "start", name: "Start", field: "start" },
@@ -68,10 +64,10 @@
       editable: false,
       enableAddRow: false,
       enableCellNavigation: false,
-      autoHeight: true
+      autoHeight: true, frozenColumn: 2
     };
 
-  for (var i = 100; i-- > 0;) {
+  for (var i = 10; i-- > 0;) {
     data[i] = {
       title: "Task " + i,
       duration: "5 days",

@@ -21,6 +21,7 @@
    *
    * Relies on the data item having an "id" property uniquely identifying it.
    */
+
   function DataView(options) {
     var self = this;
 
@@ -29,16 +30,15 @@
       inlineFilters: false
     };
 
-
     // private
-    var idProperty = "id";  // property holding a unique row id
-    var items = [];         // data by index
-    var rows = [];          // data by row
-    var idxById = {};       // indexes by id
-    var rowsById = null;    // rows by id; lazy-calculated
-    var filter = null;      // filter function
-    var updated = null;     // updated item ids
-    var suspend = false;    // suspends the recalculation
+    var idProperty = "id"; // property holding a unique row id
+    var items = []; // data by index
+    var rows = []; // data by row
+    var idxById = {}; // indexes by id
+    var rowsById = null; // rows by id; lazy-calculated
+    var filter = null; // filter function
+    var updated = null; // updated item ids
+    var suspend = false; // suspends the recalculation
     var sortAsc = true;
     var fastSortField;
     var sortComparer;
@@ -81,7 +81,6 @@
     var onPagingInfoChanged = new Slick.Event();
 
     options = $.extend(true, {}, defaults, options);
-
 
     function beginUpdate() {
       suspend = true;
@@ -154,7 +153,12 @@
 
     function getPagingInfo() {
       var totalPages = pagesize ? Math.max(1, Math.ceil(totalRows / pagesize)) : 1;
-      return {pageSize: pagesize, pageNum: pagenum, totalRows: totalRows, totalPages: totalPages};
+      return {
+        pageSize: pagesize,
+        pageNum: pagenum,
+        totalRows: totalRows,
+        totalPages: totalPages
+      };
     }
 
     function sort(comparer, ascending) {
@@ -178,6 +182,7 @@
      * Does a [lexicographic] sort on a give column by temporarily overriding Object.prototype.toString
      * to return the value of that field and then doing a native Array.sort().
      */
+
     function fastSort(field, ascending) {
       sortAsc = ascending;
       fastSortField = field;
@@ -399,6 +404,10 @@
       // overrides for totals rows
       if (item.__groupTotals) {
         return options.groupItemMetadataProvider.getTotalsRowMetadata(item);
+      }
+
+      if (options.groupItemMetadataProvider) {
+        return options.groupItemMetadataProvider.getRowMetadata(item);
       }
 
       return null;
@@ -702,7 +711,8 @@
     }
 
     function uncompiledFilter(items, args) {
-      var retval = [], idx = 0;
+      var retval = [],
+        idx = 0;
 
       for (var i = 0, ii = items.length; i < ii; i++) {
         if (filter(items[i], args)) {
@@ -714,7 +724,9 @@
     }
 
     function uncompiledFilterWithCaching(items, args, cache) {
-      var retval = [], idx = 0, item;
+      var retval = [],
+        idx = 0,
+        item;
 
       for (var i = 0, ii = items.length; i < ii; i++) {
         item = items[i];
@@ -759,21 +771,23 @@
         paged = filteredItems;
       }
 
-      return {totalRows: filteredItems.length, rows: paged};
+      return {
+        totalRows: filteredItems.length,
+        rows: paged
+      };
     }
 
     function getRowDiffs(rows, newRows) {
       var item, r, eitherIsNonData, diff = [];
-      var from = 0, to = newRows.length;
+      var from = 0,
+        to = newRows.length;
 
       if (refreshHints && refreshHints.ignoreDiffsBefore) {
-        from = Math.max(0,
-          Math.min(newRows.length, refreshHints.ignoreDiffsBefore));
+        from = Math.max(0, Math.min(newRows.length, refreshHints.ignoreDiffsBefore));
       }
 
       if (refreshHints && refreshHints.ignoreDiffsAfter) {
-        to = Math.min(newRows.length,
-          Math.max(0, refreshHints.ignoreDiffsAfter));
+        to = Math.min(newRows.length, Math.max(0, refreshHints.ignoreDiffsAfter));
       }
 
       for (var i = from, rl = rows.length; i < to; i++) {
@@ -838,7 +852,6 @@
       var totalRowsBefore = totalRows;
 
       var diff = recalc(items, filter); // pass as direct refs to avoid closure perf hit
-
       // if the current page is no longer valid, go to last page and recalc
       // we suffer a performance penalty here, but the main loop (recalc) remains highly optimized
       if (pagesize && totalRows < pagenum * pagesize) {
@@ -854,10 +867,15 @@
         onPagingInfoChanged.notify(getPagingInfo(), null, self);
       }
       if (countBefore != rows.length) {
-        onRowCountChanged.notify({previous: countBefore, current: rows.length}, null, self);
+        onRowCountChanged.notify({
+          previous: countBefore,
+          current: rows.length
+        }, null, self);
       }
       if (diff.length > 0) {
-        onRowsChanged.notify({rows: diff}, null, self);
+        onRowsChanged.notify({
+          rows: diff
+        }, null, self);
       }
     }
 
@@ -881,8 +899,7 @@
      * @method syncGridSelection
      */
     function syncGridSelection(grid, preserveHidden, preserveHiddenOnSelectionChange) {
-      var self = this;
-      var inHandler;
+      var self = this;      var inHandler;
       var selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());
       var onSelectedRowIdsChanged = new Slick.Event();
 
@@ -1166,5 +1183,4 @@
 
   // TODO:  add more built-in aggregators
   // TODO:  merge common aggregators in one to prevent needles iterating
-
 })(jQuery);

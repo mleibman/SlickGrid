@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <title>SlickGrid example 3: Editing</title>
+  <title>SlickGrid Example: Spreadsheet with Frozen Rows and Columns</title>
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
   <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.24.custom.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
@@ -29,11 +29,6 @@
       <li>Use Esc to cancel a copy and paste operation</li>
       <li>Edit the cell and select a cell range to paste the range</li>
     </ul>
-    <h2>View Source:</h2>
-    <ul>
-      <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-spreadsheet.html"
-             target="_sourcewindow"> View the source for this example on Github</a></li>
-    </ul>
   </div>
 </div>
 
@@ -42,6 +37,7 @@
 <script src="../lib/jquery-1.7.min.js"></script>
 <script src="../lib/jquery-ui-1.8.24.custom.min.js"></script>
 <script src="../lib/jquery.event.drag-2.2.js"></script>
+<script src="../lib/jquery.mousewheel.js"></script>
 
 <script src="../slick.core.js"></script>
 <script src="../plugins/slick.autotooltips.js"></script>
@@ -60,7 +56,7 @@
     enableAddRow: true,
     enableCellNavigation: true,
     asyncEditorLoading: false,
-    autoEdit: false
+    autoEdit: false, frozenColumn: 3, frozenRow: 7
   };
 
   var columns = [
@@ -75,8 +71,9 @@
   for (var i = 0; i < 100; i++) {
     columns.push({
       id: i,
-      name: String.fromCharCode("A".charCodeAt(0) + (i / 26) | 0) +
-        String.fromCharCode("A".charCodeAt(0) + (i % 26)),
+      //name: String.fromCharCode("A".charCodeAt(0) + (i / 26) | 0) +
+      //      String.fromCharCode("A".charCodeAt(0) + (i % 26)),
+      name: i,
       field: i,
       width: 60,
       editor: FormulaEditor

@@ -85,6 +85,10 @@ classes should alter those!
     height: 100%;
 }
 
+.slick-resizable-handle-hover {
+    background-color: #ccc;
+}
+
 .slick-sortable-placeholder {
     background: silver;
 }
@@ -92,6 +96,7 @@ classes should alter those!
 .grid-canvas {
     position: relative;
     outline: 0;
+    overflow: hidden;
 }
 
 .slick-row.ui-widget-content, .slick-row.ui-state-active {
@@ -168,4 +173,40 @@ classes should alter those!
     z-index: 10;
     position: absolute;
     border: 2px dashed black;
+}
+
+.slick-pane {
+    position: absolute;
+    outline: 0;
+    overflow: hidden;
+    width: 100%;
+}
+
+.slick-pane-header {
+    display: block;
+}
+
+.slick-header {
+    overflow: hidden;
+    position: relative;
+}
+
+.slick-headerrow {
+    overflow: hidden;
+    position: relative;
+}
+
+.slick-top-panel-scroller {
+    overflow: hidden;
+    position: relative;
+}
+
+.slick-top-panel {
+    width: 10000px
+}
+
+.slick-viewport {
+    position: relative;
+    outline: 0;
+    width: 100%;
 }

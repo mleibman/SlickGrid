@@ -112,6 +112,10 @@
   }
 
   grid = new Slick.Grid("#container", data, columns, options);
+
+  $(window).resize(function () {
+    grid.resizeCanvas();
+  });
 </script>
 </body>
 </html>

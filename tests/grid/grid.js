@@ -60,11 +60,113 @@
     });
     var oldWidth = cols[0].width;
     $("#container .slick-resizable-handle:first").simulate("drag", { dx: 100, dy: 0 });
-    equal(cols[0].width, oldWidth + 100 - 1, "columns array is updated");
+    equal(cols[0].width, oldWidth+100-1, "columns array is updated");
   });
 
   test("getData should return data", function () {
     equal(grid.getData(), data);
+  });
+
+
+  module("grid - initial render");
+
+
+  test("top-right canvas height equals top-left canvas height", function () {
+    var leftHeight = $("#container .grid-canvas.grid-canvas-top.grid-canvas-left").height();
+    var rightHeight = $("#container .grid-canvas.grid-canvas-top.grid-canvas-right").height();
+    equal(leftHeight, rightHeight);
+  });
+
+
+  module("grid - freeze options changing");
+
+
+  test("setOptions 'frozenColumn' from frozen to unfrozen", function () {
+    var currentWidth
+      , width = $("#container").width()
+      , $paneHeaderL = $(".slick-pane.slick-pane-header.slick-pane-left")
+      , $paneTopL = $(".slick-pane.slick-pane-top.slick-pane-left")
+      , $viewportTopL = $(".slick-viewport.slick-viewport-top.slick-viewport-left");
+
+    grid.setOptions({ 'frozenColumn': 1 });
+    grid.setOptions({ 'frozenColumn': -1 });
+
+    currentWidth = $paneHeaderL.width();
+    equal(currentWidth, width);
+
+    currentWidth = $paneTopL.width();
+    equal(currentWidth, width);
+
+    currentWidth = $viewportTopL.width();
+    equal(currentWidth, width);
+  });
+
+
+  test("setOptions 'frozenColumn' from unfrozen to frozen", function () {
+    var i
+      , currentWidth
+      , width = 0
+      , frozenColumns = 1
+      , $paneHeaderL = $(".slick-pane.slick-pane-header.slick-pane-left")
+      , $paneTopL = $(".slick-pane.slick-pane-top.slick-pane-left")
+      , $viewportTopL = $(".slick-viewport.slick-viewport-top.slick-viewport-left");
+
+    for (i = 0; i <= frozenColumns; i++) {
+      width += cols[i].width;
+    }
+    grid.setOptions({ 'frozenColumn': frozenColumns });
+
+    currentWidth = $paneHeaderL.width();
+    equal(currentWidth, width);
+
+    currentWidth = $paneTopL.width();
+    equal(currentWidth, width);
+
+    currentWidth = $viewportTopL.width();
+    equal(currentWidth, width);
+  });
+
+  test("setOptions 'frozenRow' from frozen to unfrozen", function () {
+    var currentHeight
+      , height = $('#container').height()
+      , $paneTopL = $('.slick-pane.slick-pane-top.slick-pane-left')
+      , $headerScrollerL = $('.slick-header.slick-header-left')
+      , $viewportTopL = $('.slick-viewport.slick-viewport-top.slick-viewport-left')
+
+    grid.setOptions({ 'frozenRow': 5 });
+    grid.setOptions({ 'frozenRow': -1 });
+
+    // Subtract the columns height from the container because they're not included
+    // in the top pane
+    height -= $headerScrollerL.height();
+
+    currentHeight = $paneTopL.height();
+    equal(currentHeight, height);
+
+    currentHeight = $viewportTopL.height();
+    equal(currentHeight, height);
+  });
+
+  test("setOptions 'frozenRow' from unfrozen to frozen", function () {
+    var i
+      , currentHeight
+      , height = 0
+      , frozenRows = 4
+      , rowHeight = grid.getOptions().rowHeight
+      , $paneTopL = $('.slick-pane.slick-pane-top.slick-pane-left')
+      , $viewportTopL = $('.slick-viewport.slick-viewport-top.slick-viewport-left');
+
+    for (i = 0; i < frozenRows; i++) {
+      height += rowHeight;
+    }
+
+    grid.setOptions({ 'frozenRow': frozenRows });
+
+    currentHeight = $paneTopL.height();
+    equal(currentHeight, height);
+
+    currentHeight = $viewportTopL.height();
+    equal(currentHeight, height);
   });
 
 })(jQuery);

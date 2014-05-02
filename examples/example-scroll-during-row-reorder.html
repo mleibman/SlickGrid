@@ -3,10 +3,15 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <title>SlickGrid example 9: Row reordering</title>
-  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.24.custom.css" type="text/css"/>
-  <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css" media="screen" charset="utf-8"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.24.custom.css" type="text/css" media="screen"
+        charset="utf-8"/>
+  <link rel="stylesheet" href="examples.css" type="text/css" media="screen" charset="utf-8"/>
   <style>
+    .cell-title {
+      zfont-weight: bold;
+    }
+
     .cell-effort-driven {
       text-align: center;
     }
@@ -56,7 +61,7 @@
     <div class="grid-header" style="width:100%">
       <label>Santa's TODO list:</label>
     </div>
-    <div id="myGrid" style="width:100%;height:500px;"></div>
+    <div id="myGrid" style="width:100%;height:350px;"></div>
   </div>
   <div class="options-panel">
     <b>Tips:</b>
@@ -72,11 +77,6 @@
       <div id="dropzone" class="recycle-bin">
         Recycle Bin
       </div>
-      <h2>View Source:</h2>
-      <ul>
-        <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example9-row-reordering.html"
-               target="_sourcewindow"> View the source for this example on Github</a></li>
-      </ul>
     </div>
   </div>
 </div>
@@ -86,20 +86,21 @@
 <script src="../lib/jquery-1.7.min.js"></script>
 <script src="../lib/jquery-ui-1.8.24.custom.min.js"></script>
 <script src="../lib/jquery.event.drag-2.2.js"></script>
-<script src="../lib/jquery.event.drop-2.2.js"></script>
+<script src="../lib/jquery.event.draop-2.2.js"></script>
 
 <script src="../slick.core.js"></script>
 <script src="../plugins/slick.cellrangeselector.js"></script>
 <script src="../plugins/slick.cellselectionmodel.js"></script>
 <script src="../plugins/slick.rowselectionmodel.js"></script>
 <script src="../plugins/slick.rowmovemanager.js"></script>
-<script src="../slick.formatters.js"></script>
 <script src="../slick.editors.js"></script>
+<script src="../slick.formatters.js"></script>
 <script src="../slick.grid.js"></script>
 
 <script>
 var grid;
 var data = [];
+
 var columns = [
   {
     id: "#",
@@ -126,42 +127,42 @@ var columns = [
     cssClass: "cell-effort-driven",
     field: "complete",
     cannotTriggerInsert: true,
-    formatter: Slick.Formatters.Checkmark,
-    editor: Slick.Editors.Checkbox
+    formatter: Slick.Formatters.YesNo,
+    editor: Slick.Editors.YesNoSelect
   }
 ];
 
 var options = {
   editable: true,
   enableAddRow: true,
+  enableRowReordering: true,
   enableCellNavigation: true,
   forceFitColumns: true,
   autoEdit: false
 };
 
 function requiredFieldValidator(value) {
-  if (value == null || value == undefined || !value.length) {
+  if (value == null || value == undefined || !value.length)
     return {valid: false, msg: "This is a required field"};
-  } else {
+  else
     return {valid: true, msg: null};
-  }
 }
 
+
 $(function () {
-  data = [
-    { name: "Make a list", complete: true},
-    { name: "Check it twice", complete: false},
-    { name: "Find out who's naughty", complete: false},
-    { name: "Find out who's nice", complete: false}
-  ];
+  // prepare the data
+  for (var i = 0; i < 50000; i++) {
+    var d = (data[i] = {});
+
+    d["name"] = "Row " + i;
+    d["complete"] = false;
+  }
 
   grid = new Slick.Grid("#myGrid", data, columns, options);
 
   grid.setSelectionModel(new Slick.RowSelectionModel());
 
-  var moveRowsPlugin = new Slick.RowMoveManager({
-    cancelEditOnDrag: true
-  });
+  var moveRowsPlugin = new Slick.RowMoveManager();
 
   moveRowsPlugin.onBeforeMoveRows.subscribe(function (e, data) {
     for (var i = 0; i < data.rows.length; i++) {
@@ -171,6 +172,7 @@ $(function () {
         return false;
       }
     }
+
     return true;
   });
 
@@ -181,23 +183,18 @@ $(function () {
     left = data.slice(0, insertBefore);
     right = data.slice(insertBefore, data.length);
 
-    rows.sort(function (a, b) {
-      return a - b;
-    });
-
     for (var i = 0; i < rows.length; i++) {
       extractedRows.push(data[rows[i]]);
     }
 
-    rows.reverse();
+    rows.sort().reverse();
 
     for (var i = 0; i < rows.length; i++) {
       var row = rows[i];
-      if (row < insertBefore) {
+      if (row < insertBefore)
         left.splice(row, 1);
-      } else {
+      else
         right.splice(row - insertBefore, 1);
-      }
     }
 
     data = left.concat(extractedRows.concat(right));
@@ -221,18 +218,15 @@ $(function () {
 
   grid.onDragStart.subscribe(function (e, dd) {
     var cell = grid.getCellFromEvent(e);
-    if (!cell) {
+    if (!cell)
       return;
-    }
 
     dd.row = cell.row;
-    if (!data[dd.row]) {
+    if (!data[dd.row])
       return;
-    }
 
-    if (Slick.GlobalEditorLock.isActive()) {
+    if (Slick.GlobalEditorLock.isActive())
       return;
-    }
 
     e.stopImmediatePropagation();
     dd.mode = "recycle";
@@ -272,6 +266,7 @@ $(function () {
     if (dd.mode != "recycle") {
       return;
     }
+    e.stopImmediatePropagation();
     dd.helper.css({top: e.pageY + 5, left: e.pageX + 5});
   });
 
@@ -279,28 +274,20 @@ $(function () {
     if (dd.mode != "recycle") {
       return;
     }
+    e.stopImmediatePropagation();
     dd.helper.remove();
     $(dd.available).css("background", "beige");
   });
 
-  $.drop({mode: "mouse"});
+
   $("#dropzone")
-    .bind("dropstart", function (e, dd) {
-      if (dd.mode != "recycle") {
-        return;
-      }
+    .on("dropstart", function (e, dd) {
       $(this).css("background", "yellow");
     })
-    .bind("dropend", function (e, dd) {
-      if (dd.mode != "recycle") {
-        return;
-      }
+    .on("dropend", function (e, dd) {
       $(dd.available).css("background", "pink");
     })
-    .bind("drop", function (e, dd) {
-      if (dd.mode != "recycle") {
-        return;
-      }
+    .on("drop", function (e, dd) {
       var rowsToDelete = dd.rows.sort().reverse();
       for (var i = 0; i < rowsToDelete.length; i++) {
         data.splice(rowsToDelete[i], 1);

@@ -8,8 +8,12 @@
 
   function RowMoveManager(options) {
     var _grid;
-    var _canvas;
+    var _canvases;
     var _dragging;
+    var _scrollTimer;
+    var _viewport;
+    var _viewportTop;
+    var _viewportBottom;
     var _self = this;
     var _handler = new Slick.EventHandler();
     var _defaults = {
@@ -19,7 +23,11 @@
     function init(grid) {
       options = $.extend(true, {}, _defaults, options);
       _grid = grid;
-      _canvas = _grid.getCanvasNode();
+      _canvases = _grid.getCanvases();
+      _scrollTimer = null;
+      _viewport = _grid.getViewportNode();
+      _viewportTop = $(_viewport).offset().top;
+      _viewportBottom = _viewportTop + _viewport.clientHeight;
       _handler
         .subscribe(_grid.onDragInit, handleDragInit)
         .subscribe(_grid.onDragStart, handleDragStart)
@@ -64,16 +72,16 @@
       dd.selectionProxy = $("<div class='slick-reorder-proxy'/>")
         .css("position", "absolute")
         .css("zIndex", "99999")
-        .css("width", $(_canvas).innerWidth())
+        .css("width", $(_canvases[0]).innerWidth() + $(_canvases[1]).innerWidth())
         .css("height", rowHeight * selectedRows.length)
-        .appendTo(_canvas);
+        .appendTo(_canvases);
 
       dd.guide = $("<div class='slick-reorder-guide'/>")
         .css("position", "absolute")
         .css("zIndex", "99998")
-        .css("width", $(_canvas).innerWidth())
+        .css("width", $(_canvases[0]).innerWidth() + $(_canvases[1]).innerWidth())
         .css("top", -1000)
-        .appendTo(_canvas);
+        .appendTo(_canvases);
 
       dd.insertBefore = -1;
     }
@@ -85,7 +93,7 @@
 
       e.stopImmediatePropagation();
 
-      var top = e.pageY - $(_canvas).offset().top;
+      var top = e.pageY - $(_canvases[0]).offset().top;
       dd.selectionProxy.css("top", top - 5);
 
       var insertBefore = Math.max(0, Math.min(Math.round(top / _grid.getOptions().rowHeight), _grid.getDataLength()));
@@ -105,6 +113,19 @@
 
         dd.insertBefore = insertBefore;
       }
+
+      if (e.pageY > _viewportBottom) {
+        if (!(_scrollTimer)) {
+          _scrollTimer = setInterval(scrollDown, 100);
+        }
+      } else if (e.pageY < _viewportTop) {
+        if (!(_scrollTimer)) {
+          _scrollTimer = setInterval(scrollUp, 100);
+        }
+      } else {
+        clearInterval(_scrollTimer);
+        _scrollTimer = null;
+      }
     }
 
     function handleDragEnd(e, dd) {
@@ -112,6 +133,11 @@
         return;
       }
       _dragging = false;
+
+      if (_scrollTimer) {
+        clearInterval(_scrollTimer);
+      }
+
       e.stopImmediatePropagation();
 
       dd.guide.remove();
@@ -127,12 +153,33 @@
       }
     }
 
+    function scrollDown() {
+      var visibleRange = _grid.getViewport();
+
+      if (visibleRange.bottom == _grid.getDataLength()) {
+        return;
+      }
+
+      _grid.scrollRowIntoView(visibleRange.bottom);
+    }
+
+    function scrollUp() {
+      var visibleRange = _grid.getViewport();
+
+      if (visibleRange.top == 0) {
+        return;
+      }
+
+      _grid.scrollRowIntoView(visibleRange.top - 1);
+    }
+
     $.extend(this, {
       "onBeforeMoveRows": new Slick.Event(),
       "onMoveRows": new Slick.Event(),
 
       "init": init,
       "destroy": destroy
+
     });
   }
 })(jQuery);

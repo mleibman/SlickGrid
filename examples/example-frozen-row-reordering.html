@@ -7,6 +7,10 @@
   <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.24.custom.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
   <style>
+    .cell-title {
+      zfont-weight: bold;
+    }
+
     .cell-effort-driven {
       text-align: center;
     }
@@ -72,11 +76,6 @@
       <div id="dropzone" class="recycle-bin">
         Recycle Bin
       </div>
-      <h2>View Source:</h2>
-      <ul>
-        <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example9-row-reordering.html"
-               target="_sourcewindow"> View the source for this example on Github</a></li>
-      </ul>
     </div>
   </div>
 </div>
@@ -87,6 +86,7 @@
 <script src="../lib/jquery-ui-1.8.24.custom.min.js"></script>
 <script src="../lib/jquery.event.drag-2.2.js"></script>
 <script src="../lib/jquery.event.drop-2.2.js"></script>
+<script src="../lib/jquery.mousewheel.js"></script>
 
 <script src="../slick.core.js"></script>
 <script src="../plugins/slick.cellrangeselector.js"></script>
@@ -128,15 +128,53 @@ var columns = [
     cannotTriggerInsert: true,
     formatter: Slick.Formatters.Checkmark,
     editor: Slick.Editors.Checkbox
+  },
+  {
+    id: "name1",
+    name: "Name1",
+    field: "name1",
+    width: 50,
+    cssClass: "cell-title",
+    editor: Slick.Editors.Text,
+    validator: requiredFieldValidator
+  },
+  {
+    id: "name2",
+    name: "Name2",
+    field: "name2",
+    width: 50,
+    cssClass: "cell-title",
+    editor: Slick.Editors.Text,
+    validator: requiredFieldValidator
+  },
+  {
+    id: "name3",
+    name: "Name3",
+    field: "name3",
+    width: 50,
+    cssClass: "cell-title",
+    editor: Slick.Editors.Text,
+    validator: requiredFieldValidator
+  },
+  {
+    id: "name4",
+    name: "Name4",
+    field: "name4",
+    width: 50,
+    cssClass: "cell-title",
+    editor: Slick.Editors.Text,
+    validator: requiredFieldValidator
   }
 ];
 
 var options = {
   editable: true,
   enableAddRow: true,
+  enableRowReordering: true,
   enableCellNavigation: true,
   forceFitColumns: true,
-  autoEdit: false
+  autoEdit: false,
+  frozenColumn: 2
 };
 
 function requiredFieldValidator(value) {
@@ -159,9 +197,7 @@ $(function () {
 
   grid.setSelectionModel(new Slick.RowSelectionModel());
 
-  var moveRowsPlugin = new Slick.RowMoveManager({
-    cancelEditOnDrag: true
-  });
+  var moveRowsPlugin = new Slick.RowMoveManager();
 
   moveRowsPlugin.onBeforeMoveRows.subscribe(function (e, data) {
     for (var i = 0; i < data.rows.length; i++) {
@@ -272,6 +308,7 @@ $(function () {
     if (dd.mode != "recycle") {
       return;
     }
+    e.stopImmediatePropagation();
     dd.helper.css({top: e.pageY + 5, left: e.pageX + 5});
   });
 
@@ -279,6 +316,7 @@ $(function () {
     if (dd.mode != "recycle") {
       return;
     }
+    e.stopImmediatePropagation();
     dd.helper.remove();
     $(dd.available).css("background", "beige");
   });
@@ -286,21 +324,12 @@ $(function () {
   $.drop({mode: "mouse"});
   $("#dropzone")
     .bind("dropstart", function (e, dd) {
-      if (dd.mode != "recycle") {
-        return;
-      }
       $(this).css("background", "yellow");
     })
     .bind("dropend", function (e, dd) {
-      if (dd.mode != "recycle") {
-        return;
-      }
       $(dd.available).css("background", "pink");
     })
     .bind("drop", function (e, dd) {
-      if (dd.mode != "recycle") {
-        return;
-      }
       var rowsToDelete = dd.rows.sort().reverse();
       for (var i = 0; i < rowsToDelete.length; i++) {
         data.splice(rowsToDelete[i], 1);
