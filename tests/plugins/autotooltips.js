@@ -31,7 +31,7 @@
   }
 
   function setupGrid(pluginOptions) {
-    $('<div id="grid" />').appendTo($container);
+    $('<div id="grid" style="height:400px;" />').appendTo($container);
     grid = new Slick.Grid("#grid", data, cols);
     grid.registerPlugin(new Slick.AutoTooltips(pluginOptions));
     grid.render();
