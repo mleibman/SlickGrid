@@ -5,20 +5,20 @@ No built-in (selected, editable, highlight, flashing, invalid, loading, :focus) 
 classes should alter those!
 */
 
-.slick-header.ui-state-default, .slick-headerrow.ui-state-default {
+.slick-header.ui-state-default, .slick-headerrow.ui-state-default, .slick-footerrow.ui-state-default, .slick-group-header.ui-state-default {
   width: 100%;
   overflow: hidden;
   border-left: 0px;
 }
 
-.slick-header-columns, .slick-headerrow-columns {
+.slick-header-columns, .slick-headerrow-columns, .slick-footerrow-columns, .slick-group-header-columns{
   position: relative;
   white-space: nowrap;
   cursor: default;
   overflow: hidden;
 }
 
-.slick-header-column.ui-state-default {
+.slick-header-column.ui-state-default, .slick-group-header-column.ui-state-default {
   position: relative;
   display: inline-block;
   overflow: hidden;
@@ -35,7 +35,21 @@ classes should alter those!
   float: left;
 }
 
-.slick-headerrow-column.ui-state-default {
+.slick-footerrow-column.ui-state-default {
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  margin: 0;
+  padding: 4px;
+  border-right: 1px solid silver;
+  border-left: 0px;
+  border-top: 0px;
+  border-bottom: 0px;
+  float: left;
+  line-height: 20px;
+  vertical-align: middle;
+}
+
+.slick-headerrow-column.ui-state-default, .slick-footerrow-column.ui-state-default {
   padding: 4px;
 }
 
@@ -86,7 +100,7 @@ classes should alter those!
   width: 100%;
 }
 
-.slick-cell, .slick-headerrow-column {
+.slick-cell, .slick-headerrow-column, .slick-footerrow-column {
   position: absolute;
   border: 1px solid transparent;
   border-right: 1px dotted silver;

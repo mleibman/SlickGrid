@@ -9,23 +9,48 @@
   cursor: default;
 }
 
-.slick-columnpicker li {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  background: none;
+.slick-columnpicker .tree ul {
+    margin: 0;
+    padding: 0;
+    float: none;
+    display: block;
+    clear: left;
 }
 
-.slick-columnpicker input {
-  margin: 4px;
+.slick-columnpicker .tree label {
+    margin: 0;
 }
 
-.slick-columnpicker li a {
-  display: block;
-  padding: 4px;
-  font-weight: bold;
+.slick-columnpicker .tree ul ul {
+    margin-left: 10px;
 }
 
-.slick-columnpicker li a:hover {
-  background: white;
+.slick-columnpicker .tree ul li {
+    list-style: none;
+    background: none;
+    white-space: nowrap;
+    height: auto;
+    line-height: 9px;
+    padding-right: 10px;
+    padding-top: 2px;
+    vertical-align: middle;
+}
+
+.slick-columnpicker .tree ul li i{
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.slick-columnpicker .tree ul li > i {
+    margin-right: 3px;
+}
+
+.slick-columnpicker .tree {
+    border-bottom: 1px solid silver;
+    margin-bottom: 3px;
+    padding-bottom: 5px;
+}
+
+.slick-columnpicker p {
+    height: 5px;
 }

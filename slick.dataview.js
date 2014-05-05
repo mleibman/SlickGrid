@@ -5,6 +5,7 @@
         DataView: DataView,
         Aggregators: {
           Avg: AvgAggregator,
+          WeightedAvg: WeightedAvgAggregator,
           Min: MinAggregator,
           Max: MaxAggregator,
           Sum: SumAggregator
@@ -1048,6 +1049,39 @@
         groupTotals.avg[this.field_] = this.sum_ / this.nonNullCount_;
       }
     };
+  }
+
+  function WeightedAvgAggregator(field, weightedField) {
+    this.field_ = field;
+    this.weightedField_ = weightedField;
+
+    this.init = function () {
+      this.sum_ = 0;
+      this.weightedSum_ = 0;
+    };
+
+    this.accumulate = function (item) {
+      var val = item[this.field_];
+      var valWeighted = item[this.weightedField_];
+      if (this.isValid(val) && this.isValid(valWeighted)) {
+        this.weightedSum_ += parseFloat(valWeighted);
+        this.sum_ += parseFloat(val) * parseFloat(valWeighted);
+      }
+    };
+
+    this.storeResult = function (groupTotals) {
+      if (!groupTotals.avg) {
+        groupTotals.avg = {};
+      }
+
+      if (this.sum_ && this.weightedSum_) {
+        groupTotals.avg[this.field_] = this.sum_ / this.weightedSum_;
+      }
+    };
+
+    this.isValid = function (val) {
+      return val != null && val !== "" && val !== NaN;
+    }
   }
 
   function MinAggregator(field) {
