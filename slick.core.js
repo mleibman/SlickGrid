@@ -596,7 +596,7 @@
     };
 
     this.extractColumns = function () {
-      return extractColumns(treeColumns);
+      return this.hasDepth()? extractColumns(treeColumns): treeColumns;
     };
 
     this.getDepth = function () {

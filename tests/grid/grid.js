@@ -1,9 +1,10 @@
 (function ($) {
 
   var grid;
+  var $container = $("#container");
   var el, offsetBefore, offsetAfter, dragged;
 
-  var drag = function (handle, dx, dy) {
+  var drag = function drag(handle, dx, dy) {
     offsetBefore = el.offset();
     $(handle).simulate("drag", {
       dx: dx || 0,
@@ -13,7 +14,7 @@
     offsetAfter = el.offset();
   }
 
-  var moved = function (dx, dy, msg) {
+  var moved = function moved(dx, dy, msg) {
     msg = msg ? msg + "." : "";
     var actual = { left: offsetAfter.left, top: offsetAfter.top };
     var expected = { left: offsetBefore.left + dx, top: offsetBefore.top + dy };
@@ -30,21 +31,62 @@
     data.push(row);
   }
 
-  var cols = [], col;
-  for (var i = 0; i < COLS; i++) {
-    cols.push({
-      id: "col" + i,
-      field: "col_" + i,
-      name: "col_" + i
-    });
+  var cols = buildColumns(COLS);
+  var col;
+  var treeColumns;
+
+  function buildColumns(size, current) {
+    var columns = [];
+    current = current || 0;
+
+    for (var i = 0; i < size; i++) {
+      var index = current + i;
+      columns.push({
+        id: "col" + index,
+        field: "col_" + index,
+        name: "col_" + index,
+        minWidth: 70
+      });
+    }
+
+    return columns;
   }
 
-  cols[0].minWidth = 70;
+  function buildTreeColumns(sizeGroups, sizeColumnsPerGroup) {
+    var treeColumns = [];
+    for (var i = 0; i < sizeGroups; i++) {
+      treeColumns.push({
+        id: "group" + i,
+        name: "group_" + i,
+        columns: buildColumns(sizeColumnsPerGroup, sizeColumnsPerGroup*i)
+      });
+    }
+    return treeColumns;
+  }
 
-  grid = new Slick.Grid("#container", data, cols);
-  grid.render();
+  function setupGrid() {
+    grid = new Slick.Grid($container, data, cols);
+    grid.render();
+  }
 
-  module("grid - column resizing");
+  function setupGridWithTreeColumns() {
+    treeColumns = buildTreeColumns(2, 5);
+
+    grid = new Slick.Grid($container, data, treeColumns);
+    grid.render();
+  }
+
+  function teardownGrid() {
+    $container.empty();
+  }
+
+  module(
+    "grid - column resizing",
+    {
+      setup: setupGrid,
+      teardown: teardownGrid
+    }
+  );
 
   test("minWidth is respected", function () {
     var firstCol = $("#container .slick-header-column:first");
@@ -68,7 +110,13 @@
   });
 
 
-  module("grid - initial render");
+  module(
+    "grid - initial render",
+    {
+      setup: setupGrid,
+      teardown: teardownGrid
+    }
+  );
 
 
   test("top-right canvas height equals top-left canvas height", function () {
@@ -78,7 +126,13 @@
   });
 
 
-  module("grid - freeze options changing");
+  module(
+    "grid - freeze options changing",
+    {
+      setup: setupGrid,
+      teardown: teardownGrid
+    }
+  );
 
 
   test("setOptions 'frozenColumn' from frozen to unfrozen", function () {
@@ -168,5 +222,64 @@
     currentHeight = $viewportTopL.height();
     equal(currentHeight, height);
   });
+
+  module(
+    "grid - tree columns",
+    {
+      setup: setupGridWithTreeColumns,
+      teardown: teardownGrid
+    }
+  );
+
+  test('header columns render correct', function() {
+    equal($container.find('.slick-group-header-column').length, 2, 'grid should have 2 columns group header');
+    equal($container.find('.slick-header-column').length, 10, 'grid should have 10 columns header')
+  });
+
+  test("columns can be reordered in your groups", function() {
+
+    grid.onColumnsReordered.subscribe(function() {
+      ok(true, "onColumnsReordered shouldn't be called");
+    });
+
+    var $firstCol = $(".slick-header-column:first", $container);
+    var currentPosition = $firstCol.offset().left;
+    var widthColumn = $firstCol.outerWidth();
+    var oneColumn = currentPosition + widthColumn;
+
+    $firstCol.simulate("drag", { dx: oneColumn, dy: 0  });
+
+  });
+
+  test("columns shouldn't be reordered out of your groups", function() {
+
+    grid.onColumnsReordered.subscribe(function() {
+      ok(false, "onColumnsReordered shouldn't be called");
+    });
+
+    var $firstCol = $(".slick-header-column:first", $container);
+    var currentPosition = $firstCol.offset().left;
+    var widthColumn = $firstCol.outerWidth();
+    var fiveColumns = currentPosition + (5 * widthColumn);
+
+    $firstCol.simulate("drag", { dx: fiveColumns, dy: 0  });
+
+  });
+
+  test("render with frozen columns", function() {
+    const FROZEN_COLUMNS = 4;
+    var widthColumnsLeft;
+
+    grid.setOptions({ 'frozenColumn': FROZEN_COLUMNS });
+
+    widthColumnsLeft = $('.slick-header-column:first', $container).outerWidth() * (FROZEN_COLUMNS + 1);
+
+    equal($(".slick-pane.slick-pane-header.slick-pane-left").outerWidth(), widthColumnsLeft);
+
+    equal($(".slick-pane.slick-pane-top.slick-pane-left").outerWidth(), widthColumnsLeft);
+
+    equal($(".slick-viewport.slick-viewport-top.slick-viewport-left").outerWidth(), widthColumnsLeft);
+  });
+
 
 })(jQuery);
