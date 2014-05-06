@@ -33,7 +33,7 @@
 </head>
 <body>
 <div style="position:relative">
-  <div style="width:600px;">
+  <div style="width:500px;">
     <div class="grid-header" style="width:100%">
       <label>SlickGrid</label>
       <span style="float:right" class="ui-icon ui-icon-search" title="Toggle search panel"
@@ -98,6 +98,7 @@
 <script src="../lib/jquery-1.7.min.js"></script>
 <script src="../lib/jquery-ui-1.8.24.custom.min.js"></script>
 <script src="../lib/jquery.event.drag-2.2.js"></script>
+<script src="../lib/jquery.mousewheel.js"></script>
 
 <script src="../slick.core.js"></script>
 <script src="../slick.groupitemmetadataprovider.js"></script>
@@ -150,7 +151,7 @@ var options = {
   showFooterRow: true,
   explicitInitialization: true,
   totals: ['duration']
-//  ,frozenColumn: 3
+  ,frozenColumn: 3
 };
 
 var sortcol = "title";

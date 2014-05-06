@@ -230,7 +230,6 @@
       teardown: teardownGrid
     }
   );
-
   test('header columns render correct', function() {
     equal($container.find('.slick-group-header-column').length, 2, 'grid should have 2 columns group header');
     equal($container.find('.slick-header-column').length, 10, 'grid should have 10 columns header')
@@ -279,6 +278,15 @@
     equal($(".slick-pane.slick-pane-top.slick-pane-left").outerWidth(), widthColumnsLeft);
 
     equal($(".slick-viewport.slick-viewport-top.slick-viewport-left").outerWidth(), widthColumnsLeft);
+  });
+
+  test("all columns of a group should be frozen, otherwise no group will be created", function() {
+    const FROZEN_COLUMNS = 3;
+
+    grid.setOptions({ 'frozenColumn': FROZEN_COLUMNS });
+
+    equal($(".slick-group-header-column").length, 0, 'no group will be found');
+
   });
 
 
