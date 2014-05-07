@@ -3056,7 +3056,7 @@ if (typeof Slick === "undefined") {
         var left = $gridCanvas.hasClass('grid-canvas-left');
 
         if (zombieRowNodeFromLastMouseWheelEvent && zombieRowNodeFromLastMouseWheelEvent[left? 0:1] != rowNode) {
-          var zombieRow = zombieRowNodeFromLastMouseWheelEvent[left? 0:1];
+          var zombieRow = zombieRowNodeFromLastMouseWheelEvent[left || zombieRowNodeFromLastMouseWheelEvent.length == 1? 0:1];
           zombieRow.parentElement.removeChild(zombieRow);
 
           zombieRowNodeFromLastMouseWheelEvent = null;
