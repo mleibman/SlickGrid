@@ -548,6 +548,8 @@ if (typeof Slick === "undefined") {
         });
       $headerRow.empty();
 
+      var headerElements = [];
+
       for (var i = 0; i < columns.length; i++) {
         var m = columns[i];
 
@@ -558,6 +560,8 @@ if (typeof Slick === "undefined") {
           .attr("title", m.toolTip || "")
           .addClass(m.headerCssClass || "")
           .appendTo($headers);
+
+        headerElements[i] = header;
 
         if (options.enableColumnReorder || m.sortable) {
           header
@@ -575,17 +579,6 @@ if (typeof Slick === "undefined") {
           "column": m
         });
 
-        // fit the header column sizes to its content if corresponding
-        // options are specified
-        if (options.fitHeaderToContent) {
-          // get the total width of header
-          var headerWidth = header.outerWidth();
-          m.width = Math.max(m.width, headerWidth);
-          if (options.forceFitHeaderToContent) {
-            m.minWidth = headerWidth;
-          }
-        }
-
         header.data("column", m);
 
         if (options.showHeaderRow) {
@@ -598,6 +591,19 @@ if (typeof Slick === "undefined") {
             "column": m
           });
         }
+      }
+
+      // fit the header column sizes to its content if corresponding
+      // options are specified
+      if (options.fitHeaderToContent) {
+         for (var j = 0; j < columns.length; j++) {
+            // get the total width of header
+            var headerWidth = headerElements[j].outerWidth();
+            columns[j].width = Math.max(columns[j].width, headerWidth);
+            if (options.forceFitHeaderToContent) {
+              columns[j].minWidth = headerWidth;
+            }
+         }
       }
 
       setSortColumns(sortColumns);
