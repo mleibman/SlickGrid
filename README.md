@@ -1,8 +1,8 @@
-# X-SlickGrid
+# [X-SlickGrid](https://ddomingues.github.io/X-SlickGrid)
 
 X-SlickGrid is a extension of the great [SlickGrid](https://github.com/mleibman/SlickGrid)
 
-[Live Demos](https://ddomingues.github.io/X-SlickGrid)
+[Live Demos](https://ddomingues.github.io/X-SlickGrid/liveDemo/examples/index.html)
 
 ## Some highlights:
 >* Adaptive virtual scrolling (handle hundreds of thousands of rows with extreme responsiveness)
@@ -20,7 +20,7 @@ X-SlickGrid is a extension of the great [SlickGrid](https://github.com/mleibman/
 * “GlobalEditorLock” to manage concurrent edits in cases where multiple Views on a page can edit the same data.
 * Support for [millions of rows](http://stackoverflow.com/a/2569488/1269037)
 
-## Aditional Features
+## Additional Features
 
 >* Footer Row
 * Tree Columns
