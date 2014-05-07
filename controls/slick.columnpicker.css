@@ -1,0 +1,56 @@
+.slick-columnpicker {
+    border: 1px solid #718BB7;
+    background: #f0f0f0;
+    padding: 6px;
+    -moz-box-shadow: 2px 2px 2px silver;
+    -webkit-box-shadow: 2px 2px 2px silver;
+    box-shadow: 2px 2px 2px silver;
+    min-width: 100px;
+    cursor: default;
+}
+
+.slick-columnpicker .tree ul {
+    margin: 0;
+    padding: 0;
+    float: none;
+    display: block;
+    clear: left;
+}
+
+.slick-columnpicker .tree label {
+    margin: 0;
+}
+
+.slick-columnpicker .tree ul ul {
+    margin-left: 10px;
+}
+
+.slick-columnpicker .tree ul li {
+    list-style: none;
+    background: none;
+    white-space: nowrap;
+    height: auto;
+    line-height: 9px;
+    padding-right: 10px;
+    padding-top: 2px;
+    vertical-align: middle;
+}
+
+.slick-columnpicker .tree ul li i {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.slick-columnpicker .tree ul li > i {
+    margin-right: 3px;
+}
+
+.slick-columnpicker .tree {
+    border-bottom: 1px solid silver;
+    margin-bottom: 3px;
+    padding-bottom: 5px;
+}
+
+.slick-columnpicker p {
+    height: 5px;
+}
