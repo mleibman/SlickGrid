@@ -1119,12 +1119,30 @@ if (typeof Slick === "undefined") {
 
     function applyColumnHeaderWidths() {
       if (!initialized) { return; }
-      var h;
-      for (var i = 0, headers = $headers.children(), ii = headers.length; i < ii; i++) {
+      
+	  var h,      
+          columnWidths = [],
+          headerWidths = [],
+          headers = $headers.children(),
+          $children = [];
+      
+	  //iterate all columns and save the width
+      for (var c = 0, columnCount = columns.length; c < columnCount; c++) {          
+          columnWidths[c] = columns[c].width;
+      }
+      
+	  //iterate all headers and save the width
+      for (var i = 0, headerCount = headers.length; i < headerCount; i++) {
         h = $(headers[i]);
-        if (h.width() !== columns[i].width - headerColumnWidthDiff) {
-          h.width(columns[i].width - headerColumnWidthDiff);
-        }
+        $children[i] = h;
+        headerWidths[i] = h.width();
+      }
+      
+	  //iterade all headers again and set the new width
+      for (var i = 0, headerCount = headers.length; i < headerCount; i++) {
+          if (headerWidths[i] !== columnWidths[i] - headerColumnWidthDiff) {
+              $children[i].width(columnWidths[i] - headerColumnWidthDiff);
+          }
       }
 
       updateColumnCaches();
