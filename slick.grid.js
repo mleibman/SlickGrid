@@ -1120,7 +1120,7 @@ if (typeof Slick === "undefined") {
     function applyColumnHeaderWidths() {
       if (!initialized) { return; }
       
-	  var h,      
+      var h,      
           columnWidths = [],
           headerWidths = [],
           headers = $headers.children(),
