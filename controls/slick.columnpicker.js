@@ -214,7 +214,7 @@
       grid.setFooterRowVisibility(showFooterRow);
 
       $('#picker-' + columnId)
-        .html(picker(true, treeColumns.getById(columnId)));
+        .html(picker(treeColumns.hasDepth(), treeColumns.getById(columnId)));
     }
 
     function onGroupClick($target, columnId) {
