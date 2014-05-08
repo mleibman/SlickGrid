@@ -223,6 +223,34 @@
     equal(currentHeight, height);
   });
 
+  test("frozen columns should to have class .frozen", function() {
+    const FROZEN_COLUMNS = 2;
+    grid.setOptions({ frozenColumn: FROZEN_COLUMNS-1 });
+
+    equal($('.slick-row:visible:first .slick-cell.frozen').length, FROZEN_COLUMNS, 'should find '+FROZEN_COLUMNS+' frozen columns');
+  });
+
+  test("frozen rows should to have class .frozen", function() {
+    const FROZEN_ROWS = 2;
+    grid.setOptions({ frozenRow: FROZEN_ROWS-1 });
+
+    equal($('.slick-row.frozen').length, FROZEN_ROWS, 'should find '+FROZEN_ROWS+' frozen rows');
+  });
+
+  test("frozen header column should to have class .frozen", function() {
+    const FROZEN_COLUMNS = 2;
+    grid.setOptions({ frozenColumn: FROZEN_COLUMNS-1 });
+
+    equal($('.slick-header-column.frozen').length, FROZEN_COLUMNS, 'should find '+FROZEN_COLUMNS+' frozen header columns');
+  });
+
+  test("frozen footer row column should to have class .frozen", function() {
+    const FROZEN_COLUMNS = 2;
+    grid.setOptions({ frozenColumn: FROZEN_COLUMNS-1 });
+
+    equal($('.slick-footerrow-column.frozen').length, FROZEN_COLUMNS, 'should find '+FROZEN_COLUMNS+' frozen footer columns');
+  });
+
   module(
     "grid - tree columns",
     {
@@ -287,6 +315,14 @@
 
     equal($(".slick-group-header-column").length, 0, 'no group will be found');
 
+  });
+
+  test("frozen group header column should to have class .frozen", function() {
+    const FROZEN_COLUMNS = 5;
+    grid.setOptions({ frozenColumn: FROZEN_COLUMNS-1 });
+
+    equal($('.slick-group-header-column.frozen').length, 1, 'should find '+1+' frozen group header columns');
+    equal($('.slick-header-column.frozen').length, FROZEN_COLUMNS, 'should find '+FROZEN_COLUMNS+' frozen header columns');
   });
 
 
