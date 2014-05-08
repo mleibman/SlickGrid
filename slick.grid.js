@@ -3415,15 +3415,9 @@ if (typeof Slick === "undefined") {
 
       if ((activeCell != cell.cell || activeRow != cell.row) && canCellBeActive(cell.row, cell.cell)) {
         if (!getEditorLock().isActive() || getEditorLock().commitCurrentEdit()) {
-          if (hasFrozenRows) {
-            if (( !( options.frozenBottom ) && ( cell.row >= actualFrozenRow ) )
-              || ( options.frozenBottom && ( cell.row < actualFrozenRow ) )
-              ) {
-              scrollRowIntoView(cell.row, false);
-            }
 
-            setActiveCellInternal(getCellNode(cell.row, cell.cell));
-          }
+          scrollRowIntoView(cell.row, false);
+          setActiveCellInternal(getCellNode(cell.row, cell.cell));
         }
       }
     }
@@ -3523,11 +3517,10 @@ if (typeof Slick === "undefined") {
     }
 
     function getRowFromNode(rowNode) {
-      for (var row in rowsCache) {
-        if (rowsCache[row].rowNode[0] === rowNode) {
-          return row | 0;
-        }
-      }
+      for (var row in rowsCache)
+        for (var i in rowsCache[row].rowNode)
+          if (rowsCache[row].rowNode[i] === rowNode)
+            return row | 0;
 
       return null;
     }
