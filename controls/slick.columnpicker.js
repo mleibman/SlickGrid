@@ -247,11 +247,14 @@
         });
 
       if (isGrouped())
-        group(options.groups, options.totals);
+        group(groupColumns(), totalsColumns());
 
       totalizeOrClean(column);
 
       grid.setFooterRowVisibility(isTotalized());
+
+      $('#picker-' + columnId)
+        .html(picker(treeColumns.hasDepth(), treeColumns.getById(columnId)));
     }
 
     function group(columns, agregators) {
@@ -271,10 +274,10 @@
             lazyTotalsCalculation: true
           }
 
-          if (typeof column.collapsed)
+          if (typeof column.collapsed !== 'undefined')
             group.collapsed = column.collapsed;
 
-          if (typeof column.aggregateCollapsed)
+          if (typeof column.aggregateCollapsed !== 'undefined')
             group.aggregateCollapsed = column.aggregateCollapsed;
 
           if (agregators)
