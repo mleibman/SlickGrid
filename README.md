@@ -1,4 +1,4 @@
-# [X-SlickGrid](https://ddomingues.github.io/X-SlickGrid)
+# [X-SlickGrid](https://ddomingues.github.io/X-SlickGrid) [![Build Status](https://secure.travis-ci.org/ddomingues/X-SlickGrid.svg?branch=master)](https://travis-ci.org/ddomingues/X-SlickGrid)
 
 X-SlickGrid is a extension of the great [SlickGrid](https://github.com/mleibman/SlickGrid)
 
