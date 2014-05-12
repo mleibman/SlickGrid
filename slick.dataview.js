@@ -440,9 +440,19 @@
       expandCollapseAllGroups(level, false);
     }
 
-    function expandCollapseGroup(level, groupingKey, collapse) {
-      toggledGroupsByLevel[level][groupingKey] = groupingInfos[level].collapsed ^ collapse;
+    function expandCollapseGroup(args, collapse) {
+      var opts = resolveLevelAndGroupingKey(args);
+      toggledGroupsByLevel[opts.level][opts.groupingKey] = groupingInfos[opts.level].collapsed ^ collapse;
       refresh();
+    }
+
+    function resolveLevelAndGroupingKey(args) {
+      var arg0 = args[0];
+      if (args.length == 1 && arg0.indexOf(groupingDelimiter) != -1) {
+        return {level: arg0.split(groupingDelimiter).length - 1, groupingKey: arg0};
+      } else {
+        return {level: args.length - 1, groupingKey: args.join(groupingDelimiter)};
+      }
     }
 
     /**
@@ -453,12 +463,7 @@
      */
     function collapseGroup(varArgs) {
       var args = Array.prototype.slice.call(arguments);
-      var arg0 = args[0];
-      if (args.length == 1 && arg0.indexOf(groupingDelimiter) != -1) {
-        expandCollapseGroup(arg0.split(groupingDelimiter).length - 1, arg0, true);
-      } else {
-        expandCollapseGroup(args.length - 1, args.join(groupingDelimiter), true);
-      }
+      expandCollapseGroup(args, true)
     }
 
     /**
@@ -469,16 +474,26 @@
      */
     function expandGroup(varArgs) {
       var args = Array.prototype.slice.call(arguments);
-      var arg0 = args[0];
-      if (args.length == 1 && arg0.indexOf(groupingDelimiter) != -1) {
-        expandCollapseGroup(arg0.split(groupingDelimiter).length - 1, arg0, false);
-      } else {
-        expandCollapseGroup(args.length - 1, args.join(groupingDelimiter), false);
-      }
+      expandCollapseGroup(args, false)
     }
 
     function getGroups() {
       return groups;
+    }
+
+    function getOrCreateGroup(groupsByVal, val, level, parentGroup, groups) {
+      var group = groupsByVal[val];
+
+      if (!group) {
+        group = new Slick.Group();
+        group.value = val;
+        group.level = level;
+        group.groupingKey = (parentGroup ? parentGroup.groupingKey + groupingDelimiter : '') + val;
+        groups[groups.length] = group;
+        groupsByVal[val] = group;
+      }
+
+      return group;
     }
 
     function extractGroups(rows, parentGroup) {
@@ -492,29 +507,14 @@
 
       for (var i = 0, l = gi.predefinedValues.length; i < l; i++) {
         val = gi.predefinedValues[i];
-        group = groupsByVal[val];
-        if (!group) {
-          group = new Slick.Group();
-          group.value = val;
-          group.level = level;
-          group.groupingKey = (parentGroup ? parentGroup.groupingKey + groupingDelimiter : '') + val;
-          groups[groups.length] = group;
-          groupsByVal[val] = group;
-        }
+        group = getOrCreateGroup(groupsByVal, val, level, parentGroup, groups);
       }
 
       for (var i = 0, l = rows.length; i < l; i++) {
         r = rows[i];
         val = gi.getterIsAFn ? gi.getter(r) : r[gi.getter];
-        group = groupsByVal[val];
-        if (!group) {
-          group = new Slick.Group();
-          group.value = val;
-          group.level = level;
-          group.groupingKey = (parentGroup ? parentGroup.groupingKey + groupingDelimiter : '') + val;
-          groups[groups.length] = group;
-          groupsByVal[val] = group;
-        }
+
+        group = getOrCreateGroup(groupsByVal, val, level, parentGroup, groups);
 
         group.rows[group.count++] = r;
       }
