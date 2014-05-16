@@ -3317,11 +3317,11 @@ if (typeof Slick === "undefined") {
       makeActiveCellNormal();
     }
 
-    function setRowAsEditable(row) {
+    function enableRowAsEditable(row) {
       setRowCssStyle(row, options.editableRowCssClass);
     }
 
-    function removeRowAsEditable(row) {
+    function disableRowAsEditable(row) {
       removeRowCssStyle(row, options.editableRowCssClass);
     }
 
@@ -3412,8 +3412,8 @@ if (typeof Slick === "undefined") {
       "getSelectedRows": getSelectedRows,
       "setSelectedRows": setSelectedRows,
       "getContainerNode": getContainerNode,
-      "setRowAsEditable": setRowAsEditable,
-      "removeRowAsEditable": removeRowAsEditable,
+      "enableRowAsEditable": enableRowAsEditable,
+      "disableRowAsEditable": disableRowAsEditable,
 
       "render": render,
       "invalidate": invalidate,

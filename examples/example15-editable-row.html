@@ -7,25 +7,6 @@
   <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
   <style>
-    .load-medium {
-      color: orange;
-      font-weight: bold;
-    }
-
-    .load-hi {
-      color: red;
-      font-weight: bold;
-    }
-
-    .changed {
-      background: pink;
-    }
-
-    .current-server {
-      border: 1px solid black;
-      background: orange;
-    }
-	
     .ic-rowEdit-disabled {
       display: none;
     }
@@ -43,26 +24,18 @@
 
   <div class="options-panel">
     <h2>About</h2>
-    This example simulates a real-time display of CPU utilization in a web farm.
-    Data is updated in real-time, and cells with changed data are highlighted.
-    You can also click "Find current server" to scroll the row displaying data for the current
-    server into view and flash it.
+    This example create a grid without cell editing, but alllow a row edition.
     <h2>Demonstrates</h2>
     <ul>
-      <li>setHighlightedCells()</li>
-      <li>flashCell()</li>
+      <li>enableRowAsEditable()</li>
+      <li>disableRowAsEditable()</li>
     </ul>
-    <h2>Controls</h2>
-    <button onclick="simulateRealTimeUpdates()">Start simulation</button>
-    <button onclick="findCurrentServer()">Find current server</button>
     <h2>View Source:</h2>
     <ul>
         <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example15-editablerow.html" target="_sourcewindow"> View the source for this example on Github</a></li>
     </ul>
   </div>
 </div>
-
-<script src="../lib/firebugx.js"></script>
 
 <script src="../lib/jquery-1.7.min.js"></script>
 <script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
@@ -141,25 +114,24 @@
 		var nodeDel = node.childNodes[2];
 
 		if (e.target.id == 'ic-edit-grid') {
-		  grid.setRowAsEditable(args.row);
+		  grid.enableRowAsEditable(args.row);
 		  $(nodeEdit).removeClass("ic-rowEdit-enabled noClass").addClass("ic-rowEdit-disabled");
 		  $(nodeConfirm).removeClass("ic-rowEdit-disabled noClass").addClass("ic-rowEdit-enabled");
 		  $(nodeDel).removeClass("ic-rowEdit-disabled noClass").addClass("ic-rowEdit-enabled");
-        } else {
-          if (e.target.id == 'ic-edit-delete') {
-			grid.removeRowAsEditable(args.row);
-            rowEditChanged = false;
-			$(nodeEdit).removeClass("ic-rowEdit-disabled noClass").addClass("ic-rowEdit-enabled");
-			$(nodeConfirm).removeClass("ic-rowEdit-enabled noClass").addClass("ic-rowEdit-disabled");
-			$(nodeDel).removeClass("ic-rowEdit-enabled noClass").addClass("ic-rowEdit-disabled");
-          } else {
-            if (e.target.id == 'ic-edit-confirm') {
-			  grid.removeRowAsEditable(args.row);
-			  $(nodeEdit).removeClass("ic-rowEdit-disabled noClass").addClass("ic-rowEdit-enabled");
-			  $(nodeConfirm).removeClass("ic-rowEdit-enabled noClass").addClass("ic-rowEdit-disabled");
-			  $(nodeDel).removeClass("ic-rowEdit-enabled noClass").addClass("ic-rowEdit-disabled");
-			}
-		  }
+        } 
+		
+	    if (e.target.id == 'ic-edit-delete') {
+		  grid.disableRowAsEditable(args.row);
+		  $(nodeEdit).removeClass("ic-rowEdit-disabled noClass").addClass("ic-rowEdit-enabled");
+		  $(nodeConfirm).removeClass("ic-rowEdit-enabled noClass").addClass("ic-rowEdit-disabled");
+		  $(nodeDel).removeClass("ic-rowEdit-enabled noClass").addClass("ic-rowEdit-disabled");
+	    }
+        
+		if (e.target.id == 'ic-edit-confirm') {
+		  grid.disableRowAsEditable(args.row);
+		  $(nodeEdit).removeClass("ic-rowEdit-disabled noClass").addClass("ic-rowEdit-enabled");
+		  $(nodeConfirm).removeClass("ic-rowEdit-enabled noClass").addClass("ic-rowEdit-disabled");
+		  $(nodeDel).removeClass("ic-rowEdit-enabled noClass").addClass("ic-rowEdit-disabled");
         }
       }
 	});
