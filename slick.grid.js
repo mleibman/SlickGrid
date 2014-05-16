@@ -35,6 +35,18 @@ if (typeof Slick === "undefined") {
       Grid: SlickGrid
     }
   });
+  
+  Slick.Grid.columnDefaults = {
+	  name: "",
+	  resizable: true,
+	  sortable: false,
+	  minWidth: 30,
+	  rerenderOnResize: false,
+	  headerCssClass: null,
+	  defaultSortAsc: true,
+	  focusable: true,
+	  selectable: true
+	};
 
   // shared across all grids on the page
   var scrollbarDimensions;
@@ -89,17 +101,10 @@ if (typeof Slick === "undefined") {
       addNewRowCssClass: "new-row"
     };
 
-    var columnDefaults = {
-      name: "",
-      resizable: true,
-      sortable: false,
-      minWidth: 30,
-      rerenderOnResize: false,
-      headerCssClass: null,
-      defaultSortAsc: true,
-      focusable: true,
-      selectable: true
-    };
+    var columnDefaults = $.extend({}, Slick.Grid.columnDefaults);	// clone the global defaults object. a copy is needed as it may be modified
+    /**
+     * TO-DO: eventually can also use instance defaults object
+     */
 
     // scroller
     var th;   // virtual height
