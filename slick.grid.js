@@ -2234,7 +2234,7 @@ if (typeof Slick === "undefined") {
           } else if (e.which == 9) {
             handled = navigateNext();
           } else if (e.which == 13) {
-            if (options.editable) {
+            if (options.editable || options.editableRow) {
               if (currentEditor) {
                 // adding new row
                 if (activeRow === getDataLength()) {
