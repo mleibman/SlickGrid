@@ -86,7 +86,9 @@ if (typeof Slick === "undefined") {
       multiColumnSort: false,
       defaultFormatter: defaultFormatter,
       forceSyncScrolling: false,
-      addNewRowCssClass: "new-row"
+      addNewRowCssClass: "new-row",
+      editableRow: false,
+      editableRowCssClass: "editableRow"
     };
 
     var columnDefaults = {
@@ -2496,7 +2498,9 @@ if (typeof Slick === "undefined") {
         $(activeCellNode).addClass("active");
         $(rowsCache[activeRow].rowNode).addClass("active");
 
-        if (options.editable && opt_editMode && isCellPotentiallyEditable(activeRow, activeCell)) {
+        if (((options.editable && opt_editMode) || 
+             (options.editableRow && $(activeCellNode).hasClass(options.editableRowCssClass))) &&
+            isCellPotentiallyEditable(activeRow, activeCell)) {
           clearTimeout(h_editorLoader);
 
           if (options.asyncEditorLoading) {
@@ -2582,7 +2586,7 @@ if (typeof Slick === "undefined") {
       if (!activeCellNode) {
         return;
       }
-      if (!options.editable) {
+      if (!options.editable && !options.editableRow) {
         throw "Grid : makeActiveCellEditable : should never get called when options.editable is false";
       }
 
@@ -3269,6 +3273,57 @@ if (typeof Slick === "undefined") {
       selectionModel.setSelectedRanges(rowsToRanges(rows));
     }
 
+    function setRowCssStyle(row, key) {
+      var hashkey = cellCssClasses[key];
+      if (!hashkey) {
+        hashkey = {};
+      }
+      var hashrow = hashkey[row];
+      if (!hashrow) {
+        hashrow = {};
+      }
+
+      var cells = getColumns();
+      for (var i = 0; i < cells.length; i++) {
+        hashrow[cells[i].id] = key;
+      }
+
+      hashkey[row] = hashrow;
+      cellCssClasses[key] = hashkey;
+
+      hashkey = {};
+      hashkey[row] = hashrow;
+
+      updateCellCssStylesOnRenderedRows(hashkey, null);
+      trigger(self.onCellCssStylesChanged, { "key": key, "hash": hashkey });
+      makeActiveCellEditable();
+    }
+
+    function removeRowCssStyle(row, key) {
+      var hashkey = cellCssClasses[key];
+      if (hashkey) {
+        var hashrow = hashkey[row];
+        if (hashrow) {
+          hashkey[row] = null;
+          cellCssClasses[key] = hashkey;
+
+          hashkey = {};
+          hashkey[row] = hashrow;
+
+          updateCellCssStylesOnRenderedRows(null, hashkey);
+          trigger(self.onCellCssStylesChanged, { "key": key, "hash": hashkey });
+        }
+      }
+      makeActiveCellNormal();
+    }
+
+    function setRowAsEditable(row) {
+      setRowCssStyle(row, options.editableRowCssClass);
+    }
+
+    function removeRowAsEditable(row) {
+      removeRowCssStyle(row, options.editableRowCssClass);
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Debug
@@ -3357,6 +3412,8 @@ if (typeof Slick === "undefined") {
       "getSelectedRows": getSelectedRows,
       "setSelectedRows": setSelectedRows,
       "getContainerNode": getContainerNode,
+      "setRowAsEditable": setRowAsEditable,
+      "removeRowAsEditable": removeRowAsEditable,
 
       "render": render,
       "invalidate": invalidate,
@@ -3408,6 +3465,8 @@ if (typeof Slick === "undefined") {
       "setCellCssStyles": setCellCssStyles,
       "removeCellCssStyles": removeCellCssStyles,
       "getCellCssStyles": getCellCssStyles,
+      "setRowCssStyle": setRowCssStyle,
+      "removeRowCssStyle": removeRowCssStyle,
 
       "init": finishInitialization,
       "destroy": destroy,
