@@ -1178,6 +1178,12 @@ if (typeof Slick === "undefined") {
             if (canCellBeSelected(j, k)) {
               hash[j][columns[k].id] = options.selectedCellCssClass;
             }
+            if (k === columns.length - 1) {
+              break;
+            }
+          }
+          if (j === data.getLength() - 1) {
+            break;
           }
         }
       }
