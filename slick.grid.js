@@ -1278,6 +1278,14 @@ if (typeof Slick === "undefined") {
       }
     }
 
+    function getDataLengthWithoutGroup() {
+      if (data.getItems) {
+        return data.getItems().length;
+      } else {
+        return data.length;
+      }
+    }
+
     function getDataLengthIncludingAddNew() {
       return getDataLength() + (options.enableAddRow ? 1 : 0);
     }
