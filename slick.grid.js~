@@ -918,20 +918,7 @@ if (typeof Slick === "undefined") {
     }
 
     function createCssRules() {
-
-      // If IE then get the first slickGrid sheet to use for Css Rules (IE limits # of sheets to ~31)
-      // other browsers works fine
-      // more info here: http://brianwidhalm.wordpress.com/2014/04/02/update-slickgrid-js/
-      if ($.browser.msie) {
-          $style = $('#slickGridStyleSheet');
-          if (!$style[0]) {
-            $style = $("<style id='slickGridStyleSheet' type='text/css' rel='stylesheet' />").appendTo($("head"));
-          }
-      }
-      else {
       $style = $("<style type='text/css' rel='stylesheet' />").appendTo($("head"));
-      }
-
       var rowHeight = (options.rowHeight - cellHeightDiff);
       var rules = [
         "." + uid + " .slick-header-column { left: 1000px; }",
@@ -946,8 +933,8 @@ if (typeof Slick === "undefined") {
         rules.push("." + uid + " .r" + i + " { }");
       }
 
-      if ($style[0].styleSheet) { // IE add to existing sheet
-        $style[0].styleSheet.cssText += rules.join(" ");
+      if ($style[0].styleSheet) { // IE
+        $style[0].styleSheet.cssText = rules.join(" ");
       } else {
         $style[0].appendChild(document.createTextNode(rules.join(" ")));
       }
