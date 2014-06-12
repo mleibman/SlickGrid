@@ -919,18 +919,12 @@ if (typeof Slick === "undefined") {
 
     function createCssRules() {
 
-      // If IE then get the first slickGrid sheet to use for Css Rules (IE limits # of sheets to ~31)
-      // other browsers works fine
+      // IE limits # of sheets to ~31, instead of adding a new style sheet for each grid just use one
       // more info here: http://brianwidhalm.wordpress.com/2014/04/02/update-slickgrid-js/
-      if ($.browser.msie) {
           $style = $('#slickGridStyleSheet');
           if (!$style[0]) {
             $style = $("<style id='slickGridStyleSheet' type='text/css' rel='stylesheet' />").appendTo($("head"));
           }
-      }
-      else {
-      $style = $("<style type='text/css' rel='stylesheet' />").appendTo($("head"));
-      }
 
       var rowHeight = (options.rowHeight - cellHeightDiff);
       var rules = [
