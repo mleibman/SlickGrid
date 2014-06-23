@@ -59,8 +59,10 @@
     }
 
     function handleKeyDown(e, args) {
+      var column;	
       if (e.which == 32) {
-        if (_grid.getColumns()[args.cell].id === _options.columnId) {
+        column = _grid.getColumns()[args.cell];
+        if (column && column.id === _options.columnId) {
           // if editing, try to commit
           if (!_grid.getEditorLock().isActive() || _grid.getEditorLock().commitCurrentEdit()) {
             toggleRowSelection(args.row);
