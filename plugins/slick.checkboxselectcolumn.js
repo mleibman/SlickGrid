@@ -1,3 +1,13 @@
+/**
+ * NOTES:
+ *     NTW change log:
+ *     1) Fixed exception: Uncaught TypeError: Cannot read property 'id' of undefined slick.checkboxselectcolumn.js
+ *        This happens when some columns are remove from the grid and then spacebar is pressed in the grid. 
+ *        Checkbox-plugin uses spacebar to toggle the checkbox state. Grid passes the last active cell as argument to the handleKeyDown(), 
+ *        which might no longer be a valid cell. Ideally, Grid should update its active-cell if the columns are reset. 
+ *        But , anyway, this fix, in handleKeyDown(), will safeguard us from the exception.
+ */
+ 
 (function ($) {
   // register namespace
   $.extend(true, window, {
