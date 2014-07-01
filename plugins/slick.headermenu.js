@@ -49,6 +49,8 @@
    *    disabled:     Whether the item is disabled.
    *    tooltip:      Item tooltip.
    *    command:      A command identifier to be passed to the onCommand event handlers.
+   *    keepOpen:     A boolean value signifying whether the menu should be closed (if false)
+   *                  or kept open (if true) after an item is clicked.
    *    iconCssClass: A CSS class to be added to the menu item icon.
    *    iconImage:    A url to the icon image.
    *
@@ -248,7 +250,9 @@
         return;
       }
 
-      hideMenu();
+      if (!item.keepOpen) {
+        hideMenu();
+      }
 
       if (command != null && command != '') {
         _self.onCommand.notify({
@@ -257,6 +261,17 @@
             "command": command,
             "item": item
           }, e, _self);
+      }
+
+      if (item.keepOpen) {
+        var $icon = $(e.currentTarget).find(".slick-header-menuicon");
+        $icon.css("background-image", "").removeClass().addClass("slick-header-menuicon");
+        if (item.iconCssClass) {
+          $icon.addClass(item.iconCssClass);
+        }
+        if (item.iconImage) {
+          $icon.css("background-image", "url(" + item.iconImage + ")");
+        }
       }
 
       // Stop propagation so that it doesn't register as a header click event.
