@@ -7,9 +7,8 @@
   <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
   <style>
-    .cell-story {
-      white-space: normal !important;
-      line-height: 19px !important;
+    .slick-row {
+      line-height:16px;
     }
 
     .loading-indicator {
@@ -37,10 +36,10 @@
 <body>
 <div style="width:700px;float:left;">
   <div class="grid-header" style="width:100%">
-    <label>Hackernews stories</label>
+    <label>Octopart Catalog Search</label>
         <span style="float:right;display:inline-block;">
           Search:
-          <input type="text" id="txtSearch" value="github">
+          <input type="text" id="txtSearch" value="switch">
         </span>
   </div>
   <div id="myGrid" style="width:100%;height:600px;"></div>
@@ -50,12 +49,11 @@
   <h2>Demonstrates:</h2>
   <ul>
     <li>loading data through AJAX</li>
-    <li>custom row height</li>
   </ul>
 
   <h2>WARNING:</h2>
   <ul>
-    <li>API access to Hackernews provided through ThriftDB has some latency when paging through results. Be patient.
+    <li>API access through ThriftDB has some latency when paging through results. Be patient.
     </li>
   </ul>
 
@@ -80,30 +78,24 @@
   var grid;
   var loader = new Slick.Data.RemoteModel();
 
-  var storyTitleFormatter = function (row, cell, value, columnDef, dataContext) {
-    s ="<b><a href='" + dataContext["url"] + "' target=_blank>" +
-              dataContext["title"] + "</a></b><br/>";
-    desc = dataContext["text"];
-    if (desc) { // on Hackernews many stories don't have a description
-        s += desc;
-    }
+  var mpnFormatter = function (row, cell, value, columnDef, dataContext) {
+    s ="<a href='" + dataContext.octopart_url + "' target=_blank>" + dataContext.mpn + "</a>";
     return s;
   };
 
-  var dateFormatter = function (row, cell, value, columnDef, dataContext) {
-    return (value.getMonth()+1) + "/" + value.getDate() + "/" + value.getFullYear();
+  var brandFormatter = function (row, cell, value, columnDef, dataContext) {
+    return dataContext.brand.name;
   };
 
 
   var columns = [
-    {id: "num", name: "#", field: "index", width: 40},
-    {id: "story", name: "Story", width: 520, formatter: storyTitleFormatter, cssClass: "cell-story"},
-    {id: "date", name: "Date", field: "create_ts", width: 60, formatter: dateFormatter, sortable: true},
-    {id: "points", name: "Points", field: "points", width: 60, sortable: true}
+    {id: "mpn", name: "MPN", field: "mpn", formatter: mpnFormatter, width: 100, sortable: true },
+    {id: "brand", name: "Brand", field: "brand.name", formatter: brandFormatter, width: 100, sortable: true },
+    {id: "short_description", name: "Description", field: "short_description", width: 520 },
   ];
 
   var options = {
-    rowHeight: 64,
+    rowHeight: 21,
     editable: false,
     enableAddRow: false,
     enableCellNavigation: false
@@ -160,8 +152,8 @@
     });
 
     loader.setSearch($("#txtSearch").val());
-    loader.setSort("create_ts", -1);
-    grid.setSortColumn("date", false);
+    loader.setSort("score", -1);
+    grid.setSortColumn("score", false);
 
     // load the first page
     grid.onViewportChanged.notify();
