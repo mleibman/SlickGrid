@@ -1420,7 +1420,7 @@ if (typeof Slick === "undefined") {
         rowCss += " " + options.addNewRowCssClass;
       }
 
-      var metadata = data.getItemMetadata && data.getItemMetadata(row);
+      var metadata = data.getItemMetadata && data.getItemMetadata(row,d );
 
       if (metadata && metadata.cssClasses) {
         rowCss += " " + metadata.cssClasses;
@@ -1428,12 +1428,12 @@ if (typeof Slick === "undefined") {
 
       stringArray.push("<div class='ui-widget-content " + rowCss + "' style='top:" + getRowTop(row) + "px'>");
 
-      var colspan, m;
+      var colspan, m, columnData;
       for (var i = 0, ii = columns.length; i < ii; i++) {
         m = columns[i];
         colspan = 1;
         if (metadata && metadata.columns) {
-          var columnData = metadata.columns[m.id] || metadata.columns[i];
+          columnData = metadata.columns[m.id] || metadata.columns[i];
           colspan = (columnData && columnData.colspan) || 1;
           if (colspan === "*") {
             colspan = ii - i;
@@ -1447,7 +1447,7 @@ if (typeof Slick === "undefined") {
             break;
           }
 
-          appendCellHtml(stringArray, row, i, colspan, d);
+          appendCellHtml(stringArray, row, i, colspan, columnData, d);
         }
 
         if (colspan > 1) {
@@ -1458,12 +1458,16 @@ if (typeof Slick === "undefined") {
       stringArray.push("</div>");
     }
 
-    function appendCellHtml(stringArray, row, cell, colspan, item) {
+    function appendCellHtml(stringArray, row, cell, colspan, columMetadata, item) {
       var m = columns[cell];
       var cellCss = "slick-cell l" + cell + " r" + Math.min(columns.length - 1, cell + colspan - 1) +
           (m.cssClass ? " " + m.cssClass : "");
       if (row === activeRow && cell === activeCell) {
         cellCss += (" active");
+      }
+
+      if (columMetadata && columMetadata.cssClass) {
+          cellCss += " " + columMetadata.cssClass;
       }
 
       // TODO:  merge them together in the setter
@@ -1814,10 +1818,10 @@ if (typeof Slick === "undefined") {
         // Render missing cells.
         cellsAdded = 0;
 
-        var metadata = data.getItemMetadata && data.getItemMetadata(row);
-        metadata = metadata && metadata.columns;
-
         var d = getDataItem(row);
+
+        var metadata = data.getItemMetadata && data.getItemMetadata(row, d);
+        metadata = metadata && metadata.columns;
 
         // TODO:  shorten this loop (index? heuristics? binary search?)
         for (var i = 0, ii = columns.length; i < ii; i++) {
@@ -1842,7 +1846,7 @@ if (typeof Slick === "undefined") {
           }
 
           if (columnPosRight[Math.min(ii - 1, i + colspan - 1)] > range.leftPx) {
-            appendCellHtml(stringArray, row, i, colspan, d);
+            appendCellHtml(stringArray, row, i, colspan, columnData, d);
             cellsAdded++;
           }
 
