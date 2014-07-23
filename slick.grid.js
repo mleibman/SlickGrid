@@ -125,7 +125,6 @@ if (typeof Slick === "undefined") {
     var $topPanel;
     var $viewport;
     var $canvas;
-    var $style;
     var $boundAncestors;
     var stylesheet, columnCssRulesL, columnCssRulesR;
     var viewportH, viewportW;
@@ -241,13 +240,13 @@ if (typeof Slick === "undefined") {
       $headers.width(getHeadersWidth());
 
       $headerRowScroller = $("<div class='slick-headerrow ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-      $headerRow = $("<div class='slick-headerrow-columns' />").appendTo($headerRowScroller);
+      $headerRow = $("<div class='slick-headerrow-columns' style='height:" + options.headerRowHeight + "px'/>").appendTo($headerRowScroller);
       $headerRowSpacer = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
           .css("width", getCanvasWidth() + scrollbarDimensions.width + "px")
           .appendTo($headerRowScroller);
 
       $topPanelScroller = $("<div class='slick-top-panel-scroller ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-      $topPanel = $("<div class='slick-top-panel' style='width:10000px' />").appendTo($topPanelScroller);
+      $topPanel = $("<div class='slick-top-panel' style='width:10000px; height:" + options.topPanelHeight + "px'/>").appendTo($topPanelScroller);
 
       if (!options.showTopPanel) {
         $topPanelScroller.hide();
@@ -297,7 +296,6 @@ if (typeof Slick === "undefined") {
         updateColumnCaches();
         createColumnHeaders();
         setupColumnSort();
-        createCssRules();
         resizeCanvas();
         bindAncestorScrollEvents();
 
@@ -566,6 +564,7 @@ if (typeof Slick === "undefined") {
             .attr("title", m.toolTip || "")
             .data("column", m)
             .addClass(m.headerCssClass || "")
+            .css('left', 1000)
             .appendTo($headers);
 
         if (options.enableColumnReorder || m.sortable) {
@@ -917,79 +916,6 @@ if (typeof Slick === "undefined") {
       absoluteColumnMinWidth = Math.max(headerColumnWidthDiff, cellWidthDiff);
     }
 
-    function createCssRules() {
-      $style = $("<style type='text/css' rel='stylesheet' />").appendTo($("head"));
-      var rowHeight = (options.rowHeight - cellHeightDiff);
-      if ($style[0].styleSheet) { // IE
-        $style[0].styleSheet.cssText = "";
-      } else {
-        $style[0].appendChild(document.createTextNode(""));
-      }
-        var sheet =  $style[0].sheet;
-        var index = 0;
-        addCSSRule(sheet,"." + uid + " .slick-header-column", "left: 1000px;",index++);
-        addCSSRule(sheet,"." + uid + " .slick-top-panel", "height:" + options.topPanelHeight + "px;",index++);
-        addCSSRule(sheet,"." + uid + " .slick-headerrow-columns", "height:" + options.headerRowHeight + "px;",index++);
-        addCSSRule(sheet,"." + uid + " .slick-cell", "height:" + rowHeight + "px;",index++);
-        addCSSRule(sheet,"." + uid + " .slick-row", "height:" + options.rowHeight + "px;",index++);
-
-        for (var i = 0; i < columns.length; i++) {
-            addCSSRule(sheet,"." + uid + " .l" + i , "",index++);
-            addCSSRule(sheet,"." + uid + " .r" + i, "",index++);
-          }
-    }
-
-    function addCSSRule(sheet, selector, rules, index) {
-        if(sheet.insertRule) {
-            sheet.insertRule(selector + "{" + rules + "}", index);
-        }
-        else {
-            sheet.addRule(selector, rules, index);
-        }
-    }
-
-    function getColumnCssRules(idx) {
-      if (!stylesheet) {
-        var sheets = document.styleSheets;
-        for (var i = 0; i < sheets.length; i++) {
-          if ((sheets[i].ownerNode || sheets[i].owningElement) == $style[0]) {
-            stylesheet = sheets[i];
-            break;
-          }
-        }
-
-        if (!stylesheet) {
-          throw new Error("Cannot find stylesheet.");
-        }
-
-        // find and cache column CSS rules
-        columnCssRulesL = [];
-        columnCssRulesR = [];
-        var cssRules = (stylesheet.cssRules || stylesheet.rules);
-        var matches, columnIdx;
-        for (var i = 0; i < cssRules.length; i++) {
-          var selector = cssRules[i].selectorText;
-          if (matches = /\.l\d+/.exec(selector)) {
-            columnIdx = parseInt(matches[0].substr(2, matches[0].length - 2), 10);
-            columnCssRulesL[columnIdx] = cssRules[i];
-          } else if (matches = /\.r\d+/.exec(selector)) {
-            columnIdx = parseInt(matches[0].substr(2, matches[0].length - 2), 10);
-            columnCssRulesR[columnIdx] = cssRules[i];
-          }
-        }
-      }
-
-      return {
-        "left": columnCssRulesL[idx],
-        "right": columnCssRulesR[idx]
-      };
-    }
-
-    function removeCssRules() {
-      $style.remove();
-      stylesheet = null;
-    }
-
     function destroy() {
       getEditorLock().cancelCurrentEdit();
 
@@ -1006,8 +932,6 @@ if (typeof Slick === "undefined") {
 
       unbindAncestorScrollEvents();
       $container.unbind(".slickgrid");
-      removeCssRules();
-
       $canvas.unbind("draginit dragstart dragend drag");
       $container.empty().removeClass(uid);
     }
@@ -1132,10 +1056,8 @@ if (typeof Slick === "undefined") {
       for (var i = 0; i < columns.length; i++) {
         w = columns[i].width;
 
-        rule = getColumnCssRules(i);
-        rule.left.style.left = x + "px";
-        rule.right.style.right = (canvasWidth - x - w) + "px";
-
+        $('.' + uid + ' .l' + i).css('left', x);
+        $('.' + uid + ' .r' + i).css('right', (canvasWidth - x - w));
         x += columns[i].width;
       }
     }
@@ -1229,8 +1151,6 @@ if (typeof Slick === "undefined") {
       if (initialized) {
         invalidateAllRows();
         createColumnHeaders();
-        removeCssRules();
-        createCssRules();
         resizeCanvas();
         applyColumnWidths();
         handleScroll();
@@ -1421,24 +1341,29 @@ if (typeof Slick === "undefined") {
       }
 
       var metadata = data.getItemMetadata && data.getItemMetadata(row,d );
+      var rowHeight = (options.rowHeight - cellHeightDiff);
 
       if (metadata && metadata.cssClasses) {
         rowCss += " " + metadata.cssClasses;
       }
 
-      stringArray.push("<div class='ui-widget-content " + rowCss + "' style='top:" + getRowTop(row) + "px'>");
+      stringArray.push("<div class='ui-widget-content " + rowCss + "' style='top:" + getRowTop(row) + "px; height:" + options.rowHeight + "px;'>");
 
-      var colspan, m, columnData;
+      var colspan, m, columnData, w, x = 0, cellStyle;
       for (var i = 0, ii = columns.length; i < ii; i++) {
         m = columns[i];
-        colspan = 1;
         if (metadata && metadata.columns) {
           columnData = metadata.columns[m.id] || metadata.columns[i];
-          colspan = (columnData && columnData.colspan) || 1;
-          if (colspan === "*") {
-            colspan = ii - i;
-          }
         }
+
+        colspan = getColspan (row, i);
+
+        w = 0;
+        for (var j = i; j <= i + colspan - 1; j++) {
+          w += columns[j].width;
+        }
+        cellStyle = 'left:' + x + 'px; right:' + (canvasWidth - x - w) + 'px; height:' + rowHeight + 'px;';
+        x += w;
 
         // Do not render cells outside of the viewport.
         if (columnPosRight[Math.min(ii - 1, i + colspan - 1)] > range.leftPx) {
@@ -1447,7 +1372,7 @@ if (typeof Slick === "undefined") {
             break;
           }
 
-          appendCellHtml(stringArray, row, i, colspan, columnData, d);
+          appendCellHtml(stringArray, row, i, colspan, columnData, d, cellStyle);
         }
 
         if (colspan > 1) {
@@ -1458,7 +1383,7 @@ if (typeof Slick === "undefined") {
       stringArray.push("</div>");
     }
 
-    function appendCellHtml(stringArray, row, cell, colspan, columMetadata, item) {
+    function appendCellHtml(stringArray, row, cell, colspan, columMetadata, item, cellStyle) {
       var m = columns[cell];
       var cellCss = "slick-cell l" + cell + " r" + Math.min(columns.length - 1, cell + colspan - 1) +
           (m.cssClass ? " " + m.cssClass : "");
@@ -1477,7 +1402,7 @@ if (typeof Slick === "undefined") {
         }
       }
 
-      stringArray.push("<div class='" + cellCss + "'>");
+      stringArray.push("<div class='" + cellCss + "' style='" + cellStyle + "'>");
 
       // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
       if (item) {
@@ -1803,6 +1728,8 @@ if (typeof Slick === "undefined") {
       var cellsAdded;
       var totalCellsAdded = 0;
       var colspan;
+      var w, x, j, cellStyle, columnData;
+      var rowHeight = (options.rowHeight - cellHeightDiff);
 
       for (var row = range.top, btm = range.bottom; row <= btm; row++) {
         cacheEntry = rowsCache[row];
@@ -1823,6 +1750,7 @@ if (typeof Slick === "undefined") {
         var metadata = data.getItemMetadata && data.getItemMetadata(row, d);
         metadata = metadata && metadata.columns;
 
+        x = 0; // reset to 0 before looping the columns
         // TODO:  shorten this loop (index? heuristics? binary search?)
         for (var i = 0, ii = columns.length; i < ii; i++) {
           // Cells to the right are outside the range.
@@ -1832,21 +1760,30 @@ if (typeof Slick === "undefined") {
 
           // Already rendered.
           if ((colspan = cacheEntry.cellColSpans[i]) != null) {
+            // Before continuing the loop, adjust the x value to make it ready for the next iteration.
+            for (j = i; j <= i + colspan - 1; j++) {
+              x += columns[j].width;
+            }
             i += (colspan > 1 ? colspan - 1 : 0);
             continue;
           }
 
-          colspan = 1;
+          // Retrieving the colspan from metadata again (not from cacheEntry)
+          colspan = getColspan (row, i);
           if (metadata) {
-            var columnData = metadata[columns[i].id] || metadata[i];
-            colspan = (columnData && columnData.colspan) || 1;
-            if (colspan === "*") {
-              colspan = ii - i;
-            }
+            columnData = metadata[columns[i].id] || metadata.columns[i];
           }
 
+          w = 0;
+          for (j = i; j <= i + colspan - 1; j++) {
+            w += columns[j].width;
+          }
+
+          cellStyle = 'left:' + x +'px; right:' + (canvasWidth - x - w) + 'px; height:' + rowHeight + 'px;';
+          x += w;
+
           if (columnPosRight[Math.min(ii - 1, i + colspan - 1)] > range.leftPx) {
-            appendCellHtml(stringArray, row, i, colspan, columnData, d);
+            appendCellHtml(stringArray, row, i, colspan, columnData, d, cellStyle);
             cellsAdded++;
           }
 
