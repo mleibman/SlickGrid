@@ -1250,15 +1250,17 @@ if (typeof Slick === "undefined") {
       enforceWidthLimits(columns);
       updateColumnCaches();
       if (initialized) {
+        // Column Headers
         $headers.width(getHeadersWidth()); // Set the full width of all the headers together
-        // Surgically update only the widths of the header cells
+        // Update only the widths of the header cells
         $headerCells = $headers.children()
         for (var i = 0; i < columns.length; i++) {
           var m = columns[i];
           $el = $headerCells.eq( getColumnIndex(m.id) ); // Get the jQuery-wrapped instance of this column header
           $el.width(m.width - headerColumnWidthDiff);
         }
-        updateCanvasWidth(); // Update the grid-canvas width. This also updates the width of all the cells (doesn't impact the column headers)
+        // Cells and grid canvas
+        updateCanvasWidth(true); // Update the grid-canvas width. The `true` tells it to update the width of all the cells even if the canvas hasn't changed size (eg: if there was plenty of room for the cells both before and after the sizing, the canvas doesn't change)
       }
     }
 
