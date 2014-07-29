@@ -605,7 +605,7 @@ if (typeof Slick === "undefined") {
     // Can be overridden by providing a function to options.columnHeaderRenderer
     function columnHeaderRenderer(column) {
       var $el = $("<div class='ui-state-default slick-header-column' />")
-        .html("<span class='slick-column-name'>" + 'hi' + column.name + "</span>")
+        .html("<span class='slick-column-name'>" + column.name + "</span>")
         .attr("title", column.toolTip || "");
       return $el
     }
