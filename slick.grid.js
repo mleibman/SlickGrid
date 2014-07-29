@@ -1258,7 +1258,7 @@ if (typeof Slick === "undefined") {
           $el = $headerCells.eq( getColumnIndex(m.id) ); // Get the jQuery-wrapped instance of this column header
           $el.width(m.width - headerColumnWidthDiff);
         }
-        applyColumnWidths(); // Surgically update only cell widths (but not header cells, unfortunately)
+        updateCanvasWidth(); // Update the grid-canvas width. This also updates the width of all the cells (doesn't impact the column headers)
       }
     }
 
