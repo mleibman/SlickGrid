@@ -1234,8 +1234,15 @@ if (typeof Slick === "undefined") {
       }
     }
 
-    function setColumns(columnDefinitions) {
+    /**
+     * Set or re-set the columns in the grid
+     * @param {array}     columnDefinitions   columns to set
+     * @param {object}    opts                mixed in with the `onColumnsChanged` data sent to event handlers
+     *                                        opts.skipResizeCanvas let's you skip that step. Boosts performance if you don't need it because you're planning to to manually call resizeCanvas.
+     */
+    function setColumns(columnDefinitions, opts) {
       columns = columnDefinitions;
+      opts = opts || {};
       enforceWidthLimits(columns);
       updateColumnCaches();
       if (initialized) {
@@ -1243,13 +1250,19 @@ if (typeof Slick === "undefined") {
         createColumnHeaders();
         removeCssRules();
         createCssRules();
+        if (!opts.skipResizeCanvas) {
         resizeCanvas();
+        }
         applyColumnWidths();
         handleScroll();
+        trigger(
+          self.onColumnsChanged,
+          $.extend({ grid: self, columns: columns }, opts)
+        );
       }
     }
 
-    // Given a column definition object, do all the steps required to react to a change in the widths of any of the columns
+    // Given a column definition object, do all the steps required to react to a change in the widths of any of the columns, and nothing more.
     function updateColumnWidths(columnDefinitions) {
       columns = columnDefinitions;
       enforceWidthLimits(columns);
@@ -1257,8 +1270,8 @@ if (typeof Slick === "undefined") {
       if (initialized) {
         // Column Headers
         $headers.width(getHeadersWidth()); // Set the full width of all the headers together
-        // Update only the widths of the header cells
-        $headerCells = $headers.children()
+        // Update the widths of each header dom element
+        $headerCells = $headers.children();
         for (var i = 0; i < columns.length; i++) {
           var m = columns[i];
           $el = $headerCells.eq( getColumnIndex(m.id) ); // Get the jQuery-wrapped instance of this column header
@@ -3370,6 +3383,7 @@ if (typeof Slick === "undefined") {
       "onViewportChanged": new Slick.Event(),
       "onColumnsReordered": new Slick.Event(),
       "onColumnsResized": new Slick.Event(),
+      "onColumnsChanged": new Slick.Event(),
       "onCellChange": new Slick.Event(),
       "onBeforeEditCell": new Slick.Event(),
       "onBeforeCellEditorDestroy": new Slick.Event(),
