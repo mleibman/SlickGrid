@@ -274,7 +274,7 @@ if (typeof Slick === "undefined") {
       if (!initialized) {
         initialized = true;
 
-        viewportW = parseFloat($.css($container[0], "width", true));
+        setViewportWidth();
 
         // header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
         // calculate the diff so we can set consistent sizes
@@ -1641,10 +1641,12 @@ if (typeof Slick === "undefined") {
       }
 
       numVisibleRows = Math.ceil(viewportH / options.rowHeight);
-      viewportW = parseFloat($.css($container[0], "width", true));
+
       if (!options.autoHeight) {
         $viewport.height(viewportH);
       }
+
+      setViewportWidth(resizeOptions.width);
 
       if (options.forceFitColumns) {
         autosizeColumns();
@@ -1655,6 +1657,12 @@ if (typeof Slick === "undefined") {
       // Since the width has changed, force the render() to reevaluate virtually rendered cells.
       lastRenderedScrollLeft = -1;
       render();
+    }
+
+    // If you pass it a width, that width is used as the viewport width. If you do not, it is calculated as normal.
+    // This is more performant if the canvas size is changed externally. The width is already known so we can pass it in instead of recalculating.
+    function setViewportWidth(width) {
+      viewportW = width || parseFloat($.css($container[0], "width", true));
     }
 
     function updateRowCount() {
