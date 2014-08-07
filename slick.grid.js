@@ -1251,7 +1251,7 @@ if (typeof Slick === "undefined") {
         removeCssRules();
         createCssRules();
         if (!opts.skipResizeCanvas) {
-        resizeCanvas();
+          resizeCanvas();
         }
         applyColumnWidths();
         handleScroll();
@@ -1650,18 +1650,23 @@ if (typeof Slick === "undefined") {
         (options.showHeaderRow ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0);
     }
 
-    function resizeCanvas() {
+    // If you pass resizeOptions.width, the viewport width calculation can be skipped. This saves 15ms or so.
+    function resizeCanvas(resizeOptions) {
       if (!initialized) { return; }
-      if (options.autoHeight) {
-        viewportH = options.rowHeight * getDataLengthIncludingAddNew();
-      } else {
-        viewportH = getViewportHeight();
-      }
+      resizeOptions = resizeOptions || {};
 
-      numVisibleRows = Math.ceil(viewportH / options.rowHeight);
+      if (!resizeOptions.skipHeight) {
+        if (options.autoHeight) {
+          viewportH = options.rowHeight * getDataLengthIncludingAddNew();
+        } else {
+          viewportH = getViewportHeight();
+        }
 
-      if (!options.autoHeight) {
-        $viewport.height(viewportH);
+        numVisibleRows = Math.ceil(viewportH / options.rowHeight);
+
+        if (!options.autoHeight) {
+          $viewport.height(viewportH);
+        }
       }
 
       setViewportWidth(resizeOptions.width);
