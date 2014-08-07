@@ -1280,6 +1280,7 @@ if (typeof Slick === "undefined") {
         // Cells and grid canvas
         updateCanvasWidth(true); // Update the grid-canvas width. The `true` tells it to update the width of all the cells even if the canvas hasn't changed size (eg: if there was plenty of room for the cells both before and after the sizing, the canvas doesn't change)
       }
+      trigger(self.onColumnsResized, { grid: self, columns: columns });
     }
 
     function getOptions() {
