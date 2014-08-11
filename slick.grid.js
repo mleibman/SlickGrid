@@ -1223,7 +1223,7 @@ if (typeof Slick === "undefined") {
     function enforceWidthLimits(columns) {
       columnsById = {};
       for (var i = 0; i < columns.length; i++) {
-        var m = columns[i] = $.extend({}, columnDefaults, columns[i]);
+        var m = columns[i]; // Changing the object reference can cause problems for external consumers of that object. Also, I see no reason to re-extend from defaults here, this is done in init.
         columnsById[m.id] = i;
         if (m.minWidth && m.width < m.minWidth) {
           m.width = m.minWidth;
@@ -1255,10 +1255,7 @@ if (typeof Slick === "undefined") {
         }
         applyColumnWidths();
         handleScroll();
-        trigger(
-          self.onColumnsChanged,
-          $.extend({ grid: self, columns: columns }, opts)
-        );
+        trigger(self.onColumnsChanged, opts);
       }
     }
 
@@ -1280,7 +1277,7 @@ if (typeof Slick === "undefined") {
         // Cells and grid canvas
         updateCanvasWidth(true); // Update the grid-canvas width. The `true` tells it to update the width of all the cells even if the canvas hasn't changed size (eg: if there was plenty of room for the cells both before and after the sizing, the canvas doesn't change)
       }
-      trigger(self.onColumnsResized, { grid: self, columns: columns });
+      trigger(self.onColumnsResized);
     }
 
     function getOptions() {
@@ -1546,6 +1543,7 @@ if (typeof Slick === "undefined") {
       updateRowCount();
       invalidateAllRows();
       render();
+      trigger(self.onInvalidate);
     }
 
     function invalidateAllRows() {
@@ -3387,6 +3385,7 @@ if (typeof Slick === "undefined") {
       "onAddNewRow": new Slick.Event(),
       "onValidationError": new Slick.Event(),
       "onViewportChanged": new Slick.Event(),
+      "onInvalidate": new Slick.Event(),
       "onColumnsReordered": new Slick.Event(),
       "onColumnsResized": new Slick.Event(),
       "onColumnsChanged": new Slick.Event(),
