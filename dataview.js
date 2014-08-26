@@ -1,4 +1,15 @@
 (function ($) {
+
+  module.exports = {
+    DataView: DataView,
+    Aggregators: {
+      Avg: AvgAggregator,
+      Min: MinAggregator,
+      Max: MaxAggregator,
+      Sum: SumAggregator
+    }
+  };
+
   $.extend(true, window, {
     Slick: {
       Data: {

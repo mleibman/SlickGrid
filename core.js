@@ -5,6 +5,25 @@
  */
 
 (function ($) {
+  module.exports = {
+    "Event": Event,
+    "EventData": EventData,
+    "EventHandler": EventHandler,
+    "Range": Range,
+    "NonDataRow": NonDataItem,
+    "Group": Group,
+    "GroupTotals": GroupTotals,
+    "EditorLock": EditorLock,
+
+    /***
+       * A global singleton editor lock.
+       * @class GlobalEditorLock
+       * @static
+       * @constructor
+*/
+    "GlobalEditorLock": new EditorLock()
+  };
+
   // register namespace
   $.extend(true, window, {
     "Slick": {

@@ -1,0 +1,21 @@
+{
+  "name": "slickgrid",
+  "version": "2.1.1-pandell.1",
+  "description": "A lightning fast JavaScript grid/spreadsheet",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "repository": "pandell/SlickGrid",
+  "author": "Michael Leibman <michael.leibman@gmail.com>",
+  "directories": {
+    "example": "examples",
+    "test": "tests"
+  },
+  "keywords": [
+    "slickgrid",
+    "grid"
+  ],
+  "main": "./index.js",
+  "publishConfig": {
+    "registry": "https://npm.pandell.com"
+  }
+}
