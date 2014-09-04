@@ -940,9 +940,22 @@ if (typeof Slick === "undefined") {
       }
     }
 
+    // Fix for Google Chrome
+    function getAllStyleSheets() {
+      var result = [];
+      for (var style in document.styleSheets) {
+        result.push(document.styleSheets[style]);
+      }
+      var sheets = $("head").find('style');
+      for (var i = 0; i < sheets.length; i++) {
+        result.push(sheets[i].sheet);
+      }
+      return result;
+    }
+
     function getColumnCssRules(idx) {
       if (!stylesheet) {
-        var sheets = document.styleSheets;
+        var sheets = getAllStyleSheets();
         for (var i = 0; i < sheets.length; i++) {
           if ((sheets[i].ownerNode || sheets[i].owningElement) == $style[0]) {
             stylesheet = sheets[i];
