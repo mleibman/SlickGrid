@@ -740,7 +740,13 @@ if (typeof Slick === "undefined") {
               return false;
             }
             pageX = e.pageX;
-            $(this).parent().addClass("slick-header-column-active");
+            var $el = $(this).parent()
+            $el.addClass("slick-header-column-active");
+
+            // Get the dragged column object and set a flag on it
+            var idx = Array.prototype.indexOf.call($el.parent().children(), $el[0]);
+            if (idx > -1) { columns[idx].manuallySized = true; }
+
             var shrinkLeewayOnRight = null, stretchLeewayOnRight = null;
             // lock each column's width option to current width
             columnElements.each(function (i, e) {
