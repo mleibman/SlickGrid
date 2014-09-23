@@ -137,12 +137,12 @@
     }
 
     function setPagingOptions(args) {
-      if (args.pageSize != undefined) {
+      if (args.pageSize !== undefined) {
         pagesize = args.pageSize;
         pagenum = pagesize ? Math.min(pagenum, Math.max(0, Math.ceil(totalRows / pagesize) - 1)) : 0;
       }
 
-      if (args.pageNum != undefined) {
+      if (args.pageNum !== undefined) {
         pagenum = Math.min(args.pageNum, Math.max(0, Math.ceil(totalRows / pagesize) - 1));
       }
 
@@ -188,7 +188,7 @@
       fastSortField = field;
       sortComparer = null;
       var oldToString = Object.prototype.toString;
-      Object.prototype.toString = (typeof field == "function") ? field : function () {
+      Object.prototype.toString = (typeof field === "function") ? field : function () {
         return this[field]
       };
       // an extra reversal for descending sort keeps the sort stable
@@ -258,7 +258,7 @@
      * @deprecated Please use {@link setGrouping}.
      */
     function groupBy(valueGetter, valueFormatter, sortComparer) {
-      if (valueGetter == null) {
+      if (valueGetter === null) {
         setGrouping([]);
         return;
       }
@@ -315,7 +315,7 @@
       ensureRowsByIdCache();
       for (var i = 0, l = idArray.length; i < l; i++) {
         var row = rowsById[idArray[i]];
-        if (row != null) {
+        if (row !== null) {
           rows[rows.length] = row;
         }
       }
@@ -414,7 +414,7 @@
     }
 
     function expandCollapseAllGroups(level, collapse) {
-      if (level == null) {
+      if (level === null) {
         for (var i = 0; i < groupingInfos.length; i++) {
           toggledGroupsByLevel[i] = {};
           groupingInfos[i].collapsed = collapse;
@@ -448,7 +448,7 @@
 
     function resolveLevelAndGroupingKey(args) {
       var arg0 = args[0];
-      if (args.length == 1 && arg0.indexOf(groupingDelimiter) != -1) {
+      if (args.length === 1 && arg0.indexOf(groupingDelimiter) !== -1) {
         return {level: arg0.split(groupingDelimiter).length - 1, groupingKey: arg0};
       } else {
         return {level: args.length - 1, groupingKey: args.join(groupingDelimiter)};
@@ -534,7 +534,7 @@
     function calculateTotals(totals) {
       var group = totals.group;
       var gi = groupingInfos[group.level];
-      var isLeafLevel = (group.level == groupingInfos.length);
+      var isLeafLevel = (group.level === groupingInfos.length);
       var agg, idx = gi.aggregators.length;
 
       if (!isLeafLevel && gi.aggregateChildGroups) {
@@ -805,7 +805,7 @@
               // deep object comparison is pretty expensive
               // always considering them 'dirty' seems easier for the time being
               (item.__groupTotals || r.__groupTotals))
-            || item[idProperty] != r[idProperty]
+            || item[idProperty] !== r[idProperty]
             || (updated && updated[item[idProperty]])
             ) {
             diff[diff.length] = i;
@@ -818,8 +818,8 @@
     function recalc(_items) {
       rowsById = null;
 
-      if (refreshHints.isFilterNarrowing != prevRefreshHints.isFilterNarrowing ||
-        refreshHints.isFilterExpanding != prevRefreshHints.isFilterExpanding) {
+      if (refreshHints.isFilterNarrowing !== prevRefreshHints.isFilterNarrowing ||
+        refreshHints.isFilterExpanding !== prevRefreshHints.isFilterExpanding) {
         filterCache = [];
       }
 
@@ -863,10 +863,10 @@
       prevRefreshHints = refreshHints;
       refreshHints = {};
 
-      if (totalRowsBefore != totalRows) {
+      if (totalRowsBefore !== totalRows) {
         onPagingInfoChanged.notify(getPagingInfo(), null, self);
       }
-      if (countBefore != rows.length) {
+      if (countBefore !== rows.length) {
         onRowCountChanged.notify({
           previous: countBefore,
           current: rows.length
@@ -904,7 +904,7 @@
       var onSelectedRowIdsChanged = new Slick.Event();
 
       function setSelectedRowIds(rowIds) {
-        if (selectedRowIds.join(",") == rowIds.join(",")) {
+        if (selectedRowIds.join(",") === rowIds.join(",")) {
           return;
         }
 
@@ -975,7 +975,7 @@
           var newHash = {};
           for (var id in hashById) {
             var row = rowsById[id];
-            if (row != undefined) {
+            if (row !== undefined) {
               newHash[row] = hashById[id];
             }
           }
@@ -988,7 +988,7 @@
         if (inHandler) {
           return;
         }
-        if (key != args.key) {
+        if (key !== args.key) {
           return;
         }
         if (args.hash) {
@@ -1062,7 +1062,7 @@
     this.accumulate = function (item) {
       var val = item[this.field_];
       this.count_++;
-      if (val != null && val !== "" && val !== NaN) {
+      if (val !== null && val !== "" && val !== NaN) {
         this.nonNullCount_++;
         this.sum_ += parseFloat(val);
       }
@@ -1072,7 +1072,7 @@
       if (!groupTotals.avg) {
         groupTotals.avg = {};
       }
-      if (this.nonNullCount_ != 0) {
+      if (this.nonNullCount_ !== 0) {
         groupTotals.avg[this.field_] = this.sum_ / this.nonNullCount_;
       }
     };
@@ -1107,7 +1107,7 @@
     };
 
     this.isValid = function (val) {
-      return val != null && val !== "" && val !== NaN;
+      return val !== null && val !== "" && val !== NaN;
     }
   }
 
@@ -1120,8 +1120,8 @@
 
     this.accumulate = function (item) {
       var val = item[this.field_];
-      if (val != null && val !== "" && val !== NaN) {
-        if (this.min_ == null || val < this.min_) {
+      if (val !== null && val !== "" && val !== NaN) {
+        if (this.min_ === null || val < this.min_) {
           this.min_ = val;
         }
       }
@@ -1144,8 +1144,8 @@
 
     this.accumulate = function (item) {
       var val = item[this.field_];
-      if (val != null && val !== "" && val !== NaN) {
-        if (this.max_ == null || val > this.max_) {
+      if (val !== null && val !== "" && val !== NaN) {
+        if (this.max_ === null || val > this.max_) {
           this.max_ = val;
         }
       }
@@ -1168,7 +1168,7 @@
 
     this.accumulate = function (item) {
       var val = item[this.field_];
-      if (val != null && val !== "" && val !== NaN) {
+      if (val !== null && val !== "" && val !== NaN) {
         this.sum_ += parseFloat(val);
       }
     };

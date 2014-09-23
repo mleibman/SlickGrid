@@ -69,7 +69,7 @@
     };
 
     this.isValueChanged = function () {
-      return (!($input.val() == "" && defaultValue == null)) && ($input.val() != defaultValue);
+      return (!($input.val() === "" && defaultValue === null)) && ($input.val() !== defaultValue);
     };
 
     this.validate = function () {
@@ -131,7 +131,7 @@
     };
 
     this.isValueChanged = function () {
-      return (!($input.val() == "" && defaultValue == null)) && ($input.val() != defaultValue);
+      return (!($input.val() === "" && defaultValue === null)) && ($input.val() !== defaultValue);
     };
 
     this.validate = function () {
@@ -223,7 +223,7 @@
     };
 
     this.isValueChanged = function () {
-      return (!($input.val() == "" && defaultValue == null)) && ($input.val() != defaultValue);
+      return (!($input.val() === "" && defaultValue === null)) && ($input.val() !== defaultValue);
     };
 
     this.validate = function () {
@@ -261,7 +261,7 @@
     };
 
     this.serializeValue = function () {
-      return ($select.val() == "yes");
+      return ($select.val() === "yes");
     };
 
     this.applyValue = function (item, state) {
@@ -269,7 +269,7 @@
     };
 
     this.isValueChanged = function () {
-      return ($select.val() != defaultValue);
+      return ($select.val() !== defaultValue);
     };
 
     this.validate = function () {
@@ -387,7 +387,7 @@
     };
 
     this.isValueChanged = function () {
-      return (!($input.val() == "" && defaultValue == null)) && ((parseInt($input.val(), 10) || 0) != defaultValue);
+      return (!($input.val() === "" && defaultValue === null)) && ((parseInt($input.val(), 10) || 0) !== defaultValue);
     };
 
     this.validate = function () {
@@ -438,15 +438,15 @@
     };
 
     this.handleKeyDown = function (e) {
-      if (e.which == $.ui.keyCode.ENTER && e.ctrlKey) {
+      if (e.which === $.ui.keyCode.ENTER && e.ctrlKey) {
         scope.save();
-      } else if (e.which == $.ui.keyCode.ESCAPE) {
+      } else if (e.which === $.ui.keyCode.ESCAPE) {
         e.preventDefault();
         scope.cancel();
-      } else if (e.which == $.ui.keyCode.TAB && e.shiftKey) {
+      } else if (e.which === $.ui.keyCode.TAB && e.shiftKey) {
         e.preventDefault();
         args.grid.navigatePrev();
-      } else if (e.which == $.ui.keyCode.TAB) {
+      } else if (e.which === $.ui.keyCode.TAB) {
         e.preventDefault();
         args.grid.navigateNext();
       }
@@ -497,7 +497,7 @@
     };
 
     this.isValueChanged = function () {
-      return (!($input.val() == "" && defaultValue == null)) && ($input.val() != defaultValue);
+      return (!($input.val() === "" && defaultValue === null)) && ($input.val() !== defaultValue);
     };
 
     this.validate = function () {

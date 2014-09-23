@@ -60,7 +60,7 @@
 
       var selectedRows = _grid.getSelectedRows();
 
-      if (selectedRows.length == 0 || $.inArray(cell.row, selectedRows) == -1) {
+      if (selectedRows.length === 0 || $.inArray(cell.row, selectedRows) === -1) {
         selectedRows = [cell.row];
         _grid.setSelectedRows(selectedRows);
       }
@@ -156,7 +156,7 @@
     function scrollDown() {
       var visibleRange = _grid.getViewport();
 
-      if (visibleRange.bottom == _grid.getDataLength()) {
+      if (visibleRange.bottom === _grid.getDataLength()) {
         return;
       }
 
@@ -166,7 +166,7 @@
     function scrollUp() {
       var visibleRange = _grid.getViewport();
 
-      if (visibleRange.top == 0) {
+      if (visibleRange.top === 0) {
         return;
       }
 
