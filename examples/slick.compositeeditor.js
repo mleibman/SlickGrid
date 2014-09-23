@@ -1,4 +1,3 @@
-;
 (function ($) {
   $.extend(true, window, {
     Slick: {
@@ -70,7 +69,6 @@
     function editor(args) {
       var editors = [];
 
-
       function init() {
         var newArgs = {};
         var idx = columns.length;
@@ -95,7 +93,7 @@
           editors[idx].destroy();
         }
 
-        options.destroy && options.destroy();
+        if (options.destroy) options.destroy();
       };
 
 
@@ -177,26 +175,26 @@
       };
 
 
-      this.hide = function () {
+      function showOrHide(action) {
         var idx = editors.length;
         while (idx--) {
-          editors[idx].hide && editors[idx].hide();
+          if (editors[idx][action]) editors[idx][action]();
         }
-        options.hide && options.hide();
+        if (options[action]) options[action]();
+      }
+
+      this.hide = function () {
+        showOrHide('hide');
       };
 
 
       this.show = function () {
-        var idx = editors.length;
-        while (idx--) {
-          editors[idx].show && editors[idx].show();
-        }
-        options.show && options.show();
+        showOrHide('show')
       };
 
 
       this.position = function (box) {
-        options.position && options.position(box);
+        if(options.position) options.position(box);
       };
 
 
