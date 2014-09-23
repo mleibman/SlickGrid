@@ -78,7 +78,7 @@
     var dv = new Slick.Data.DataView();
     try {
       dv.setItems([1, 2, 3]);
-      ok(false, "exception expected")
+      ok(false, "exception expected");
     }
     catch (ex) {
     }
@@ -91,7 +91,7 @@
         {id: 0},
         {id: 0}
       ]);
-      ok(false, "exception expected")
+      ok(false, "exception expected");
     }
     catch (ex) {
     }
@@ -104,7 +104,7 @@
         {uid: 0},
         {uid: 0}
       ], "uid");
-      ok(false, "exception expected")
+      ok(false, "exception expected");
     }
     catch (ex) {
     }
@@ -141,13 +141,13 @@
   test("no events on setItems([])", function () {
     var dv = new Slick.Data.DataView();
     dv.onRowsChanged.subscribe(function () {
-      ok(false, "onRowsChanged called")
+      ok(false, "onRowsChanged called");
     });
     dv.onRowCountChanged.subscribe(function () {
-      ok(false, "onRowCountChanged called")
+      ok(false, "onRowCountChanged called");
     });
     dv.onPagingInfoChanged.subscribe(function () {
-      ok(false, "onPagingInfoChanged called")
+      ok(false, "onPagingInfoChanged called");
     });
     dv.setItems([]);
     dv.refresh();
@@ -160,13 +160,13 @@
       {id: 1}
     ]);
     dv.onRowsChanged.subscribe(function () {
-      ok(false, "onRowsChanged called")
+      ok(false, "onRowsChanged called");
     });
     dv.onRowCountChanged.subscribe(function () {
-      ok(false, "onRowCountChanged called")
+      ok(false, "onRowCountChanged called");
     });
     dv.onPagingInfoChanged.subscribe(function () {
-      ok(false, "onPagingInfoChanged called")
+      ok(false, "onPagingInfoChanged called");
     });
     dv.refresh();
   });
@@ -175,20 +175,20 @@
     var dv = new Slick.Data.DataView();
     dv.beginUpdate();
     dv.onRowsChanged.subscribe(function () {
-      ok(false, "onRowsChanged called")
+      ok(false, "onRowsChanged called");
     });
     dv.onRowCountChanged.subscribe(function () {
-      ok(false, "onRowCountChanged called")
+      ok(false, "onRowCountChanged called");
     });
     dv.onPagingInfoChanged.subscribe(function () {
-      ok(false, "onPagingInfoChanged called")
+      ok(false, "onPagingInfoChanged called");
     });
     dv.setItems([
       {id: 0},
       {id: 1}
     ]);
     dv.setFilter(function (o) {
-      return true
+      return true;
     });
     dv.refresh();
     same(dv.getLength(), 0, "rows aren't updated until resumed");
@@ -248,10 +248,10 @@
       count++;
     });
     dv.onRowCountChanged.subscribe(function () {
-      ok(false, "onRowCountChanged called")
+      ok(false, "onRowCountChanged called");
     });
     dv.onPagingInfoChanged.subscribe(function () {
-      ok(false, "onPagingInfoChanged called")
+      ok(false, "onPagingInfoChanged called");
     });
     dv.sort(function (x, y) {
       return x.val - y.val
@@ -313,7 +313,7 @@
     dv.setItems(items);
 
     dv.sort(function (x, y) {
-      return x.val - y.val
+      return x.val - y.val;
     });
     same(items, [
       {id: 0, val: 0},
@@ -333,7 +333,7 @@
     ], "sorting on the same column again doesn't change the order");
 
     dv.sort(function (x, y) {
-      return -1 * (x.val - y.val)
+      return -1 * (x.val - y.val);
     });
     same(items, [
       {id: 2, val: 2},
@@ -435,13 +435,13 @@
     same(dv.getLength(), 1, "one row is remaining");
 
     dv.onRowsChanged.subscribe(function () {
-      ok(false, "onRowsChanged called")
+      ok(false, "onRowsChanged called");
     });
     dv.onRowCountChanged.subscribe(function () {
-      ok(false, "onRowCountChanged called")
+      ok(false, "onRowCountChanged called");
     });
     dv.onPagingInfoChanged.subscribe(function () {
-      ok(false, "onPagingInfoChanged called")
+      ok(false, "onPagingInfoChanged called");
     });
     dv.sort(function (x, y) {
       return x.val - y.val;
@@ -536,20 +536,20 @@
         return true;
       }
       else if (o.val === 4) {
-        return true
+        return true;
       }
-      return false
+      return false;
     });
     same(dv.getLength(), 1, "one row is remaining");
 
     dv.onRowsChanged.subscribe(function () {
-      ok(false, "onRowsChanged called")
+      ok(false, "onRowsChanged called");
     });
     dv.onRowCountChanged.subscribe(function () {
-      ok(false, "onRowCountChanged called")
+      ok(false, "onRowCountChanged called");
     });
     dv.onPagingInfoChanged.subscribe(function () {
-      ok(false, "onPagingInfoChanged called")
+      ok(false, "onPagingInfoChanged called");
     });
     same(dv.getItems().length, 3, "original data is still there");
     same(dv.getLength(), 1, "rows are filtered");
@@ -568,20 +568,20 @@
         return o.id === 2;
       }
       else if (o.val === 1) {
-        return o.id === 2
+        return o.id === 2;
       }
-      return o.val === 2
+      return o.val === 2;
     });
     same(dv.getLength(), 1, "one row is remaining");
 
     dv.onRowsChanged.subscribe(function () {
-      ok(false, "onRowsChanged called")
+      ok(false, "onRowsChanged called");
     });
     dv.onRowCountChanged.subscribe(function () {
-      ok(false, "onRowCountChanged called")
+      ok(false, "onRowCountChanged called");
     });
     dv.onPagingInfoChanged.subscribe(function () {
-      ok(false, "onPagingInfoChanged called")
+      ok(false, "onPagingInfoChanged called");
     });
     same(dv.getItems().length, 3, "original data is still there");
     same(dv.getLength(), 1, "rows are filtered");
@@ -691,7 +691,6 @@
       return o["val"] !== 1337;
     });
     dv.onRowsChanged.subscribe(function (e, args) {
-      console.log(args)
       ok(false, "onRowsChanged called");
     });
     dv.onRowCountChanged.subscribe(function (e, args) {
@@ -733,7 +732,6 @@
   });
 
   test("must have id (custom)", function () {
-    var count = 0;
     var dv = new Slick.Data.DataView();
     dv.setItems([
       {uid: 0, val: 0},
@@ -808,7 +806,6 @@
   module("insertItem");
 
   test("must have id", function () {
-    var count = 0;
     var dv = new Slick.Data.DataView();
     dv.setItems([
       {id: 0, val: 0},
@@ -824,7 +821,6 @@
   });
 
   test("must have id (custom)", function () {
-    var count = 0;
     var dv = new Slick.Data.DataView();
     dv.setItems([
       {uid: 0, val: 0},
