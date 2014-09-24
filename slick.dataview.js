@@ -189,7 +189,7 @@
       sortComparer = null;
       var oldToString = Object.prototype.toString;
       Object.prototype.toString = (typeof field === "function") ? field : function () {
-        return this[field]
+        return this[field];
       };
       // an extra reversal for descending sort keeps the sort stable
       // (assuming a stable native sort implementation, which isn't true in some cases)
@@ -463,7 +463,7 @@
      */
     function collapseGroup(varArgs) {
       var args = Array.prototype.slice.call(arguments);
-      expandCollapseGroup(args, true)
+      expandCollapseGroup(args, true);
     }
 
     /**
@@ -474,7 +474,7 @@
      */
     function expandGroup(varArgs) {
       var args = Array.prototype.slice.call(arguments);
-      expandCollapseGroup(args, false)
+      expandCollapseGroup(args, false);
     }
 
     function getGroups() {
@@ -1108,7 +1108,7 @@
 
     this.isValid = function (val) {
       return val !== null && val !== "" && val !== NaN;
-    }
+    };
   }
 
   function MinAggregator(field) {
@@ -1132,7 +1132,7 @@
         groupTotals.min = {};
       }
       groupTotals.min[this.field_] = this.min_;
-    }
+    };
   }
 
   function MaxAggregator(field) {
@@ -1156,7 +1156,7 @@
         groupTotals.max = {};
       }
       groupTotals.max[this.field_] = this.max_;
-    }
+    };
   }
 
   function SumAggregator(field) {
@@ -1178,7 +1178,7 @@
         groupTotals.sum = {};
       }
       groupTotals.sum[this.field_] = this.sum_;
-    }
+    };
   }
 
   // TODO:  add more built-in aggregators
