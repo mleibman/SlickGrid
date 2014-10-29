@@ -804,16 +804,20 @@ if (typeof Slick === "undefined") {
             var actualMinWidth, d = Math.min(maxPageX, Math.max(minPageX, e.pageX)) - pageX, x;
             if (d < 0) { // shrink column
               x = d;
-              for (j = i; j >= 0; j--) {
-                c = columns[j];
-                if (c.resizable) {
-                  actualMinWidth = Math.max(c.minWidth || 0, absoluteColumnMinWidth);
-                  if (x && c.previousWidth + x < actualMinWidth) {
-                    x += c.previousWidth - actualMinWidth;
-                    c.width = actualMinWidth;
-                  } else {
-                    c.width = c.previousWidth + x;
-                    x = 0;
+              if (options.resizeOnlyDraggedColumn) {
+                columns[i].width = Math.max(columns[i].previousWidth + x, (columns[i].minWidth || 0)); // apply shrinkage to this column only.
+              } else {
+                for (j = i; j >= 0; j--) {
+                  c = columns[j];
+                  if (c.resizable) {
+                    actualMinWidth = Math.max(c.minWidth || 0, absoluteColumnMinWidth);
+                    if (x && c.previousWidth + x < actualMinWidth) {
+                      x += c.previousWidth - actualMinWidth;
+                      c.width = actualMinWidth;
+                    } else {
+                      c.width = c.previousWidth + x;
+                      x = 0;
+                    }
                   }
                 }
               }
@@ -835,15 +839,19 @@ if (typeof Slick === "undefined") {
               }
             } else { // stretch column
               x = d;
-              for (j = i; j >= 0; j--) {
-                c = columns[j];
-                if (c.resizable) {
-                  if (x && c.maxWidth && (c.maxWidth - c.previousWidth < x)) {
-                    x -= c.maxWidth - c.previousWidth;
-                    c.width = c.maxWidth;
-                  } else {
-                    c.width = c.previousWidth + x;
-                    x = 0;
+              if (options.resizeOnlyDraggedColumn) {
+                columns[i].width = Math.min(columns[i].previousWidth + x, columns[i].maxWidth);
+              } else {
+                for (j = i; j >= 0; j--) {
+                  c = columns[j];
+                  if (c.resizable) {
+                    if (x && c.maxWidth && (c.maxWidth - c.previousWidth < x)) {
+                      x -= c.maxWidth - c.previousWidth;
+                      c.width = c.maxWidth;
+                    } else {
+                      c.width = c.previousWidth + x;
+                      x = 0;
+                    }
                   }
                 }
               }
