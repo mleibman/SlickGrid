@@ -58,8 +58,8 @@
 
       $menu = $("<span class='slick-columnpicker' style='display:none;position:absolute;z-index:20;' />").appendTo(document.body);
 
-      $menu.bind("mouseleave", function (e) {
-        $(this).fadeOut(options.fadeSpeed)
+      $menu.bind("mouseleave", function () {
+        $(this).fadeOut(options.fadeSpeed);
       });
       $menu.bind("click", updateColumn);
     }
@@ -95,9 +95,9 @@
     }
 
     function createColumnsList(_columns, firstLevel) {
-      var menu = '<ul>'
+      var menu = '<ul>';
 
-      _columns.forEach(function (column, i) {
+      _columns.forEach(function (column) {
         menu += '<li id="picker-' + column.id + '" ' + (isCheckbox(column) ? 'style="display: none;"' : '') + '>';
 
         if (!firstLevel)
@@ -159,7 +159,7 @@
 
     function updateColumn(e) {
       var $target = $(e.target);
-      if ($target.data("option") == "autoresize") {
+      if ($target.data("option") === "autoresize") {
         if (e.target.checked) {
           grid.setOptions({forceFitColumns: true});
           grid.autosizeColumns();
@@ -169,7 +169,7 @@
         return;
       }
 
-      if ($target.data("option") == "syncresize") {
+      if ($target.data("option") === "syncresize") {
         if (e.target.checked) {
           grid.setOptions({syncColumnCellResize: true});
         } else {
@@ -187,8 +187,9 @@
         if ($target.attr('id').indexOf('picker-group') >= 0)
           onGroupClick($target, columnId);
 
-        if ($target.attr('id').indexOf('picker-total') >= 0)
+        if ($target.attr('id').indexOf('picker-total') >= 0) {
           onTotalClick($target, columnId);
+        }
       }
     }
 
@@ -233,7 +234,7 @@
     }
 
     function onTotalClick($target, columnId) {
-      var column = treeColumns.getById(columnId)
+      var column = treeColumns.getById(columnId);
       column.totalized = $target.is(':checked');
 
       if (column.totalized)
@@ -286,7 +287,7 @@
                   agregator.totalizationType === Slick.Data.Aggregators.WeightedAvg ?
                   new agregator.totalizationType(agregator.field, agregator.idWeightedAvgColumn) :
                   new agregator.totalizationType(agregator.field)
-              )
+              );
             });
 
           return group;
@@ -335,7 +336,7 @@
     }
 
     function footerRowCellRendered(e, args) {
-      totalizeOrClean(args.column)
+      totalizeOrClean(args.column);
     }
 
     function calculateTotal(column, items) {
