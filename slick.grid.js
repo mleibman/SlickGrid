@@ -413,7 +413,7 @@ if (typeof Slick === "undefined") {
         $canvas.width(canvasWidth);
         $headerRow.width(canvasWidth);
         $headers.width(getHeadersWidth());
-        viewportHasHScroll = (canvasWidth > viewportW - scrollbarDimensions.width);
+        viewportHasHScroll = (canvasWidth >= viewportW - scrollbarDimensions.width);
       }
 
       $headerRowSpacer.width(canvasWidth + (viewportHasVScroll ? scrollbarDimensions.width : 0));
@@ -1986,7 +1986,7 @@ if (typeof Slick === "undefined") {
         $headerRowScroller[0].scrollLeft = scrollLeft;
       }
 
-      if (vScrollDist) {
+	  if(vScrollDist && (vScrollDist > options.rowHeight)) {
         vScrollDir = prevScrollTop < scrollTop ? 1 : -1;
         prevScrollTop = scrollTop;
 
