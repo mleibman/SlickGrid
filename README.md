@@ -1,3 +1,7 @@
+# About the column pinning effort
+
+This adds pinned columns (not rows). I've only tested it on Chrome, because that's the use case I had.
+
 # About this Fork
 
 This fork adds some methods that make it more performant to do auto column resizing and exposes some methods that make it easier to work with multiple grid instances and pinned columns.

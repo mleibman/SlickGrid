@@ -12,8 +12,9 @@
  * NOTES:
  *     Cell/row DOM manipulations are done directly bypassing jQuery's DOM manipulation methods.
  *     This increases the speed dramatically, but can only be done safely because there are no event handlers
- *     or data associated with any cell/row DOM nodes.  Cell editors must make sure they implement .destroy()
+ *     or data associated with any cell/row DOM nodes. Cell editors must make sure they implement .destroy()
  *     and do proper cleanup.
+ *
  */
 
 // make sure required JavaScript modules are loaded
@@ -27,7 +28,6 @@ if (typeof Slick === "undefined") {
   throw "slick.core.js not loaded";
 }
 
-
 (function ($) {
   // Slick.Grid
   $.extend(true, window, {
@@ -38,9 +38,9 @@ if (typeof Slick === "undefined") {
 
   // shared across all grids on the page
   var scrollbarDimensions;
-  var maxSupportedCssHeight;  // browser's breaking point
+  var maxSupportedCssHeight; // browser's breaking point
 
-  //////////////////////////////////////////////////////////////////////////////////////////////
+  // ////////////////////////////////////////////////////////////////////////////////////////////
   // SlickGrid class implementation (available as Slick.Grid)
 
   /**
@@ -116,14 +116,17 @@ if (typeof Slick === "undefined") {
     // private
     var initialized = false;
     var $container;
-    var uid = "slickgrid_" + Math.round(1000000 * Math.random());
+    var now = new Date();
+    var quickDate = (now.getMonth()+1) + '-' + now.getDate()
+    var uid = "slickgrid_" + quickDate + '_' + Math.round(100000 * Math.random());
     var self = this;
     var $focusSink, $focusSink2;
-    var $headerScroller;
+    //var $headerScroller;
     var $headers;
-    var $headerRow, $headerRowScroller, $headerRowSpacer;
-    var $topPanelScroller;
-    var $topPanel;
+    var $headerRow, $headerRowScroller;
+    var $headerRowSpacer;
+    //var $topPanelScroller;
+    //var $topPanel;
     var $viewport;
     var $canvas;
     var $style;
@@ -183,6 +186,28 @@ if (typeof Slick === "undefined") {
     var rowNodeFromLastMouseWheelEvent;  // this node must not be deleted while inertial scrolling
     var zombieRowNodeFromLastMouseWheelEvent;  // node that was hidden instead of getting deleted
 
+    // To support pinned columns, we slice up the grid regions.
+    // Coords are top, center, bottom; and left, right. For short: T/C/B; L/R
+    // Everything is stored in one object for fun.
+    // This way, you can address elements like this:
+    // els.t.l.pane
+    // els.c.r.viewport
+    // ....................
+    // .  TL  .    TR     .
+    // ....................
+    // .  CL  .    CR     .
+    // ....................
+    var els = {
+      t: { l: {}, r: {} },
+      c: { l: {}, r: {} }
+      //b: { l: {}, r: {} }
+    };
+    // Inside this coord storage, there are:
+    // * Panes -- these are outside everything
+    // * viewports -- scrolling containers
+    // * canvas -- the content in full size (if it weren't virtualized)
+    var $activeCanvasNode;
+
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Initialization
@@ -198,6 +223,7 @@ if (typeof Slick === "undefined") {
       scrollbarDimensions = scrollbarDimensions || measureScrollbar();
 
       options = $.extend({}, defaults, options);
+      console.log("slickgrid init(). options.pinnedColumn? " + options.pinnedColumn);
       validateAndEnforceOptions();
       columnDefaults.width = options.defaultColumnWidth;
 
@@ -237,31 +263,74 @@ if (typeof Slick === "undefined") {
 
       $focusSink = $("<div tabIndex='0' hideFocus style='position:fixed;width:0;height:0;top:0;left:0;outline:0;'></div>").appendTo($container);
 
-      $headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-      $headers = $("<div class='slick-header-columns' style='left:-1000px' />").appendTo($headerScroller);
-      $headers.width(getHeadersWidth());
+      // Containers for scrolling pinned columns
+      els.t.l.pane     = $("<div class='slick-pane T L' />").appendTo($container);
+      els.t.r.pane     = $("<div class='slick-pane T R' />").appendTo($container);
+      els.c.l.pane      = $("<div class='slick-pane C L' />").appendTo($container);
+      els.c.r.pane      = $("<div class='slick-pane C R' />").appendTo($container);
+      // Build this structure:
+      // .slick-pane.T.L
+      //   .slick-viewport.T.L
+      //     .slick-header-columns.L > *.colheaders
+      // ...
+      // .slick-pane.C.L
+      //   .slick-headerrow.L
+      //   .slick-viewport.C.L
+      //     .grid-canvas.C.L > *.rows
 
-      $headerRowScroller = $("<div class='slick-headerrow ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-      $headerRow = $("<div class='slick-headerrow-columns' />").appendTo($headerRowScroller);
-      $headerRowSpacer = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
-        .css("width", getCanvasWidth() + scrollbarDimensions.width + "px")
-        .appendTo($headerRowScroller);
+      // T.op
+      // Rename headerScroller to topViewport
+      els.t.l.viewport = $("<div class='slick-viewport T L ui-state-default' tabIndex='0' style='overflow:hidden;position:relative;' />").appendTo(els.t.l.pane);
+      els.t.r.viewport = $("<div class='slick-viewport T R ui-state-default' tabIndex='0' style='overflow:hidden;position:relative;' />").appendTo(els.t.r.pane);
+      els.t.viewports  = $().add(els.t.l.viewport).add(els.t.r.viewport);
+      //$headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+      // Rename header to canvas
+      els.t.l.canvas   = $("<div class='slick-canvas T L' style='left:-1000px' />").appendTo(els.t.l.viewport);
+      els.t.r.canvas   = $("<div class='slick-canvas T R' style='left:-1000px' />").appendTo(els.t.r.viewport);
+      $headers = els.t.canvii = $().add(els.t.l.canvas).add(els.t.r.canvas);
+      //$headers = $("<div class='slick-header-columns' style='left:-1000px' />").appendTo($headerScroller);
 
-      $topPanelScroller = $("<div class='slick-top-panel-scroller ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-      $topPanel = $("<div class='slick-top-panel' style='width:10000px' />").appendTo($topPanelScroller);
+      // Header Row
+      // TODO: the headerRow (used for summaries)
+      els.c.l.headerRow = $("<div class='slick-headerrow C L' />").appendTo(els.c.l.pane);
+      els.c.r.headerRow = $("<div class='slick-headerrow C R' />").appendTo(els.c.r.pane);
+      $headerRow = els.c.headerRows = $().add(els.t.l.headerRow).add(els.t.r.headerRow);
+      //if (!options.showHeaderRow) {
+      //  $headerRowScroller.hide();
+      //}
+      // TODO: what are these spacers for?
+      //$headerRowSpacerL = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
+      //  .css("width", getCanvasWidth() + scrollbarDimensions.width + "px")
+      //  .appendTo($headerRowScrollerL);
+      //$headerRowSpacerR = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
+      //  .css("width", getCanvasWidth() + scrollbarDimensions.width + "px")
+      //  .appendTo($headerRowScrollerR);
 
-      if (!options.showTopPanel) {
-        $topPanelScroller.hide();
-      }
+      // C.enter
+      els.c.l.viewport  = $("<div class='slick-viewport C L' tabIndex='0' hideFocus />");
+      els.c.r.viewport  = $("<div class='slick-viewport C R' tabIndex='0' hideFocus />");
+      els.c.viewports   = $().add(els.c.l.viewport).add(els.c.r.viewport);
+      $viewport = els.c.viewports;
+      els.c.l.canvas    = $("<div class='grid-canvas C L' tabIndex='0' hideFocus />").appendTo(els.c.l.viewport);
+      els.c.r.canvas    = $("<div class='grid-canvas C R' tabIndex='0' hideFocus />").appendTo(els.c.r.viewport);
+      els.c.canvii      = $().add(els.c.l.canvas).add(els.c.r.canvas);
+      $canvas = els.c.canvii;
 
-      if (!options.showHeaderRow) {
-        $headerRowScroller.hide();
-      }
+      //$headers.width(getHeadersWidth());
 
-      $viewport = $("<div class='slick-viewport' style='width:100%;overflow:auto;outline:0;position:relative;;'>").appendTo($container);
-      $viewport.css("overflow-y", options.autoHeight ? "hidden" : "auto");
+      // Default the active canvas to the top left
+      $activeCanvasNode = els.t.l.canvas;
 
-      $canvas = $("<div class='grid-canvas' />").appendTo($viewport);
+      // TODO: what is a topPanel?
+      //$topPanelScroller = $("<div class='slick-top-panel-scroller ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+      //$topPanel = $("<div class='slick-top-panel' style='width:10000px' />").appendTo($topPanelScroller);
+      //if (!options.showTopPanel) {
+      //  $topPanelScroller.hide();
+      //}
+
+      //$viewport = $("<div class='slick-viewport' style='width:100%;overflow:auto;outline:0;position:relative;;'>").appendTo($container);
+      //$viewport.css("overflow-y", options.autoHeight ? "hidden" : "auto");
+      //$canvas = $("<div class='grid-canvas' />").appendTo($viewport);
 
       $focusSink2 = $focusSink.clone().appendTo($container);
 
@@ -942,11 +1011,11 @@ if (typeof Slick === "undefined") {
       $style = $("<style type='text/css' rel='stylesheet' />").appendTo($("head"));
       var rowHeight = (options.rowHeight - cellHeightDiff);
       var rules = [
-          "." + uid + " .slick-header-column { left: 1000px; }",
-          "." + uid + " .slick-top-panel { height:" + options.topPanelHeight + "px; }",
-          "." + uid + " .slick-headerrow-columns { height:" + options.headerRowHeight + "px; }",
-          "." + uid + " .slick-cell { height:" + rowHeight + "px; }",
-          "." + uid + " .slick-row { height:" + options.rowHeight + "px; }"
+        "." + uid + " .slick-header-column { left: 1000px; }",
+        "." + uid + " .slick-top-panel { height:" + options.topPanelHeight + "px; }",
+        "." + uid + " .slick-headerrow-columns { height:" + options.headerRowHeight + "px; }",
+        "." + uid + " .slick-cell { height:" + rowHeight + "px; }",
+        "." + uid + " .slick-row { height:" + options.rowHeight + "px; }"
       ];
 
       for (var i = 0; i < columns.length; i++) {
