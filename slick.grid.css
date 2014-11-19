@@ -5,6 +5,21 @@ No built-in (selected, editable, highlight, flashing, invalid, loading, :focus) 
 classes should alter those!
 */
 
+/* DEBUG ONLY */
+x.slick-cell {
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.1);
+  background-color: rgba(0,0,0,.1);
+}
+/* DEBUG ONLY */
+
+
+
+.slick-pane {
+  position: absolute;
+  overflow: hidden;
+  /*width: 100%;*/
+}
+
 .slick-header.ui-state-default, .slick-headerrow.ui-state-default {
   width: 100%;
   overflow: hidden;
