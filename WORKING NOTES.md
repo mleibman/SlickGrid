@@ -17,6 +17,7 @@ x See if it's practical to do all my overrides in a separate file -- only if I c
 x Diff carefully. Learn useful things.
 x Build the DOM in the way I think might work, even though the left panels will be empty to start with
 x Get cells and headers in the dom
+o set up a nomenclature/variable naming system to make sense of the different regions and ui components
 ```
 
 ## Function Rewrites
