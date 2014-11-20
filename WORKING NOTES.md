@@ -12,6 +12,16 @@
 
 
 
+## Dreamcatcher (wish list)
+
+In a perfect world, what would slickgrid do?
+
+* Be waaaay smaller. Drop support for LTE ie9
+* Be jQuery Free (incl. reorderable columns)
+* Trim out some options so code can be shorter
+* Not virtualize columns for simpler/shorter code
+
+
 ## Useful Simplifications
 
 If `options.pinnedColumns` isn't set, it's undefined.
@@ -43,7 +53,7 @@ o Rename elements using the more row-based nomenclature with 0 and 1 used for ad
 ## Issues
 
 - [ ] On the first run, MarkupArrayL/R has thousands of rows. Why?
-- [ ] Sometimes, the cells in the left-side pinned columns are empty. Especially after scrolling down and right at the same time. Why?
+- [x] Sometimes, the cells in the left-side pinned columns are empty. Especially after scrolling down and right at the same time. Why?
   - If you're scrolled all the way right and then scroll down, it doesn't know that it should include the far left columns in the drawn cells
 
 

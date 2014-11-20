@@ -336,8 +336,11 @@ if (typeof Slick === "undefined") {
       // Store left and right elements in the same var using 0 for left and 1 for right.
       // eg: $topViewport[0] for left topViewport's left side element
       /*
-        $topViewport     = [ $tlViewport, $trViewport ] //
-        $topCanvas       = []
+        o remove "pane"s
+        // Viewports are always scrollable areas that are as large as we want the viewed area to be.
+        // Canvases are always the size of the content. They represent how much scrollable stuff there could be.
+        $topViewport     = [] // was: tl/tr.viewport
+        $topCanvas       = [] // was: tl/tr.canvas
         $header          = [] // was: $headers
         $headerInfo      = [] // was: $headerRow (removed $headerRowScroller)
         $contentViewport = [] // was: $viewport
@@ -1857,7 +1860,8 @@ if (typeof Slick === "undefined") {
             appendCellHtml(markupArrayL, row, i, colspan, d);
           }
         } else if (isPinned && ( i <= options.pinnedColumn )) {
-          appendCellHtml(markupArrayL, row, i, colspan);
+//          console.log('['+ i +'] is outside of range.leftPx ('+ range.leftPx +'), but since it\'s pinned we should draw it');
+          appendCellHtml(markupArrayL, row, i, colspan, d);
         }
 
         if (colspan > 1) { i += (colspan - 1); }
