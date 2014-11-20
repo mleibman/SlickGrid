@@ -73,8 +73,8 @@ if (typeof Slick === "undefined") {
       editorLock: Slick.GlobalEditorLock,
       showHeaderRow: false,
       headerRowHeight: 25,
-      showTopPanel: false,
-      topPanelHeight: 25,
+//      showTopPanel: false,
+//      topPanelHeight: 25,
       formatterFactory: null,
       editorFactory: null,
       cellFlashingCssClass: "flashing",
@@ -122,20 +122,20 @@ if (typeof Slick === "undefined") {
     var self = this;
     var $focusSink, $focusSink2;
     var $headerScroller;
-    var $headers;
+    var $headers, $headerCells;
     var $headerRow, $headerRowScroller;
-    var $headerRowSpacer;
-    //var $topPanelScroller;
-    //var $topPanel;
-    //var $viewport;
-    //var $canvas;
+//    var $headerRowSpacer;
+//    var $topPanelScroller, $topPanel;
+    var $viewport, $canvas;                             // TODO: rename. bl.viewport/canvas or something else
+    var $headerScrollContainer, $headerRowScrollContainer;
+    var $viewportScrollContainerX, $viewportScrollContainerY;
     var $style;
     var $boundAncestors;
     var stylesheet, columnCssRulesL, columnCssRulesR;
 
     //var viewportH, viewportW;                           c.viewportHeight, all.viewportWidth
-    //var canvasWidth, canvasWidthL, canvasWidthR;        cl.canvasWidth, cr.canvasWidth
-    //var headersWidth, headersWidthL, headersWidthR;     tl.canvasWidth, tr.canvasWidth
+    var canvasWidth, canvasWidthL, canvasWidthR;        // TODO: cl.canvasWidth, cr.canvasWidth
+    var headersWidth, headersWidthL, headersWidthR;     // TODO: tl.canvasWidth, tr.canvasWidth
 
     var viewportHasHScroll, viewportHasVScroll;
     var headerColumnWidthDiff = 0, headerColumnHeightDiff = 0, // border+padding
@@ -202,21 +202,38 @@ if (typeof Slick === "undefined") {
     // ....................
     var tl = {}, tr = {}, cl = {}, cr = {};
     var all = {}, t = {}, c = {}; // for holding sums, like the total viewport height
-    var isPineed;
+    var isPinned;
 
     // For debugging only
-    window._coords = {
+    window._ginfo = function() { return {
       tl: tl, tr: tr, cl: cl, cr: cr,
-      all: all, t: t, c: c
-    };
-
-    // Another idea for addressing:
-    //
-    // header     l    r
-    // headerRow  l    r
-    // topPanel   l    r
-    // content    l    r
-    // contentL/contentR
+      all: all, t: t, c: c,
+      rowsCache: rowsCache,
+      sizeInfo: {
+        canvasWidth:        canvasWidth,
+        canvasWidthL:       canvasWidthL,
+        canvasWidthR:       canvasWidthR,
+        headersWidth:       headersWidth,
+        headersWidthL:      headersWidthL,
+        headersWidthR:      headersWidthR,
+        all_viewportWidth:  all.viewportWidth,
+        c_viewportHeight:   c.viewportHeight,
+        c_headerRowheight:  c.headerRowheight,
+        c_paneHeight:       c.paneHeight
+      },
+      colInfo: {
+        columnPosLeft:  columnPosLeft,
+        columnPosRight: columnPosRight
+      },
+      scrollInfo: {
+        visible: getVisibleRange(),
+        rendered: getRenderedRange(),
+        scrollTop: scrollTop,
+        lastRenderedScrollTop: lastRenderedScrollTop,
+        lastRenderedScrollLeft: lastRenderedScrollLeft,
+        numVisibleRows: numVisibleRows
+      }
+    } };
 
     // Inside this coord storage, there are:
     // * Panes -- these are outside everything
@@ -293,6 +310,41 @@ if (typeof Slick === "undefined") {
       //   .slick-viewport.C.L
       //     .grid-canvas.C.L > *.rows
 
+      // TODO: change to this structure:
+      /*
+      ---- Topper
+      .slick-viewport.T.L
+        .slick-canvas.T.L
+          .slick-header
+          .slick-headerInfo
+
+      .slick-viewport.T.R
+        .slick-canvas.T.R
+          .slick-header
+          .slick-headerInfo
+
+      ---- Content
+      .slick-viewport.C.L
+        .slick-canvas.C.L
+
+      .slick-viewport.C.R
+        .slick-canvas.C.R
+      */
+
+
+      // TODO: rename to these variables
+      // Store left and right elements in the same var using 0 for left and 1 for right.
+      // eg: $topViewport[0] for left topViewport's left side element
+      /*
+        $topViewport     = [ $tlViewport, $trViewport ] //
+        $topCanvas       = []
+        $header          = [] // was: $headers
+        $headerInfo      = [] // was: $headerRow (removed $headerRowScroller)
+        $contentViewport = [] // was: $viewport
+        $contentCanvas   = [] // was: $canvas
+       */
+
+
       // T.op
       tl.viewport     = $("<div class='slick-header viewport ui-state-default T L' tabIndex='0' style='overflow:hidden;position:relative;' />").appendTo(tl.pane);
       tr.viewport     = $("<div class='slick-header viewport ui-state-default T R' tabIndex='0' style='overflow:hidden;position:relative;' />").appendTo(tr.pane);
@@ -305,15 +357,17 @@ if (typeof Slick === "undefined") {
       cl.headerRowViewport = $("<div class='slick-headerrow viewport C L' />").appendTo(cl.pane);
       cr.headerRowViewport = $("<div class='slick-headerrow viewport C R' />").appendTo(cr.pane);
       $headerRowScroller   = $().add(tl.headerRowViewport).add(tr.headerRowViewport);
-      // TODO: what are these spacers for?
       calculateCanvasWidth();
-      cl.headerRowSpacer = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
-        .css("width", canvasWidth + scrollbarDimensions.width + "px")
-        .appendTo(cl.headerRowViewport);
-      cr.headerRowSpacer = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
-        .css("width", canvasWidth + scrollbarDimensions.width + "px")
-        .appendTo(cr.headerRowViewport);
-      $headerRowSpacer = $().add(cl.headerRowSpacer).add(cr.headerRowSpacer);
+
+      // TODO: what are these spacers for?
+//      cl.headerRowSpacer = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
+//        .css("width", canvasWidth + scrollbarDimensions.width + "px")
+//        .appendTo(cl.headerRowViewport);
+//      cr.headerRowSpacer = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
+//        .css("width", canvasWidth + scrollbarDimensions.width + "px")
+//        .appendTo(cr.headerRowViewport);
+//      $headerRowSpacer = $().add(cl.headerRowSpacer).add(cr.headerRowSpacer);
+
       cl.headerRowCanvas = $("<div class='slick-headerrow-columns canvas C L' />").appendTo(cl.headerRowViewport);
       cr.headerRowCanvas = $("<div class='slick-headerrow-columns canvas C R' />").appendTo(cr.headerRowViewport);
       $headerRow = $().add(cl.headerRowCanvas).add(cr.headerRowCanvas);
@@ -323,12 +377,11 @@ if (typeof Slick === "undefined") {
       }
 
       // Top Panel
-      // TODO: what is a topPanel?
-      $topPanelScroller = $("<div class='slick-top-panel-scroller ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-      $topPanel = $("<div class='slick-top-panel' style='width:10000px' />").appendTo($topPanelScroller);
-      if (!options.showTopPanel) {
-        $topPanelScroller.hide();
-      }
+//      $topPanelScroller = $("<div class='slick-top-panel-scroller ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+//      $topPanel = $("<div class='slick-top-panel' style='width:10000px' />").appendTo($topPanelScroller);
+//      if (!options.showTopPanel) {
+//        $topPanelScroller.hide();
+//      }
 
       // C.enter
       cl.viewport  = $("<div class='slick-viewport C L' tabIndex='0' hideFocus />").appendTo(cl.pane);
@@ -570,12 +623,8 @@ if (typeof Slick === "undefined") {
         viewportHasHScroll = (canvasWidth > all.viewportWidth - scrollbarDimensions.width);
       }
 
-      cl.headerRowSpacer.width(canvasWidth + (viewportHasVScroll ? scrollbarDimensions.width : 0));
-      cr.headerRowSpacer.width(canvasWidth + (viewportHasVScroll ? scrollbarDimensions.width : 0));
-
-      console.log('updateCanvasWidth()', {
-        widthChanged: widthChanged
-      });
+//      cl.headerRowSpacer.width(canvasWidth + (viewportHasVScroll ? scrollbarDimensions.width : 0));
+//      cr.headerRowSpacer.width(canvasWidth + (viewportHasVScroll ? scrollbarDimensions.width : 0));
 
       if (true || widthChanged || forceColumnWidthsUpdate) {
         applyColumnWidths();
@@ -1230,7 +1279,7 @@ if (typeof Slick === "undefined") {
       var rowHeight = (options.rowHeight - cellHeightDiff);
       var rules = [
         "." + uid + " .slick-header-column { left: 1000px; }",
-        "." + uid + " .slick-top-panel { height:" + options.topPanelHeight + "px; }",
+//        "." + uid + " .slick-top-panel { height:" + options.topPanelHeight + "px; }",
         "." + uid + " .slick-headerrow-columns { height:" + options.headerRowHeight + "px; }",
         "." + uid + " .slick-cell { height:" + rowHeight + "px; }",
         "." + uid + " .slick-row { height:" + options.rowHeight + "px; }"
@@ -1279,10 +1328,10 @@ if (typeof Slick === "undefined") {
         }
       }
 
-      console.log('getColumnCssRules('+ idx +')', {
-        "left": columnCssRulesL[idx],
-        "right": columnCssRulesR[idx]
-      });
+//      console.log('getColumnCssRules('+ idx +')', {
+//        "left": columnCssRulesL[idx],
+//        "right": columnCssRulesR[idx]
+//      });
       return {
         "left": columnCssRulesL[idx],
         "right": columnCssRulesR[idx]
@@ -1452,9 +1501,6 @@ if (typeof Slick === "undefined") {
           x += columns[i].width;
         }
       }
-      console.log('applyColumnWidths', {
-        columns: columns.slice()
-      });
     }
 
     function setSortColumn(columnId, ascending) {
@@ -1574,6 +1620,7 @@ if (typeof Slick === "undefined") {
 
     // Given a column definition object, do all the steps required to react to a change in the widths of any of the columns, and nothing more.
     function updateColumnWidths(columnDefinitions) {
+      var $el;
       columns = columnDefinitions;
       enforceWidthLimits(columns);
       updateColumnCaches();
@@ -1661,20 +1708,20 @@ if (typeof Slick === "undefined") {
       }
     }
 
-    function getTopPanel() {
-      return $topPanel[0];
-    }
+//    function getTopPanel() {
+//      return $topPanel[0];
+//    }
 
-    function setTopPanelVisibility(visible) {
-      if (options.showTopPanel != visible) {
-        options.showTopPanel = visible;
-        if (visible) {
-          $topPanelScroller.slideDown("fast", resizeCanvas);
-        } else {
-          $topPanelScroller.slideUp("fast", resizeCanvas);
-        }
-      }
-    }
+//    function setTopPanelVisibility(visible) {
+//      if (options.showTopPanel != visible) {
+//        options.showTopPanel = visible;
+//        if (visible) {
+//          $topPanelScroller.slideDown("fast", resizeCanvas);
+//        } else {
+//          $topPanelScroller.slideUp("fast", resizeCanvas);
+//        }
+//      }
+//    }
 
     function setHeaderRowVisibility(visible) {
       if (options.showHeaderRow != visible) {
@@ -1974,9 +2021,9 @@ if (typeof Slick === "undefined") {
           * getDataLengthIncludingAddNew()
           + ( options.pinnedColumn == undefined ? 0 : $headers.outerHeight() );
       } else {
-        c.topPanelHeight = ( options.showTopPanel )
-          ? options.topPanelHeight + getVBoxDelta($topPanelScroller)
-          : 0;
+//        c.topPanelHeight = ( options.showTopPanel )
+//          ? options.topPanelHeight + getVBoxDelta($topPanelScroller)
+//          : 0;
         c.headerRowHeight = ( options.showHeaderRow )
           ? options.headerRowHeight + getVBoxDelta($headerRowScroller)
           : 0;
@@ -1985,13 +2032,14 @@ if (typeof Slick === "undefined") {
           - parseFloat($.css($container[0], "paddingBottom", true))
           - parseFloat($.css($headerScroller[0], "height"))
           - getVBoxDelta($headerScroller)
-          - c.topPanelHeight
+//          - c.topPanelHeight
           - c.headerRowHeight;
       }
       numVisibleRows = Math.ceil(c.viewportHeight / options.rowHeight);
 
       // The top pane includes the viewport, top panel, and header row
-      c.paneHeight = c.viewportHeight + c.topPanelHeight + c.headerRowHeight;
+//      c.paneHeight = c.viewportHeight + c.topPanelHeight + c.headerRowHeight;
+      c.paneHeight = c.viewportHeight + c.headerRowHeight;
       if (options.pinnedColumn != undefined && options.autoHeight) { c.paneHeight += scrollbarDimensions.height; }
       // The top viewport does not contain the top panel or header row
       //c.viewportHeight = c.paneHeight - c.topPanelHeight - c.headerRowHeight;
@@ -2181,15 +2229,27 @@ if (typeof Slick === "undefined") {
       return range;
     }
 
+    /*
+     Fills in cellNodesByColumnIdx with dom node references
+     -
+     rowsCache[idx].rowNode is a jquery element that wraps two raw dom elements.
+     When pinned, there are two containers, one left and one right.
+     rowsCache[idx].rowNode.children().length // sum of both
+     rowsCache[idx].rowNode[0].childNodes.length // left side
+     rowsCache[idx].rowNode[1].childNodes.length // right side
+     */
     function ensureCellNodesInRowsCache(row) {
       var cacheEntry = rowsCache[row];
       if (cacheEntry) {
         if (cacheEntry.cellRenderQueue.length) {
-          var lastChild = cacheEntry.rowNode.lastChild;
+          var $lastNode = cacheEntry.rowNode.children().last();           // The last cell in the row
           while (cacheEntry.cellRenderQueue.length) {
             var columnIdx = cacheEntry.cellRenderQueue.pop();
-            cacheEntry.cellNodesByColumnIdx[columnIdx] = lastChild;
-            lastChild = lastChild.previousSibling;
+            cacheEntry.cellNodesByColumnIdx[columnIdx] = $lastNode;
+            $lastNode = $lastNode.prev();
+            // cellRenderQueue is not empty but there is no .prev() element.
+            // We must need to switch to the other pinned row container.
+            if ($lastNode.length === 0) { $lastNode = $(cacheEntry.rowNode[0]).children().last(); }
           }
         }
       }
@@ -2206,36 +2266,38 @@ if (typeof Slick === "undefined") {
         if (!cacheEntry.cellNodesByColumnIdx.hasOwnProperty(i)) {
           continue;
         }
-
-        // This is a string, so it needs to be cast back to a number.
-        i = i | 0;
+        i = i | 0;                                        // This is a string, so it needs to be cast back to a number.
+        if (i <= options.pinnedColumn) { continue; }      // never remove cells in a frozen column
 
         var colspan = cacheEntry.cellColSpans[i];
-        if (columnPosLeft[i] > range.rightPx ||
-          columnPosRight[Math.min(columns.length - 1, i + colspan - 1)] < range.leftPx) {
+        if (columnPosLeft[i] > range.rightPx || columnPosRight[Math.min(columns.length - 1, i + colspan - 1)] < range.leftPx) {
           if (!(row == activeRow && i == activeCell)) {
             cellsToRemove.push(i);
           }
         }
       }
 
-      var cellToRemove;
+      // Remove every cell that isn't in the range,
+      // remove the dom element, cellColSpans, cellNodesByColumnIdx, and postProcessedRows entries.
+      var cellToRemove, el;
       while ((cellToRemove = cellsToRemove.pop()) != null) {
-        cacheEntry.rowNode.removeChild(cacheEntry.cellNodesByColumnIdx[cellToRemove]);
+        el = cacheEntry.cellNodesByColumnIdx[cellToRemove][0];
+        // We used to know the parent, but now there are two possible parents (left or right), so it's easier to go from element to parent to remove:
+        el.parentElement.removeChild(el);
+//        console.log('cleanUpCells() row: '+ row +' col: '+ cellToRemove);
         delete cacheEntry.cellColSpans[cellToRemove];
         delete cacheEntry.cellNodesByColumnIdx[cellToRemove];
-        if (postProcessedRows[row]) {
-          delete postProcessedRows[row][cellToRemove];
-        }
+        if (postProcessedRows[row]) { delete postProcessedRows[row][cellToRemove]; }
         totalCellsRemoved++;
       }
+      return totalCellsRemoved;
     }
 
     function cleanUpAndRenderCells(range) {
       var cacheEntry;
-      var stringArray = [];
+      var markupArray = [];
       var processedRows = [];
-      var cellsAdded;
+      var cellsAdded, cellsRemoved;
       var totalCellsAdded = 0;
       var colspan;
 
@@ -2248,7 +2310,7 @@ if (typeof Slick === "undefined") {
         // cellRenderQueue populated in renderRows() needs to be cleared first
         ensureCellNodesInRowsCache(row);
 
-        cleanUpCells(range, row);
+        cellsRemoved = cleanUpCells(range, row);
 
         // Render missing cells.
         cellsAdded = 0;
@@ -2271,6 +2333,7 @@ if (typeof Slick === "undefined") {
             continue;
           }
 
+          // Adjust the colspan if needed
           colspan = 1;
           if (metadata) {
             var columnData = metadata[columns[i].id] || metadata[i];
@@ -2280,8 +2343,9 @@ if (typeof Slick === "undefined") {
             }
           }
 
+          // Cells whose right edge is inside the left range boundary are visible and should be drawn
           if (columnPosRight[Math.min(ii - 1, i + colspan - 1)] > range.leftPx) {
-            appendCellHtml(stringArray, row, i, colspan, d);
+            appendCellHtml(markupArray, row, i, colspan, d);
             cellsAdded++;
           }
 
@@ -2294,23 +2358,33 @@ if (typeof Slick === "undefined") {
         }
       }
 
-      if (!stringArray.length) {
+      if (!markupArray.length) {
         return;
       }
 
+      // Create a temporary DOM element to hold the markup for every cell. Can be from different rows.
       var x = document.createElement("div");
-      x.innerHTML = stringArray.join("");
+      x.innerHTML = markupArray.join("");
 
-      var processedRow;
-      var node;
+      var processedRow, $node, side;
       while ((processedRow = processedRows.pop()) != null) {
         cacheEntry = rowsCache[processedRow];
         var columnIdx;
+
+        // Starting on the rightmost cell,
         while ((columnIdx = cacheEntry.cellRenderQueue.pop()) != null) {
-          node = x.lastChild;
-          cacheEntry.rowNode.appendChild(node);
-          cacheEntry.cellNodesByColumnIdx[columnIdx] = node;
+          $node = $(x).children().last();
+          side = columnIdx > options.pinnedColumn ? 1 : 0;
+          $(cacheEntry.rowNode[side]).append($node);
+          cacheEntry.cellNodesByColumnIdx[columnIdx] = $node;
         }
+        console.log('cleanUpAndRenderCells', {
+          cellsAdded:  cellsAdded,
+          cellsRemoved: cellsRemoved,
+          leftLength:  cacheEntry.rowNode[0].childNodes.length,
+          rightLength: cacheEntry.rowNode[1].childNodes.length
+//          cacheEntry_rowNode: cacheEntry.rowNode
+        });
       }
     }
 
@@ -2407,14 +2481,16 @@ if (typeof Slick === "undefined") {
     }
 
     function render() {
-      if (!initialized) { return; }
+      if (!initialized) {
+        return;
+      }
       var visible = getVisibleRange();
       var rendered = getRenderedRange();
 
       // remove rows no longer in the viewport
       cleanupRows(rendered);
 
-      // add new rows & missing cells in existing rows
+      // If we change the left scroll, we may need to add/remove cells from already drawn rows.
       if (lastRenderedScrollLeft != scrollLeft) {
         cleanUpAndRenderCells(rendered);
       }
@@ -2429,6 +2505,29 @@ if (typeof Slick === "undefined") {
       lastRenderedScrollTop = scrollTop;
       lastRenderedScrollLeft = scrollLeft;
       h_render = null;
+
+//      if (!initialized) { return; }
+//      var visible = getVisibleRange();
+//      var rendered = getRenderedRange();
+//
+//      // remove rows no longer in the viewport
+//      cleanupRows(rendered);
+//
+//      // add new rows & missing cells in existing rows
+//      if (lastRenderedScrollLeft != scrollLeft) {
+//        cleanUpAndRenderCells(rendered);
+//      }
+//
+//      // render missing rows
+//      renderRows(rendered);
+//
+//      postProcessFromRow = visible.top;
+//      postProcessToRow = Math.min(getDataLengthIncludingAddNew() - 1, visible.bottom);
+//      startPostProcessing();
+//
+//      lastRenderedScrollTop = scrollTop;
+//      lastRenderedScrollLeft = scrollLeft;
+//      h_render = null;
     }
 
     function handleHeaderRowScroll() {
@@ -2465,13 +2564,13 @@ if (typeof Slick === "undefined") {
         prevScrollLeft = scrollLeft;
         $viewportScrollContainerX[0].scrollLeft = scrollLeft;
         $headerScrollContainer[0].scrollLeft = scrollLeft;
-        $topPanelScroller[0].scrollLeft = scrollLeft;
+//        $topPanelScroller[0].scrollLeft = scrollLeft;
         $headerRowScrollContainer[0].scrollLeft = scrollLeft;
       }
 
       if (vScrollDist) {
         vScrollDir = prevScrollTop < scrollTop ? 1 : -1;
-        prevScrollTop = scrollTop
+        prevScrollTop = scrollTop;
 
         if (isMouseWheel) { $viewportScrollContainerY[0].scrollTop = scrollTop; }
         // Set the scroll position of the paired viewport to match this one
@@ -3888,8 +3987,8 @@ if (typeof Slick === "undefined") {
       "navigatePageUp": navigatePageUp,
       "navigatePageDown": navigatePageDown,
       "gotoCell": gotoCell,
-      "getTopPanel": getTopPanel,
-      "setTopPanelVisibility": setTopPanelVisibility,
+//      "getTopPanel": getTopPanel,
+//      "setTopPanelVisibility": setTopPanelVisibility,
       "setHeaderRowVisibility": setHeaderRowVisibility,
       "getHeaderRow": getHeaderRow,
       "getHeaderRowColumn": getHeaderRowColumn,
