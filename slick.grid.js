@@ -370,8 +370,9 @@ if (typeof Slick === "undefined") {
         "<div class='canvas T R' />"
       );
       header.el = $(
-        "<div class='header' style='left:-1000px' />" +
-        "<div class='header' style='left:-1000px' />"
+//        "<div class='header' style='left:-1000px' />" +
+        "<div class='header' />" +
+        "<div class='header' />"
       );
 
       calculateCanvasWidth();
@@ -564,38 +565,40 @@ if (typeof Slick === "undefined") {
       return dim;
     }
 
-    function calculateHeadersWidth() {
-      header.width = header[0].width = header[1].width = 0;
+//    function calculateHeadersWidth() {
+//      header.width = header[0].width = header[1].width = 0;
+//
+//      for (var i = 0, ii = columns.length; i < ii; i++) {
+//        var width = columns[ i ].width;
+//        //if (options.pinnedColumn != undefined && ( i > options.pinnedColumn )) {
+//        if (i > options.pinnedColumn) {
+//          header[1].width += width;
+//        } else {
+//          header[0].width += width;
+//        }
+//      }
+//
+//      if (options.pinnedColumn != undefined) {
+////        header[0].width = header[0].width + 1000;
+//        header[0].width = header[0].width;
+//        header[1].width = Math.max(header[1].width, contentViewport.width) + header[0].width;
+//        header[1].width += scrollbarDimensions.width;
+//      } else {
+//        header[0].width += scrollbarDimensions.width;
+////        header[0].width = Math.max(header[0].width, contentViewport.width) + 1000;
+//        header[0].width = Math.max(header[0].width, contentViewport.width);
+//      }
+//
+//      header.width = header[0].width + header[1].width;
+//      //console.log("calculateHeadersWidth(): "+ header.width +" = "+ header[0].width +" + " +  header[1].width);
+//      return header.width
+//    }
 
-      for (var i = 0, ii = columns.length; i < ii; i++) {
-        var width = columns[ i ].width;
-        //if (options.pinnedColumn != undefined && ( i > options.pinnedColumn )) {
-        if (i > options.pinnedColumn) {
-          header[1].width += width;
-        } else {
-          header[0].width += width;
-        }
-      }
-
-      if (options.pinnedColumn != undefined) {
-        header[0].width = header[0].width + 1000;
-        header[1].width = Math.max(header[1].width, contentViewport.width) + header[0].width;
-        header[1].width += scrollbarDimensions.width;
-      } else {
-        header[0].width += scrollbarDimensions.width;
-        header[0].width = Math.max(header[0].width, contentViewport.width) + 1000;
-      }
-
-      header.width = header[0].width + header[1].width;
-      //console.log("calculateHeadersWidth(): "+ header.width +" = "+ header[0].width +" + " +  header[1].width);
-      return header.width
-    }
-
-    function setHeadersWidth() {
-      calculateHeadersWidth();
-      topCanvas.el.eq(0).width(header[0].width);
-      topCanvas.el.eq(1).width(header[1].width);
-    }
+//    function setHeadersWidth() {
+//      calculateHeadersWidth();
+//      topCanvas.el.eq(0).width(header[0].width);
+//      topCanvas.el.eq(1).width(header[1].width);
+//    }
 
     function calculateCanvasWidth() {
       var availableWidth = viewportHasVScroll ? contentViewport.width - scrollbarDimensions.width : contentViewport.width;
@@ -612,7 +615,13 @@ if (typeof Slick === "undefined") {
 
       var totalRowWidth = contentCanvas[0].width + contentCanvas[1].width;
       contentCanvas.width = options.fullWidthRows ? Math.max(totalRowWidth, availableWidth) : totalRowWidth;
-      return contentCanvas.width
+
+      console.log('calculateCanvasWidth', {
+        left:    contentCanvas[0].width,
+        right:   contentCanvas[1].width,
+        both:    contentCanvas.width,
+        allCols: columns.reduce(function(sum, col){ return sum += col.width }, 0)
+      });
     }
 
     function updateCanvasWidth(forceColumnWidthsUpdate) {
@@ -632,11 +641,15 @@ if (typeof Slick === "undefined") {
                       canvasWidthR !== oldCanvasWidthR;
 
       if (widthChanged || isPinned) { // TODO: why would it always do this work if there is a pinned column?
-        setHeadersWidth();
-        contentCanvas.el[0].style.width = canvasWidthL + 'px';
+//        setHeadersWidth();
+        topCanvas.el[0].style.width =
+        contentCanvas.el[0].style.width =
+          canvasWidthL + 'px';
 
         if (isPinned) {
-          contentCanvas.el[1].style.width = canvasWidthR + 'px';
+          topCanvas.el[1].style.width =
+          contentCanvas.el[1].style.width =
+            canvasWidthR + 'px';
 
           // Set widths on the left side, and width+left offset on the right side
           topViewport.el[0].style.width =
@@ -807,7 +820,7 @@ if (typeof Slick === "undefined") {
 
       header.el.empty();
       subHeader.el.empty();
-      setHeadersWidth();
+//      setHeadersWidth();
 
       // Build new headers based on column data.
       for (var i = 0; i < columns.length; i++) {
@@ -1245,7 +1258,7 @@ if (typeof Slick === "undefined") {
       $style = $("<style type='text/css' rel='stylesheet' />").appendTo($("head"));
       var rowHeight = (options.rowHeight - cellHeightDiff);
       var rules = [
-        "." + uid + " .header .cell { left: 1000px; }",
+//        "." + uid + " .header .cell { left: 1000px; }",
 //        "." + uid + " .slick-top-panel { height:" + options.topPanelHeight + "px; }",
         "." + uid + " .subHeader { height:" + options.subHeaderHeight + "px; }",
         "." + uid + " .cell { height:" + rowHeight + "px; }",
@@ -1914,11 +1927,10 @@ if (typeof Slick === "undefined") {
       delete postProcessedRows[row];
       renderedRows--;
       counter_rows_removed++;
-      console.log('removeRowFromCache('+row+')', {
-        renderedRows: renderedRows,
-        //cacheEntry: cacheEntry,
-        rowsCache_length: Object.keys(rowsCache).length
-      });
+//      console.log('removeRowFromCache('+row+')', {
+//        renderedRows: renderedRows,
+//        rowsCache_length: Object.keys(rowsCache).length
+//      });
     }
 
     function invalidateRows(rows) {
@@ -2342,13 +2354,12 @@ if (typeof Slick === "undefined") {
           $(cacheEntry.rowNode[side]).append($node);
           cacheEntry.cellNodesByColumnIdx[columnIdx] = $node;
         }
-        console.log('cleanUpAndRenderCells', {
-          cellsAdded:  cellsAdded,
-          cellsRemoved: cellsRemoved,
-          leftLength:  cacheEntry.rowNode[0].childNodes.length,
-          rightLength: cacheEntry.rowNode[1].childNodes.length
-//          cacheEntry_rowNode: cacheEntry.rowNode
-        });
+//        console.log('cleanUpAndRenderCells', {
+//          cellsAdded:  cellsAdded,
+//          cellsRemoved: cellsRemoved,
+//          leftLength:  cacheEntry.rowNode[0].childNodes.length,
+//          rightLength: cacheEntry.rowNode[1].childNodes.length
+//        });
       }
     }
 
@@ -2410,12 +2421,12 @@ if (typeof Slick === "undefined") {
         }
       }
 
-      console.log('renderRows()', {
-        counter_rows_rendered: counter_rows_rendered,
-        markupArrayL: markupArrayL,
-        markupArrayR: markupArrayR,
-        rowsCache: rowsCache
-      });
+//      console.log('renderRows()', {
+//        counter_rows_rendered: counter_rows_rendered,
+//        markupArrayL: markupArrayL,
+//        markupArrayR: markupArrayR,
+//        rowsCache: rowsCache
+//      });
 
       if (needToReselectCell) {
         activeCellNode = getCellNode(activeRow, activeCell);
