@@ -1,21 +1,46 @@
 # About the column pinning effort
 
-This adds pinned columns (not rows). I've only tested it on Chrome, because that's the use case I had.
+This fork adds pinned columns to slickgrid. There was a fair amount of code rewrite involved. Work in progress.
 
-# About this Fork
+## Renaming
 
-This fork adds some methods that make it more performant to do auto column resizing and exposes some methods that make it easier to work with multiple grid instances and pinned columns.
+To support pinned columns, we slice up the grid regions, and try to be very clear and consistent about the naming.
+This is because having a left and right region for every content area makes a flat list of naming conventions multiply quickly.
+I also was uncomfortable with the proliferation of names like `header`, `headerScroller`, and `headerRow`.
 
-## Main Change:
+Two big changes:
+1. UI components are labeled top to bottom by what control they are.
+2. `headerRow` renamed to `subHeader`. The old name was confusing. TODO: This means the name of related options has changed, too.
+
+Canvases always represent content size, viewports always represent scrollable regions.
+
+Every element has side `[0]` and side `[1]`, for left and right.
 
 ```
-grid.updateColumnWidths(columnDefinitions)
+Visual Grid Components
+                        [0]       [1]
+                      ....................
+topViewport           .     .            .     // The scrolling region
+  topCanvas           .     .            .     // The full size of content (both off and on screen)
+    header            .     .            .     // The column headers
+    subHeader         .     .            .     // Optional row of cells below the column headers
+                      ....................
+contentViewport       .     .            .     // The scrolling region for the grid rows
+  contentCanvas       .     .            .     // Full size of row content, both width and height
+                      .     .            .
+                      .     .            .
+                      .     .            .
+                      .     .            .
+                      .     .            .
+                      ....................
 ```
-
-Using this method improves the performance of changing the width of one or more grid columns by a lot. The existing API only allows for a whole grid redraw, which can be very slow. Pull request with notes [here](https://github.com/mleibman/SlickGrid/pull/897). Use cases for fast column size adjustment may be: auto-sizing columns to fit content, responsive sizing cells to fill the screen, and similar. 
 
 ## Other Changes:
 
+Adds some methods that make it more performant to do auto column resizing and exposes some methods that make it easier to work with multiple grid instances and pinned columns.
+
+* `grid.updateColumnWidths(columnDefinitions)`
+  * Using this method improves the performance of changing the width of one or more grid columns by a lot. The existing API only allows for a whole grid redraw, which can be very slow. Pull request with notes [here](https://github.com/mleibman/SlickGrid/pull/897). Use cases for fast column size adjustment may be: auto-sizing columns to fit content, responsive sizing cells to fill the screen, and similar.
 * `grid.getId()` lets you get the uid of the grid instance
 * Triggers existing event `onColumnsResized` when you change the column widths
 * Triggers a new event `onColumnsChanged` when you set the columns
