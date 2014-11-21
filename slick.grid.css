@@ -23,41 +23,76 @@
     position: absolute;
     overflow: auto;
     outline: 0; }
+    .slickGrid .viewport.T.L, .slickGrid .viewport.T.R {
+      overflow: hidden; }
   .slickGrid .canvas {
     position: relative; }
+  .slickGrid .row {
+    position: absolute;
+    border: 0;
+    width: 100%; }
+  .slickGrid .cell {
+    position: absolute;
+    border: 1px solid transparent;
+    border-right: 1px dotted silver;
+    border-bottom-color: silver;
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    z-index: 1;
+    padding: 1px 2px 2px 1px;
+    margin: 0;
+    white-space: nowrap;
+    cursor: default; }
+    .slickGrid .cell.highlighted {
+      background: lightskyblue;
+      background: rgba(0, 0, 255, 0.2);
+      -webkit-transition: all 0.5s;
+      -moz-transition: all 0.5s;
+      -o-transition: all 0.5s;
+      transition: all 0.5s; }
+    .slickGrid .cell.flashing {
+      border: 1px solid red !important; }
+    .slickGrid .cell.editable {
+      z-index: 11;
+      overflow: visible;
+      background: white;
+      border-color: black;
+      border-style: solid; }
+    .slickGrid .cell:focus {
+      outline: none; }
 
-.slick-header.ui-state-default, .slick-headerrow.ui-state-default {
-  width: 100%;
-  overflow: hidden;
-  border-left: 0px; }
-
-.slick-header-columns, .slick-headerrow-columns {
+.slickGrid .header,
+.slickGrid .subHeader {
   position: relative;
   white-space: nowrap;
   cursor: default;
-  overflow: hidden; }
+  overflow: hidden;
+  border-bottom: 1px solid silver;
+  background: #f7f7f7; }
 
-.slick-header-column.ui-state-default {
+.slickGrid .header .cell {
   position: relative;
   display: inline-block;
-  overflow: hidden;
-  -o-text-overflow: ellipsis;
-  text-overflow: ellipsis;
   height: 16px;
   line-height: 16px;
   margin: 0;
   padding: 4px;
   border-right: 1px solid silver;
-  border-left: 0px;
-  border-top: 0px;
-  border-bottom: 0px;
+  border-left: 0;
+  border-top: 0;
+  border-bottom: 0;
   float: left; }
 
-.slick-headerrow-column.ui-state-default {
-  padding: 4px; }
-
-.slick-header-column-sorted {
-  font-style: italic; }
+.slickGrid .subHeader {
+  background: #eef7ff; }
+  .slickGrid .subHeader .cell {
+    border-left: 0;
+    border-top: 0;
+    border-bottom: 0;
+    background-color: rgba(0, 0, 0, 0.05);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1); }
 
 .slick-sort-indicator {
   display: inline-block;
@@ -86,50 +121,8 @@
 .slick-sortable-placeholder {
   background: silver; }
 
-.grid-canvas {
-  position: relative;
-  outline: 0; }
-
-.slick-row {
-  position: absolute;
-  border: 0px;
-  width: 100%; }
-
-.slick-cell, .slick-headerrow-column {
-  position: absolute;
-  border: 1px solid transparent;
-  border-right: 1px dotted silver;
-  border-bottom-color: silver;
-  overflow: hidden;
-  -o-text-overflow: ellipsis;
-  text-overflow: ellipsis;
-  vertical-align: middle;
-  z-index: 1;
-  padding: 1px 2px 2px 1px;
-  margin: 0;
-  white-space: nowrap;
-  cursor: default; }
-
 .slick-group-toggle {
   display: inline-block; }
-
-.slick-cell.highlighted {
-  background: lightskyblue;
-  background: rgba(0, 0, 255, 0.2);
-  -webkit-transition: all 0.5s;
-  -moz-transition: all 0.5s;
-  -o-transition: all 0.5s;
-  transition: all 0.5s; }
-.slick-cell.flashing {
-  border: 1px solid red !important; }
-.slick-cell.editable {
-  z-index: 11;
-  overflow: visible;
-  background: white;
-  border-color: black;
-  border-style: solid; }
-.slick-cell:focus {
-  outline: none; }
 
 .slick-reorder-proxy {
   display: inline-block;

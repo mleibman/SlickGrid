@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <title>Pincushion Example 1</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+</head>
+<body>
+<table width="100%">
+  <tr>
+    <td valign="top" width="50%">
+      <div id="myGrid" style="width:500px;height:500px;"></div>
+    </td>
+    <td valign="top">
+      <h2>Demonstrates:</h2>
+      <ul>
+        <li>Pinned columns</li>
+        <li>Sub Headers under the main headers. They are locked to the top of the grid. Renamed from `headerRow` to `subHeader`.</li>
+      </ul>
+    </td>
+  </tr>
+</table>
+
+<script src="../lib/jquery-1.7.min.js"></script>
+<script src="../lib/jquery.event.drag-2.2.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../slick.grid.js"></script>
+
+<script>
+  var grid;
+  var columns = [
+    { id: "title", name: "Title", field: "title"},
+    { id: "%", name: "% Complete", field: "percentComplete"},
+    { id: "duration", name: "Duration", field: "duration"},
+    { id: "start", name: "Start", field: "start"},
+    { id: "finish", name: "Finish", field: "finish"},
+    { id: "effort-driven", name: "Effort Driven", field: "effortDriven"},
+    { id: "duration", name: "Duration", field: "duration"},
+    { id: "%", name: "% Complete", field: "percentComplete"},
+    { id: "start", name: "Start", field: "start"},
+    { id: "finish", name: "Finish", field: "finish"},
+    { id: "effort-driven", name: "Effort Driven", field: "effortDriven"},
+    { id: "duration", name: "Duration", field: "duration"},
+    { id: "%", name: "% Complete", field: "percentComplete"},
+    { id: "start", name: "Start", field: "start"},
+    { id: "finish", name: "Finish", field: "finish"},
+    { id: "effort-driven", name: "Effort Driven", field: "effortDriven"},
+    { id: "duration", name: "Duration", field: "duration"},
+    { id: "%", name: "% Complete", field: "percentComplete"},
+    { id: "start", name: "Start", field: "start"},
+    { id: "finish", name: "Finish", field: "finish"},
+    { id: "effort-driven", name: "Effort Driven", field: "effortDriven"}
+  ];
+
+  var options = {
+    pinnedColumn: 1,
+    showSubHeader: true,
+    xsubHeaderHeight: 60,
+    xdebug: true
+  };
+
+  $(function () {
+    var data = [];
+    for (var i = 0; i < 500; i++) {
+      data[i] = {
+        title: "Task " + i,
+        duration: "5 days",
+        percentComplete: Math.round(Math.random() * 100),
+        start: "01/01/2009",
+        finish: "01/05/2009",
+        effortDriven: (i % 5 == 0)
+      };
+    }
+
+    window._grid = grid = new Slick.Grid("#myGrid", data, columns, options);
+  })
+</script>
+</body>
+</html>
