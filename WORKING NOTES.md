@@ -20,6 +20,7 @@ In a perfect world, what would slickgrid do?
 * Be jQuery Free (incl. reorderable columns)
 * Trim out some options so code can be shorter
 * Not virtualize columns for simpler/shorter code
+* Slim out the class names. no need for `slick-` everything in the dom, just namespace the css
 
 
 ## Useful Simplifications
@@ -28,6 +29,26 @@ If `options.pinnedColumns` isn't set, it's undefined.
 Any comparison that checks `columnIndex > options.pinnedColumns` will return false if either value is undefined.
 This makes an elegant solution possible where we always put content in the left pane if the pinnedColumns option hasn't been set.
 
+
+```
+To support pinned columns, we slice up the grid regions, and try to be very clear and consistent about the naming.
+    Visual Grid Components
+                            [0]       [1]
+                          ....................
+    topViewport           .     .            .     // The scrolling region
+      topCanvas           .     .            .     // The full size of content (both off and on screen)
+        header            .     .            .     // The column headers
+        subHeader         .     .            .     // Optional row of cells below the column headers
+                          ....................
+    contentViewport       .     .            .     // The scrolling region for the grid rows
+      contentCanvas       .     .            .     // Full size of row content, both width and height
+                          .     .            .
+                          .     .            .
+                          .     .            .
+                          .     .            .
+                          .     .            .
+                          ....................
+```
 
 
 ## Tasks

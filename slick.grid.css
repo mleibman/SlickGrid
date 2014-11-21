@@ -1,37 +1,41 @@
-/*
-IMPORTANT:
-In order to preserve the uniform grid appearance, all cell styles need to have padding, margin and border sizes.
-No built-in (selected, editable, highlight, flashing, invalid, loading, :focus) or user-specified CSS
-classes should alter those!
-*/
+.slickGrid.debug .slick-row {
+  background-color: transparent !important; }
+.slickGrid.debug .slick-row.even {
+  background-color: rgba(0, 0, 0, 0.05) !important; }
+.slickGrid.debug .viewport, .slickGrid.debug .canvas {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1); }
+.slickGrid.debug .viewport {
+  background-color: rgba(0, 255, 0, 0.05); }
+.slickGrid.debug .canvas {
+  background-color: rgba(0, 0, 255, 0.05); }
 
-/* DEBUG ONLY */
-x.slick-cell {
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,.1);
-  background-color: rgba(0,0,0,.1);
-}
-/* DEBUG ONLY */
-
-
-
-.slick-pane {
-  position: absolute;
+.slickGrid {
   overflow: hidden;
-  /*width: 100%;*/
-}
+  outline: 0; }
+  .slickGrid .focus-sink {
+    position: fixed;
+    width: 0;
+    height: 0;
+    top: 0;
+    left: 0;
+    outline: 0; }
+  .slickGrid .viewport {
+    position: absolute;
+    overflow: auto;
+    outline: 0; }
+  .slickGrid .canvas {
+    position: relative; }
 
 .slick-header.ui-state-default, .slick-headerrow.ui-state-default {
   width: 100%;
   overflow: hidden;
-  border-left: 0px;
-}
+  border-left: 0px; }
 
 .slick-header-columns, .slick-headerrow-columns {
   position: relative;
   white-space: nowrap;
   cursor: default;
-  overflow: hidden;
-}
+  overflow: hidden; }
 
 .slick-header-column.ui-state-default {
   position: relative;
@@ -47,16 +51,13 @@ x.slick-cell {
   border-left: 0px;
   border-top: 0px;
   border-bottom: 0px;
-  float: left;
-}
+  float: left; }
 
 .slick-headerrow-column.ui-state-default {
-  padding: 4px;
-}
+  padding: 4px; }
 
 .slick-header-column-sorted {
-  font-style: italic;
-}
+  font-style: italic; }
 
 .slick-sort-indicator {
   display: inline-block;
@@ -64,16 +65,13 @@ x.slick-cell {
   height: 5px;
   margin-left: 4px;
   margin-top: 6px;
-  float: left;
-}
+  float: left; }
 
 .slick-sort-indicator-desc {
-  background: url(images/sort-desc.gif);
-}
+  background: url(images/sort-desc.gif); }
 
 .slick-sort-indicator-asc {
-  background: url(images/sort-asc.gif);
-}
+  background: url(images/sort-asc.gif); }
 
 .slick-resizable-handle {
   position: absolute;
@@ -83,23 +81,19 @@ x.slick-cell {
   width: 4px;
   right: 0px;
   top: 0;
-  height: 100%;
-}
+  height: 100%; }
 
 .slick-sortable-placeholder {
-  background: silver;
-}
+  background: silver; }
 
 .grid-canvas {
   position: relative;
-  outline: 0;
-}
+  outline: 0; }
 
-.slick-row.ui-widget-content, .slick-row.ui-state-active {
+.slick-row {
   position: absolute;
   border: 0px;
-  width: 100%;
-}
+  width: 100%; }
 
 .slick-cell, .slick-headerrow-column {
   position: absolute;
@@ -114,15 +108,10 @@ x.slick-cell {
   padding: 1px 2px 2px 1px;
   margin: 0;
   white-space: nowrap;
-  cursor: default;
-}
-
-.slick-group {
-}
+  cursor: default; }
 
 .slick-group-toggle {
-  display: inline-block;
-}
+  display: inline-block; }
 
 .slick-cell.highlighted {
   background: lightskyblue;
@@ -130,43 +119,33 @@ x.slick-cell {
   -webkit-transition: all 0.5s;
   -moz-transition: all 0.5s;
   -o-transition: all 0.5s;
-  transition: all 0.5s;
-}
-
+  transition: all 0.5s; }
 .slick-cell.flashing {
-  border: 1px solid red !important;
-}
-
+  border: 1px solid red !important; }
 .slick-cell.editable {
   z-index: 11;
   overflow: visible;
   background: white;
   border-color: black;
-  border-style: solid;
-}
-
+  border-style: solid; }
 .slick-cell:focus {
-  outline: none;
-}
+  outline: none; }
 
 .slick-reorder-proxy {
   display: inline-block;
   background: blue;
   opacity: 0.15;
-  filter: alpha(opacity = 15);
-  cursor: move;
-}
+  filter: alpha(opacity=15);
+  cursor: move; }
 
 .slick-reorder-guide {
   display: inline-block;
   height: 2px;
   background: blue;
   opacity: 0.7;
-  filter: alpha(opacity = 70);
-}
+  filter: alpha(opacity=70); }
 
 .slick-selection {
   z-index: 10;
   position: absolute;
-  border: 2px dashed black;
-}
+  border: 2px dashed black; }

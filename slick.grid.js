@@ -55,6 +55,7 @@ if (typeof Slick === "undefined") {
   function SlickGrid(container, data, columns, options) {
     // settings
     var defaults = {
+      debug: false, // bool for debug mode. turns on some css styling and console logging.
       explicitInitialization: false,
       rowHeight: 25,
       defaultColumnWidth: 80,
@@ -117,19 +118,21 @@ if (typeof Slick === "undefined") {
     var initialized = false;
     var $container;
     var now = new Date();
-    var quickDate = (now.getMonth()+1) + '-' + now.getDate();
-    var uid = "slickgrid_" + quickDate + '_' + Math.round(100000 * Math.random());
+    //var quickDate = (now.getMonth()+1) + '-' + now.getDate();
+    var objectName = 'slickGrid';
+    var uid = objectName + '_' + Math.round(1000000 * Math.random());
     var isPinned;
     var self = this;
     var $focusSink, $focusSink2;
-    var $headerScroller;
-    var $headers;
-    var $headerRow, $headerRowScroller;
+
+    //var $headerScroller;
+    //var $headers;
+    //var $headerRow;
+    //var $headerRowScroller;
 //    var $headerRowSpacer;
 //    var $topPanelScroller, $topPanel;
-    var $viewport, $canvas;                             // TODO: rename. bl.viewport/canvas or something else
-    var $headerScrollContainer, $headerRowScrollContainer;
-    var $viewportScrollContainerX, $viewportScrollContainerY;
+//    var $viewport, $canvas;                             // TODO: rename. bl.viewport/canvas or something else
+
     var $style;
     var $boundAncestors;
     var stylesheet, columnCssRulesL, columnCssRulesR;
@@ -188,60 +191,43 @@ if (typeof Slick === "undefined") {
 
     var $activeCanvasNode;
 
-    // To support pinned columns, we slice up the grid regions.
-    // Coords are top, center, bottom; and left, right. For short: T/C/B; L/R
-    // Everything is stored in one object for easy conceptualization.
-    // This way, you can address elements like this:
-    // els.t.l.pane
-    // els.c.r.viewport
-    // ....................
-    // .  TL  .    TR     .
-    // ....................
-    // .  CL  .    CR     .
-    // ....................
-    var tl = {}, tr = {}, cl = {}, cr = {};
-
-
     /*
-    Visual Grid Components
 
-                          ...................
-    topViewport.el        . [0] .    [1]    .     // The scrolling region
-      topCanvas.el        . [0] .    [1]    .     // The full size of content (both off and on screen)
-        header.el         . [0] .    [1]    .     // The column headers
-        subHeader.el      . [0] .    [1]    .     // Optional row of cells below the column headers
-                          ...................
-    contentViewport.el    . [0] .    [1]    .     // The scrolling region for the grid rows
-      contentCanvas.el    . [0] .    [1]    .     // Full size of row content, both width and height
-                          .     .           .
-                          .     .           .
-                          .     .           .
-                          .     .           .
-                          .     .           .
-                          .     .           .
-                          .     .           .
-                          ...................
+    ## Visual Grid Components
+    To support pinned columns, we slice up the grid regions, and try to be very clear and consistent about the naming.
+
+                            [0]       [1]
+                          ....................
+    topViewport           .     .            .     // The scrolling region
+      topCanvas           .     .            .     // The full size of content (both off and on screen)
+        header            .     .            .     // The column headers
+        subHeader         .     .            .     // Optional row of cells below the column headers
+                          ....................
+    contentViewport       .     .            .     // The scrolling region for the grid rows
+      contentCanvas       .     .            .     // Full size of row content, both width and height
+                          .     .            .
+                          .     .            .
+                          .     .            .
+                          .     .            .
+                          .     .            .
+                          ....................
      */
-    //var $topViewport, $topCanvas, $contentViewport, $contentCanvas;
-    //var $header, $headerInfo;
 
     // All UI region info objects start as an array with a left [0] and right [1] side
-    //topViewport.width
-    //topViewport[0].width
-    //topViewport.el[0] // left el
-    //topViewport.el // both els
-    //topViewport[0].el // ? left el, too?
+    // Dom elements are stored at the top level together (still in a left/right pair) because jquery has convenience methods for dealing with multiple elements. (eg: el.empty())
+    // topViewport.width     // combined width
+    // topViewport[0].width  // left width
+    // topViewport.el        // both els
+    // topViewport.el[0]     // left el
+    // topViewport[0].el     // left el, too? A: no. undefined. let's only have one reference.
     var topViewport     = [{},{}],
         topCanvas       = [{},{}],
-        contentViewport = [{},{}],
-        contentCanvas   = [{},{}],
         header          = [{},{}],
-        subHeader       = [{},{}];
+        subHeader       = [{},{}],
+        contentViewport = [{},{}],
+        contentCanvas   = [{},{}];
 
     // TODO: Renames
-
-
-
     // $headers       > header.$el
     // $headerRow     > subHeader.$el
     // $viewport      > contentViewport.$el
@@ -263,10 +249,8 @@ if (typeof Slick === "undefined") {
 
 
 
-    var $headerScrollContainer, $headerRowScrollContainer;
     // header.$scrollContainer
     // headerInfo.$scrollContainer
-    var $viewportScrollContainerX, $viewportScrollContainerY;
 
 
 
@@ -274,7 +258,6 @@ if (typeof Slick === "undefined") {
 
     // For debugging only
     window._ginfo = function() { return {
-      tl: tl, tr: tr, cl: cl, cr: cr,
       rowsCache: rowsCache,
       uiRegions: {
         topViewport: topViewport,
@@ -289,14 +272,15 @@ if (typeof Slick === "undefined") {
         columnPosRight: columnPosRight
       },
       scrollInfo: {
-        visible: getVisibleRange(),
-        rendered: getRenderedRange(),
+        visibleRange:  getVisibleRange(),
+        renderedRange: getRenderedRange(),
         scrollTop: scrollTop,
         lastRenderedScrollTop: lastRenderedScrollTop,
         lastRenderedScrollLeft: lastRenderedScrollLeft,
         numVisibleRows: numVisibleRows
       }
     } };
+
 
 
 
@@ -337,25 +321,22 @@ if (typeof Slick === "undefined") {
         "cancelCurrentEdit": cancelCurrentEdit
       };
 
-      $container
-        .empty()
-        .css("overflow", "hidden")
-        .css("outline", 0)
-        .addClass(uid)
-        .addClass("ui-widget");
+      $container.empty().addClass(objectName +' '+ uid +' ui-widget');
+      if (options.debug) { $container.addClass('debug') }
 
       // set up a positioning container if needed
       if (!/relative|absolute|fixed/.test($container.css("position"))) {
         $container.css("position", "relative");
       }
 
-      $focusSink = $("<div tabIndex='0' hideFocus style='position:fixed;width:0;height:0;top:0;left:0;outline:0;'></div>").appendTo($container);
+      $focusSink = $("<div tabIndex='0' hideFocus class='focus-sink'></div>").appendTo($container);
 
       // Containers for scrolling pinned columns
-      tl.pane = $("<div class='slick-pane T L' />").appendTo($container);
-      tr.pane = $("<div class='slick-pane T R' />").appendTo($container);
-      cl.pane = $("<div class='slick-pane C L' />").appendTo($container);
-      cr.pane = $("<div class='slick-pane C R' />").appendTo($container);
+      //tl.pane = $("<div class='slick-pane T L' />").appendTo($container);
+      //tr.pane = $("<div class='slick-pane T R' />").appendTo($container);
+      //cl.pane = $("<div class='slick-pane C L' />").appendTo($container);
+      //cr.pane = $("<div class='slick-pane C R' />").appendTo($container);
+
       // Build this structure:
       // .slick-pane.T.L
       //   .slick-header.T.L
@@ -390,35 +371,26 @@ if (typeof Slick === "undefined") {
         .slick-canvas.C.R
       */
 
-
-      // TODO: rename to these variables
-      // Store left and right elements in the same var using 0 for left and 1 for right.
-      // eg: $topViewport[0] for left topViewport's left side element
       /*
-        o remove "pane"s
+        . remove "pane"s
         // Viewports are always scrollable areas that are as large as we want the viewed area to be.
         // Canvases are always the size of the content. They represent how much scrollable stuff there could be.
-        $topViewport     = [] // was: tl/tr.viewport
-        $topCanvas       = [] // was: tl/tr.canvas
-        $header          = [] // was: $headers
-        $headerInfo      = [] // was: $headerRow (removed $headerRowScroller)
-        $contentViewport = [] // was: $viewport
-        $contentCanvas   = [] // was: $canvas
        */
 
+      // ----------------------- Create the elements
+      topViewport.el = $(
+        "<div class='viewport T L ui-state-default slick-header' tabIndex='0'/>" +
+        "<div class='viewport T R ui-state-default slick-header' tabIndex='0'/>"
+      );
+      topCanvas.el = $(
+        "<div class='canvas T L' />" +
+        "<div class='canvas T R' />"
+      );
+      header.el = $(
+        "<div class='header slick-header-columns' style='left:-1000px' />" +
+        "<div class='header slick-header-columns' style='left:-1000px' />"
+      );
 
-      // T.op
-      tl.viewport     = $("<div class='slick-header viewport ui-state-default T L' tabIndex='0' style='overflow:hidden;position:relative;' />").appendTo(tl.pane);
-      tr.viewport     = $("<div class='slick-header viewport ui-state-default T R' tabIndex='0' style='overflow:hidden;position:relative;' />").appendTo(tr.pane);
-      $headerScroller = $().add(tl.viewport).add(tr.viewport);
-      tl.canvas       = $("<div class='slick-header-columns canvas T L' style='left:-1000px' />").appendTo(tl.viewport);
-      tr.canvas       = $("<div class='slick-header-columns canvas T R' style='left:-1000px' />").appendTo(tr.viewport);
-      $headers        = $().add(tl.canvas).add(tr.canvas);
-
-      // Header Row
-      cl.headerRowViewport = $("<div class='slick-headerrow viewport C L' />").appendTo(cl.pane);
-      cr.headerRowViewport = $("<div class='slick-headerrow viewport C R' />").appendTo(cr.pane);
-      $headerRowScroller   = $().add(tl.headerRowViewport).add(tr.headerRowViewport);
       calculateCanvasWidth();
 
       // TODO: what are these spacers for?
@@ -429,14 +401,13 @@ if (typeof Slick === "undefined") {
 //        .css("width", canvasWidth + scrollbarDimensions.width + "px")
 //        .appendTo(cr.headerRowViewport);
 //      $headerRowSpacer = $().add(cl.headerRowSpacer).add(cr.headerRowSpacer);
-
-      cl.headerRowCanvas = $("<div class='slick-headerrow-columns canvas C L' />").appendTo(cl.headerRowViewport);
-      cr.headerRowCanvas = $("<div class='slick-headerrow-columns canvas C R' />").appendTo(cr.headerRowViewport);
-      $headerRow = $().add(cl.headerRowCanvas).add(cr.headerRowCanvas);
-      if (!options.showHeaderRow) {
-        cl.headerRowViewport.hide();
-        cr.headerRowViewport.hide();
-      }
+      subHeader.el = $(
+        //"<div class='slick-headerrow' />" +
+        //"<div class='slick-headerrow' />"
+        "<div class='subHeader slick-headerrow-columns' />" +
+        "<div class='subHeader slick-headerrow-columns' />"
+      );
+      if (!options.showHeaderRow) { subHeader.el.hide(); }
 
       // Top Panel
 //      $topPanelScroller = $("<div class='slick-top-panel-scroller ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
@@ -445,24 +416,47 @@ if (typeof Slick === "undefined") {
 //        $topPanelScroller.hide();
 //      }
 
-      // C.enter
-      cl.viewport  = $("<div class='slick-viewport C L' tabIndex='0' hideFocus />").appendTo(cl.pane);
-      cr.viewport  = $("<div class='slick-viewport C R' tabIndex='0' hideFocus />").appendTo(cr.pane);
-      $viewport    = $().add(cl.viewport).add(cr.viewport);
-      cl.canvas    = $("<div class='grid-canvas C L' tabIndex='0' hideFocus />").appendTo(cl.viewport);
-      cr.canvas    = $("<div class='grid-canvas C R' tabIndex='0' hideFocus />").appendTo(cr.viewport);
-      $canvas      = $().add(cl.canvas).add(cr.canvas);
+      contentViewport.el = $(
+        "<div class='viewport C L' tabIndex='0' hideFocus />" +
+        "<div class='viewport C R' tabIndex='0' hideFocus />"
+      );
+      contentCanvas.el = $(
+        "<div class='canvas C L' tabIndex='0' hideFocus />" +
+        "<div class='canvas C R' tabIndex='0' hideFocus />"
+      );
+
+
+      // ----------------------- Matryoshka the elements together
+      topCanvas.el[0].appendChild(header.el[0]);
+      topCanvas.el[1].appendChild(header.el[1]);
+      topCanvas.el[0].appendChild(subHeader.el[0]);
+      topCanvas.el[1].appendChild(subHeader.el[1]);
+      topViewport.el[0].appendChild(topCanvas.el[0]);
+      topViewport.el[1].appendChild(topCanvas.el[1]);
+      contentViewport.el[0].appendChild(contentCanvas.el[0]);
+      contentViewport.el[1].appendChild(contentCanvas.el[1]);
+      $container.append( topViewport.el, contentViewport.el );
 
       //setHeadersWidth();
 
       // Default the active canvas to the top left
-      $activeCanvasNode = tl.canvas;
+      $activeCanvasNode = contentCanvas.el.eq(0);
+
+
+      // TODO: mappings to depreciate
+      $headerScroller = topViewport.el;
+      $headers = topCanvas.el;
+      //$headerRowScroller = subHeader.el;
+      $headerRow = subHeader.el;
+      $viewport = contentViewport.el;
+      $canvas = contentCanvas.el;
+
 
       //$viewport = $("<div class='slick-viewport' style='width:100%;overflow:auto;outline:0;position:relative;;'>").appendTo($container);
       //$viewport.css("overflow-y", options.autoHeight ? "hidden" : "auto");
       //$canvas = $("<div class='grid-canvas' />").appendTo($viewport);
 
-      $focusSink2 = $focusSink.clone().appendTo($container);
+      $focusSink2 = $focusSink.clone().appendTo($container); // after the grid, in tab index order.
 
       if (!options.explicitInitialization) {
         finishInitialization();
@@ -515,8 +509,8 @@ if (typeof Slick === "undefined") {
           .bind("click", handleHeaderClick)
           .delegate(".slick-header-column", "mouseenter", handleHeaderMouseEnter)
           .delegate(".slick-header-column", "mouseleave", handleHeaderMouseLeave);
-        $headerRowScroller
-          .bind("scroll", handleHeaderRowScroll);
+        //$headerRowScroller
+        //  .bind("scroll", handleHeaderRowScroll);
         $focusSink.add($focusSink2)
           .bind("keydown", handleKeyDown);
         $canvas
@@ -618,8 +612,8 @@ if (typeof Slick === "undefined") {
 
     function setHeadersWidth() {
       calculateHeadersWidth();
-      tl.canvas.width(header[0].width);
-      tr.canvas.width(header[1].width);
+      topCanvas.el.eq(0).width(header[0].width);
+      topCanvas.el.eq(1).width(header[1].width);
     }
 
     function calculateCanvasWidth() {
@@ -658,32 +652,45 @@ if (typeof Slick === "undefined") {
 
       if (widthChanged || isPinned) { // TODO: why would it always do this work if there is a pinned column?
         setHeadersWidth();
-        cl.canvas.width(canvasWidthL);
+        contentCanvas.el[0].style.width = canvasWidthL + 'px';
 
         if (isPinned) {
-          cr.canvas.width(canvasWidthR);
+          contentCanvas.el[1].style.width = canvasWidthR + 'px';
+
           // Set widths on the left side, and width+left offset on the right side
-          tl.pane.width(canvasWidthL);
-          tr.pane.css('left', canvasWidthL);
-          tr.pane.css('width', contentViewport.width - canvasWidthL);
-          cl.pane.width(canvasWidthL);
-          cr.pane.css('left', canvasWidthL);
-          cr.pane.css('width', contentViewport.width - canvasWidthL);
-          // + looks good so far
+          topViewport.el[0].style.width =
+          topViewport.el[1].style.left =
+          contentViewport.el[0].style.width =
+          contentViewport.el[1].style.left =
+            canvasWidthL + 'px';
+          topViewport.el[1].style.width =
+          contentViewport.el[1].style.width =
+            (contentViewport.width - canvasWidthL) + 'px';
+
+          //tr.pane.css('width', contentViewport.width - canvasWidthL);
+          //cl.pane.width(canvasWidthL);
+          //cr.pane.css('left', canvasWidthL);
+          //cr.pane.css('width', contentViewport.width - canvasWidthL);
+
+
           // Header Row
-          cl.headerRowViewport.width(canvasWidthL);
-          cr.headerRowViewport.width(contentViewport.width - canvasWidthL);
-          cl.headerRowCanvas.width(canvasWidthL);
-          cr.headerRowCanvas.width(canvasWidthR);
+          //cl.headerRowViewport.width(canvasWidthL);
+          //cr.headerRowViewport.width(contentViewport.width - canvasWidthL);
+          //cl.headerRowCanvas.width(canvasWidthL);
+          //cr.headerRowCanvas.width(canvasWidthR);
+
           // Viewport
-          cl.viewport.width(canvasWidthL);
-          cr.viewport.width(contentViewport.width - canvasWidthL);
+          //cl.viewport.width(canvasWidthL);
+          //cr.viewport.width(contentViewport.width - canvasWidthL);
         } else {
-          tl.pane.width('100%');
-          cl.pane.width('100%');
-          cl.headerRowViewport.width('100%');
-          cl.headerRowCanvas.width(canvasWidth);
-          cl.viewport.width('100%');
+          topViewport.el[0].style.width =
+          contentViewport.el[0].style.width =
+            null;
+          //tl.pane.width('100%');
+          //cl.pane.width('100%');
+          //cl.headerRowViewport.width('100%');
+          //cl.headerRowCanvas.width(canvasWidth);
+          //cl.viewport.width('100%');
         }
         viewportHasHScroll = (canvasWidth > contentViewport.width - scrollbarDimensions.width);
       }
@@ -816,61 +823,57 @@ if (typeof Slick === "undefined") {
       function onMouseLeave() { $(this).removeClass("ui-state-hover"); }
 
       // Broadcast destroy events and empty out any current headers
-      $headers.find(".slick-header-column")
+      //$headers.find(".slick-header-column")
+      header.el.children()
         .each(function () {
           var columnDef = $(this).data("column");
           if (columnDef) {
             trigger(self.onBeforeHeaderCellDestroy, { "node": this, "column": columnDef });
           }
         });
-      tl.canvas.empty();
-      tr.canvas.empty();
-      setHeadersWidth();
 
-      // Broadcast destroy events and empty out any current headerRows
-      $headerRow.find(".slick-headerrow-column")
+      // Broadcast destroy events and empty out any current subHeaders
+      //$headerRow.find(".slick-headerrow-column")
+      subHeader.el.children()
         .each(function () {
           var columnDef = $(this).data("column");
           if (columnDef) {
-            trigger(self.onBeforeHeaderRowCellDestroy, {
-              "node": this,
-              "column": columnDef
-            });
+            trigger(self.onBeforeHeaderRowCellDestroy, { "node": this, "column": columnDef });
           }
         });
-      cl.headerRowCanvas.empty();
-      cl.headerRowCanvas.empty();
+
+      header.el.empty();
+      subHeader.el.empty();
+      setHeadersWidth();
 
       // Build new headers based on column data.
       for (var i = 0; i < columns.length; i++) {
         // Select the right pane to draw into based on the column index.
-        //var $headerTarget    = (options.pinnedColumn != undefined) ? ((i <= options.pinnedColumn) ? $headerL : $headerR) : $headerL;
-        //var $headerRowTarget = (options.pinnedColumn != undefined) ? ((i <= options.pinnedColumn) ? $headerRowL : $headerRowR) : $headerRowL;
-        var $headerTarget    = i > options.pinnedColumn ? tr.canvas : tl.canvas;
-        var $headerRowTarget = i > options.pinnedColumn ? cr.headerRowCanvas : cl.headerRowCanvas;
+        var $headerTarget    = i > options.pinnedColumn ? header.el.eq(1) : header.el.eq(0);
+        var $headerRowTarget = i > options.pinnedColumn ? subHeader.el.eq(1) : subHeader.el.eq(0);
 
         var m = columns[i];
-        var header = options.columnHeaderRenderer(m);
-        header
+        var oneHeader = options.columnHeaderRenderer(m);
+        oneHeader
           .width(m.width - headerColumnWidthDiff)
-          .attr("id", "" + uid + m.id)
+          .attr("id", "" + uid +'_'+ m.id)
           .attr("title", m.toolTip || "")
           .data("column", m)
           .addClass(m.headerCssClass || "")
           .appendTo($headerTarget);
 
         if (options.enableColumnReorder || m.sortable) {
-          header
+          oneHeader
             .on('mouseenter', onMouseEnter)
             .on('mouseleave', onMouseLeave);
         }
 
         if (m.sortable) {
-          header.addClass("slick-header-sortable");
-          header.append("<span class='slick-sort-indicator' />");
+          oneHeader.addClass("slick-header-sortable");
+          oneHeader.append("<span class='slick-sort-indicator' />");
         }
 
-        trigger(self.onHeaderCellRendered, { "node": header[0], "column": m });
+        trigger(self.onHeaderCellRendered, { "node": oneHeader[0], "column": m });
 
         if (options.showHeaderRow) {
           var headerRowCell = $("<div class='ui-state-default slick-headerrow-column l" + i + " r" + i + "'></div>")
@@ -883,88 +886,8 @@ if (typeof Slick === "undefined") {
           });
         }
       }
-
       setSortColumns(sortColumns);
       setupColumnResize();
-      if (options.enableColumnReorder) {
-        setupColumnReorder();
-      }
-    }
-
-    // TODO: remove when I'm sure I won't need to reference it
-    function XcreateColumnHeaders() {
-      function onMouseEnter() {
-        $(this).addClass("ui-state-hover");
-      }
-
-      function onMouseLeave() {
-        $(this).removeClass("ui-state-hover");
-      }
-
-      $headers.find(".slick-header-column")
-        .each(function() {
-          var columnDef = $(this).data("column");
-          if (columnDef) {
-            trigger(self.onBeforeHeaderCellDestroy, {
-              "node": this,
-              "column": columnDef
-            });
-          }
-        });
-      $headers.empty();
-      $headers.width(calculateHeadersWidth());
-
-      // Get the data for each column in the DOM
-      $headerRow.find(".slick-headerrow-column")
-        .each(function() {
-          var columnDef = $(this).data("column");
-          if (columnDef) {
-            trigger(self.onBeforeHeaderRowCellDestroy, {
-              "node": this,
-              "column": columnDef
-            });
-          }
-        });
-      $headerRow.empty();
-
-      // Create and append each header cell
-      for (var i = 0; i < columns.length; i++) {
-        var m = columns[i];
-        var header = options.columnHeaderRenderer(m);
-        header
-          .attr("id", "" + uid + m.id)
-          .data("column", m)
-          .addClass('ui-state-default slick-header-column')
-          .addClass(m.headerCssClass || "")
-          .width(m.width - headerColumnWidthDiff)
-          .appendTo($headers);
-
-        if (options.enableColumnReorder || m.sortable) {
-          header
-            .on('mouseenter', onMouseEnter)
-            .on('mouseleave', onMouseLeave);
-        }
-        if (m.sortable) {
-          header.addClass("slick-header-sortable");
-          header.append("<span class='slick-sort-indicator' />");
-        }
-        trigger(self.onHeaderCellRendered, {
-          "node": header[0],
-          "column": m
-        });
-        if (options.showHeaderRow) {
-          var headerRowCell = $("<div class='ui-state-default slick-headerrow-column l" + i + " r" + i + "'></div>")
-            .data("column", m)
-            .appendTo($headerRow);
-          trigger(self.onHeaderRowCellRendered, {
-            "node": headerRowCell[0],
-            "column": m
-          });
-        }
-      }
-
-      setSortColumns(sortColumns);
-      //setupColumnResize(); // TODO: renable
       if (options.enableColumnReorder) {
         setupColumnReorder();
       }
@@ -1285,25 +1208,34 @@ if (typeof Slick === "undefined") {
     // If columns are pinned, scrollers are in the right-side panes, otherwise they're in the left ones
     function setScroller() {
       if (options.pinnedColumn == undefined) {
-        $headerScrollContainer    = tl.viewport; //$headerScrollerL
-        $headerRowScrollContainer = cl.headerRowViewport; // $headerRowScrollerL;
-        $viewportScrollContainerX = $viewportScrollContainerY = cl.viewport; // $viewportTopL;
+        //$headerScrollContainer    = topViewport.el[0]; //$headerScrollerL
+        topViewport.scroller = topViewport.el[0];
+        //$headerRowScrollContainer = cl.headerRowViewport; // $headerRowScrollerL;
+        //$viewportScrollContainerX = $viewportScrollContainerY = contentViewport.el[0];
+        contentViewport.scroller = contentViewport.el[0];
       } else {
-        $headerScrollContainer    = tr.viewport;
-        $headerRowScrollContainer = cr.headerRowViewport;
-        $viewportScrollContainerX = $viewportScrollContainerY = cr.viewport;
+        //$headerScrollContainer    = topViewport.el[1];
+        topViewport.scroller = topViewport.el[1];
+        //$headerRowScrollContainer = cr.headerRowViewport;
+        //$viewportScrollContainerX = $viewportScrollContainerY = contentViewport.el[1];
+        contentViewport.scroller = contentViewport.el[1];
       }
     }
 
     function setOverflow() {
-      cl.viewport.css({
-        'overflow-x': isPinned ? 'scroll' : 'auto',
-        'overflow-y': isPinned ? 'hidden' : 'auto'
-      });
-      cr.viewport.css({
-        'overflow-x': isPinned ? 'scroll' : 'auto',
-        'overflow-y': isPinned ? 'auto'   : 'auto'
-      });
+      if (isPinned) {
+        contentViewport.el.eq(0).css({ 'overflow-y': 'hidden' });
+      } else {
+        contentViewport.el.eq(0).css({ 'overflow-y': '' });
+      }
+      //cl.viewport.css({
+      //  'overflow-x': isPinned ? 'scroll' : 'auto',
+      //  'overflow-y': isPinned ? 'hidden' : 'auto'
+      //});
+      //cr.viewport.css({
+      //  'overflow-x': isPinned ? 'scroll' : 'auto',
+      //  'overflow-y': isPinned ? 'auto'   : 'auto'
+      //});
     }
 
     function measureCellPaddingAndBorder() {
@@ -1393,10 +1325,10 @@ if (typeof Slick === "undefined") {
         }
       }
 
-      console.log('getColumnCssRules('+ idx +')', {
-        "left": columnCssRulesL[idx],
-        "right": columnCssRulesR[idx]
-      });
+      //console.log('getColumnCssRules('+ idx +')', {
+      //  "left": columnCssRulesL[idx],
+      //  "right": columnCssRulesR[idx]
+      //});
       return {
         "left": columnCssRulesL[idx],
         "right": columnCssRulesR[idx]
@@ -1427,7 +1359,9 @@ if (typeof Slick === "undefined") {
       removeCssRules();
 
       $canvas.unbind("draginit dragstart dragend drag");
-      $container.empty().removeClass(uid);
+      $container.empty()
+        .removeClass(uid)
+        .removeClass(objectName);
     }
 
 
@@ -1894,7 +1828,8 @@ if (typeof Slick === "undefined") {
       var metadata = data.getItemMetadata && data.getItemMetadata(row);
       if (metadata && metadata.cssClasses) { rowCss += " " + metadata.cssClasses; }
 
-      var rowHtml = "<div class='ui-widget-content " + rowCss + "' style='top:" + (getRowTop(row) ) + "px'>";
+      var rowHtml = "<div class='" + rowCss + "' style='top:" + (getRowTop(row) ) + "px'>";
+      //var rowHtml = "<div class='ui-widget-content " + rowCss + "' style='top:" + (getRowTop(row) ) + "px'>";
       markupArrayL.push(rowHtml);
       if (isPinned) { markupArrayR.push(rowHtml); }
 
@@ -2136,21 +2071,15 @@ if (typeof Slick === "undefined") {
       calculateViewportWidth();
 
       // Assign all the sizes we just calculated
-      if (options.autoHeight) {
-        if (options.pinnedColumn != undefined) {
-          $container.height( contentViewport.height + parseFloat($.css(tl.viewport[0], "height")) );
-        }
-        tl.pane.css('position', 'relative');
-      }
-      var centerTop = tl.pane.height(); // the top boundary of the center row of things
-      cl.pane.css({ 'top': centerTop, 'height': contentViewport.height });
-      //var paneBottomTop = cl.pane.position().top + c.paneHeight;
-      cl.viewport.height(contentViewport.height);
-      if (options.pinnedColumn != undefined) {
-        cr.pane.css({ 'top': centerTop, 'height': contentViewport.height });
-      }
-      cr.viewport.height(contentViewport.height);
+      //if (options.autoHeight) {
+      //  if (options.pinnedColumn != undefined) {
+      //    $container.height( contentViewport.height + parseFloat($.css(tl.viewport[0], "height")) );
+      //  }
+      //  tl.pane.css('position', 'relative');
+      //}
 
+      var topOffset = topViewport.el.height(); // the top boundary of the center row of things
+      contentViewport.el.css({ 'top': topOffset, 'height': contentViewport.height });
 
       //if (!resizeOptions.skipHeight) {
       //  if (options.autoHeight) {
@@ -2491,18 +2420,18 @@ if (typeof Slick === "undefined") {
 
       var l = document.createElement("div"),
           r = document.createElement("div");
-      l.innerHTML = markupArrayL.join("");
-      r.innerHTML = markupArrayR.join("");
+      l.innerHTML = markupArrayL.join('');
+      r.innerHTML = markupArrayR.join('');
 
       // For each row, add a row node that contains either one or two elements, depending on whether columns are pinned
       for (var i = 0, ii = rows.length; i < ii; i++) {
         if (isPinned) {
           rowsCache[rows[i]].rowNode = $()
-            .add($(l.firstChild).appendTo(cl.canvas))
-            .add($(r.firstChild).appendTo(cr.canvas));
+            .add($(l.firstChild).appendTo(contentCanvas.el[0]))
+            .add($(r.firstChild).appendTo(contentCanvas.el[1]));
         } else {
           rowsCache[rows[i]].rowNode = $()
-            .add($(l.firstChild).appendTo(cl.canvas));
+            .add($(l.firstChild).appendTo(contentCanvas.el[0]));
         }
       }
 
@@ -2605,15 +2534,16 @@ if (typeof Slick === "undefined") {
     //}
 
     function handleScroll() {
-      scrollTop = $viewportScrollContainerY[0].scrollTop;
-      scrollLeft = $viewportScrollContainerX[0].scrollLeft;
+      scrollTop  = contentViewport.scroller.scrollTop;
+      scrollLeft = contentViewport.scroller.scrollLeft;
       reallyHandleScroll(false);
     }
 
     function reallyHandleScroll(isMouseWheel) {
+      var contentScroller = contentViewport.scroller;
       // Ceiling the max scroll values
-      var maxScrollDistanceY = $viewportScrollContainerY[0].scrollHeight - $viewportScrollContainerY[0].clientHeight;
-      var maxScrollDistanceX = $viewportScrollContainerY[0].scrollWidth  - $viewportScrollContainerY[0].clientWidth;
+      var maxScrollDistanceY = contentScroller.scrollHeight - contentScroller.clientHeight;
+      var maxScrollDistanceX = contentScroller.scrollWidth  - contentScroller.clientWidth;
       if (scrollTop  > maxScrollDistanceY) { scrollTop  = maxScrollDistanceY; }
       if (scrollLeft > maxScrollDistanceX) { scrollLeft = maxScrollDistanceX; }
 
@@ -2622,19 +2552,19 @@ if (typeof Slick === "undefined") {
 
       if (hScrollDist) {
         prevScrollLeft = scrollLeft;
-        $viewportScrollContainerX[0].scrollLeft = scrollLeft;
-        $headerScrollContainer[0].scrollLeft = scrollLeft;
+        contentScroller.scrollLeft = scrollLeft;
+        topViewport.scroller.scrollLeft = scrollLeft;
 //        $topPanelScroller[0].scrollLeft = scrollLeft;
-        $headerRowScrollContainer[0].scrollLeft = scrollLeft;
+//        $headerRowScrollContainer.scrollLeft = scrollLeft;
       }
 
       if (vScrollDist) {
         vScrollDir = prevScrollTop < scrollTop ? 1 : -1;
         prevScrollTop = scrollTop;
 
-        if (isMouseWheel) { $viewportScrollContainerY[0].scrollTop = scrollTop; }
+        if (isMouseWheel) { contentScroller.scrollTop = scrollTop; }
         // Set the scroll position of the paired viewport to match this one
-        if (isPinned) { cl.viewport[0].scrollTop = scrollTop; }
+        if (isPinned) { contentViewport.el[0].scrollTop = scrollTop; }
         // switch virtual pages if needed
         if (vScrollDist < contentViewport.height) {
           scrollTo(scrollTop + offset);
