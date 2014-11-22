@@ -1,17 +1,32 @@
-.slickGrid.debug .slick-row {
-  background-color: transparent !important; }
-.slickGrid.debug .slick-row.even {
-  background-color: rgba(0, 0, 0, 0.05) !important; }
-.slickGrid.debug .viewport, .slickGrid.debug .canvas {
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1); }
-.slickGrid.debug .viewport {
-  background-color: rgba(0, 255, 0, 0.05); }
-.slickGrid.debug .canvas {
-  background-color: rgba(0, 0, 255, 0.05); }
+.slickGrid .header,
+.slickGrid .subHeader,
+.slickGrid .row,
+.slickGrid .cell {
+  box-sizing: border-box; }
+
+.slickGrid .header {
+  height: 40px; }
+  .slickGrid .header .cell {
+    padding: 4px;
+    line-height: 32px; }
+
+.slickGrid .subHeader {
+  height: 21px; }
+  .slickGrid .subHeader .cell {
+    padding: 2px;
+    line-height: 17px; }
+
+.slickGrid .row {
+  height: 30px;
+  line-height: 30px; }
+  .slickGrid .row .cell {
+    padding: 0 2px; }
 
 .slickGrid {
   overflow: hidden;
   outline: 0; }
+  .slickGrid .row.even {
+    background: #f9f9f9; }
   .slickGrid .focus-sink {
     position: fixed;
     width: 0;
@@ -22,7 +37,8 @@
   .slickGrid .viewport {
     position: absolute;
     overflow: auto;
-    outline: 0; }
+    outline: 0;
+    width: 100%; }
     .slickGrid .viewport.T.L, .slickGrid .viewport.T.R {
       overflow: hidden; }
   .slickGrid .canvas {
@@ -33,6 +49,7 @@
     width: 100%; }
   .slickGrid .cell {
     position: absolute;
+    height: 100%;
     border: 1px solid transparent;
     border-right: 1px dotted silver;
     border-bottom-color: silver;
@@ -41,7 +58,6 @@
     text-overflow: ellipsis;
     vertical-align: middle;
     z-index: 1;
-    padding: 1px 2px 2px 1px;
     margin: 0;
     white-space: nowrap;
     cursor: default; }
@@ -72,27 +88,19 @@
   border-bottom: 1px solid silver;
   background: #f7f7f7; }
 
-.slickGrid .header .cell {
-  position: relative;
-  display: inline-block;
-  height: 16px;
-  line-height: 16px;
-  margin: 0;
-  padding: 4px;
+.slickGrid .header .cell,
+.slickGrid .subHeader .cell {
   border-right: 1px solid silver;
   border-left: 0;
   border-top: 0;
-  border-bottom: 0;
-  float: left; }
+  border-bottom: 0; }
 
 .slickGrid .subHeader {
-  background: #eef7ff; }
-  .slickGrid .subHeader .cell {
-    border-left: 0;
-    border-top: 0;
-    border-bottom: 0;
-    background-color: rgba(0, 0, 0, 0.05);
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1); }
+  background: #ddd; }
+  .slickGrid .subHeader .cell input {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%; }
 
 .slick-sort-indicator {
   display: inline-block;
@@ -142,3 +150,5 @@
   z-index: 10;
   position: absolute;
   border: 2px dashed black; }
+
+/*# sourceMappingURL=slick.grid.css.map */

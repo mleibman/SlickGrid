@@ -4,23 +4,58 @@
 // classes should alter those!
 
 // DEBUG ONLY:
-.slickGrid.debug
-  .slick-row
-    background-color: transparent !important
-  .slick-row.even
-    background-color: rgba(0, 0, 0, 0.05) !important
-  .viewport, .canvas
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1)
-  .viewport
-    background-color: rgba(0, 255, 0, 0.05)
-  .canvas
-    background-color: rgba(0, 0, 255, 0.05)
+//.slickGrid.debug
+//  .slick-row
+//    background-color: transparent !important
+//  .slick-row.even
+//    background-color: rgba(0, 0, 0, 0.05) !important
+//  .viewport, .canvas
+//    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1)
+//  .viewport
+//    background-color: rgba(0, 255, 0, 0.05)
+//  .canvas
+//    background-color: rgba(0, 0, 255, 0.05)
+
+.slickGrid .header,
+.slickGrid .subHeader,
+.slickGrid .row,
+.slickGrid .cell
+  box-sizing: border-box
+
+// Height for header and sub header rows
+.slickGrid .header
+  $h: 40px
+  height: $h
+  .cell
+    $padding: 4px
+    padding: $padding
+    line-height: $h - $padding*2
+
+.slickGrid .subHeader
+  $h: 21px
+  height: $h
+  .cell
+    $padding: 2px
+    padding: $padding
+    line-height: $h - $padding*2
+
+// Height for normal grid rows
+.slickGrid .row
+  $h: 30px
+  height: $h
+  line-height: $h
+  .cell
+    padding: 0 2px
+
 
 
 // Main:
 .slickGrid
   overflow: hidden
   outline: 0
+
+  .row.even
+    background: #f9f9f9
 
   .focus-sink
     position: fixed
@@ -34,6 +69,7 @@
     position: absolute
     overflow: auto
     outline: 0 // removes the focus effect that shows while scrolling
+    width: 100% // easy handling of the no-pinned column case
     &.T.L,
     &.T.R
       overflow: hidden // the top left and right viewports don't scroll
@@ -48,6 +84,7 @@
 
   .cell
     position: absolute
+    height: 100%
     border: 1px solid transparent
     border-right: 1px dotted silver
     border-bottom-color: silver
@@ -56,7 +93,6 @@
     text-overflow: ellipsis
     vertical-align: middle
     z-index: 1
-    padding: 1px 2px 2px 1px
     margin: 0
     white-space: nowrap
     cursor: default
@@ -87,31 +123,21 @@
   border-bottom: 1px solid silver
   background: #f7f7f7
 
-.slickGrid .header .cell
-  position: relative
-  display: inline-block
-  height: 16px
-  line-height: 16px
-  margin: 0
-  padding: 4px
-  border-right: 1px solid silver
-  border-left: 0
-  border-top: 0
-  border-bottom: 0
-  float: left
-
-
+.slickGrid .header,
 .slickGrid .subHeader
-  //padding: 4px
-  background: #eef7ff
   .cell
+    border-right: 1px solid silver
     border-left: 0
     border-top: 0
     border-bottom: 0
-    background-color: rgba(0, 0, 0, 0.05) // DEBUG
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1)
+    //background-color: rgba(0,0,0,.05) // debug
 
-//.slickGrid .subHeader .cell
+.slickGrid .subHeader
+  background: #ddd
+  .cell input
+    box-sizing: border-box
+    width: 100%
+    height: 100%
 
 
 
