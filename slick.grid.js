@@ -1478,22 +1478,18 @@ if (typeof Slick === "undefined") {
     function handleSelectedRangesChanged(e, ranges) {
       selectedRows = [];
       var hash = {};
-      for (var i = 0; i < ranges.length; i++) {
-        for (var j = ranges[i].fromRow; j <= ranges[i].toRow; j++) {
+      var maxRow = data.getLength() - 1;                                             
+      var maxCell = columns.length - 1;
+      for (var i = 0, len = ranges.length; i < len; i++) {
+        for (var j = Math.max(0, ranges[i].fromRow), jlen = Math.min(ranges[i].toRow, maxRow); j <= jlen; j++) {
           if (!hash[j]) {  // prevent duplicates
             selectedRows.push(j);
             hash[j] = {};
           }
-          for (var k = ranges[i].fromCell; k <= ranges[i].toCell; k++) {
+          for (var k = Math.max(0, ranges[i].fromCell), klen = Math.min(ranges[i].toCell, maxCell); k <= klen; k++) {
             if (canCellBeSelected(j, k)) {
               hash[j][columns[k].id] = options.selectedCellCssClass;
             }
-            if (k === columns.length - 1) {
-              break;
-            }
-          }
-          if (j === data.getLength() - 1) {
-            break;
           }
         }
       }
