@@ -73,6 +73,7 @@ if (typeof Slick === "undefined") {
       autoHeight: false,
       editorLock: Slick.GlobalEditorLock,
       showSubHeader: false,
+      addRowIndexToClassName: true,
 //      showTopPanel: false,
 //      topPanelHeight: 25,
       formatterFactory: null,
@@ -174,12 +175,13 @@ if (typeof Slick === "undefined") {
     var counter_rows_rendered = 0;
     var counter_rows_removed = 0;
 
-    // These two variables work around a bug with inertial scrolling in Webkit/Blink on Mac.
-    // See http://crbug.com/312427.
-    var rowNodeFromLastMouseWheelEvent;         // this node must not be deleted while inertial scrolling
-    var zombieRowNodeFromLastMouseWheelEvent;   // node that was hidden instead of getting deleted
-
     var $activeCanvasNode;
+
+    // This variable works around a bug with inertial scrolling in Webkit/Blink on Mac.
+    // See http://crbug.com/312427.
+    // The index of the row that started the latest bout of scrolling is temporarily protected from removal.
+    var protectedRowIdx;
+
 
 
     /*
@@ -232,7 +234,7 @@ if (typeof Slick === "undefined") {
 
     // For debugging only
     window._ginfo = function() { return {
-      rowsCache: rowsCache,
+      rowsCache: rowsCache, // Super important object, responsible for the present rendered dom of the rows
       uiRegions: {
         topViewport: topViewport,
         topCanvas: topCanvas,
@@ -249,6 +251,7 @@ if (typeof Slick === "undefined") {
       scrollInfo: {
         visibleRange:  getVisibleRange(),
         renderedRange: getRenderedRange(),
+        offset: offset,
         scrollTop: scrollTop,
         lastRenderedScrollTop: lastRenderedScrollTop,
         lastRenderedScrollLeft: lastRenderedScrollLeft,
@@ -275,7 +278,6 @@ if (typeof Slick === "undefined") {
       scrollbarDimensions   = scrollbarDimensions   || measureScrollbar();
 
       options = $.extend({}, defaults, options);
-      console.log("slickgrid init()", options);
       validateAndEnforceOptions();
       columnDefaults.width = options.defaultColumnWidth;
 
@@ -476,7 +478,14 @@ if (typeof Slick === "undefined") {
         // Work around http://crbug.com/312427.
         if (navigator.userAgent.toLowerCase().match(/webkit/) &&
           navigator.userAgent.toLowerCase().match(/macintosh/)) {
-          contentCanvas.el.bind("mousewheel", handleOsxMousewheel);
+          contentCanvas.el.bind("mousewheel", function(evt){
+            var scrolledRow = $(evt.target).closest(".row")[0];
+            protectedRowIdx = getRowFromNode(scrolledRow);
+    //      console.log('handleOsxMousewheel', {
+    //        rowIdx: getRowFromPosition(scrolledRow.offsetTop + e.originalEvent.offsetY), // the row's offset plus the cursor's offset in the cell
+    //        protectedRowIdx: protectedRowIdx
+    //      });
+          });
         }
       }
     }
@@ -547,12 +556,12 @@ if (typeof Slick === "undefined") {
       var totalRowWidth = contentCanvas[0].width + contentCanvas[1].width;
       contentCanvas.width = options.fullWidthRows ? Math.max(totalRowWidth, availableWidth) : totalRowWidth;
 
-      console.log('calculateCanvasWidth', {
-        left:    contentCanvas[0].width,
-        right:   contentCanvas[1].width,
-        both:    contentCanvas.width,
-        allCols: columns.reduce(function(sum, col){ return sum += col.width }, 0)
-      });
+//      console.log('calculateCanvasWidth', {
+//        left:    contentCanvas[0].width,
+//        right:   contentCanvas[1].width,
+//        both:    contentCanvas.width,
+//        allCols: columns.reduce(function(sum, col){ return sum += col.width }, 0)
+//      });
     }
 
     function updateCanvasWidth(forceColumnWidthsUpdate) {
@@ -1162,12 +1171,9 @@ if (typeof Slick === "undefined") {
       el = $('<div class="row">'+ markup +'</div>').appendTo(contentCanvas.el[0]);
       rows.rowHeight = el.outerHeight();
       el.remove();
-
-
-
-      console.log('measureCssSizes', {
-        rowHeight: rows.rowHeight
-      });
+//      console.log('measureCssSizes', {
+//        rowHeight: rows.rowHeight
+//      });
     }
 
     // For every type of cell we're interested in measuring, record the amount of border and paddings each has, in both vertical and horizontal directions.
@@ -1692,7 +1698,10 @@ if (typeof Slick === "undefined") {
       return rows.rowHeight * row - offset;
     }
 
+    // Given a Y position, get the row index.
+    // The Y position must be relative to the row canvas for an accurate answer.
     function getRowFromPosition(y) {
+//      console.log("("+y+" + "+offset+") / "+rows.rowHeight+" = " + Math.floor((y + offset) / rows.rowHeight));
       return Math.floor((y + offset) / rows.rowHeight);
     }
 
@@ -1770,6 +1779,7 @@ if (typeof Slick === "undefined") {
       var d = getDataItem(row);
       var dataLoading = row < dataLength && !d;
       var rowCss = "row" +
+        (options.addRowIndexToClassName ? " row_" + row : "") +
         (dataLoading ? " loading" : "") +
         (row === activeRow ? " active" : "") +
         (row % 2 == 1 ? " odd" : " even");
@@ -1871,22 +1881,29 @@ if (typeof Slick === "undefined") {
       }
     }
 
+    // While scrolling, remove rows from cache and dom if they're off screen
+    // There's an exception in here for OSX--if you remove the element that triggered a scroll it interrupts inertial scrolling and feels janky.
     function removeRowFromCache(row) {
       var cacheEntry = rowsCache[row];
       if (!cacheEntry) {
         return;
       }
-
-      if (rowNodeFromLastMouseWheelEvent == cacheEntry.rowNode) {
-        cacheEntry.rowNode.style.display = 'none';
-        zombieRowNodeFromLastMouseWheelEvent = rowNodeFromLastMouseWheelEvent;
-      } else {
-        //contentCanvas.el[0].removeChild(cacheEntry.rowNode);
-        cacheEntry.rowNode[0].parentElement.removeChild(cacheEntry.rowNode[0]);
-        // If there's one in the right viewport, remove that, too
-        if (cacheEntry.rowNode[1]) {
-          cacheEntry.rowNode[1].parentElement.removeChild(cacheEntry.rowNode[1]);
-        }
+      if (row === protectedRowIdx) {
+        console.log('removeRowFromCache() skipping ['+ row +']');
+//        function addClass (el, klass) {
+//          if (el.className.indexOf(klass) === -1) { el.className += ' ' + klass }
+//        }
+//        addClass (rowsCache[row].rowNode[0], 'protected') // useful to make sure we're only leaving one row around, and only temporarily
+//        if (cacheEntry.rowNode[1]) {
+//          addClass (rowsCache[row].rowNode[1], 'protected')
+//        }
+        return;
+      }
+      //contentCanvas.el[0].removeChild(cacheEntry.rowNode);
+      cacheEntry.rowNode[0].parentElement.removeChild(cacheEntry.rowNode[0]);
+      // If there's one in the right viewport, remove that, too
+      if (cacheEntry.rowNode[1]) {
+        cacheEntry.rowNode[1].parentElement.removeChild(cacheEntry.rowNode[1]);
       }
       delete rowsCache[row];
       delete postProcessedRows[row];
@@ -1894,7 +1911,9 @@ if (typeof Slick === "undefined") {
       counter_rows_removed++;
 //      console.log('removeRowFromCache('+row+')', {
 //        renderedRows: renderedRows,
-//        rowsCache_length: Object.keys(rowsCache).length
+//        rowsCache_length: Object.keys(rowsCache).length,
+//        rowsCache: rowsCache
+//        postProcessedRows_length: Object.keys(postProcessedRows).length
 //      });
     }
 
@@ -1996,13 +2015,13 @@ if (typeof Slick === "undefined") {
       // The top viewport does not contain the top panel or header row
       // contentViewport.height = c.paneHeight - c.topPanelHeight - subHeader.height;
 
-      console.log('calculateHeights', {
-        subHeader_height: subHeader.height,
-        contentViewport_height: contentViewport.height,
+//      console.log('calculateHeights', {
+//        subHeader_height: subHeader.height,
+//        contentViewport_height: contentViewport.height,
 //        VBoxDelta_of_subHeader_el: getVBoxDelta(subHeader.el),
-        numVisibleRows: numVisibleRows
+//        numVisibleRows: numVisibleRows
 //        topViewport_el_css_height: parseFloat($.css(topViewport.el[0], "height"))
-      });
+//      });
     }
 
     // If you pass it a width, that width is used as the viewport width. If you do not, it is calculated as normal.
@@ -2658,21 +2677,6 @@ if (typeof Slick === "undefined") {
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Interactivity
 
-    function handleOsxMousewheel(e) {
-      var rowNode = $(e.target).closest(".row")[0];
-//      console.log("Handling mouse wheel for webkit on osx", rowNode);
-      if (rowNode != rowNodeFromLastMouseWheelEvent) {
-        console.log('new triggering row');
-        rowNodeFromLastMouseWheelEvent = rowNode;
-        if (zombieRowNodeFromLastMouseWheelEvent && zombieRowNodeFromLastMouseWheelEvent != rowNode) {
-          console.log('handleOsxMousewheel() removing zombie node');
-//          contentCanvas.el[0].removeChild(zombieRowNodeFromLastMouseWheelEvent);
-          zombieRowNodeFromLastMouseWheelEvent.parentElement.removeChild(zombieRowNodeFromLastMouseWheelEvent);
-          zombieRowNodeFromLastMouseWheelEvent = null;
-        }
-      }
-    }
-
     function handleDragInit(e, dd) {
       var cell = getCellFromEvent(e);
       if (!cell || !cellExists(cell.row, cell.cell)) {
@@ -2896,13 +2900,19 @@ if (typeof Slick === "undefined") {
       return parseInt(cls[0].substr(1, cls[0].length - 1), 10);
     }
 
-    function getRowFromNode(rowNode) {
-      for (var row in rowsCache) {
-        if (rowsCache[row].rowNode === rowNode) {
-          return row | 0;
+    // Given a dom element for a row, find out which row index it belongs to
+    function getRowFromNode(node) {
+      for (var idx in rowsCache) {
+        if(
+          rowsCache[idx].rowNode[0] === node ||
+          rowsCache[idx].rowNode[1] === node
+          ){
+          return parseInt(idx);
+//        if (rowsCache[row].rowNode[0] === rowNode[0]) {
+//          return row | 0;
+//        }
         }
       }
-
       return null;
     }
 
