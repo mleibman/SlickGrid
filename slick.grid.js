@@ -3909,6 +3909,9 @@ if (typeof Slick === "undefined") {
       "setSubHeaderVisibility": setSubHeaderVisibility,
       "getSubHeader":           getSubHeader,
       "getSubHeaderColumn":     getSubHeaderColumn,
+      "setHeaderRowVisibility": setSubHeaderVisibility, // alias for backwards compatibility
+      "getHeaderRow":           getSubHeader,
+      "getHeaderRowColumn":     getSubHeaderColumn,
       "getGridPosition": getGridPosition,
       "flashCell": flashCell,
       "addCellCssStyles": addCellCssStyles,
