@@ -281,13 +281,7 @@ if (typeof Slick === "undefined") {
       validateAndEnforceOptions();
       columnDefaults.width = options.defaultColumnWidth;
 
-      columnsById = {};
-      for (var i = 0; i < columns.length; i++) {
-        var m = columns[i] = $.extend({}, columnDefaults, columns[i]);
-        columnsById[m.id] = i;
-        if (m.minWidth && m.width < m.minWidth) { m.width = m.minWidth; }
-        if (m.maxWidth && m.width > m.maxWidth) { m.width = m.maxWidth; }
-      }
+      enforceWidthLimits(columns);
 
       // validate loaded JavaScript modules against requested options
       if (options.enableColumnReorder && !$.fn.sortable) {
@@ -428,7 +422,7 @@ if (typeof Slick === "undefined") {
         // be enabled there so that editors work as expected); note that
         // selection in grid cells (grid body) is already unavailable in
         // all browsers except IE
-        disableSelection(topCanvas.el); // disable all text selection in header (including input and textarea)
+        disableSelection(header.el); // disable all text selection in header (including input and textarea)
 
         if (!options.enableTextSelectionOnCells) {
           // disable text selection in grid cells except in input and textarea elements
@@ -546,6 +540,10 @@ if (typeof Slick === "undefined") {
       contentCanvas.width = contentCanvas[0].width = contentCanvas[1].width = 0;
 
       while (i--) {
+        if (columns[i].width == null) {
+          console.warn('width shouldn\'t be null/undefined', columns[i]);
+          continue;
+        }
         if (i > options.pinnedColumn) {
           contentCanvas[1].width += columns[i].width;
         } else {
@@ -556,12 +554,13 @@ if (typeof Slick === "undefined") {
       var totalRowWidth = contentCanvas[0].width + contentCanvas[1].width;
       contentCanvas.width = options.fullWidthRows ? Math.max(totalRowWidth, availableWidth) : totalRowWidth;
 
-//      console.log('calculateCanvasWidth', {
-//        left:    contentCanvas[0].width,
-//        right:   contentCanvas[1].width,
-//        both:    contentCanvas.width,
-//        allCols: columns.reduce(function(sum, col){ return sum += col.width }, 0)
-//      });
+      console.log('calculateCanvasWidth', {
+        available: availableWidth,
+        left:      contentCanvas[0].width,
+        right:     contentCanvas[1].width,
+        both:      contentCanvas.width,
+        allCols:   columns.reduce(function(sum, col){ return sum += col.width }, 0)
+      });
     }
 
     function updateCanvasWidth(forceColumnWidthsUpdate) {
@@ -932,8 +931,10 @@ if (typeof Slick === "undefined") {
 
     function setupColumnResize() {
       var $col, j, c, pageX, columnElements, minPageX, maxPageX, firstResizable, lastResizable;
-      columnElements = topCanvas.el.children();
+      columnElements = header.el.children();
+      //console.log('setupColumnResize(). '+ columnElements.length +' children.');
       columnElements.find(".slick-resizable-handle").remove();
+      if(!columns.length){ return }
       columnElements.each(function (i, e) {
         if (columns[i].resizable) {
           if (firstResizable === undefined) {
@@ -1125,6 +1126,7 @@ if (typeof Slick === "undefined") {
 
     // Hide extra panes if they're not needed (eg: the grid is not using pinned columns)
     function managedPinnedVisibility() {
+      console.log('managedPinnedVisibility(). isPinned? ' + isPinned);
       if (!isPinned) {
         topViewport.el.eq(1).hide();
         contentViewport.el.eq(1).hide();
@@ -1526,17 +1528,16 @@ if (typeof Slick === "undefined") {
     }
 
     // Given a set of columns, make sure `minWidth <= width <= maxWidth`
-    function enforceWidthLimits(columns) {
+    function enforceWidthLimits(cols) {
       columnsById = {};
-      for (var i = 0; i < columns.length; i++) {
-        var m = columns[i]; // Changing the object reference can cause problems for external consumers of that object. Also, I see no reason to re-extend from defaults here, this is done in init.
+      for (var i = 0; i < cols.length; i++) {
+        var m = cols[i];
+        // Changing the object reference can cause problems for external consumers of that object, so we're careful to maintain it using this crazy double extend.
+        tempCol = $.extend({}, columnDefaults, m);
+        $.extend(m, tempCol);
         columnsById[m.id] = i;
-        if (m.minWidth && m.width < m.minWidth) {
-          m.width = m.minWidth;
-        }
-        if (m.maxWidth && m.width > m.maxWidth) {
-          m.width = m.maxWidth;
-        }
+        if (m.minWidth && m.width < m.minWidth) { m.width = m.minWidth; }
+        if (m.maxWidth && m.width > m.maxWidth) { m.width = m.maxWidth; }
       }
     }
 
@@ -1616,11 +1617,7 @@ if (typeof Slick === "undefined") {
         options.leaveSpaceForNewRows = false;
       }
       if (options.pinnedColumn != undefined) {
-        options.pinnedColumn = parseInt(options.pinnedColumn);
-        if (isNaN(options.pinnedColumn) || options.pinnedColumn >= columns.length) {
-          options.pinnedColumn = undefined;
-        }
-        if (options.pinnedColumn != undefined) { isPinned = true }
+        isPinned = true;
       }
     }
 
@@ -1885,20 +1882,8 @@ if (typeof Slick === "undefined") {
     // There's an exception in here for OSX--if you remove the element that triggered a scroll it interrupts inertial scrolling and feels janky.
     function removeRowFromCache(row) {
       var cacheEntry = rowsCache[row];
-      if (!cacheEntry) {
-        return;
-      }
-      if (row === protectedRowIdx) {
-        console.log('removeRowFromCache() skipping ['+ row +']');
-//        function addClass (el, klass) {
-//          if (el.className.indexOf(klass) === -1) { el.className += ' ' + klass }
-//        }
-//        addClass (rowsCache[row].rowNode[0], 'protected') // useful to make sure we're only leaving one row around, and only temporarily
-//        if (cacheEntry.rowNode[1]) {
-//          addClass (rowsCache[row].rowNode[1], 'protected')
-//        }
-        return;
-      }
+      if (!cacheEntry) { return; }
+      if (row === protectedRowIdx) { return; }
       //contentCanvas.el[0].removeChild(cacheEntry.rowNode);
       cacheEntry.rowNode[0].parentElement.removeChild(cacheEntry.rowNode[0]);
       // If there's one in the right viewport, remove that, too
