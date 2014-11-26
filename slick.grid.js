@@ -554,13 +554,13 @@ if (typeof Slick === "undefined") {
       var totalRowWidth = contentCanvas[0].width + contentCanvas[1].width;
       contentCanvas.width = options.fullWidthRows ? Math.max(totalRowWidth, availableWidth) : totalRowWidth;
 
-      console.log('calculateCanvasWidth', {
-        available: availableWidth,
-        left:      contentCanvas[0].width,
-        right:     contentCanvas[1].width,
-        both:      contentCanvas.width,
-        allCols:   columns.reduce(function(sum, col){ return sum += col.width }, 0)
-      });
+      //console.log('calculateCanvasWidth', {
+      //  available: availableWidth,
+      //  left:      contentCanvas[0].width,
+      //  right:     contentCanvas[1].width,
+      //  both:      contentCanvas.width,
+      //  allCols:   columns.reduce(function(sum, col){ return sum += col.width }, 0)
+      //});
     }
 
     function updateCanvasWidth(forceColumnWidthsUpdate) {
@@ -1567,22 +1567,13 @@ if (typeof Slick === "undefined") {
 
     // Given a column definition object, do all the steps required to react to a change in the widths of any of the columns, and nothing more.
     function updateColumnWidths(columnDefinitions) {
-      var $el, $headerCells;
+      console.log('updateColumnWidths');
       columns = columnDefinitions;
       enforceWidthLimits(columns);
+      applyColumnWidths();
       updateColumnCaches();
-      // TODO: use the l0 r0 rules instead. Update the widths of each header dom element
-//      if (initialized) {
-//        $headerCells = header.el.children();
-//        for (var i = 0; i < columns.length; i++) {
-//          var m = columns[i];
-//          $el = $headerCells.eq( getColumnIndex(m.id) ); // Get the jQuery-wrapped instance of this column header
-//          $el.width(m.width - headerColumnWidthDiff);
-//        }
-        // Cells and grid canvas
-//        updateCanvasWidth(true); // Update the grid-canvas width. The `true` tells it to update the width of all the cells even if the canvas hasn't changed size (eg: if there was plenty of room for the cells both before and after the sizing, the canvas doesn't change)
-//      }
-      trigger(self.onColumnsResized);
+      updateCanvasWidth(true); // Update the grid-canvas width. The `true` tells it to update the width of all the cells even if the canvas hasn't changed size (eg: if there was plenty of room for the cells both before and after the sizing, the canvas doesn't change)
+//      trigger(self.onColumnsResized); // TODO: find why this was needed and solve it without an infinite loop
     }
 
     function getOptions() {
