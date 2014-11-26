@@ -432,7 +432,7 @@ if (typeof Slick === "undefined") {
           });
         }
 
-        managedPinnedVisibility();
+        managePinnedVisibility();
         setScroller();
         setOverflow();
 
@@ -1125,8 +1125,7 @@ if (typeof Slick === "undefined") {
     }
 
     // Hide extra panes if they're not needed (eg: the grid is not using pinned columns)
-    function managedPinnedVisibility() {
-      console.log('managedPinnedVisibility(). isPinned? ' + isPinned);
+    function managePinnedVisibility() {
       if (!isPinned) {
         topViewport.el.eq(1).hide();
         contentViewport.el.eq(1).hide();
@@ -2014,7 +2013,6 @@ if (typeof Slick === "undefined") {
     function calculateViewportWidth(width) {
       contentViewport.width = width || parseFloat($.css($container[0], "width", true));
       //console.log('calculateViewportWidth', contentViewport.width);
-      return contentViewport.width;
     }
 
     // If you pass resizeOptions.width, the viewport width calculation can be skipped. This saves 15ms or so.
@@ -2191,7 +2189,7 @@ if (typeof Slick === "undefined") {
           var $lastNode = cacheEntry.rowNode.children().last();           // The last cell in the row
           while (cacheEntry.cellRenderQueue.length) {
             var columnIdx = cacheEntry.cellRenderQueue.pop();
-            cacheEntry.cellNodesByColumnIdx[columnIdx] = $lastNode;
+            cacheEntry.cellNodesByColumnIdx[columnIdx] = $lastNode[0];
             $lastNode = $lastNode.prev();
             // cellRenderQueue is not empty but there is no .prev() element.
             // We must need to switch to the other pinned row container.
@@ -2227,7 +2225,7 @@ if (typeof Slick === "undefined") {
       // remove the dom element, cellColSpans, cellNodesByColumnIdx, and postProcessedRows entries.
       var cellToRemove, el;
       while ((cellToRemove = cellsToRemove.pop()) != null) {
-        el = cacheEntry.cellNodesByColumnIdx[cellToRemove][0];
+        el = cacheEntry.cellNodesByColumnIdx[cellToRemove];
         // We used to know the parent, but now there are two possible parents (left or right), so it's easier to go from element to parent to remove:
         el.parentElement.removeChild(el);
 //        console.log('cleanUpCells() row: '+ row +' col: '+ cellToRemove);
@@ -2322,7 +2320,7 @@ if (typeof Slick === "undefined") {
           $node = $(x).children().last();
           side = columnIdx > options.pinnedColumn ? 1 : 0;
           $(cacheEntry.rowNode[side]).append($node);
-          cacheEntry.cellNodesByColumnIdx[columnIdx] = $node;
+          cacheEntry.cellNodesByColumnIdx[columnIdx] = $node[0];
         }
 //        console.log('cleanUpAndRenderCells', {
 //          cellsAdded:  cellsAdded,
