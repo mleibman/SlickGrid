@@ -1567,7 +1567,6 @@ if (typeof Slick === "undefined") {
 
     // Given a column definition object, do all the steps required to react to a change in the widths of any of the columns, and nothing more.
     function updateColumnWidths(columnDefinitions) {
-      console.log('updateColumnWidths');
       columns = columnDefinitions;
       enforceWidthLimits(columns);
       applyColumnWidths();
@@ -1584,11 +1583,16 @@ if (typeof Slick === "undefined") {
       if (!getEditorLock().commitCurrentEdit()) {
         return;
       }
+      var pinnedColChanged; // If the pinned column has changed, we need to take some extra steps to render canvii
 
       makeActiveCellNormal();
 
       if (options.enableAddRow !== args.enableAddRow) {
         invalidateRow(getDataLength());
+      }
+
+      if (args.pinnedColumn !== options.pinnedColumn) {
+        pinnedColChanged = true;
       }
 
       options = $.extend(options, args);
@@ -1599,6 +1603,11 @@ if (typeof Slick === "undefined") {
       } else {
         contentViewport.el.css("overflow-y", null);
       }
+
+      if (pinnedColChanged) {
+        setColumns(columns);
+      }
+
       render();
     }
 
@@ -1608,6 +1617,8 @@ if (typeof Slick === "undefined") {
       }
       if (options.pinnedColumn != undefined) {
         isPinned = true;
+      } else {
+        isPinned = false;
       }
     }
 
