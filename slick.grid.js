@@ -1342,6 +1342,29 @@ if (typeof Slick === "undefined") {
       return columnsById[id];
     }
 
+    // Get all column header cell elements.
+    // There should be as many elements as there are columns
+    // It doesn't differentiate between pinned and unpinned columns
+    // If you provide an index, it returns only that column
+    function getHeaderEls(idx) {
+      if (idx == null) {
+        return header.el.children()
+      } else {
+        return header.el.children()[idx]
+      }
+    }
+
+    // Given an x and a y coord, return the index of the column
+    function getColumnIndexFromEvent(evt) {
+      var nearestEl = document.elementFromPoint(evt.clientX, evt.clientY);
+      var headerEl = $(nearestEl).closest('.cell');
+      return getCellFromNode(headerEl[0]);
+    }
+
+    function getColumnFromEvent(evt) {
+      return columns[getColumnIndexFromEvent(evt)];
+    }
+
     function autosizeColumns() {
       var i, c,
         widths = [],
@@ -1480,19 +1503,7 @@ if (typeof Slick === "undefined") {
 
     function getSortColumns() {
       return sortColumns;
-    }
-
-    // Get all column header cell elements.
-    // There should be as many elements as there are columns
-    // It doesn't differentiate between pinned and unpinned columns
-    // If you provide an index, it returns only that column
-    function getHeaderEls(idx) {
-      if (idx == null) {
-        return header.el.children()
-      } else {
-        return header.el.children()[idx]
       }
-    }
 
     function handleSelectedRangesChanged(e, ranges) {
       selectedRows = [];
@@ -2884,8 +2895,8 @@ if (typeof Slick === "undefined") {
       return {row: row, cell: cell - 1};
     }
 
+    // Given a cell element, read column number from .l<columnNumber> CSS class
     function getCellFromNode(cellNode) {
-      // read column number from .l<columnNumber> CSS class
       var cls = /l\d+/.exec(cellNode.className);
       if (!cls) {
         throw "getCellFromNode: cannot get cell - " + cellNode.className;
@@ -3852,6 +3863,8 @@ if (typeof Slick === "undefined") {
       "unregisterPlugin": unregisterPlugin,
       "getId": getId,
       "getColumns": getColumns,
+      "getColumnIndexFromEvent": getColumnIndexFromEvent,
+      "getColumnFromEvent": getColumnFromEvent,
       "setColumns": setColumns,
       "updateColumnWidths": updateColumnWidths,
       "getColumnIndex": getColumnIndex,
