@@ -310,27 +310,23 @@ if (typeof Slick === "undefined") {
 
         .slick-viewport.T.L
           .slick-canvas.T.L
-            .slick-header
-            .slick-headerInfo
+            .header
+            .subHeader
 
         .slick-viewport.T.R
           .slick-canvas.T.R
-            .slick-header
-            .slick-headerInfo
+            .header
+            .subHeader
 
         .slick-viewport.C.L
           .slick-canvas.C.L
+            .row * N
 
         .slick-viewport.C.R
           .slick-canvas.C.R
-
+            .row * N
       */
 
-      /*
-        . remove "pane"s
-        // Viewports are always scrollable areas that are as large as we want the viewed area to be.
-        // Canvases are always the size of the content. They represent how much scrollable stuff there could be.
-       */
 
       // ----------------------- Create the elements
       topViewport.el = $(
@@ -2853,13 +2849,13 @@ if (typeof Slick === "undefined") {
     }
 
     function handleHeaderContextMenu(e) {
-      var $header = $(e.target).closest(".slick-header-column", ".slick-header-columns");
+      var $header = $(e.target).closest(".cell", ".header");
       var column = $header && $header.data("column");
       trigger(self.onHeaderContextMenu, {column: column}, e);
     }
 
     function handleHeaderClick(e) {
-      var $header = $(e.target).closest(".slick-header-column", ".slick-header-columns");
+      var $header = $(e.target).closest(".cell", ".header");
       var column = $header && $header.data("column");
       if (column) {
         trigger(self.onHeaderClick, {column: column}, e);
