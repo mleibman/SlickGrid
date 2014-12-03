@@ -15,8 +15,9 @@
     <td valign="top">
       <h2>Demonstrates:</h2>
       <ul>
-        <li>Handling and logging to console the names and arguments of grid events.</li>
-        <li>Specially tested are onHeaderClick and onHeaderContextMenu.</li>
+        <li>Resizing columns with cell size synced as you drag.</li>
+        <li>Resizing only impacts the column you're dragging, not nearby ones.</li>
+        <li>Works with or without `maxWidth` set on columns.</li>
       </ul>
     </td>
   </tr>
@@ -49,8 +50,6 @@
     { id: "finish", name: "Finish", field: "finish"}
   ];
 
-  var options = { pinnedColumn: 0 };
-
   $(function () {
     var data = [];
     for (var i = 0; i < 500; i++) {
@@ -64,57 +63,11 @@
       };
     }
 
-    window._grid = grid = new Slick.Grid("#myGrid", data, columns, options);
-
-    // For each event, log the behavior
-    // Commented out things have been verified to work, they were just too noisy in the console
-    var events = [
-//      "onScroll",
-      "onSort",
-      "onHeaderMouseEnter",
-      "onHeaderMouseLeave",
-      "onHeaderContextMenu",
-      "onHeaderClick",
-      "onHeaderCellRendered",
-      "onBeforeHeaderCellDestroy",
-      "onSubHeaderCellRendered",
-      "onBeforeSubHeaderCellDestroy",
-//      "onMouseEnter",
-//      "onMouseLeave",
-      "onClick",
-      "onDblClick",
-      "onContextMenu",
-      "onKeyDown",
-      "onAddNewRow",
-      "onValidationError",
-//      "onViewportChanged",
-      "onInvalidate",
-      "onColumnsReordered",
-      "onColumnsResized",
-      "onColumnsChanged",
-      "onCellChange",
-      "onBeforeEditCell",
-      "onBeforeCellEditorDestroy",
-      "onBeforeDestroy",
-      "onActiveCellChanged",
-      "onActiveCellPositionChanged",
-      "onDragInit",
-      "onDragStart",
-      "onDrag",
-      "onDragEnd",
-      "onSelectedRowsChanged",
-      "onCellCssStylesChanged"
-    ];
-
-    for (var i=0, len=events.length; i<len; i++) {
-      (function(){
-        var evtName = events[i];
-        grid[evtName].subscribe(function(){
-          console.log("grid." + evtName, arguments);
-        });
-      })();
-    }
-
+    grid = new Slick.Grid("#myGrid", data, columns, {
+      pinnedColumn: 0,
+      syncColumnCellResize: true,
+      resizeOnlyDraggedColumn: true
+    });
   });
 </script>
 </body>

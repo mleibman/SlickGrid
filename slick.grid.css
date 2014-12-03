@@ -116,7 +116,7 @@
 .slick-sort-indicator-asc {
   background: url(images/sort-asc.gif); }
 
-.slick-resizable-handle {
+.slickGrid .resizer {
   position: absolute;
   font-size: 0.1px;
   display: block;

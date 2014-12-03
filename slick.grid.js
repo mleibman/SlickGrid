@@ -131,7 +131,7 @@ if (typeof Slick === "undefined") {
     var stylesheet, columnCssRulesL, columnCssRulesR;
 
     var viewportHasHScroll, viewportHasVScroll;
-    var absoluteColumnMinWidth;
+    var absoluteColumnMinWidth = 0; // TODO: this may be irrelevant if cells are always sized using border-box. Used to be necessary so we never shunk smaller than 0 width + padding + border
 
     var tabbingDirection = 1;
     var activePosX;
@@ -303,25 +303,19 @@ if (typeof Slick === "undefined") {
 
       $focusSink = $("<div tabIndex='0' hideFocus class='focus-sink'></div>").appendTo($container);
 
-      /*
-      Dom structure:
-
+      /* SlickGrid Dom structure:
       .slickGrid
-
         .slick-viewport.T.L
           .slick-canvas.T.L
             .header
             .subHeader
-
         .slick-viewport.T.R
           .slick-canvas.T.R
             .header
             .subHeader
-
         .slick-viewport.C.L
           .slick-canvas.C.L
             .row * N
-
         .slick-viewport.C.R
           .slick-canvas.C.R
             .row * N
@@ -786,14 +780,11 @@ if (typeof Slick === "undefined") {
         trigger(self.onHeaderCellRendered, { "node": oneHeader[0], "column": m });
 
         if (options.showSubHeader) {
-//          var oneSubHeader = $("<div class='cell l" + i + " r" + i + "'></div>")
-//          debugger
           oneSubHeader = options.subHeaderRenderer(m);
           oneSubHeader
             .data("column", m)
             .addClass("cell l" + i + " r" + i)
             .appendTo($subHeaderHolder);
-
           trigger(self.onSubHeaderCellRendered, {
             "node": oneSubHeader[0],
             "column": m
@@ -827,11 +818,11 @@ if (typeof Slick === "undefined") {
         // temporary workaround for a bug in jQuery 1.7.1 (http://bugs.jquery.com/ticket/11328)
         e.metaKey = e.metaKey || e.ctrlKey;
 
-        if ($(e.target).hasClass("slick-resizable-handle")) {
+        if ($(e.target).hasClass("resizer")) {
           return;
         }
 
-        var $col = $(e.target).closest(".slick-header-column");
+        var $col = $(e.target).closest(".cell");
         if (!$col.length) {
           return;
         }
@@ -899,7 +890,7 @@ if (typeof Slick === "undefined") {
         helper: "clone",
         placeholder: "slick-sortable-placeholder ui-state-default slick-header-column",
         start: function (e, ui) {
-          ui.placeholder.width(ui.helper.outerWidth() - headerColumnWidthDiff);
+          ui.placeholder.width(ui.helper.outerWidth()); // - headerColumnWidthDiff);
           $(ui.helper).addClass("slick-header-column-active");
         },
         beforeStop: function (e, ui) {
@@ -926,11 +917,11 @@ if (typeof Slick === "undefined") {
     }
 
     function setupColumnResize() {
-      var $col, j, c, pageX, columnElements, minPageX, maxPageX, firstResizable, lastResizable;
-      columnElements = header.el.children();
-      //console.log('setupColumnResize(). '+ columnElements.length +' children.');
-      columnElements.find(".slick-resizable-handle").remove();
-      if(!columns.length){ return }
+      var j, c, pageX, columnElements, minPageX, maxPageX, firstResizable, lastResizable;
+      if(!columns.length){ return; }
+      columnElements = getHeaderEls();
+      columnElements.find(".resizer").remove();
+      // Get the first and last resizable column
       columnElements.each(function (i, e) {
         if (columns[i].resizable) {
           if (firstResizable === undefined) {
@@ -939,26 +930,23 @@ if (typeof Slick === "undefined") {
           lastResizable = i;
         }
       });
-      if (firstResizable === undefined) {
-        return;
-      }
+      if (firstResizable === undefined) { return; }
+      // Configure resizing on each column
       columnElements.each(function (i, e) {
         if (i < firstResizable || (options.forceFitColumns && i >= lastResizable)) {
           return;
         }
-        $col = $(e);
-        $("<div class='slick-resizable-handle' />")
+        $("<div class='resizer' />")
           .appendTo(e)
           .bind("dragstart", function (e, dd) {
             if (!getEditorLock().commitCurrentEdit()) {
               return false;
             }
             pageX = e.pageX;
-            var $el = $(this).parent();
-            $el.addClass("slick-header-column-active");
+            $(this).parent().addClass("active");
 
             // Get the dragged column object and set a flag on it
-            var idx = Array.prototype.indexOf.call($el.parent().children(), $el[0]);
+            var idx = getCellFromNode($(this).parent());
             if (idx > -1) { columns[idx].manuallySized = true; }
 
             var shrinkLeewayOnRight = null, stretchLeewayOnRight = null;
@@ -1054,7 +1042,10 @@ if (typeof Slick === "undefined") {
             } else { // stretch column
               x = d;
               if (options.resizeOnlyDraggedColumn) {
-                columns[i].width = Math.min(columns[i].previousWidth + x, columns[i].maxWidth);
+                columns[i].width = columns[i].previousWidth + x;
+                if (columns[i].maxWidth != null) {
+                  columns[i].width = Math.min(columns[i].maxWidth, columns[i].width);
+                }
               } else {
                 for (j = i; j >= 0; j--) {
                   c = columns[j];
@@ -1094,7 +1085,7 @@ if (typeof Slick === "undefined") {
           })
           .bind("dragend", function (e, dd) {
             var newWidth;
-            $(this).parent().removeClass("slick-header-column-active");
+            $(this).parent().removeClass("active");
             for (j = 0; j < columnElements.length; j++) {
               c = columns[j];
               newWidth = $(columnElements[j]).outerWidth();
@@ -1445,8 +1436,8 @@ if (typeof Slick === "undefined") {
       var h;
       for (var i = 0, headers = header.el.children(), ii = headers.length; i < ii; i++) {
         h = $(headers[i]);
-        if (h.width() !== columns[i].width - headerColumnWidthDiff) {
-          h.width(columns[i].width - headerColumnWidthDiff);
+        if (h.width() !== columns[i].width) {
+          h.width(columns[i].width);
         }
       }
       updateColumnCaches();
@@ -2893,6 +2884,7 @@ if (typeof Slick === "undefined") {
 
     // Given a cell element, read column number from .l<columnNumber> CSS class
     function getCellFromNode(cellNode) {
+      if (cellNode[0]) { cellNode = cellNode[0]; } // unwrap jquery
       var cls = /l\d+/.exec(cellNode.className);
       if (!cls) {
         throw "getCellFromNode: cannot get cell - " + cellNode.className;
