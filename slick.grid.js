@@ -59,6 +59,7 @@ if (typeof Slick === "undefined") {
       explicitInitialization: false,
 //      rowHeight: 25,
       defaultColumnWidth: 80,
+      absoluteColumnMinWidth: 20, // Don't let folks resize smaller than this, Should be the width of ellipsis. May need to take box-sizing into account
       enableAddRow: false,
       leaveSpaceForNewRows: false,
       editable: false,
@@ -96,7 +97,7 @@ if (typeof Slick === "undefined") {
       name: "",
       resizable: true,
       sortable: false,
-      minWidth: 30,
+      minWidth: defaults.absoluteColumnMinWidth,
       rerenderOnResize: false,
       headerCssClass: null,
       defaultSortAsc: true,
@@ -131,7 +132,6 @@ if (typeof Slick === "undefined") {
     var stylesheet, columnCssRulesL, columnCssRulesR;
 
     var viewportHasHScroll, viewportHasVScroll;
-    var absoluteColumnMinWidth = 0; // TODO: this may be irrelevant if cells are always sized using border-box. Used to be necessary so we never shunk smaller than 0 width + padding + border
 
     var tabbingDirection = 1;
     var activePosX;
@@ -256,8 +256,7 @@ if (typeof Slick === "undefined") {
         lastRenderedScrollTop: lastRenderedScrollTop,
         lastRenderedScrollLeft: lastRenderedScrollLeft,
         numVisibleRows: numVisibleRows
-      },
-      absoluteColumnMinWidth: absoluteColumnMinWidth
+      }
     } };
 
 
@@ -968,7 +967,7 @@ if (typeof Slick === "undefined") {
                       stretchLeewayOnRight = null;
                     }
                   }
-                  shrinkLeewayOnRight += c.previousWidth - Math.max(c.minWidth || 0, absoluteColumnMinWidth);
+                  shrinkLeewayOnRight += c.previousWidth - Math.max(c.minWidth || 0, options.absoluteColumnMinWidth);
                 }
               }
             }
@@ -984,7 +983,7 @@ if (typeof Slick === "undefined") {
                     stretchLeewayOnLeft = null;
                   }
                 }
-                shrinkLeewayOnLeft += c.previousWidth - Math.max(c.minWidth || 0, absoluteColumnMinWidth);
+                shrinkLeewayOnLeft += c.previousWidth - Math.max(c.minWidth || 0, options.absoluteColumnMinWidth);
               }
             }
             if (shrinkLeewayOnRight === null) {
@@ -1012,7 +1011,7 @@ if (typeof Slick === "undefined") {
                 for (j = i; j >= 0; j--) {
                   c = columns[j];
                   if (c.resizable) {
-                    actualMinWidth = Math.max(c.minWidth || 0, absoluteColumnMinWidth);
+                    actualMinWidth = Math.max(c.minWidth || 0, options.absoluteColumnMinWidth);
                     if (x && c.previousWidth + x < actualMinWidth) {
                       x += c.previousWidth - actualMinWidth;
                       c.width = actualMinWidth;
@@ -1042,10 +1041,7 @@ if (typeof Slick === "undefined") {
             } else { // stretch column
               x = d;
               if (options.resizeOnlyDraggedColumn) {
-                columns[i].width = columns[i].previousWidth + x;
-                if (columns[i].maxWidth != null) {
-                  columns[i].width = Math.min(columns[i].maxWidth, columns[i].width);
-                }
+                columns[i].width = Math.min(columns[i].previousWidth + x, columns[i].maxWidth || maxPageX);
               } else {
                 for (j = i; j >= 0; j--) {
                   c = columns[j];
@@ -1066,7 +1062,7 @@ if (typeof Slick === "undefined") {
                 for (j = i + 1; j < columnElements.length; j++) {
                   c = columns[j];
                   if (c.resizable) {
-                    actualMinWidth = Math.max(c.minWidth || 0, absoluteColumnMinWidth);
+                    actualMinWidth = Math.max(c.minWidth || 0, options.absoluteColumnMinWidth);
                     if (x && c.previousWidth + x < actualMinWidth) {
                       x += c.previousWidth - actualMinWidth;
                       c.width = actualMinWidth;
@@ -1197,13 +1193,13 @@ if (typeof Slick === "undefined") {
 //      }
 //      r.remove();
 //
-//      absoluteColumnMinWidth = Math.max(header.cellDiffW, subHeader.cellDiffW, rows.cellDiffW);
+//      options.absoluteColumnMinWidth = Math.max(header.cellDiffW, subHeader.cellDiffW, rows.cellDiffW);
 //
 //      console.log('measureCellPaddingAndBorder',{
 //        headerWH:    header.cellDiffW    +','+ header.cellDiffH,
 //        subHeaderWH: subHeader.cellDiffW +','+ subHeader.cellDiffH,
 //        cellWH:      rows.cellDiffW      +','+ rows.cellDiffH,
-//        absoluteColumnMinWidth: absoluteColumnMinWidth
+//        absoluteColumnMinWidth: options.absoluteColumnMinWidth
 //      });
 //    }
 
@@ -1365,7 +1361,7 @@ if (typeof Slick === "undefined") {
         widths.push(c.width);
         total += c.width;
         if (c.resizable) {
-          shrinkLeeway += c.width - Math.max(c.minWidth, absoluteColumnMinWidth);
+          shrinkLeeway += c.width - Math.max(c.minWidth, options.absoluteColumnMinWidth);
         }
       }
 
@@ -1376,10 +1372,10 @@ if (typeof Slick === "undefined") {
         for (i = 0; i < columns.length && total > availWidth; i++) {
           c = columns[i];
           var width = widths[i];
-          if (!c.resizable || width <= c.minWidth || width <= absoluteColumnMinWidth) {
+          if (!c.resizable || width <= c.minWidth || width <= options.absoluteColumnMinWidth) {
             continue;
           }
-          var absMinWidth = Math.max(c.minWidth, absoluteColumnMinWidth);
+          var absMinWidth = Math.max(c.minWidth, options.absoluteColumnMinWidth);
           var shrinkSize = Math.floor(shrinkProportion * (width - absMinWidth)) || 1;
           shrinkSize = Math.min(shrinkSize, width - absMinWidth);
           total -= shrinkSize;
