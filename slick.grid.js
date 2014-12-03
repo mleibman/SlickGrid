@@ -711,7 +711,7 @@ if (typeof Slick === "undefined") {
     // Use a columnId to return the related header dom element
     function getSubHeaderColumn(columnId) {
       var idx = getColumnIndex(columnId);
-      return header.el.children().eq(idx);
+      return subHeader.el.children().eq(idx);
       //var $target;
       //if (isPinned) {
       //  if (idx <= options.pinnedColumn) {
@@ -1458,7 +1458,7 @@ if (typeof Slick === "undefined") {
     function setSortColumns(cols) {
       sortColumns = cols;
 
-      var headerColumnEls = header.el.children();
+      var headerColumnEls = getHeaderEls();
       headerColumnEls
         .removeClass("slick-header-column-sorted")
         .find(".slick-sort-indicator")
@@ -1480,6 +1480,18 @@ if (typeof Slick === "undefined") {
 
     function getSortColumns() {
       return sortColumns;
+    }
+
+    // Get all column header cell elements.
+    // There should be as many elements as there are columns
+    // It doesn't differentiate between pinned and unpinned columns
+    // If you provide an index, it returns only that column
+    function getHeaderEls(idx) {
+      if (idx == null) {
+        return header.el.children()
+      } else {
+        return header.el.children()[idx]
+      }
     }
 
     function handleSelectedRangesChanged(e, ranges) {
@@ -3902,6 +3914,7 @@ if (typeof Slick === "undefined") {
       "gotoCell": gotoCell,
 //      "getTopPanel": getTopPanel,
 //      "setTopPanelVisibility": setTopPanelVisibility,
+      "getHeaderEls":           getHeaderEls,
       "setSubHeaderVisibility": setSubHeaderVisibility,
       "getSubHeader":           getSubHeader,
       "getSubHeaderColumn":     getSubHeaderColumn,
