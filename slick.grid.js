@@ -1076,6 +1076,7 @@ if (typeof Slick === "undefined") {
             }
             applyColumnHeaderWidths();
             if (options.syncColumnCellResize) {
+              updateCanvasWidth(true); // If you're resizing one of the columns in the pinned section, we should update the size of that area as you drag
               applyColumnWidths();
             }
           })
