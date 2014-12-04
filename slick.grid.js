@@ -1788,6 +1788,8 @@ if (typeof Slick === "undefined") {
       var metadata = data.getItemMetadata && data.getItemMetadata(row);
       if (metadata && metadata.cssClasses) { rowCss += " " + metadata.cssClasses; }
 
+      if (metadata) { console.log(metadata); }
+
       var rowHtml = "<div class='" + rowCss + "' style='top:" + (getRowTop(row) ) + "px'>";
       //var rowHtml = "<div class='ui-widget-content " + rowCss + "' style='top:" + (getRowTop(row) ) + "px'>";
       markupArrayL.push(rowHtml);
@@ -1800,8 +1802,14 @@ if (typeof Slick === "undefined") {
         if (metadata && metadata.columns) {
           var columnData = metadata.columns[m.id] || metadata.columns[i];
           colspan = (columnData && columnData.colspan) || 1;
+          // Grouping metadata can indicate that columns should autocalculate spanning.
+          // In this case, we span whatever pinned region we're in, but not the whole grid.
           if (colspan === "*") {
-            colspan = ii - i;
+            if (i > options.pinnedColumn || options.pinnedColumn == null) {
+              colspan = ii - i;
+            } else {
+              colspan = options.pinnedColumn + 1 - i;
+            }
           }
         }
 

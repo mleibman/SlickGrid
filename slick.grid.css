@@ -102,6 +102,12 @@
     width: 100%;
     height: 100%; }
 
+.slickGrid .row.slick-group {
+  background-color: #eef7ff; }
+
+.slickGrid .row.slick-group-totals {
+  background-color: #eefff7; }
+
 .slick-sort-indicator {
   display: inline-block;
   width: 8px;
