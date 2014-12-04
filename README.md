@@ -2,6 +2,8 @@
 
 This fork adds pinned columns to slickgrid. There was a fair amount of code rewrite involved. Work in progress.
 
+## [Pinned Column Examples](http://git.simple.gy/SlickGrid/)
+
 ## Renaming
 
 To support pinned columns, we slice up the grid regions, and try to be very clear and consistent about the naming.
