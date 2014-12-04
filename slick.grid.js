@@ -1326,6 +1326,12 @@ if (typeof Slick === "undefined") {
       return columnsById[id];
     }
 
+    // Return the header element(s) that wrap all column headers
+    // There is one or two, depending on whether columns are pinned
+    function getHeaderEl() {
+      return header.el;
+    }
+
     // Get all column header cell elements.
     // There should be as many elements as there are columns
     // It doesn't differentiate between pinned and unpinned columns
@@ -3917,6 +3923,7 @@ if (typeof Slick === "undefined") {
       "gotoCell": gotoCell,
 //      "getTopPanel": getTopPanel,
 //      "setTopPanelVisibility": setTopPanelVisibility,
+      "getHeaderEl":            getHeaderEl,
       "getHeaderEls":           getHeaderEls,
       "setSubHeaderVisibility": setSubHeaderVisibility,
       "getSubHeader":           getSubHeader,
