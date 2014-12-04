@@ -323,8 +323,8 @@ if (typeof Slick === "undefined") {
 
       // ----------------------- Create the elements
       topViewport.el = $(
-        "<div class='viewport T L' tabIndex='0'/>" +
-        "<div class='viewport T R' tabIndex='0'/>"
+        "<div class='viewport T L' tabIndex='0' hideFocus />" +
+        "<div class='viewport T R' tabIndex='0' hideFocus />"
       );
       topCanvas.el = $(
         "<div class='canvas T L' />" +

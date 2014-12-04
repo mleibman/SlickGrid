@@ -4,6 +4,9 @@
 .slickGrid .cell {
   box-sizing: border-box; }
 
+.slickGrid [hideFocus] {
+  outline: none !important; }
+
 .slickGrid .header {
   height: 40px; }
   .slickGrid .header .cell {
