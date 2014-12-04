@@ -38,12 +38,12 @@
   var data = [];
   var columns = [
     { id: "title", name: "Title", field: "title", width: 150},
-    { id: "%", name: "% Complete", field: "percentComplete"},
+    { id: "%", name: "% Complete", field: "percentComplete", groupTotalsFormatter: avgTotalsFormatter},
     { id: "duration", name: "Duration", field: "duration"},
     { id: "start", name: "Start", field: "start"},
     { id: "finish", name: "Finish", field: "finish"},
     { id: "effort-driven", name: "Effort Driven", field: "effortDriven"},
-    { id: "%", name: "% Complete", field: "percentComplete"}, //, groupTotalsFormatter: avgTotalsFormatter},
+    { id: "%", name: "% Complete", field: "percentComplete" },
     { id: "start", name: "Start", field: "start"},
     { id: "finish", name: "Finish", field: "finish"},
     { id: "effort-driven2", name: "Effort Driven", field: "effortDriven"},
@@ -55,20 +55,20 @@
   function groupByDuration() {
     dataView.setGrouping({
       getter: "duration",
-      formatter: function (g) { return "Duration: "+ g.value + "  (" + g.count + ")"; }
-//      aggregators: [ new Slick.Data.Aggregators.Avg("percentComplete") ]
-//      aggregateCollapsed: false
+      formatter: function (g) { return "Duration: "+ g.value + "  (" + g.count + ")"; },
+      aggregators: [ new Slick.Data.Aggregators.Avg("percentComplete") ],
+      aggregateCollapsed: false
 //      lazyTotalsCalculation: true
     });
   }
 
-//  function avgTotalsFormatter(totals, columnDef) {
-//    var val = totals.avg && totals.avg[columnDef.field];
-//    if (val != null) {
-//      return "avg: " + Math.round(val) + "%";
-//    }
-//    return "";
-//  }
+  function avgTotalsFormatter(totals, columnDef) {
+    var val = totals.avg && totals.avg[columnDef.field];
+    if (val != null) {
+      return "avg: " + Math.round(val) + "%";
+    }
+    return "";
+  }
 
   function groupByEffortDriven() {
     dataView.setGrouping({

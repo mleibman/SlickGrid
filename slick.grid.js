@@ -1788,10 +1788,7 @@ if (typeof Slick === "undefined") {
       var metadata = data.getItemMetadata && data.getItemMetadata(row);
       if (metadata && metadata.cssClasses) { rowCss += " " + metadata.cssClasses; }
 
-      if (metadata) { console.log(metadata); }
-
       var rowHtml = "<div class='" + rowCss + "' style='top:" + (getRowTop(row) ) + "px'>";
-      //var rowHtml = "<div class='ui-widget-content " + rowCss + "' style='top:" + (getRowTop(row) ) + "px'>";
       markupArrayL.push(rowHtml);
       if (isPinned) { markupArrayR.push(rowHtml); }
 
