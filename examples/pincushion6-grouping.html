@@ -56,9 +56,7 @@
     dataView.setGrouping({
       getter: "duration",
       formatter: function (g) { return "Duration: "+ g.value + "  (" + g.count + ")"; },
-      aggregators: [ new Slick.Data.Aggregators.Avg("percentComplete") ],
-      aggregateCollapsed: false
-//      lazyTotalsCalculation: true
+      aggregators: [ new Slick.Data.Aggregators.Avg("percentComplete") ]
     });
   }
 
@@ -73,10 +71,8 @@
   function groupByEffortDriven() {
     dataView.setGrouping({
       getter: "effortDriven",
-      formatter: function (g) { return "Effort: " + g.value + "  (" + g.count + ")"; }
-//      aggregators: [ new Slick.Data.Aggregators.Avg("percentComplete") ],
-//      aggregateCollapsed: false,
-//      lazyTotalsCalculation: true
+      formatter: function (g) { return "Effort: " + g.value + "  (" + g.count + ")"; },
+      aggregators: [ new Slick.Data.Aggregators.Avg("percentComplete") ]
     });
   }
 
@@ -93,12 +89,8 @@
       };
     }
 
-    var gimp = new Slick.Data.GroupItemMetadataProvider({
-//      totalsFormatter: null // this doesn't turn off the row
-    });
-    dataView = new Slick.Data.DataView({
-      groupItemMetadataProvider: gimp
-    });
+    var gimp = new Slick.Data.GroupItemMetadataProvider();
+    dataView = new Slick.Data.DataView();
     dataView.setItems(data);
 
     grid = new Slick.Grid("#myGrid", dataView, columns, {
