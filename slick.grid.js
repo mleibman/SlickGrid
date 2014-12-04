@@ -1492,7 +1492,7 @@ if (typeof Slick === "undefined") {
     function handleSelectedRangesChanged(e, ranges) {
       selectedRows = [];
       var hash = {};
-      var maxRow = data.getLength() - 1;                                             
+      var maxRow = getDataLength() - 1;
       var maxCell = columns.length - 1;
       for (var i = 0, len = ranges.length; i < len; i++) {
         for (var j = Math.max(0, ranges[i].fromRow), jlen = Math.min(ranges[i].toRow, maxRow); j <= jlen; j++) {
