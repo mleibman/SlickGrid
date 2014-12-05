@@ -185,18 +185,15 @@ if (typeof Slick === "undefined") {
 
 
     /*
-
     ## Visual Grid Components
 
     To support pinned columns, we slice up the grid regions, and try to be very clear and consistent about the naming.
     All UI region info objects start as an array with a left [0] and right [1] side
-    Dom elements are stored at the top level together (still in a left/right pair) because jquery has convenience methods for dealing with multiple elements. (eg: el.empty())
+    Dom elements are stored at the top level together (still in a left/right pair) because jquery deals with multiple elements nicely. (eg: el.empty(), el.children())
     topViewport.width     // combined width
     topViewport[0].width  // left width
     topViewport.el        // both els
     topViewport.el[0]     // left el
-    topViewport[0].el     // left el, too? A: no. undefined. let's only have one reference.
-
      */
                                     //      [0]       [1]
                                     //    ....................
@@ -336,8 +333,6 @@ if (typeof Slick === "undefined") {
         "<div class='header' />"
       );
 
-//      calculateCanvasWidth();
-
       // TODO: what are these spacers for?
 //      cl.subHeaderSpacer = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
 //        .css("width", canvasWidth + scrollbarDimensions.width + "px")
@@ -381,8 +376,6 @@ if (typeof Slick === "undefined") {
       contentViewport.el[1].appendChild(contentCanvas.el[1]);
       $container.append( topViewport.el, contentViewport.el );
 
-      //setHeadersWidth();
-
       measureCssSizes(); // Wins award for most 's'es in a row.
 
 
@@ -421,14 +414,10 @@ if (typeof Slick === "undefined") {
           });
         }
 
-        managePinnedVisibility();
-        setScroller();
-        setOverflow();
-
         updateColumnCaches();
-        createColumnHeaders();
-        setupColumnSort();
         createCssRules();
+        updatePinnedState();
+        setupColumnSort();
         resizeCanvas();
         bindAncestorScrollEvents();
 
@@ -1109,11 +1098,19 @@ if (typeof Slick === "undefined") {
     }
 
     // Hide extra panes if they're not needed (eg: the grid is not using pinned columns)
-    function managePinnedVisibility() {
+    function updatePinnedState() {
       if (!isPinned) {
         topViewport.el.eq(1).hide();
         contentViewport.el.eq(1).hide();
+      } else {
+        topViewport.el.eq(1).show();
+        contentViewport.el.eq(1).show();
       }
+      setScroller();
+      setOverflow();
+      createColumnHeaders();
+      updateCanvasWidth();
+      invalidateAllRows();
     }
 
     // If columns are pinned, scrollers are in the right-side panes, otherwise they're in the left ones
@@ -1602,6 +1599,7 @@ if (typeof Slick === "undefined") {
 
       if (args.pinnedColumn !== options.pinnedColumn) {
         pinnedColChanged = true;
+        options.pinnedColumn = args.pinnedColumn; // $extend usually works, but not in the case where the new value is undefined. $.extend does not copy over null or undefined values.
       }
 
       options = $.extend(options, args);
@@ -1613,9 +1611,7 @@ if (typeof Slick === "undefined") {
         contentViewport.el.css("overflow-y", null);
       }
 
-      if (pinnedColChanged) {
-        setColumns(columns);
-      }
+      if (pinnedColChanged) { updatePinnedState(); }
 
       render();
     }
@@ -1628,6 +1624,7 @@ if (typeof Slick === "undefined") {
         isPinned = true;
       } else {
         isPinned = false;
+        options.pinnedColumn = undefined; // map null and undefined both to undefined. null does some odd things in numerical comparisons. eg: 20 > null is true (wat!)
       }
     }
 
@@ -2243,7 +2240,10 @@ if (typeof Slick === "undefined") {
       while ((cellToRemove = cellsToRemove.pop()) != null) {
         el = cacheEntry.cellNodesByColumnIdx[cellToRemove];
         // We used to know the parent, but now there are two possible parents (left or right), so it's easier to go from element to parent to remove:
-        el.parentElement.removeChild(el);
+        // The parent element won't exist if we removed the whole row. eg: we've stopping pinning columns so the whole viewport was removed.
+        if (el && el.parentElement) {
+          el.parentElement.removeChild(el);
+        }
 //        console.log('cleanUpCells() row: '+ row +' col: '+ cellToRemove);
         delete cacheEntry.cellColSpans[cellToRemove];
         delete cacheEntry.cellNodesByColumnIdx[cellToRemove];

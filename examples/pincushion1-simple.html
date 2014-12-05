@@ -17,6 +17,8 @@
       <ul>
         <li>Simplest case of pinned columns</li>
       </ul>
+      <button onclick="unpin()">Clear Pin</button><br/><br/>
+      <input id="PinnedColumn" type="number" max="5" min="0" value="0" style="width:25px;"/> <button onclick="pin()">Pin</button><br/>
     </td>
   </tr>
 </table>
@@ -28,6 +30,18 @@
 <script src="../slick.grid.js"></script>
 
 <script>
+
+  function unpin () {
+    grid.setOptions({ pinnedColumn: null }); // `undefined` also works
+  }
+
+  function pin () {
+    var val = document.getElementById('PinnedColumn').value;
+    val = parseInt(val);
+    if (isNaN( val )){ return; }
+    grid.setOptions({ pinnedColumn: val });
+  }
+
   var grid;
   var columns = [
     { id: "title", name: "Title", field: "title"},
@@ -54,9 +68,11 @@
   ];
 
   var options = {
-    pinnedColumn: 1,
+    pinnedColumn: 0,
     debug: false
   };
+
+
 
   $(function () {
     var data = [];
@@ -72,6 +88,9 @@
     }
 
     window._grid = grid = new Slick.Grid("#myGrid", data, columns, options);
+
+
+
   })
 </script>
 </body>
