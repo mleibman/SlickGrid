@@ -57,7 +57,7 @@ if (typeof Slick === "undefined") {
     var defaults = {
       debug: false, // bool for debug mode. turns on some css styling and console logging.
       explicitInitialization: false,
-//      rowHeight: 25,
+      //rowHeight: 25,
       defaultColumnWidth: 80,
       absoluteColumnMinWidth: 20, // Don't let folks resize smaller than this, Should be the width of ellipsis. May need to take box-sizing into account
       enableAddRow: false,
@@ -1147,15 +1147,16 @@ if (typeof Slick === "undefined") {
     // Measures the computed sizes of important elements
     // With this method, folks can set whatever CSS size they'd like, and the grid's js can figure it out from there
     function measureCssSizes() {
-      var el,
+      if (!options.rowHeight) {
+        var el,
           markup = "<div class='cell' style='visibility:hidden'>-</div>";
-
-      el = $('<div class="row">'+ markup +'</div>').appendTo(contentCanvas.el[0]);
-      rows.rowHeight = el.outerHeight();
-      el.remove();
-//      console.log('measureCssSizes', {
-//        rowHeight: rows.rowHeight
-//      });
+        el = $('<div class="row">'+ markup +'</div>').appendTo(contentCanvas.el[0]);
+        options.rowHeight = el.outerHeight();
+        el.remove();
+      }
+      console.log('measureCssSizes', {
+        rowHeight: options.rowHeight
+      });
     }
 
     // For every type of cell we're interested in measuring, record the amount of border and paddings each has, in both vertical and horizontal directions.
@@ -1699,14 +1700,14 @@ if (typeof Slick === "undefined") {
     // Rendering / Scrolling
 
     function getRowTop(row) {
-      return rows.rowHeight * row - offset;
+      return options.rowHeight * row - offset;
     }
 
     // Given a Y position, get the row index.
     // The Y position must be relative to the row canvas for an accurate answer.
     function getRowFromPosition(y) {
-//      console.log("("+y+" + "+offset+") / "+rows.rowHeight+" = " + Math.floor((y + offset) / rows.rowHeight));
-      return Math.floor((y + offset) / rows.rowHeight);
+//      console.log("("+y+" + "+offset+") / "+options.rowHeight+" = " + Math.floor((y + offset) / options.rowHeight));
+      return Math.floor((y + offset) / options.rowHeight);
     }
 
     function scrollTo(y) {
@@ -1791,7 +1792,7 @@ if (typeof Slick === "undefined") {
       var metadata = data.getItemMetadata && data.getItemMetadata(row);
       if (metadata && metadata.cssClasses) { rowCss += " " + metadata.cssClasses; }
 
-      var rowHtml = "<div class='" + rowCss + "' style='top:" + (getRowTop(row) ) + "px'>";
+      var rowHtml = "<div class='" + rowCss + "' style='top:" + (getRowTop(row) ) + "px; height:"+ options.rowHeight +"px;line-height:"+ options.rowHeight +"px;'>";
       markupArrayL.push(rowHtml);
       if (isPinned) { markupArrayR.push(rowHtml); }
 
@@ -1983,7 +1984,7 @@ if (typeof Slick === "undefined") {
     // TODO: calculate the height of the header and subHeader row based on their css size
     function calculateHeights() {
       if (options.autoHeight) {
-        contentViewport.height = rows.rowHeight
+        contentViewport.height = options.rowHeight
           * getDataLengthIncludingAddNew()
           + header.el.outerHeight();
       } else {
@@ -2003,7 +2004,7 @@ if (typeof Slick === "undefined") {
 //          - c.topPanelHeight
 //          - subHeader.height;
       }
-      numVisibleRows = Math.ceil(contentViewport.height / rows.rowHeight);
+      numVisibleRows = Math.ceil(contentViewport.height / options.rowHeight);
 
       // The top pane includes the viewport, top panel, and header row
 //      c.paneHeight = contentViewport.height + c.topPanelHeight + subHeader.height;
@@ -2051,11 +2052,11 @@ if (typeof Slick === "undefined") {
 
       //if (!resizeOptions.skipHeight) {
       //  if (options.autoHeight) {
-      //    viewportH = rows.rowHeight * getDataLengthIncludingAddNew();
+      //    viewportH = options.rowHeight * getDataLengthIncludingAddNew();
       //  } else {
       //    calculateViewportHeight();
         //}
-        //numVisibleRows = Math.ceil(viewportH / rows.rowHeight);
+        //numVisibleRows = Math.ceil(viewportH / options.rowHeight);
         //if (!options.autoHeight) {
         //  contentViewport.el.height(viewportH);
         //}
@@ -2083,7 +2084,7 @@ if (typeof Slick === "undefined") {
 
       var oldViewportHasVScroll = viewportHasVScroll;
       // with autoHeight, we do not need to accommodate the vertical scroll bar
-      viewportHasVScroll = !options.autoHeight && (numberOfRows * rows.rowHeight > contentViewport.height);
+      viewportHasVScroll = !options.autoHeight && (numberOfRows * options.rowHeight > contentViewport.height);
 
       makeActiveCellNormal();
 
@@ -2101,7 +2102,7 @@ if (typeof Slick === "undefined") {
       }
 
       var oldH = h;
-      th = Math.max(rows.rowHeight * numberOfRows, contentViewport.height - scrollbarDimensions.height);
+      th = Math.max(options.rowHeight * numberOfRows, contentViewport.height - scrollbarDimensions.height);
       if (th < maxSupportedCssHeight) {
         // just one page
         h = ph = th;
@@ -2160,7 +2161,7 @@ if (typeof Slick === "undefined") {
 
     function getRenderedRange(viewportTop, viewportLeft) {
       var range = getVisibleRange(viewportTop, viewportLeft);
-      var buffer = Math.round(contentViewport.height / rows.rowHeight);
+      var buffer = Math.round(contentViewport.height / options.rowHeight);
       var minBuffer = 3;
 
       if (vScrollDir == -1) {
@@ -2474,7 +2475,7 @@ if (typeof Slick === "undefined") {
     //}
 
     //function handleMouseWheel(event, delta, deltaX, deltaY) {
-    //  scrollTop = Math.max(0, $vpScrollContainerY[0].scrollTop - (deltaY * rows.rowHeight));
+    //  scrollTop = Math.max(0, $vpScrollContainerY[0].scrollTop - (deltaY * options.rowHeight));
     //  scrollLeft = $vpScrollContainerX[0].scrollLeft + (deltaX * 10);
     //  reallyHandleScroll(true);
     //  event.preventDefault();
@@ -2941,7 +2942,7 @@ if (typeof Slick === "undefined") {
       }
 
       var y1 = getRowTop(row);
-      var y2 = y1 + rows.rowHeight - 1;
+      var y2 = y1 + options.rowHeight - 1;
       var x1 = 0;
       for (var i = 0; i < cell; i++) {
         x1 += columns[i].width;
@@ -3252,29 +3253,29 @@ if (typeof Slick === "undefined") {
     }
 
     function scrollRowIntoView(row, doPaging) {
-      var rowAtTop = row * rows.rowHeight;
-      var rowAtBottom = (row + 1) * rows.rowHeight - contentViewport.height + (viewportHasHScroll ? scrollbarDimensions.height : 0);
+      var rowAtTop = row * options.rowHeight;
+      var rowAtBottom = (row + 1) * options.rowHeight - contentViewport.height + (viewportHasHScroll ? scrollbarDimensions.height : 0);
 
       // need to page down?
-      if ((row + 1) * rows.rowHeight > scrollTop + contentViewport.height + offset) {
+      if ((row + 1) * options.rowHeight > scrollTop + contentViewport.height + offset) {
         scrollTo(doPaging ? rowAtTop : rowAtBottom);
         render();
       }
       // or page up?
-      else if (row * rows.rowHeight < scrollTop + offset) {
+      else if (row * options.rowHeight < scrollTop + offset) {
         scrollTo(doPaging ? rowAtBottom : rowAtTop);
         render();
       }
     }
 
     function scrollRowToTop(row) {
-      scrollTo(row * rows.rowHeight);
+      scrollTo(row * options.rowHeight);
       render();
     }
 
     function scrollPage(dir) {
       var deltaRows = dir * numVisibleRows;
-      scrollTo((getRowFromPosition(scrollTop) + deltaRows) * rows.rowHeight);
+      scrollTo((getRowFromPosition(scrollTop) + deltaRows) * options.rowHeight);
       render();
 
       if (options.enableCellNavigation && activeRow != null) {
