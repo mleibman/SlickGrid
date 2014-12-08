@@ -212,9 +212,8 @@ if (typeof Slick === "undefined") {
                                     //    .     .            .
                                     //    ....................
 
-
-    // Completed: Renaming Objects / Variables
-    // yep, an array object instance with properties. yay @js!
+    // Renaming Objects / Variables
+    // yep, an array objectk instance with properties. yay @js!
     // $viewport          > contentViewport.el
     // $canvas            > contentCanvas.el
     // canvasWidth        > contentCanvas.width
@@ -227,37 +226,6 @@ if (typeof Slick === "undefined") {
     // c.viewportHeight   > contentViewport.height
     // c.subHeaderheight  > subHeader.height
     // c.paneHeight       > DEPRECIATED. difference from contentViewport.height?
-
-
-    // For debugging only
-    window._ginfo = function() { return {
-      rowsCache: rowsCache, // Super important object, responsible for the present rendered dom of the rows
-      uiRegions: {
-        topViewport: topViewport,
-        topCanvas: topCanvas,
-        header: header,
-        subHeader: subHeader,
-        contentViewport: contentViewport,
-        contentCanvas: contentCanvas,
-        rows: rows
-      },
-      colInfo: {
-        columnPosLeft:  columnPosLeft,
-        columnPosRight: columnPosRight
-      },
-      scrollInfo: {
-        visibleRange:  getVisibleRange(),
-        renderedRange: getRenderedRange(),
-        offset: offset,
-        scrollTop: scrollTop,
-        lastRenderedScrollTop: lastRenderedScrollTop,
-        lastRenderedScrollLeft: lastRenderedScrollLeft,
-        numVisibleRows: numVisibleRows
-      }
-    } };
-
-
-
 
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -301,20 +269,16 @@ if (typeof Slick === "undefined") {
 
       /* SlickGrid Dom structure:
       .slickGrid
-        .slick-viewport.T.L
-          .slick-canvas.T.L
-            .header
-            .subHeader
-        .slick-viewport.T.R
-          .slick-canvas.T.R
-            .header
-            .subHeader
-        .slick-viewport.C.L
-          .slick-canvas.C.L
-            .row * N
-        .slick-viewport.C.R
-          .slick-canvas.C.R
-            .row * N
+        .viewport.T.L > .canvas.T.L
+          .header
+          .subHeader
+        .viewport.T.R > .canvas.T.R
+          .header
+          .subHeader
+        .viewport.C.L > .canvas.C.L
+          .row * N
+        .viewport.C.R > .canvas.C.R
+          .row * N
       */
 
 
@@ -3791,6 +3755,32 @@ if (typeof Slick === "undefined") {
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Debug
 
+    this.getStateInfo = function() { return {
+      rowsCache: rowsCache, // Super important object, responsible for the present rendered dom of the rows
+      uiRegions: {
+        topViewport: topViewport,
+        topCanvas: topCanvas,
+        header: header,
+        subHeader: subHeader,
+        contentViewport: contentViewport,
+        contentCanvas: contentCanvas,
+        rows: rows
+      },
+      colInfo: {
+        columnPosLeft:  columnPosLeft,
+        columnPosRight: columnPosRight
+      },
+      scrollInfo: {
+        visibleRange:  getVisibleRange(),
+        renderedRange: getRenderedRange(),
+        offset: offset,
+        scrollTop: scrollTop,
+        lastRenderedScrollTop: lastRenderedScrollTop,
+        lastRenderedScrollLeft: lastRenderedScrollLeft,
+        numVisibleRows: numVisibleRows
+      }
+    } };
+
     this.debug = function () {
       var s = "";
 
@@ -3803,7 +3793,9 @@ if (typeof Slick === "undefined") {
       s += ("\n" + "(current) page:  " + page);
       s += ("\n" + "page height (ph):  " + ph);
       s += ("\n" + "vScrollDir:  " + vScrollDir);
+      s += ("\n\n" + "(More info in the console)");
 
+      console.log(this.getStateInfo());
       alert(s);
     };
 
