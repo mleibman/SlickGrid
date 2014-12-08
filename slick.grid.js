@@ -733,14 +733,16 @@ if (typeof Slick === "undefined") {
 
         if (options.showSubHeader) {
           oneSubHeader = options.subHeaderRenderer(m);
-          oneSubHeader
-            .data("column", m)
-            .addClass("cell l" + i + " r" + i)
-            .appendTo($subHeaderHolder);
-          trigger(self.onSubHeaderCellRendered, {
-            "node": oneSubHeader[0],
-            "column": m
-          });
+          if(oneSubHeader) {
+            oneSubHeader
+              .data("column", m)
+              .addClass("cell l" + i + " r" + i)
+              .appendTo($subHeaderHolder);
+            trigger(self.onSubHeaderCellRendered, {
+              "node": oneSubHeader[0],
+              "column": m
+            });
+          }
         }
       }
       setSortColumns(sortColumns);
@@ -3858,6 +3860,7 @@ if (typeof Slick === "undefined") {
       "updateColumnWidths": updateColumnWidths,
       "getColumnIndex": getColumnIndex,
       "updateColumnHeader": updateColumnHeader,
+      "createColumnHeaders": createColumnHeaders,
       "setSortColumn": setSortColumn,
       "setSortColumns": setSortColumns,
       "getSortColumns": getSortColumns,
