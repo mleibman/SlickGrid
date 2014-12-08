@@ -124,6 +124,9 @@
     dataView.setFilter(filter);
     dataView.endUpdate();
 
+    grid.onSubHeaderContextMenu.subscribe(function(){ console.log('onSubHeaderContextMenu', arguments); });
+    grid.onHeaderContextMenu.subscribe(function(){    console.log('onHeaderContextMenu',    arguments); });
+
     shown = true;
     $('#toggle').bind('click', function(){
       grid.setSubHeaderVisibility( shown = !shown )
