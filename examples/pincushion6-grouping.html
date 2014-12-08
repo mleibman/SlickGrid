@@ -1,0 +1,113 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <title>Grouping</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+</head>
+<body>
+<table width="100%">
+  <tr>
+    <td valign="top" width="50%">
+      <div id="myGrid" style="width:500px;height:500px;"></div>
+    </td>
+    <td valign="top">
+      <h2>Demonstrates:</h2>
+      <ul>
+        <li>Rows grouped by the value of a column.</li>
+      </ul>
+      <button onclick="dataView.setGrouping([])">Clear grouping</button><br/>
+      <button onclick="groupByDuration()">Group by duration</button><br/>
+      <button onclick="groupByEffortDriven()">Group by effort driven</button><br/>
+    </td>
+  </tr>
+</table>
+
+<script src="../lib/jquery-1.7.min.js"></script>
+<script src="../lib/jquery.event.drag-2.2.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../slick.dataview.js"></script>
+<script src="../slick.grid.js"></script>
+<script src="../slick.groupitemmetadataprovider.js"></script>
+
+<script>
+  var grid;
+  var dataView;
+  var data = [];
+  var columns = [
+    { id: "title", name: "Title", field: "title", width: 150},
+    { id: "%", name: "% Complete", field: "percentComplete", groupTotalsFormatter: avgTotalsFormatter},
+    { id: "duration", name: "Duration", field: "duration"},
+    { id: "start", name: "Start", field: "start"},
+    { id: "finish", name: "Finish", field: "finish"},
+    { id: "effort-driven", name: "Effort Driven", field: "effortDriven"},
+    { id: "%", name: "% Complete", field: "percentComplete" },
+    { id: "start", name: "Start", field: "start"},
+    { id: "finish", name: "Finish", field: "finish"},
+    { id: "effort-driven2", name: "Effort Driven", field: "effortDriven"},
+    { id: "%", name: "% Complete", field: "percentComplete"},
+    { id: "start", name: "Start", field: "start"},
+    { id: "finish", name: "Finish", field: "finish"}
+  ];
+
+  function groupByDuration() {
+    dataView.setGrouping({
+      getter: "duration",
+      formatter: function (g) { return "Duration: "+ g.value + "  (" + g.count + ")"; },
+      aggregators: [ new Slick.Data.Aggregators.Avg("percentComplete") ]
+    });
+  }
+
+  function avgTotalsFormatter(totals, columnDef) {
+    var val = totals.avg && totals.avg[columnDef.field];
+    if (val != null) {
+      return "avg: " + Math.round(val) + "%";
+    }
+    return "";
+  }
+
+  function groupByEffortDriven() {
+    dataView.setGrouping({
+      getter: "effortDriven",
+      formatter: function (g) { return "Effort: " + g.value + "  (" + g.count + ")"; },
+      aggregators: [ new Slick.Data.Aggregators.Avg("percentComplete") ]
+    });
+  }
+
+  $(function () {
+    for (var i = 0; i < 50; i++) {
+      data[i] = {
+        id: 'id_' + i,
+        title: "Task " + i,
+        duration: Math.ceil(Math.random() * 5) + " days",
+        percentComplete: Math.round(Math.random() * 100),
+        start: "01/01/2009",
+        finish: "01/05/2009",
+        effortDriven: (i % 3 == 0)
+      };
+    }
+
+    var gimp = new Slick.Data.GroupItemMetadataProvider();
+    dataView = new Slick.Data.DataView();
+    dataView.setItems(data);
+
+    grid = new Slick.Grid("#myGrid", dataView, columns, {
+      pinnedColumn: 0,
+      syncColumnCellResize: true
+    });
+
+    grid.registerPlugin(gimp); // register the group item metadata provider to add expand/collapse group handlers
+
+    dataView.onRowCountChanged.subscribe( function(e, args) {
+      grid.invalidateAllRows(); // otherwise group rows won't get removed
+      grid.updateRowCount();
+      grid.render();
+    });
+    dataView.onRowsChanged.subscribe(     function(e, args) { grid.invalidateRows(args.rows); grid.render(); });
+    groupByDuration();
+  });
+</script>
+</body>
+</html>
