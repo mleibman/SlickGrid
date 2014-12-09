@@ -185,32 +185,32 @@ if (typeof Slick === "undefined") {
 
 
     /*
-    ## Visual Grid Components
+     ## Visual Grid Components
 
-    To support pinned columns, we slice up the grid regions, and try to be very clear and consistent about the naming.
-    All UI region info objects start as an array with a left [0] and right [1] side
-    Dom elements are stored at the top level together (still in a left/right pair) because jquery deals with multiple elements nicely. (eg: el.empty(), el.children())
-    topViewport.width     // combined width
-    topViewport[0].width  // left width
-    topViewport.el        // both els
-    topViewport.el[0]     // left el
+     To support pinned columns, we slice up the grid regions, and try to be very clear and consistent about the naming.
+     All UI region info objects start as an array with a left [0] and right [1] side
+     Dom elements are stored at the top level together (still in a left/right pair) because jquery deals with multiple elements nicely. (eg: el.empty(), el.children())
+     topViewport.width     // combined width
+     topViewport[0].width  // left width
+     topViewport.el        // both els
+     topViewport.el[0]     // left el
      */
-                                    //      [0]       [1]
-                                    //    ....................
+    //      [0]       [1]
+    //    ....................
     var topViewport     = [{},{}],  //    .     .            .   // The scrolling region
-        topCanvas       = [{},{}],  //    .     .            .   // The full size of content (both off and on screen)
-        header          = [{},{}],  //    .     .            .   // The column headers
-        subHeader       = [{},{}],  //    .     .            .   // Optional row of cells below the column headers
-                                    //    ....................
-        contentViewport = [{},{}],  //    .     .            .   // The scrolling region for the grid rows
-        contentCanvas   = [{},{}],  //    .     .            .   // Full size of row content, both width and height
-        rows            = [{},{}];  //    .     .            .   // Container for information about rows
-                                    //    .     .            .
-                                    //    .     .            .
-                                    //    .     .            .
-                                    //    .     .            .
-                                    //    .     .            .
-                                    //    ....................
+      topCanvas       = [{},{}],  //    .     .            .   // The full size of content (both off and on screen)
+      header          = [{},{}],  //    .     .            .   // The column headers
+      subHeader       = [{},{}],  //    .     .            .   // Optional row of cells below the column headers
+                                  //    ....................
+      contentViewport = [{},{}],  //    .     .            .   // The scrolling region for the grid rows
+      contentCanvas   = [{},{}],  //    .     .            .   // Full size of row content, both width and height
+      rows            = [{},{}];  //    .     .            .   // Container for information about rows
+                                  //    .     .            .
+                                  //    .     .            .
+                                  //    .     .            .
+                                  //    .     .            .
+                                  //    .     .            .
+                                  //    ....................
 
     // Renaming Objects / Variables
     // yep, an array objectk instance with properties. yay @js!
@@ -224,7 +224,6 @@ if (typeof Slick === "undefined") {
     // headersWidthR      > header[1].width
     // all.viewportWidth  > contentViewport.width
     // c.viewportHeight   > contentViewport.height
-    // c.subHeaderheight  > subHeader.height
     // c.paneHeight       > DEPRECIATED. difference from contentViewport.height?
 
 
@@ -268,18 +267,18 @@ if (typeof Slick === "undefined") {
       $focusSink = $("<div tabIndex='0' hideFocus class='focus-sink'></div>").appendTo($container);
 
       /* SlickGrid Dom structure:
-      .slickGrid
-        .viewport.T.L > .canvas.T.L
-          .header
-          .subHeader
-        .viewport.T.R > .canvas.T.R
-          .header
-          .subHeader
-        .viewport.C.L > .canvas.C.L
-          .row * N
-        .viewport.C.R > .canvas.C.R
-          .row * N
-      */
+       .slickGrid
+       .viewport.T.L > .canvas.T.L
+       .header
+       .subHeader
+       .viewport.T.R > .canvas.T.R
+       .header
+       .subHeader
+       .viewport.C.L > .canvas.C.L
+       .row * N
+       .viewport.C.R > .canvas.C.R
+       .row * N
+       */
 
 
       // ----------------------- Create the elements
@@ -419,10 +418,10 @@ if (typeof Slick === "undefined") {
           contentCanvas.el.bind("mousewheel", function(evt){
             var scrolledRow = $(evt.target).closest(".row")[0];
             protectedRowIdx = getRowFromNode(scrolledRow);
-    //      console.log('handleOsxMousewheel', {
-    //        rowIdx: getRowFromPosition(scrolledRow.offsetTop + e.originalEvent.offsetY), // the row's offset plus the cursor's offset in the cell
-    //        protectedRowIdx: protectedRowIdx
-    //      });
+            //      console.log('handleOsxMousewheel', {
+            //        rowIdx: getRowFromPosition(scrolledRow.offsetTop + e.originalEvent.offsetY), // the row's offset plus the cursor's offset in the cell
+            //        protectedRowIdx: protectedRowIdx
+            //      });
           });
         }
       }
@@ -509,48 +508,48 @@ if (typeof Slick === "undefined") {
 
     function updateCanvasWidth(forceColumnWidthsUpdate) {
       var oldCanvasWidth  = contentCanvas.width,
-          oldCanvasWidthL = contentCanvas[0].width,
-          oldCanvasWidthR = contentCanvas[1].width,
-          widthChanged;
+        oldCanvasWidthL = contentCanvas[0].width,
+        oldCanvasWidthR = contentCanvas[1].width,
+        widthChanged;
 
       calculateCanvasWidth();
 
       var canvasWidth  = contentCanvas.width,
-          canvasWidthL = contentCanvas[0].width,
-          canvasWidthR = contentCanvas[1].width;
+        canvasWidthL = contentCanvas[0].width,
+        canvasWidthR = contentCanvas[1].width;
 
       widthChanged =  canvasWidth  !== oldCanvasWidth  ||
-                      canvasWidthL !== oldCanvasWidthL ||
-                      canvasWidthR !== oldCanvasWidthR;
+      canvasWidthL !== oldCanvasWidthL ||
+      canvasWidthR !== oldCanvasWidthR;
 
       if (widthChanged || isPinned) { // TODO: why would it always do this work if there is a pinned column?
 //        setHeadersWidth();
         topCanvas.el[0].style.width =
-        contentCanvas.el[0].style.width =
-          canvasWidthL + 'px';
+          contentCanvas.el[0].style.width =
+            canvasWidthL + 'px';
 
         if (isPinned) {
           topCanvas.el[1].style.width =
-          contentCanvas.el[1].style.width =
-            canvasWidthR + 'px';
+            contentCanvas.el[1].style.width =
+              canvasWidthR + 'px';
 
           // Set widths on the left side, and width+left offset on the right side
           topViewport.el[0].style.width =
-          topViewport.el[1].style.left =
-          contentViewport.el[0].style.width =
-          contentViewport.el[1].style.left =
-            canvasWidthL + 'px';
+            topViewport.el[1].style.left =
+              contentViewport.el[0].style.width =
+                contentViewport.el[1].style.left =
+                  canvasWidthL + 'px';
           topViewport.el[1].style.width =
-          contentViewport.el[1].style.width =
-            (contentViewport.width - canvasWidthL) + 'px';
+            contentViewport.el[1].style.width =
+              (contentViewport.width - canvasWidthL) + 'px';
 
           // Viewport
           //cl.viewport.width(canvasWidthL);
           //cr.viewport.width(contentViewport.width - canvasWidthL);
         } else {
           topViewport.el[0].style.width =
-          contentViewport.el[0].style.width =
-            null;
+            contentViewport.el[0].style.width =
+              null;
         }
         viewportHasHScroll = (canvasWidth > contentViewport.width - scrollbarDimensions.width);
       }
@@ -1459,7 +1458,7 @@ if (typeof Slick === "undefined") {
 
     function getSortColumns() {
       return sortColumns;
-      }
+    }
 
     function handleSelectedRangesChanged(e, ranges) {
       selectedRows = [];
@@ -1650,14 +1649,13 @@ if (typeof Slick === "undefined") {
         options.showSubHeader = visible;
         if (visible) {
           subHeader.el.show();
-          resizeCanvas();
 //          subHeader.el.slideDown("fast", resizeCanvas);
         } else {
           subHeader.el.hide();
-          resizeCanvas();
 //          subHeader.el.slideUp("fast", resizeCanvas);
         }
       }
+      resizeCanvas();
     }
 
     function getContainerNode() {
@@ -1953,22 +1951,21 @@ if (typeof Slick === "undefined") {
     function calculateHeights() {
       if (options.autoHeight) {
         contentViewport.height = options.rowHeight
-          * getDataLengthIncludingAddNew()
-          + header.el.outerHeight();
+        * getDataLengthIncludingAddNew()
+        + header.el.outerHeight();
       } else {
 //        topPanel.height = ( options.showTopPanel )
 //          ? options.topPanelHeight + getVBoxDelta($topPanelScroller)
 //          ? topPanel.el.outerHeight()
 //          : 0;
-        subHeader.height = ( options.showSubHeader )
-//          ? options.subHeaderHeight + getVBoxDelta(subHeader.el)
-          ? subHeader.el.outerHeight()
-          : 0;
+//        subHeader.height = ( options.showSubHeader )
+//          ? subHeader.el.outerHeight()
+//          : 0;
         contentViewport.height = parseFloat($.css($container[0], "height", true))
-          - parseFloat($.css($container[0], "paddingTop", true))
-          - parseFloat($.css($container[0], "paddingBottom", true))
-          - parseFloat($.css(topViewport.el[0], "height"))
-          - getVBoxDelta(topViewport.el.eq(0));
+        - parseFloat($.css($container[0], "paddingTop", true))
+        - parseFloat($.css($container[0], "paddingBottom", true))
+        - parseFloat($.css(topViewport.el[0], "height"))
+        - getVBoxDelta(topViewport.el.eq(0));
 //          - c.topPanelHeight
 //          - subHeader.height;
       }
@@ -2023,11 +2020,11 @@ if (typeof Slick === "undefined") {
       //    viewportH = options.rowHeight * getDataLengthIncludingAddNew();
       //  } else {
       //    calculateViewportHeight();
-        //}
-        //numVisibleRows = Math.ceil(viewportH / options.rowHeight);
-        //if (!options.autoHeight) {
-        //  contentViewport.el.height(viewportH);
-        //}
+      //}
+      //numVisibleRows = Math.ceil(viewportH / options.rowHeight);
+      //if (!options.autoHeight) {
+      //  contentViewport.el.height(viewportH);
+      //}
       //}
 
       //calculateViewportWidth(resizeOptions.width);
@@ -2318,10 +2315,10 @@ if (typeof Slick === "undefined") {
 
     function renderRows(range) {
       var markupArrayL = [],
-          markupArrayR = [],
-          rows = [],
-          needToReselectCell = false,
-          dataLength = getDataLength();
+        markupArrayR = [],
+        rows = [],
+        needToReselectCell = false,
+        dataLength = getDataLength();
 
       for (var i = range.top, ii = range.bottom; i <= ii; i++) {
         if (rowsCache[i]) {
@@ -2358,7 +2355,7 @@ if (typeof Slick === "undefined") {
       if (!rows.length) { return; }
 
       var l = document.createElement("div"),
-          r = document.createElement("div");
+        r = document.createElement("div");
       l.innerHTML = markupArrayL.join('');
       r.innerHTML = markupArrayR.join('');
 
@@ -2881,7 +2878,7 @@ if (typeof Slick === "undefined") {
         if(
           rowsCache[idx].rowNode[0] === node ||
           rowsCache[idx].rowNode[1] === node
-          ){
+        ){
           return parseInt(idx);
 //        if (rowsCache[row].rowNode[0] === rowNode[0]) {
 //          return row | 0;
