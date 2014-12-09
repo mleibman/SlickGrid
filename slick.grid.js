@@ -731,19 +731,16 @@ if (typeof Slick === "undefined") {
         }
 
         trigger(self.onHeaderCellRendered, { "node": oneHeader[0], "column": m });
-
-        if (options.showSubHeader) {
-          oneSubHeader = options.subHeaderRenderer(m);
-          if(oneSubHeader) {
-            oneSubHeader
-              .data("column", m)
-              .addClass("cell l" + i + " r" + i)
-              .appendTo($subHeaderHolder);
-            trigger(self.onSubHeaderCellRendered, {
-              "node": oneSubHeader[0],
-              "column": m
-            });
-          }
+        oneSubHeader = options.subHeaderRenderer(m);
+        if(oneSubHeader) {
+          oneSubHeader
+            .data("column", m)
+            .addClass("cell l" + i + " r" + i)
+            .appendTo($subHeaderHolder);
+          trigger(self.onSubHeaderCellRendered, {
+            "node": oneSubHeader[0],
+            "column": m
+          });
         }
       }
       setSortColumns(sortColumns);
@@ -765,7 +762,7 @@ if (typeof Slick === "undefined") {
     // Given a column object, return a jquery element with HTML for a single subHeader column cell
     // If you're using subHeaders, you should override this function
     function subHeaderRenderer (col) {
-      return $("<div />");
+      return undefined; //$("<div />");
     }
 
     function setupColumnSort() {
