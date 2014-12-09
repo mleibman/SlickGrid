@@ -195,22 +195,22 @@ if (typeof Slick === "undefined") {
      topViewport.el        // both els
      topViewport.el[0]     // left el
      */
-    //      [0]       [1]
-    //    ....................
+                                    //      [0]       [1]
+                                    //    ....................
     var topViewport     = [{},{}],  //    .     .            .   // The scrolling region
-      topCanvas       = [{},{}],  //    .     .            .   // The full size of content (both off and on screen)
-      header          = [{},{}],  //    .     .            .   // The column headers
-      subHeader       = [{},{}],  //    .     .            .   // Optional row of cells below the column headers
-                                  //    ....................
-      contentViewport = [{},{}],  //    .     .            .   // The scrolling region for the grid rows
-      contentCanvas   = [{},{}],  //    .     .            .   // Full size of row content, both width and height
-      rows            = [{},{}];  //    .     .            .   // Container for information about rows
-                                  //    .     .            .
-                                  //    .     .            .
-                                  //    .     .            .
-                                  //    .     .            .
-                                  //    .     .            .
-                                  //    ....................
+        topCanvas       = [{},{}],  //    .     .            .   // The full size of content (both off and on screen)
+        header          = [{},{}],  //    .     .            .   // The column headers
+        subHeader       = [{},{}],  //    .     .            .   // Optional row of cells below the column headers
+                                    //    ....................
+        contentViewport = [{},{}],  //    .     .            .   // The scrolling region for the grid rows
+        contentCanvas   = [{},{}],  //    .     .            .   // Full size of row content, both width and height
+        rows            = [{},{}];  //    .     .            .   // Container for information about rows
+                                    //    .     .            .
+                                    //    .     .            .
+                                    //    .     .            .
+                                    //    .     .            .
+                                    //    .     .            .
+                                    //    ....................
 
     // Renaming Objects / Variables
     // yep, an array objectk instance with properties. yay @js!
@@ -463,8 +463,11 @@ if (typeof Slick === "undefined") {
       return selectionModel;
     }
 
-    function getCanvasNode() {
+    function getContentCanvasNode() {
       return contentCanvas.el; // could be one or two elements, depending on whether columns are pinned. Always a jquery element.
+    }
+    function getTopCanvasNode() {
+      return topCanvas.el;
     }
 
     function measureScrollbar() {
@@ -3895,7 +3898,9 @@ if (typeof Slick === "undefined") {
       "scrollRowIntoView": scrollRowIntoView,
       "scrollRowToTop": scrollRowToTop,
       "scrollCellIntoView": scrollCellIntoView,
-      "getCanvasNode": getCanvasNode,
+      "getCanvasNode": getContentCanvasNode,
+      "getContentCanvasNode": getContentCanvasNode,
+      "getTopCanvasNode": getTopCanvasNode,
       "focus": setFocus,
 
       "getCellFromPoint": getCellFromPoint,
