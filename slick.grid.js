@@ -1291,6 +1291,11 @@ if (typeof Slick === "undefined") {
       return columnsById[id];
     }
 
+    function getColumnNodeById(id) {
+      var idx = getColumnIndex(id);
+      return getHeaderEls(idx);
+    }
+
     // Return the header element(s) that wrap all column headers
     // There is one or two, depending on whether columns are pinned
     function getHeaderEl() {
@@ -3865,6 +3870,7 @@ if (typeof Slick === "undefined") {
       "setColumns": setColumns,
       "updateColumnWidths": updateColumnWidths,
       "getColumnIndex": getColumnIndex,
+      "getColumnNodeById": getColumnNodeById,
       "updateColumnHeader": updateColumnHeader,
       "createColumnHeaders": createColumnHeaders,
       "setSortColumn": setSortColumn,
