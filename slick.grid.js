@@ -3620,9 +3620,9 @@ if (typeof Slick === "undefined") {
       var max = Math.max.apply(null, indices),
           min = Math.min.apply(null, indices);
       if (min <= options.pinnedColumn && max > options.pinnedColumn) {
-        return false
-      } else {
         return true;
+      } else {
+        return false;
       }
     }
 
