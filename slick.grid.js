@@ -3612,6 +3612,17 @@ if (typeof Slick === "undefined") {
       return columns[cell].focusable;
     }
 
+    // Given an array of column indexes, return true if the lowest index and the highest index span across the column that is marked as pinned.
+    function crossesPinnedArea(indices) {
+      var max = Math.max.apply(null, indices),
+          min = Math.min.apply(null, indices);
+      if (min <= options.pinnedColumn && max > options.pinnedColumn) {
+        return false
+      } else {
+        return true;
+      }
+    }
+
     function canCellBeSelected(row, cell) {
       if (row >= getDataLength() || row < 0 || cell >= columns.length || cell < 0) {
         return false;
@@ -3922,6 +3933,7 @@ if (typeof Slick === "undefined") {
       "getCellNodeBox": getCellNodeBox,
       "canCellBeSelected": canCellBeSelected,
       "canCellBeActive": canCellBeActive,
+      "crossesPinnedArea": crossesPinnedArea,
       "navigatePrev": navigatePrev,
       "navigateNext": navigateNext,
       "navigateUp": navigateUp,
