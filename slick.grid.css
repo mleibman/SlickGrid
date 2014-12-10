@@ -81,6 +81,8 @@
       border-style: solid; }
     .slickGrid .cell:focus {
       outline: none; }
+    .slickGrid .cell.selected {
+      background: beige; }
 
 .slickGrid .header,
 .slickGrid .subHeader {
@@ -99,7 +101,7 @@
   border-bottom: 0; }
 
 .slickGrid .subHeader {
-  background: #ddd; }
+  background: #dddddd; }
   .slickGrid .subHeader .cell input {
     box-sizing: border-box;
     width: 100%;
@@ -159,5 +161,3 @@
   z-index: 10;
   position: absolute;
   border: 2px dashed black; }
-
-/*# sourceMappingURL=slick.grid.css.map */

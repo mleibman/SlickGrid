@@ -1121,9 +1121,9 @@ if (typeof Slick === "undefined") {
         options.rowHeight = el.outerHeight();
         el.remove();
       }
-      console.log('measureCssSizes', {
-        rowHeight: options.rowHeight
-      });
+      //console.log('measureCssSizes', {
+      //  rowHeight: options.rowHeight
+      //});
     }
 
     // For every type of cell we're interested in measuring, record the amount of border and paddings each has, in both vertical and horizontal directions.
