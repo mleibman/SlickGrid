@@ -3614,6 +3614,9 @@ if (typeof Slick === "undefined") {
 
     // Given an array of column indexes, return true if the lowest index and the highest index span across the column that is marked as pinned.
     function crossesPinnedArea(indices) {
+      if (options.pinnedColumn == null || !indices || indices.length < 2){
+        return false; // can't cross a boundary if there are 0 or 1 indices, or if columns aren't pinned
+      }
       var max = Math.max.apply(null, indices),
           min = Math.min.apply(null, indices);
       if (min <= options.pinnedColumn && max > options.pinnedColumn) {
