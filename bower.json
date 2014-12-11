@@ -1,16 +1,18 @@
 {
-  "name": "slickgrid-fastColumnSizing",
-  "version": "2.3.2",
+  "name": "slickgrid",
+  "version": "2.3.3",
   "homepage": "https://github.com/SimpleAsCouldBe/SlickGrid",
   "authors": [
-    "Eric Miller <eric@simpleascouldbe.com>"
+    "Michael Leibman",
+    "Eric Miller"
   ],
-  "description": "Slickgrid with an extra method for fast, surgical column sizing.",
+  "description": "Slickgrid with pinning, more customizability, and faster column sizing.",
   "moduleType": [
     "globals"
   ],
   "keywords": [
     "slickgrid",
+    "pinned",
     "performance",
     "autosize",
     "column",
