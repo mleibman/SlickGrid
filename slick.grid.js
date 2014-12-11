@@ -2956,9 +2956,7 @@ if (typeof Slick === "undefined") {
         right = columnPosRight[cell + (colspan > 1 ? colspan - 1 : 0)],
         scrollRight = scrollLeft + contentViewport.width;
 
-      // If there is a pinned column, and we were asked to scroll that cell into view, abort. We assume pinned columns have a fully visible X dimension.
-      if(cell <= options.pinnedColumn) {
-        console.log('scrollCellIntoView: asked to work on pinned column ['+ cell +'], skipping X scroll');
+      if(cell <= options.pinnedColumn) { // We assume pinned columns have a fully visible X dimension.
         return;
       }
 
