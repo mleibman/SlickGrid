@@ -497,14 +497,23 @@ if (typeof Slick === "undefined") {
         }
       }
 
-      var totalRowWidth = contentCanvas[0].width + contentCanvas[1].width;
-      contentCanvas.width = options.fullWidthRows ? Math.max(totalRowWidth, availableWidth) : totalRowWidth;
+      contentCanvas.width = contentCanvas[0].width + contentCanvas[1].width;
+      if (options.fullWidthRows) {
+        var extraRoom = Math.max(0, availableWidth - contentCanvas.width);
+        contentCanvas.width += extraRoom;
+        if (options.pinnedColumn != null) {
+          contentCanvas[1].width += extraRoom
+        } else {
+          contentCanvas[0].width += extraRoom
+        }
+      }
 
       //console.log('calculateCanvasWidth', {
       //  available: availableWidth,
       //  left:      contentCanvas[0].width,
       //  right:     contentCanvas[1].width,
       //  both:      contentCanvas.width,
+      //  extraRoom: extraRoom
       //  allCols:   columns.reduce(function(sum, col){ return sum += col.width }, 0)
       //});
     }
