@@ -751,6 +751,7 @@ if (typeof Slick === "undefined") {
       if (options.enableColumnReorder) {
         setupColumnReorder();
       }
+      trigger(self.onHeadersCreated);
     }
 
     // Given a column object, return a jquery element with HTML for the column
@@ -3845,6 +3846,7 @@ if (typeof Slick === "undefined") {
       "onSubHeaderContextMenu": new Slick.Event(),
       "onHeaderClick": new Slick.Event(),
       "onHeaderCellRendered": new Slick.Event(),
+      "onHeadersCreated": new Slick.Event(), // Throws once after all headers and subheaders are created (or re-created)
       "onBeforeHeaderCellDestroy": new Slick.Event(),
       "onSubHeaderCellRendered": new Slick.Event(),
       "onBeforeSubHeaderCellDestroy": new Slick.Event(),

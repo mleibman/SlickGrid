@@ -51,7 +51,7 @@
     { id: "finish", name: "Finish", field: "finish"}
   ];
 
-  var options = { pinnedColumn: 0 };
+  var options = { pinnedColumn: 0, explicitInitialization: true };
 
   $(function () {
     var data = [];
@@ -78,6 +78,7 @@
       "onHeaderContextMenu",
       "onHeaderClick",
       "onHeaderCellRendered",
+      "onHeadersCreated",
       "onBeforeHeaderCellDestroy",
       "onSubHeaderCellRendered",
       "onBeforeSubHeaderCellDestroy",
@@ -116,6 +117,8 @@
         });
       })();
     }
+
+    grid.init(); // so you can see the create events
 
   });
 </script>
