@@ -1700,9 +1700,8 @@ if (typeof Slick === "undefined") {
 
       if (prevScrollTop != newScrollTop) {
         vScrollDir = (prevScrollTop + oldOffset < newScrollTop + offset) ? 1 : -1;
-        // TODO: handle multiple viewports
-        contentViewport.el[0].scrollTop = (lastRenderedScrollTop = scrollTop = prevScrollTop = newScrollTop);
-
+        lastRenderedScrollTop = scrollTop = prevScrollTop = newScrollTop;
+        contentViewport.el.scrollTop(newScrollTop); // using jquery's .scrollTop() method handles multiple viewports
         trigger(self.onViewportChanged, {});
       }
     }
@@ -3586,7 +3585,6 @@ if (typeof Slick === "undefined") {
       if (!options.enableCellNavigation) {
         return;
       }
-
       scrollCellIntoView(row, cell, false);
       setActiveCellInternal(getCellNode(row, cell), false);
     }
