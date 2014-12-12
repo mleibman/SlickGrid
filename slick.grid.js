@@ -636,7 +636,7 @@ if (typeof Slick === "undefined") {
       if (idx == null) { return; }
 
       var columnDef = columns[idx];
-      var $header = topCanvas.el.children().eq(idx);
+      var $header = header.el.children().eq(idx); //var $header = topCanvas.el.children().eq(idx);
       if ($header) {
         if (title !== undefined) {
           columns[idx].name = title;
@@ -659,6 +659,22 @@ if (typeof Slick === "undefined") {
           "column": columnDef
         });
       }
+    }
+
+    // Updates the contents of a single subHeader cell
+    // Does not destroy, remove event listeners, update any attached .data(), etc.
+    function updateSubHeader(columnId){
+      if (!initialized) { return; }
+      var idx = getColumnIndex(columnId);
+      if (idx == null) { return; }
+      // Get needed data for this column
+      var columnDef = columns[idx];
+      var $subHeader = subHeader.el.children().eq(idx);
+      // Replace only the contents, but copy over any className that the subHeaderRenderer might have added
+      newEl = options.subHeaderRenderer(columnDef);
+      $subHeader
+        .html(newEl.html())
+        .addClass(newEl[0].className);
     }
 
     function getSubHeader() { return subHeader.el; }
@@ -691,7 +707,6 @@ if (typeof Slick === "undefined") {
       function onMouseLeave() { $(this).removeClass("ui-state-hover"); }
 
       // Broadcast destroy events and empty out any current headers
-      //header.el.find(".slick-header-column")
       header.el.children()
         .each(function () {
           var columnDef = $(this).data("column");
@@ -701,7 +716,6 @@ if (typeof Slick === "undefined") {
         });
 
       // Broadcast destroy events and empty out any current subHeaders
-      //subHeader.el.find(".subHeader")
       subHeader.el.children()
         .each(function () {
           var columnDef = $(this).data("column");
@@ -716,7 +730,7 @@ if (typeof Slick === "undefined") {
       // Build new headers based on column data.
       var $headerHolder, $subHeaderHolder, m, oneHeader, oneSubHeader;
       for (var i = 0; i < columns.length; i++) {
-        // Select the right pane to draw into based on the column index.
+        // Select the correct region to draw into based on the column index.
         $headerHolder    = i > options.pinnedColumn ? header.el.eq(1) : header.el.eq(0);
         $subHeaderHolder = i > options.pinnedColumn ? subHeader.el.eq(1) : subHeader.el.eq(0);
 
@@ -3914,6 +3928,7 @@ if (typeof Slick === "undefined") {
       "getColumnIndex": getColumnIndex,
       "getColumnNodeById": getColumnNodeById,
       "updateColumnHeader": updateColumnHeader,
+      "updateSubHeader": updateSubHeader,
       "createColumnHeaders": createColumnHeaders,
       "setSortColumn": setSortColumn,
       "setSortColumns": setSortColumns,
