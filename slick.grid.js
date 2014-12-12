@@ -729,6 +729,15 @@ if (typeof Slick === "undefined") {
           .attr("title", m.toolTip || "")
           .data("column", m)
           .addClass(m.headerCssClass || "")
+          .bind("dragstart", { distance: 3 }, function(e, dd) {
+            trigger(self.onHeaderColumnDragStart, { "origEvent": e, "dragData": dd, "node": this, "columnIndex": getColumnIndexFromEvent(e) })
+          })
+          .bind("drag", function(e, dd) {
+            trigger(self.onHeaderColumnDrag, { "origEvent": e, "dragData": dd, "node": this, "columnIndex": getColumnIndexFromEvent(e) })
+          })
+          .bind("dragend", function(e, dd) {
+            trigger(self.onHeaderColumnDragEnd, { "origEvent": e, "dragData": dd, "node": this, "columnIndex": getColumnIndexFromEvent(e) })
+          })
           .appendTo($headerHolder);
 
         if (options.enableColumnReorder || m.sortable) {
@@ -1328,6 +1337,9 @@ if (typeof Slick === "undefined") {
     function getColumnIndexFromEvent(evt) {
       var nearestEl = document.elementFromPoint(evt.clientX, evt.clientY);
       var headerEl = $(nearestEl).closest('.cell');
+      if (!headerEl.length) {
+        return null;
+      }
       return getCellFromNode(headerEl[0]);
     }
 
@@ -3857,6 +3869,9 @@ if (typeof Slick === "undefined") {
       "onSubHeaderContextMenu": new Slick.Event(),
       "onHeaderClick": new Slick.Event(),
       "onHeaderCellRendered": new Slick.Event(),
+      "onHeaderColumnDragStart": new Slick.Event(),
+      "onHeaderColumnDrag": new Slick.Event(),
+      "onHeaderColumnDragEnd": new Slick.Event(),
       "onHeadersCreated": new Slick.Event(), // Throws once after all headers and subheaders are created (or re-created)
       "onBeforeHeaderCellDestroy": new Slick.Event(),
       "onSubHeaderCellRendered": new Slick.Event(),
