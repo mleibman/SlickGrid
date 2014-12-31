@@ -76,6 +76,11 @@
     &.T.L,
     &.T.R
       overflow: hidden // the top left and right viewports don't scroll
+    &.pinned
+      overflow: -moz-scrollbars-none
+    &.pinned::-webkit-scrollbar
+      display: none
+
 
   .canvas
     position: relative

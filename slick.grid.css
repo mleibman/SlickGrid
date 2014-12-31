@@ -44,6 +44,10 @@
     width: 100%; }
     .slickGrid .viewport.T.L, .slickGrid .viewport.T.R {
       overflow: hidden; }
+    .slickGrid .viewport.pinned {
+      overflow: -moz-scrollbars-none; }
+    .slickGrid .viewport.pinned::-webkit-scrollbar {
+      display: none; }
   .slickGrid .canvas {
     position: relative; }
   .slickGrid .row {

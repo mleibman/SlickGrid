@@ -387,8 +387,7 @@ if (typeof Slick === "undefined") {
         $container
           .bind("resize.slickgrid", resizeCanvas);
         contentViewport.el
-          .bind("scroll", handleScroll);
-        //$headerScroller
+          .bind("scroll", onScroll);
         header.el
           .bind("contextmenu", handleHeaderContextMenu)
           .bind("click", handleHeaderClick)
@@ -1130,18 +1129,10 @@ if (typeof Slick === "undefined") {
 
     function setOverflow() {
       if (isPinned) {
-        contentViewport.el.eq(0).css({ 'overflow-y': 'hidden' });
+        contentViewport.el.eq(0).addClass('pinned');
       } else {
-        contentViewport.el.eq(0).css({ 'overflow-y': '' });
+        contentViewport.el.eq(0).removeClass('pinned');
       }
-      //cl.viewport.css({
-      //  'overflow-x': isPinned ? 'scroll' : 'auto',
-      //  'overflow-y': isPinned ? 'hidden' : 'auto'
-      //});
-      //cr.viewport.css({
-      //  'overflow-x': isPinned ? 'scroll' : 'auto',
-      //  'overflow-y': isPinned ? 'auto'   : 'auto'
-      //});
     }
 
     // Measures the computed sizes of important elements
@@ -2479,15 +2470,14 @@ if (typeof Slick === "undefined") {
     //  }
     //}
 
-    //function handleMouseWheel(event, delta, deltaX, deltaY) {
-    //  scrollTop = Math.max(0, $vpScrollContainerY[0].scrollTop - (deltaY * options.rowHeight));
-    //  scrollLeft = $vpScrollContainerX[0].scrollLeft + (deltaX * 10);
-    //  reallyHandleScroll(true);
-    //  event.preventDefault();
-    //}
+    // Handle an actual, browser triggered scroll event
+    // Send the scrollTop from the triggering element into `handleScroll`, which can be triggered programatically.
+    function onScroll(evt, el) {
+      handleScroll(this.scrollTop);
+    }
 
-    function handleScroll() {
-      scrollTop  = contentViewport.scroller.scrollTop;
+    function handleScroll(top) {
+      scrollTop  = top || contentViewport.scroller.scrollTop;
       scrollLeft = contentViewport.scroller.scrollLeft;
       reallyHandleScroll(false);
     }
@@ -2516,7 +2506,10 @@ if (typeof Slick === "undefined") {
 
         if (isMouseWheel) { contentScroller.scrollTop = scrollTop; }
         // Set the scroll position of the paired viewport to match this one
-        if (isPinned) { contentViewport.el[0].scrollTop = scrollTop; }
+        if (isPinned) {
+          contentViewport.el[0].scrollTop = scrollTop;
+          contentViewport.el[1].scrollTop = scrollTop;
+        }
         // switch virtual pages if needed
         if (vScrollDist < contentViewport.height) {
           scrollTo(scrollTop + offset);
