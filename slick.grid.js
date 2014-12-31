@@ -388,6 +388,8 @@ if (typeof Slick === "undefined") {
           .bind("resize.slickgrid", resizeCanvas);
         contentViewport.el
           .bind("scroll", onScroll);
+        topViewport.el
+          .bind("mousewheel", onHeaderMouseWheel); // modern browsers only, not in gecko
         header.el
           .bind("contextmenu", handleHeaderContextMenu)
           .bind("click", handleHeaderClick)
@@ -2469,6 +2471,13 @@ if (typeof Slick === "undefined") {
     //    contentViewport.el[0].scrollLeft = scrollLeft;
     //  }
     //}
+
+    // React to a mousewheel event on a header element, translate them to the grid contents
+    // It's OK to always decrement because the browser never lets scrollLeft or Top get set less than 0.
+    function onHeaderMouseWheel(evt) {
+      contentViewport.scroller.scrollLeft -= evt.originalEvent.wheelDeltaX;
+      contentViewport.scroller.scrollTop  -= evt.originalEvent.wheelDeltaY;
+    }
 
     // Handle an actual, browser triggered scroll event
     // Send the scrollTop from the triggering element into `handleScroll`, which can be triggered programatically.
