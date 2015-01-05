@@ -336,13 +336,30 @@
       refresh();
     }
 
+    /**
+     * @param newRow we wish to add. Checks that newRow defines
+     *        property idProperty, and that newRow[idProperty] is
+     *        not already taken by something in the idxById map
+     */
+    function ensureIdAndThatItDoesNotExist(newRow) {
+      var id = newRow[idProperty]
+      if (id === undefined) {
+        throw "Each data element must implement a unique 'id' property";
+      }
+      if (idxById.hasOwnProperty(id)) {
+        throw "Id " + newId + " is already taken";
+      }
+    }
+
     function insertItem(insertBefore, item) {
+      ensureIdAndThatItDoesNotExist(item)
       items.splice(insertBefore, 0, item);
       updateIdxById(insertBefore);
       refresh();
     }
 
     function addItem(item) {
+      ensureIdAndThatItDoesNotExist(item)
       items.push(item);
       updateIdxById(items.length - 1);
       refresh();
@@ -512,7 +529,7 @@
           group = groups[i];
           group.groups = extractGroups(group.rows, group);
         }
-      }      
+      }
 
       groups.sort(groupingInfos[level].comparer);
 
@@ -562,7 +579,7 @@
       level = level || 0;
       var gi = groupingInfos[level];
       var groupCollapsed = gi.collapsed;
-      var toggledGroups = toggledGroupsByLevel[level];      
+      var toggledGroups = toggledGroupsByLevel[level];
       var idx = groups.length, g;
       while (idx--) {
         g = groups[idx];
@@ -584,7 +601,7 @@
         g.collapsed = groupCollapsed ^ toggledGroups[g.groupingKey];
         g.title = gi.formatter ? gi.formatter(g) : g.value;
       }
-    } 
+    }
 
     function flattenGroupedRows(groups, level) {
       level = level || 0;
@@ -901,7 +918,7 @@
           inHandler = true;
           var selectedRows = self.mapIdsToRows(selectedRowIds);
           if (!preserveHidden) {
-            setSelectedRowIds(self.mapRowsToIds(selectedRows));       
+            setSelectedRowIds(self.mapRowsToIds(selectedRows));
           }
           grid.setSelectedRows(selectedRows);
           inHandler = false;
