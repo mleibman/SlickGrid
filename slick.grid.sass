@@ -73,14 +73,14 @@
     overflow: auto
     outline: 0 // removes the focus effect that shows while scrolling
     width: 100% // easy handling of the no-pinned column case
-    &.T.L,
-    &.T.R
-      overflow: hidden // the top left and right viewports don't scroll
-    &.pinned
-      overflow: -moz-scrollbars-none
-    &.pinned::-webkit-scrollbar
-      display: none
 
+    // the top left and right viewports don't scroll.
+    // also, since we don't use native scrolling on
+    // pinned columns anyway, hide their scroll bars.
+    &.T.L,
+    &.T.R,
+    &.pinned
+      overflow: hidden
 
   .canvas
     position: relative
