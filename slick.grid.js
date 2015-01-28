@@ -10,7 +10,7 @@
  * SlickGrid v2.2
  *
  * NOTES:
- *     Cell/row DOM manipulations are done directly bypassing jQuery's DOM manipulation methods.
+ *     Cell/row DOM manipulations are done directly by bypassing jQuery's DOM manipulation methods.
  *     This increases the speed dramatically, but can only be done safely because there are no event handlers
  *     or data associated with any cell/row DOM nodes.  Cell editors must make sure they implement .destroy()
  *     and do proper cleanup.
