@@ -90,7 +90,9 @@ if (typeof Slick === "undefined") {
       columnHeaderRenderer: columnHeaderRenderer,
       subHeaderRenderer: subHeaderRenderer,
       forceSyncScrolling: false,
-      addNewRowCssClass: "new-row"
+      addNewRowCssClass: "new-row",
+      useAntiscroll: false,
+      showScrollbarsOnHover: false
     };
 
     var columnDefaults = {
@@ -194,23 +196,35 @@ if (typeof Slick === "undefined") {
      topViewport[0].width  // left width
      topViewport.el        // both els
      topViewport.el[0]     // left el
+
+
+          [0]    [1]
+          .....................
+          .      .            .
+          .  TL  .     TR     .
+          .      .            .
+          .....................
+          .      .            .
+          .      .            .
+          .      .            .
+          .  CL  .     CR     . 
+          .      .            .
+          .      .            .
+          .      .            .
+          .....................
+
      */
-                                    //      [0]       [1]
-                                    //    ....................
-    var topViewport     = [{},{}],  //    .     .            .   // The scrolling region
-        topCanvas       = [{},{}],  //    .     .            .   // The full size of content (both off and on screen)
-        header          = [{},{}],  //    .     .            .   // The column headers
-        subHeader       = [{},{}],  //    .     .            .   // Optional row of cells below the column headers
-                                    //    ....................
-        contentViewport = [{},{}],  //    .     .            .   // The scrolling region for the grid rows
-        contentCanvas   = [{},{}],  //    .     .            .   // Full size of row content, both width and height
-        rows            = [{},{}];  //    .     .            .   // Container for information about rows
-                                    //    .     .            .
-                                    //    .     .            .
-                                    //    .     .            .
-                                    //    .     .            .
-                                    //    .     .            .
-                                    //    ....................
+
+    var topViewport         = [{},{}],  // The scrolling region
+        topCanvas           = [{},{}],  // The full size of content (both off and on screen)
+        header              = [{},{}],  // The column headers
+        subHeader           = [{},{}],  // Optional row of cells below the column headers
+        contentViewportWrap = {},       // Content viewports are wrapped with elements that have
+                                        //   the same dimensions as the viewports themselves.
+                                        //   This is in service of the antiscroll plugin.
+        contentViewport     = [{},{}],  // The scrolling region for the grid rows
+        contentCanvas       = [{},{}],  // Full size of row content, both width and height
+        rows                = [{},{}];  // Container for information about rows
 
     // Renaming Objects / Variables
     // yep, an array objectk instance with properties. yay @js!
@@ -234,6 +248,10 @@ if (typeof Slick === "undefined") {
       $container = $(container);
       if ($container.length < 1) {
         throw new Error("SlickGrid requires a valid container, " + container + " does not exist in the DOM.");
+      }
+
+      if (options.useAntiscroll && !$.isFunction($.fn.antiscroll)) {
+        throw new ReferenceError('The { useAntiscroll: true } option was passed to SlickGrid, but the antiscroll library is not loaded. You can download the library here: https://github.com/bcherny/antiscroll.');
       }
 
       // calculate these only once and share between grid instances
@@ -317,10 +335,15 @@ if (typeof Slick === "undefined") {
 //      if (!options.showTopPanel) {
 //        $topPanelScroller.hide();
 //      }
+  
+      contentViewportWrap.el = $(
+        "<div class='viewport-wrap C L' tabIndex='0' hideFocus />" +
+        "<div class='viewport-wrap C R' tabIndex='0' hideFocus />"
+      );
 
       contentViewport.el = $(
-        "<div class='viewport C L' tabIndex='0' hideFocus />" +
-        "<div class='viewport C R' tabIndex='0' hideFocus />"
+        "<div class='viewport C L antiscroll-inner' tabIndex='0' hideFocus />" +
+        "<div class='viewport C R antiscroll-inner' tabIndex='0' hideFocus />"
       );
       contentCanvas.el = $(
         "<div class='canvas C L' tabIndex='0' hideFocus />" +
@@ -337,7 +360,9 @@ if (typeof Slick === "undefined") {
       topViewport.el[1].appendChild(topCanvas.el[1]);
       contentViewport.el[0].appendChild(contentCanvas.el[0]);
       contentViewport.el[1].appendChild(contentCanvas.el[1]);
-      $container.append( topViewport.el, contentViewport.el );
+      contentViewportWrap.el[0].appendChild(contentViewport.el[0]);
+      contentViewportWrap.el[1].appendChild(contentViewport.el[1]);
+      $container.append( topViewport.el, contentViewportWrap.el );
 
       measureCssSizes(); // Wins award for most 's'es in a row.
 
@@ -382,6 +407,7 @@ if (typeof Slick === "undefined") {
         updatePinnedState();
         setupColumnSort();
         resizeCanvas();
+        updateAntiscroll();
         bindAncestorScrollEvents();
 
         $container
@@ -549,11 +575,11 @@ if (typeof Slick === "undefined") {
           // Set widths on the left side, and width+left offset on the right side
           topViewport.el[0].style.width =
             topViewport.el[1].style.left =
-              contentViewport.el[0].style.width =
-                contentViewport.el[1].style.left =
+              contentViewportWrap.el[0].style.width =
+                contentViewportWrap.el[1].style.left =
                   canvasWidthL + 'px';
           topViewport.el[1].style.width =
-            contentViewport.el[1].style.width =
+            contentViewportWrap.el[1].style.width =
               (contentViewport.width - canvasWidthL) + 'px';
 
           // Viewport
@@ -561,7 +587,7 @@ if (typeof Slick === "undefined") {
           //cr.viewport.width(contentViewport.width - canvasWidthL);
         } else {
           topViewport.el[0].style.width =
-            contentViewport.el[0].style.width =
+            contentViewportWrap.el[0].style.width =
               null;
         }
         viewportHasHScroll = (canvasWidth > contentViewport.width - scrollbarDimensions.width);
@@ -1102,16 +1128,56 @@ if (typeof Slick === "undefined") {
     function updatePinnedState() {
       if (!isPinned) {
         topViewport.el.eq(1).hide();
-        contentViewport.el.eq(1).hide();
+        contentViewportWrap.el.eq(1).hide();
       } else {
         topViewport.el.eq(1).show();
-        contentViewport.el.eq(1).show();
+        contentViewportWrap.el.eq(1).show();
       }
       setScroller();
       setOverflow();
       createColumnHeaders();
       updateCanvasWidth();
       invalidateAllRows();
+    }
+
+    // enable antiscroll for an element
+    function disableAntiscroll ($element) {
+
+      $element.removeClass('antiscroll-wrap');
+
+      if ($element.data('antiscroll')) {
+        $element.data('antiscroll').destroy();
+      }
+
+    }
+
+    function enableAntiscroll ($element) {
+
+      $element
+        .addClass('antiscroll-wrap')
+        .antiscroll({
+          autoShow: options.showScrollbarsOnHover
+        });
+
+    }
+
+    function updateAntiscroll () {
+
+      if (!options.useAntiscroll) {
+        return;
+      }
+
+      var cl = contentViewportWrap.el.filter('.C.L'),
+          cr = contentViewportWrap.el.filter('.C.R');
+
+      if (isPinned) {
+        enableAntiscroll(cr);
+        disableAntiscroll(cl);
+      } else {
+        enableAntiscroll(cl);
+        disableAntiscroll(cr);
+      }
+
     }
 
     // If columns are pinned, scrollers are in the right-side panes, otherwise they're in the left ones
@@ -1616,6 +1682,7 @@ if (typeof Slick === "undefined") {
       if (pinnedColChanged) { updatePinnedState(); }
 
       render();
+      updateAntiscroll();
     }
 
     function validateAndEnforceOptions() {
@@ -1878,6 +1945,7 @@ if (typeof Slick === "undefined") {
       updateRowCount();
       invalidateAllRows();
       render();
+      updateAntiscroll();
       trigger(self.onInvalidate);
     }
 
@@ -2046,7 +2114,13 @@ if (typeof Slick === "undefined") {
       //}
 
       var topOffset = topViewport.el.height(); // the top boundary of the center row of things
-      contentViewport.el.css({ 'top': topOffset, 'height': contentViewport.height });
+      contentViewportWrap.el.css({ 'top': topOffset, 'height': contentViewport.height });
+
+      // something is setting the contentViewport's height, and should't be.
+      // this causes the viewport to not resize when the window is resized.
+      // as a workaround, override the CSS here.
+      // TODO: figure out what's setting the height and fix it there instead.
+      contentViewport.el.css({ top: 0, height: '100%', width: '100%' });
 
       //if (!resizeOptions.skipHeight) {
       //  if (options.autoHeight) {
@@ -3828,6 +3902,7 @@ if (typeof Slick === "undefined") {
         topCanvas: topCanvas,
         header: header,
         subHeader: subHeader,
+        contentViewportWrap: contentViewportWrap,
         contentViewport: contentViewport,
         contentCanvas: contentCanvas,
         rows: rows

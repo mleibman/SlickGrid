@@ -1,6 +1,6 @@
 {
   "name": "slickgrid",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "homepage": "https://github.com/SimpleAsCouldBe/SlickGrid",
   "authors": [
     "Michael Leibman",
@@ -18,5 +18,8 @@
     "column",
     "size"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "antiscroll": "bcherny/antiscroll"
+  }
 }
