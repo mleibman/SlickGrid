@@ -37,13 +37,24 @@
     top: 0;
     left: 0;
     outline: 0; }
+  .slickGrid .viewport-wrap,
   .slickGrid .viewport {
     position: absolute;
-    overflow: auto;
-    outline: 0;
     width: 100%; }
+  .slickGrid .viewport-wrap {
+    bottom: 0;
+    overflow: hidden; }
+    .slickGrid .viewport-wrap .antiscroll-scrollbar {
+      z-index: 1; }
+  .slickGrid .viewport {
+    overflow: auto;
+    outline: 0; }
     .slickGrid .viewport.T.L, .slickGrid .viewport.T.R, .slickGrid .viewport.pinned {
       overflow: hidden; }
+    .slickGrid .viewport.antiscroll-inner {
+      height: 100%;
+      left: 0;
+      top: 0; }
   .slickGrid .canvas {
     position: relative; }
   .slickGrid .row {

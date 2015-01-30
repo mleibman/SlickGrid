@@ -68,11 +68,21 @@
     left: 0
     outline: 0
 
+  .viewport-wrap,
   .viewport
     position: absolute
+    width: 100% // easy handling of the no-pinned column case
+
+  .viewport-wrap
+    bottom: 0
+    overflow: hidden
+
+    .antiscroll-scrollbar
+      z-index: 1
+
+  .viewport
     overflow: auto
     outline: 0 // removes the focus effect that shows while scrolling
-    width: 100% // easy handling of the no-pinned column case
 
     // the top left and right viewports don't scroll.
     // also, since we don't use native scrolling on
@@ -81,6 +91,11 @@
     &.T.R,
     &.pinned
       overflow: hidden
+
+    &.antiscroll-inner
+      height: 100%
+      left: 0
+      top: 0
 
   .canvas
     position: relative

@@ -27,6 +27,7 @@ topViewport           .     .            .     // The scrolling region
     header            .     .            .     // The column headers
     subHeader         .     .            .     // Optional row of cells below the column headers
                       ....................
+contentViewportWrap   .     .            .
 contentViewport       .     .            .     // The scrolling region for the grid rows
   contentCanvas       .     .            .     // Full size of row content, both width and height
                       .     .            .
@@ -39,7 +40,7 @@ contentViewport       .     .            .     // The scrolling region for the g
 
 ## Other Changes:
 
-Adds some methods that make it more performant to do auto column resizing and exposes some methods that make it easier to work with multiple grid instances and pinned columns.
+**Adds some methods** that make it more performant to do auto column resizing and exposes some methods that make it easier to work with multiple grid instances and pinned columns.
 
 * `grid.updateColumnWidths(columnDefinitions)`
   * Using this method improves the performance of changing the width of one or more grid columns by a lot. The existing API only allows for a whole grid redraw, which can be very slow. Pull request with notes [here](https://github.com/mleibman/SlickGrid/pull/897). Use cases for fast column size adjustment may be: auto-sizing columns to fit content, responsive sizing cells to fill the screen, and similar.
@@ -49,7 +50,7 @@ Adds some methods that make it more performant to do auto column resizing and ex
 * Exposes the existing method `grid.setupColumnResize`, which allows you to re-enable column resizing if you're manually screwing around with the headers.
 * Some new options on `setColumns` and `resizeCanvas` let you prevent some of the expensive calculations, useful if you're doing them yourself externally.
 
-
+**Adds [antiscroll](https://github.com/learnboost/antiscroll) compatability** to enable a uniform, OSX-style scrolling experience across browsers. Enable antiscroll by including the antiscroll library on your page, and passing the `useAntiscroll: true` option to your SlickGrid instance. By default we don't show scrollbars until the user begins scrolling (to mimic the way OSX does it); to change that behavior, you can set the `showScrollbarsOnHover` option.
 
 
 ## (Original Documentation) Welcome to SlickGrid
