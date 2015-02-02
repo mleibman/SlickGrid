@@ -2536,6 +2536,9 @@ if (typeof Slick === "undefined") {
 
       lastRenderedScrollTop = scrollTop;
       lastRenderedScrollLeft = scrollLeft;
+
+      trigger(self.onRender, {});
+
       h_render = null;
     }
 
@@ -3976,6 +3979,7 @@ if (typeof Slick === "undefined") {
       "onAddNewRow": new Slick.Event(),
       "onValidationError": new Slick.Event(),
       "onViewportChanged": new Slick.Event(),
+      "onRender": new Slick.Event(),
       "onInvalidate": new Slick.Event(),
       "onColumnsReordered": new Slick.Event(),
       "onColumnsResized": new Slick.Event(),
