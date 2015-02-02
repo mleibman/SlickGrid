@@ -7,7 +7,9 @@
       { name: "Long", field: "long", width: 100 },
       { name: "Mixed", field: "mixed", width: 100 },
       { name: "Long header creates tooltip", field: "header", width: 50 },
-      { name: "Long header with predefined tooltip", field: "tooltipHeader", width: 50, tooltip: "Already have a tooltip!" }
+      { name: "Long header with predefined tooltip", field: "tooltipHeader", width: 50, tooltip: "Already have a tooltip!" },
+      { name: "ToolTip With Context", field: "tooltipWithContext", width: 50, toolTip: "Row number: {{tooltipWithContext}}" },
+
     ],
     data = [], // The grid data
     LONG_VALUE = "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong",
@@ -26,7 +28,8 @@
       "long": LONG_VALUE,
       "mixed": ( i % 2 == 0 ? SHORT_VALUE : LONG_VALUE ),
       "header": i,
-      "tooltipHeader": i
+      "tooltipHeader": i,
+      "tooltipWithContext": i
     });
   }
 
@@ -68,6 +71,20 @@
     $cell.trigger("mouseenter");  // Trigger hover on a cell in grid
 
     strictEqual($cell.attr("title"), LONG_VALUE, "title equals cell text");
+  });
+
+  module("plugins - autotooltips - tooltip with context", {
+    setup: function () {
+      setupGrid({useToolTipForCells: true});
+    },
+    teardown: teardownGrid
+  });
+
+  test("title template renders using context of row", function () {
+    var $cell = getCell(6);       // Grab a cell
+    $cell.trigger("mouseenter");  // Trigger hover on a cell in grid
+
+    strictEqual($cell.attr("title"), "Row number: 0", "title contains the index of row");
   });
 
   module("plugins - autotooltips - header", {
