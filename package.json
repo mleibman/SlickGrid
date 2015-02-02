@@ -1,0 +1,9 @@
+{
+  "name": "SlickGrid-Pincushion",
+  "version": "0.0.1",
+  "devDependencies": {
+    "browser-sync": "^1.6.0",
+    "coffee-script": "^1.8.0",
+    "gulp": "^3.8.9"
+  }
+}
