@@ -29,7 +29,7 @@ grid.render();</pre>
 
       <h2>View Source:</h2>
       <ul>
-        <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-autotooltips.html"
+        <li><A href="https://github.com/ddomingues/X-SlickGrid/blob/gh-pages/liveDemo/examples/example-autotooltips.html"
                target="_sourcewindow"> View the source for this example on Github</a></li>
       </ul>
     </td>
@@ -38,6 +38,7 @@ grid.render();</pre>
 
 <script src="../lib/jquery-1.7.min.js"></script>
 <script src="../lib/jquery.event.drag-2.2.js"></script>
+<script src="../lib/handlebars-v2.0.0.js"></script>
 
 <script src="../slick.core.js"></script>
 <script src="../slick.grid.js"></script>
@@ -46,7 +47,7 @@ grid.render();</pre>
 <script>
   var grid;
   var columns = [
-    {id: "title", name: "Title", field: "title"},
+    {id: "title", name: "Title", field: "title", toolTip: 'With {{percentComplete}}% complete!'},
     {id: "duration", name: "Duration", field: "duration"},
     {id: "%", name: "% Complete", field: "percentComplete"},
     {id: "start", name: "Start", field: "start"},
@@ -73,7 +74,7 @@ grid.render();</pre>
     }
 
     grid = new Slick.Grid("#myGrid", data, columns, options);
-    grid.registerPlugin(new Slick.AutoTooltips({ enableForHeaderCells: true }));
+    grid.registerPlugin(new Slick.AutoTooltips({ useToolTipForCells: true }));
     grid.render();
   })
 </script>

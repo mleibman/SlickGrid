@@ -1,0 +1,32 @@
+{
+  "name": "X-SlickGrid",
+  "version": "0.0.1",
+  "description": "X-SlickGrid is an advanced JavaScript grid/spreadsheet component",
+  "license": "GPL-3.0",
+  "repository": "ddomingues/X-SlickGrid",
+  "bugs": {
+    "url": "https://github.com/ddomingues/X-SlickGrid/issues"
+  },
+  "author": {
+    "name": "Diego Domingues",
+    "email": "diego.domingues16@gmail.com"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "gulp"
+  },
+  "keywords": [
+    "X-SlickGrid",
+    "SlickGrid",
+    "Frozen Columns",
+    "Frozen Rows",
+    "million of rows"
+  ],
+  "devDependencies": {
+    "gulp-util": "~2.2.14",
+    "gulp": "~3.6.2",
+    "node-qunit-phantomjs": "~0.2.1"
+  }
+}
