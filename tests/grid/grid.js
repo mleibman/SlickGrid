@@ -12,14 +12,14 @@
     });
     dragged = { dx: dx, dy: dy };
     offsetAfter = el.offset();
-  }
+  };
 
   var moved = function moved(dx, dy, msg) {
     msg = msg ? msg + "." : "";
     var actual = { left: offsetAfter.left, top: offsetAfter.top };
     var expected = { left: offsetBefore.left + dx, top: offsetBefore.top + dy };
     same(actual, expected, 'dragged[' + dragged.dx + ', ' + dragged.dy + '] ' + msg);
-  }
+  };
 
   var ROWS = 500, COLS = 10;
   var data = [], row;
@@ -98,7 +98,7 @@
   test("onColumnsResized is fired on column resize", function () {
     expect(2);
     grid.onColumnsResized.subscribe(function () {
-      ok(true, "onColumnsResized called")
+      ok(true, "onColumnsResized called");
     });
     var oldWidth = cols[0].width;
     $("#container .slick-resizable-handle:first").simulate("drag", { dx: 100, dy: 0 });
@@ -136,11 +136,11 @@
 
 
   test("setOptions 'frozenColumn' from frozen to unfrozen", function () {
-    var currentWidth
-      , width = $("#container").width()
-      , $paneHeaderL = $(".slick-pane.slick-pane-header.slick-pane-left")
-      , $paneTopL = $(".slick-pane.slick-pane-top.slick-pane-left")
-      , $viewportTopL = $(".slick-viewport.slick-viewport-top.slick-viewport-left");
+    var currentWidth,
+      width = $("#container").width(),
+      $paneHeaderL = $(".slick-pane.slick-pane-header.slick-pane-left"),
+      $paneTopL = $(".slick-pane.slick-pane-top.slick-pane-left"),
+      $viewportTopL = $(".slick-viewport.slick-viewport-top.slick-viewport-left");
 
     grid.setOptions({ 'frozenColumn': 1 });
     grid.setOptions({ 'frozenColumn': -1 });
@@ -185,7 +185,7 @@
       , height = $('#container').height()
       , $paneTopL = $('.slick-pane.slick-pane-top.slick-pane-left')
       , $headerScrollerL = $('.slick-header.slick-header-left')
-      , $viewportTopL = $('.slick-viewport.slick-viewport-top.slick-viewport-left')
+      , $viewportTopL = $('.slick-viewport.slick-viewport-top.slick-viewport-left');
 
     grid.setOptions({ 'frozenRow': 5 });
     grid.setOptions({ 'frozenRow': -1 });
@@ -223,6 +223,34 @@
     equal(currentHeight, height);
   });
 
+  test("frozen columns should to have class .frozen", function() {
+    const FROZEN_COLUMNS = 2;
+    grid.setOptions({ frozenColumn: FROZEN_COLUMNS-1 });
+
+    equal($('.slick-row:visible:first .slick-cell.frozen').length, FROZEN_COLUMNS, 'should find '+FROZEN_COLUMNS+' frozen columns');
+  });
+
+  test("frozen rows should to have class .frozen", function() {
+    const FROZEN_ROWS = 2;
+    grid.setOptions({ frozenRow: FROZEN_ROWS-1 });
+
+    equal($('.slick-row.frozen').length, FROZEN_ROWS, 'should find '+FROZEN_ROWS+' frozen rows');
+  });
+
+  test("frozen header column should to have class .frozen", function() {
+    const FROZEN_COLUMNS = 2;
+    grid.setOptions({ frozenColumn: FROZEN_COLUMNS-1 });
+
+    equal($('.slick-header-column.frozen').length, FROZEN_COLUMNS, 'should find '+FROZEN_COLUMNS+' frozen header columns');
+  });
+
+  test("frozen footer row column should to have class .frozen", function() {
+    const FROZEN_COLUMNS = 2;
+    grid.setOptions({ frozenColumn: FROZEN_COLUMNS-1 });
+
+    equal($('.slick-footerrow-column.frozen').length, FROZEN_COLUMNS, 'should find '+FROZEN_COLUMNS+' frozen footer columns');
+  });
+
   module(
     "grid - tree columns",
     {
@@ -232,7 +260,7 @@
   );
   test('header columns render correct', function() {
     equal($container.find('.slick-group-header-column').length, 2, 'grid should have 2 columns group header');
-    equal($container.find('.slick-header-column').length, 10, 'grid should have 10 columns header')
+    equal($container.find('.slick-header-column').length, 10, 'grid should have 10 columns header');
   });
 
   test("columns can be reordered in your groups", function() {
@@ -287,6 +315,14 @@
 
     equal($(".slick-group-header-column").length, 0, 'no group will be found');
 
+  });
+
+  test("frozen group header column should to have class .frozen", function() {
+    const FROZEN_COLUMNS = 5;
+    grid.setOptions({ frozenColumn: FROZEN_COLUMNS-1 });
+
+    equal($('.slick-group-header-column.frozen').length, 1, 'should find '+1+' frozen group header columns');
+    equal($('.slick-header-column.frozen').length, FROZEN_COLUMNS, 'should find '+FROZEN_COLUMNS+' frozen header columns');
   });
 
 

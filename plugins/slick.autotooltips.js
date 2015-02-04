@@ -1,3 +1,7 @@
+if (typeof Handlebars === "undefined") {
+  throw "AutoTooltips plugin requires Handlebars to be loaded";
+}
+
 (function ($) {
   // Register namespace
   $.extend(true, window, {
@@ -19,7 +23,8 @@
     var _defaults = {
       enableForCells: true,
       enableForHeaderCells: false,
-      maxToolTipLength: null
+      maxToolTipLength: null,
+      useToolTipForCells: false
     };
 
     /**
@@ -46,19 +51,39 @@
      */
     function handleMouseEnter(e) {
       var cell = _grid.getCellFromEvent(e);
+      var $node = $(_grid.getCellNode(cell.row, cell.cell));
+
       if (cell) {
-        var $node = $(_grid.getCellNode(cell.row, cell.cell));
-        var text;
-        if ($node.innerWidth() < $node[0].scrollWidth) {
-          text = $.trim($node.text());
-          if (options.maxToolTipLength && text.length > options.maxToolTipLength) {
-            text = text.substr(0, options.maxToolTipLength - 3) + "...";
-          }
-        } else {
-          text = "";
-        }
+        if (options.useToolTipForCells && $node.attr('title'))
+          return;
+
+        var text = options.useToolTipForCells? useTooltipOfColumn(cell) : useContentOfCell($node);
+
         $node.attr("title", text);
       }
+    }
+
+    function useContentOfCell($node) {
+      var text = "";
+      if ($node.innerWidth() < $node[0].scrollWidth) {
+        text = $.trim($node.text());
+        if (options.maxToolTipLength && text.length > options.maxToolTipLength) {
+          text = text.substr(0, options.maxToolTipLength - 3) + "...";
+        }
+      }
+
+      return text;
+    }
+
+    /**
+     * Use toolTip defined in Column and apply context
+     * @param cell
+     */
+    function useTooltipOfColumn(cell) {
+      var column = _grid.getColumns()[cell.cell];
+      var row = _grid.getDataItem(cell.row);
+
+      return column.toolTip? Handlebars.compile(column.toolTip)(row): null;
     }
 
     /**
