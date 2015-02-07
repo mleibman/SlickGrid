@@ -1,0 +1,32 @@
+{
+  "name": "X-SlickGrid",
+  "version": "3.0.0",
+  "main": ["slick.core.js", "slick.grid.js", "slick.grid.css"],
+  "keywords": ["SlickGrid", "grid", "frozen", "fix", "columns", "spreadsheet", "nested"],
+  "ignore": [
+    ".jshintrc",
+    "**/*.txt",
+    "*.json",
+    "*.markdown",
+    "*.txt",
+    ".*",
+    "!LICENSE.txt",
+    "Gruntfile.js",
+    "examples",
+    "tests",
+    "lib"
+  ],
+  "dependencies": {
+    "jquery": "~1.7.0",
+    "jquery-ui": "~1.8.24",
+    "jquery.event": "threedubmedia/jquery.threedubmedia#2.2",
+    "jquery-mousewheel": "jquery/jquery-mousewheel#3.0.6",
+    "jquery-simulate": "1.0.0",
+    "jquery.sparkline": "gwatts/jquery.sparkline#2.0",
+    "jquery-jsonp": "jaubourg/jquery-jsonp#2.4.0",
+    "handlebars": "~2.0.0",
+    "qunit": "~1.0.0"
+  },
+  "devDependencies": {
+  }
+}
