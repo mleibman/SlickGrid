@@ -3894,6 +3894,12 @@ if (typeof Slick === "undefined") {
       selectionModel.setSelectedRanges(rowsToRanges(rows));
     }
 
+    function isGroupNode (row, cell) {
+      return $(getCellNode(row, cell))
+        .parents('.slick-group')
+        .length > 0;
+    }
+
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Debug
@@ -4027,6 +4033,7 @@ if (typeof Slick === "undefined") {
       "getSelectedRows": getSelectedRows,
       "setSelectedRows": setSelectedRows,
       "getContainerNode": getContainerNode,
+      "isGroupNode": isGroupNode,
 
       "render": render,
       "invalidate": invalidate,
