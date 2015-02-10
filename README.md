@@ -45,6 +45,7 @@ contentViewport       .     .            .     // The scrolling region for the g
 * `grid.updateColumnWidths(columnDefinitions)`
   * Using this method improves the performance of changing the width of one or more grid columns by a lot. The existing API only allows for a whole grid redraw, which can be very slow. Pull request with notes [here](https://github.com/mleibman/SlickGrid/pull/897). Use cases for fast column size adjustment may be: auto-sizing columns to fit content, responsive sizing cells to fill the screen, and similar.
 * `grid.getId()` lets you get the uid of the grid instance
+* `grid.isGroupNode(row, cell)` lets you check if a node is part of a group row
 * Triggers existing event `onColumnsResized` when you change the column widths
 * Triggers a new event `onColumnsChanged` when you set the columns
 * Exposes the existing method `grid.setupColumnResize`, which allows you to re-enable column resizing if you're manually screwing around with the headers.
