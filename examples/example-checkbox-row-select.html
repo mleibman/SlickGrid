@@ -75,11 +75,11 @@
 
     columns.push(checkboxSelector.getColumnDefinition());
 
-    for (var i = 0; i < 5; i++) {
+    for (var j = 0; j < 5; j++) {
       columns.push({
-        id: i,
-        name: String.fromCharCode("A".charCodeAt(0) + i),
-        field: i,
+        id: j,
+        name: String.fromCharCode("A".charCodeAt(0) + j),
+        field: j,
         width: 100,
         editor: Slick.Editors.Text
       });
