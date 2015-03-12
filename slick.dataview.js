@@ -529,8 +529,8 @@
         // make sure all the subgroups are calculated
         var i = group.groups.length;
         while (i--) {
-          if (!group.groups[i].initialized) {
-            calculateTotals(group.groups[i]);
+          if (!group.groups[i].totals.initialized) {
+            calculateTotals(group.groups[i].totals);
           }
         }
       }
