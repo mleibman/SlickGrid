@@ -182,6 +182,10 @@ if (typeof Slick === "undefined") {
     var rowNodeFromLastMouseWheelEvent;  // this node must not be deleted while inertial scrolling
     var zombieRowNodeFromLastMouseWheelEvent;  // node that was hidden instead of getting deleted
 
+    // store css attributes if display:none is active in container or parent
+    var cssShow = { position: 'absolute', visibility: 'hidden', display: 'block' };
+    var $hiddenParents;
+    var oldProps = [];
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Initialization
@@ -191,6 +195,8 @@ if (typeof Slick === "undefined") {
       if ($container.length < 1) {
         throw new Error("SlickGrid requires a valid container, " + container + " does not exist in the DOM.");
       }
+
+      cacheCssForHiddenInit();
 
       // calculate these only once and share between grid instances
       maxSupportedCssHeight = maxSupportedCssHeight || getMaxSupportedCssHeight();
@@ -332,7 +338,32 @@ if (typeof Slick === "undefined") {
             navigator.userAgent.toLowerCase().match(/macintosh/)) {
           $canvas.bind("mousewheel", handleMouseWheel);
         }
+        restoreCssFromHiddenInit();
       }
+    }
+
+    function cacheCssForHiddenInit() {
+      // handle display:none on container or container parents
+      $hiddenParents = $container.parents().andSelf().not(':visible');
+      $hiddenParents.each(function() {
+        var old = {};
+        for ( var name in cssShow ) {
+          old[ name ] = this.style[ name ];
+          this.style[ name ] = cssShow[ name ];
+        }
+        oldProps.push(old);
+      });
+    }
+
+    function restoreCssFromHiddenInit() {
+      // finish handle display:none on container or container parents
+      // - put values back the way they were
+      $hiddenParents.each(function(i) {
+        var old = oldProps[i];
+        for ( var name in cssShow ) {
+          this.style[ name ] = old[ name ];
+        }
+      });
     }
 
     function registerPlugin(plugin) {
