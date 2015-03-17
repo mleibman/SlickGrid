@@ -50,7 +50,8 @@
     The grid is editable, so you can edit the numbers and see the changes reflected (almost) immediately in the graph.
     The graph cell behaves just like an ordinary cell and can be resized/reordered.
     The graphs themselves are created using the excellent <a href="http://www.omnipotent.net/jquery.sparkline/"
-                                                             target="_blank">jQuery Sparklines</a> library.
+                                                             target="_blank">jQuery Sparklines</a> library.<br/><br/>
+nb: sparkline 2.x will <a href="https://github.com/mleibman/SlickGrid/issues/855">cause a memory leak</a> in the current architecture, so we use sparkline 1.x and jquery-migrate for now.
   </p>
     <h2>View Source:</h2>
     <ul>
@@ -62,7 +63,9 @@
 
 <script src="../lib/jquery-1.11.2.min.js"></script>
 <script src="../lib/jquery-ui-1.11.3.min.js"></script>
+<script src="../lib/jquery-migrate-1.2.1.min.js"></script>
 <script src="../lib/jquery.event.drag-2.2.js"></script>
+<!-- nb: sparkline 2.x will cause a memory leak in the current architecture, so we use sparkline 1.x and jquery-migrate -->
 <script src="../lib/jquery.sparkline.min.js"></script>
 
 <script src="../slick.core.js"></script>
