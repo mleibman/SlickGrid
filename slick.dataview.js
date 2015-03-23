@@ -971,6 +971,10 @@
       this.onRowCountChanged.subscribe(update);
     }
 
+    function getFilteredItems () {
+      return filteredItems;
+    }
+
     $.extend(this, {
       // methods
       "beginUpdate": beginUpdate,
@@ -978,7 +982,7 @@
       "setPagingOptions": setPagingOptions,
       "getPagingInfo": getPagingInfo,
       "getItems": getItems,
-      "getFilteredAndPagedItems": getFilteredAndPagedItems,
+      "getFilteredItems": getFilteredItems,
       "setItems": setItems,
       "setFilter": setFilter,
       "sort": sort,
