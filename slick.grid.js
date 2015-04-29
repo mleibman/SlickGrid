@@ -1964,22 +1964,15 @@ if (typeof Slick === "undefined") {
       var cacheEntry = rowsCache[row];
       if (!cacheEntry) { return; }
       if (row === protectedRowIdx) { return; }
-      //contentCanvas.el[0].removeChild(cacheEntry.rowNode);
-      cacheEntry.rowNode[0].parentElement.removeChild(cacheEntry.rowNode[0]);
-      // If there's one in the right viewport, remove that, too
-      if (cacheEntry.rowNode[1]) {
-        cacheEntry.rowNode[1].parentElement.removeChild(cacheEntry.rowNode[1]);
-      }
+
+      // call jquery's .remove, so we can listen on cleanup events.
+      // See https://github.com/mleibman/SlickGrid/issues/354
+      cacheEntry.rowNode.remove()
+
       delete rowsCache[row];
       delete postProcessedRows[row];
       renderedRows--;
       counter_rows_removed++;
-//      console.log('removeRowFromCache('+row+')', {
-//        renderedRows: renderedRows,
-//        rowsCache_length: Object.keys(rowsCache).length,
-//        rowsCache: rowsCache
-//        postProcessedRows_length: Object.keys(postProcessedRows).length
-//      });
     }
 
     function invalidateRows(rows) {
