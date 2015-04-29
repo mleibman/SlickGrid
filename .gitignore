@@ -1,3 +1,10 @@
 .gitk*
 .idea/*
 .DS_Store
+
+# node stuff
+node_modules/
+npm-debug.log
+
+# sass stuff
+.sass-cache/

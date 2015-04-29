@@ -1,0 +1,25 @@
+{
+  "name": "slickgrid",
+  "version": "2.3.8",
+  "homepage": "https://github.com/SimpleAsCouldBe/SlickGrid",
+  "authors": [
+    "Michael Leibman",
+    "Eric Miller"
+  ],
+  "description": "Slickgrid with pinning, more customizability, and faster column sizing.",
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "slickgrid",
+    "pinned",
+    "performance",
+    "autosize",
+    "column",
+    "size"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "antiscroll": "bcherny/antiscroll"
+  }
+}
