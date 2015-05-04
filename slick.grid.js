@@ -2653,7 +2653,11 @@ if (typeof Slick === "undefined") {
           if (m.asyncPostRender && !postProcessedRows[row][columnIdx]) {
             var node = cacheEntry.cellNodesByColumnIdx[columnIdx];
             if (node) {
-              m.asyncPostRender(node, row, getDataItem(row), m);
+              try {
+                m.asyncPostRender(node, row, getDataItem(row), m);
+              } catch (error) {
+                console.error('Error in asyncPostRenderer:', error, [node, row, getDataItem(row), m]);
+              }
             }
             postProcessedRows[row][columnIdx] = true;
           }
