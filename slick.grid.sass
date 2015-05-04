@@ -1,0 +1,234 @@
+// IMPORTANT:
+// In order to preserve the uniform grid appearance, all cell styles need to have padding, margin and border sizes.
+// No built-in (selected, editable, highlight, flashing, invalid, loading, :focus) or user-specified CSS
+// classes should alter those!
+
+// DEBUG ONLY:
+//.slickGrid.debug
+//  .slick-row
+//    background-color: transparent !important
+//  .slick-row.even
+//    background-color: rgba(0, 0, 0, 0.05) !important
+//  .viewport, .canvas
+//    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1)
+//  .viewport
+//    background-color: rgba(0, 255, 0, 0.05)
+//  .canvas
+//    background-color: rgba(0, 0, 255, 0.05)
+
+.slickGrid .header,
+.slickGrid .subHeader,
+.slickGrid .row,
+.slickGrid .cell
+  box-sizing: border-box
+
+.slickGrid [hideFocus]
+  outline: none !important
+
+// Height for header and sub header rows
+.slickGrid .header
+  $h: 40px
+  height: $h
+  .cell
+    $padding: 4px
+    padding: $padding
+    line-height: $h - $padding*2
+
+.slickGrid .subHeader
+  $h: 21px
+  height: $h
+  .cell
+    $padding: 2px
+    padding: $padding
+    line-height: $h - $padding*2
+
+// Height for normal grid rows
+.slickGrid .row
+  $h: 30px
+  height: $h
+  line-height: $h
+  .cell
+    padding: 0 2px
+
+
+
+// Main:
+.slickGrid
+  overflow: hidden
+  outline: 0
+
+  .row.even
+    background: #f9f9f9
+
+  .focus-sink
+    position: fixed
+    width: 0
+    height: 0
+    top: 0
+    left: 0
+    outline: 0
+
+  .viewport-wrap,
+  .viewport
+    position: absolute
+    width: 100% // easy handling of the no-pinned column case
+
+  .viewport-wrap
+    bottom: 0
+    overflow: hidden
+
+    .antiscroll-scrollbar
+      z-index: 1
+
+  .viewport
+    overflow: auto
+    outline: 0 // removes the focus effect that shows while scrolling
+
+    // the top left and right viewports don't scroll.
+    // also, since we don't use native scrolling on
+    // pinned columns anyway, hide their scroll bars.
+    &.T.L,
+    &.T.R,
+    &.pinned
+      overflow: hidden
+
+    &.antiscroll-inner
+      height: 100%
+      left: 0
+      top: 0
+
+  .canvas
+    position: relative
+
+  .row
+    position: absolute
+    border: 0
+    width: 100%
+
+  .cell
+    position: absolute
+    height: 100%
+    border: 1px solid transparent
+    border-right: 1px dotted silver
+    border-bottom-color: silver
+    overflow: hidden
+    -o-text-overflow: ellipsis
+    text-overflow: ellipsis
+    vertical-align: middle
+    z-index: 1
+    margin: 0
+    white-space: nowrap
+    cursor: default
+    &.highlighted
+      background: lightskyblue
+      background: rgba(0, 0, 255, 0.2)
+      -webkit-transition: all 0.5s
+      -moz-transition: all 0.5s
+      -o-transition: all 0.5s
+      transition: all 0.5s
+    &.flashing
+      border: 1px solid red !important
+    &.editable
+      z-index: 11
+      overflow: visible
+      background: white
+      border-color: black
+      border-style: solid
+    &:focus
+      outline: none
+    &.selected
+      background: beige
+    &.active
+      background: lightskyblue
+
+.slickGrid .header,
+.slickGrid .subHeader
+  position: relative
+  white-space: nowrap
+  cursor: default
+  overflow: hidden
+  border-bottom: 1px solid silver
+  background: #f7f7f7
+
+.slickGrid .header,
+.slickGrid .subHeader
+  .cell
+    border-right: 1px solid silver
+    border-left: 0
+    border-top: 0
+    border-bottom: 0
+    //background-color: rgba(0,0,0,.05) // debug
+    &.active
+      background: transparent
+
+.slickGrid .subHeader
+  background: #ddd
+  .cell input
+    box-sizing: border-box
+    width: 100%
+    height: 100%
+
+
+
+
+.slickGrid .row.slick-group
+  background-color: #eef7ff
+.slickGrid .row.slick-group-totals
+  background-color: #f2fff9
+
+
+
+.slick-sort-indicator
+  display: inline-block
+  width: 8px
+  height: 5px
+  margin-left: 4px
+  margin-top: 6px
+  float: left
+
+.slick-sort-indicator-desc
+  background: url(images/sort-desc.gif)
+
+.slick-sort-indicator-asc
+  background: url(images/sort-asc.gif)
+
+.slickGrid .resizer
+  position: absolute
+  font-size: 0.1px
+  display: block
+  cursor: col-resize
+  width: 4px
+  right: 0px
+  top: 0
+  height: 100%
+
+.slick-sortable-placeholder
+  background: silver
+
+
+
+
+
+.slick-group-toggle
+  display: inline-block
+
+
+
+.slick-reorder-proxy
+  display: inline-block
+  background: blue
+  opacity: 0.15
+  filter: alpha(opacity = 15)
+  cursor: move
+
+.slick-reorder-guide
+  display: inline-block
+  height: 2px
+  background: blue
+  opacity: 0.7
+  filter: alpha(opacity = 70)
+
+.slick-selection
+  z-index: 10
+  position: absolute
+  border: 2px dashed black

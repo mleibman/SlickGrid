@@ -60,12 +60,14 @@
     enableCellNavigation: true,
     showHeaderRow: true,
     headerRowHeight: 30,
-    explicitInitialization: true
+    explicitInitialization: true,
+    showSubHeader: true,
+//    subHeaderRenderer: function(col){ return $('<div><input type="text"/></div>') }
   };
   var columns = [];
   var columnFilters = {};
 
-  for (var i = 0; i < 10; i++) {
+  for (var i = 0; i < 20; i++) {
     columns.push({
       id: i,
       name: String.fromCharCode("A".charCodeAt(0) + i),
@@ -111,7 +113,7 @@
     });
 
 
-    $(grid.getHeaderRow()).delegate(":input", "change keyup", function (e) {
+    $(grid.getSubHeader()).delegate(":input", "change keyup", function (e) {
       var columnId = $(this).data("columnId");
       if (columnId != null) {
         columnFilters[columnId] = $.trim($(this).val());
@@ -119,7 +121,7 @@
       }
     });
 
-    grid.onHeaderRowCellRendered.subscribe(function(e, args) {
+    grid.onSubHeaderCellRendered.subscribe(function(e, args) {
         $(args.node).empty();
         $("<input type='text'>")
            .data("columnId", args.column.id)

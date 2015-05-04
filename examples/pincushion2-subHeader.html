@@ -1,0 +1,137 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <title>Header Row / SubHeader with Pinned Columns</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+</head>
+<body>
+<table width="100%">
+  <tr>
+    <td valign="top" width="50%">
+      <div id="myGrid" style="width:500px;height:500px;"></div>
+    </td>
+    <td valign="top">
+      <h2>Demonstrates:</h2>
+      <ul>
+        <li>Pinned columns.</li>
+        <li>Sub Headers under the main headers. They are locked to the top of the grid. Renamed from `headerRow` to `subHeader`.</li>
+        <li>Use of `subHeaderRenderer` to draw subHeader cell contents.</li>
+      </ul>
+
+      <button id="toggle">Toggle subHeader</button>
+
+    </td>
+  </tr>
+</table>
+
+<script src="../lib/jquery-1.7.min.js"></script>
+<script src="../lib/jquery.event.drag-2.2.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../slick.dataview.js"></script>
+<script src="../slick.grid.js"></script>
+
+<script>
+  var grid;
+  var columns = [
+    { id: "title", name: "Title", field: "title"},
+    { id: "%", name: "% Complete", field: "percentComplete"},
+    { id: "duration", name: "Duration", field: "duration"},
+    { id: "start", name: "Start", field: "start"},
+    { id: "finish", name: "Finish", field: "finish"},
+    { id: "effort-driven", name: "Effort Driven", field: "effortDriven"},
+    { id: "1duration", name: "Duration", field: "duration"},
+    { id: "1%", name: "% Complete", field: "percentComplete"},
+    { id: "1start", name: "Start", field: "start"},
+    { id: "1finish", name: "Finish", field: "finish"},
+    { id: "1effort-driven", name: "Effort Driven", field: "effortDriven"},
+    { id: "2duration", name: "Duration", field: "duration"},
+    { id: "3%", name: "% Complete", field: "percentComplete"},
+    { id: "3start", name: "Start", field: "start"},
+    { id: "3finish", name: "Finish", field: "finish"},
+    { id: "3effort-driven", name: "Effort Driven", field: "effortDriven"},
+    { id: "3duration", name: "Duration", field: "duration"},
+    { id: "4%", name: "% Complete", field: "percentComplete"},
+    { id: "4start", name: "Start", field: "start"},
+    { id: "4finish", name: "Finish", field: "finish"},
+    { id: "4effort-driven", name: "Effort Driven", field: "effortDriven"}
+  ];
+  var columnFilters = {};
+
+  function filter(item) {
+    for (var columnId in columnFilters) {
+      if (columnId !== undefined && columnFilters[columnId] !== "") {
+        var c = grid.getColumns()[grid.getColumnIndex(columnId)];
+//        if (item[c.field] != columnFilters[columnId]) {
+        if (String(item[c.field]).indexOf(columnFilters[columnId]) < 0) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  var options = {
+    pinnedColumn: 0,
+//    explicitInitialization: true,
+    showSubHeader: true,
+    subHeaderRenderer: function(col){
+      return $("<div><input type='text' /></div>")
+              .data("columnId", col.id)
+              .val(columnFilters[col.id]);
+    }
+  };
+
+  $(function () {
+    var data = [];
+    for (var i = 0; i < 500; i++) {
+      data[i] = {
+        id: i,
+        title: "Task " + i,
+        duration: "5 days",
+        percentComplete: Math.round(Math.random() * 100),
+        start: "01/01/2009",
+        finish: "01/05/2009",
+        effortDriven: (i % 5 == 0)
+      };
+    }
+
+    dataView = new Slick.Data.DataView();
+    window._grid = grid = new Slick.Grid("#myGrid", dataView, columns, options);
+
+    dataView.onRowCountChanged.subscribe(function (e, args) {
+      grid.updateRowCount();
+      grid.render();
+    });
+    dataView.onRowsChanged.subscribe(function (e, args) {
+      grid.invalidateRows(args.rows);
+      grid.render();
+    });
+    $(grid.getSubHeader()).delegate(".cell", "change keyup", function (e) {
+      var columnId = $(this).data("columnId");
+      if (columnId != null) {
+        val = $.trim($(this).find('input').val());
+        if (val !== columnFilters[columnId]) { console.log('change keyup', columnFilters); }
+        columnFilters[columnId] = val;
+        dataView.refresh();
+      }
+    });
+
+    dataView.beginUpdate();
+    dataView.setItems(data);
+    dataView.setFilter(filter);
+    dataView.endUpdate();
+
+    grid.onSubHeaderContextMenu.subscribe(function(){ console.log('onSubHeaderContextMenu', arguments); });
+    grid.onHeaderContextMenu.subscribe(function(){    console.log('onHeaderContextMenu',    arguments); });
+
+    shown = true;
+    $('#toggle').bind('click', function(){
+      grid.setSubHeaderVisibility( shown = !shown )
+    });
+  })
+</script>
+</body>
+</html>

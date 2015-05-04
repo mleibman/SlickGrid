@@ -1,47 +1,133 @@
-/*
-IMPORTANT:
-In order to preserve the uniform grid appearance, all cell styles need to have padding, margin and border sizes.
-No built-in (selected, editable, highlight, flashing, invalid, loading, :focus) or user-specified CSS
-classes should alter those!
-*/
+.slickGrid .header,
+.slickGrid .subHeader,
+.slickGrid .row,
+.slickGrid .cell {
+  box-sizing: border-box; }
 
-.slick-header.ui-state-default, .slick-headerrow.ui-state-default {
-  width: 100%;
+.slickGrid [hideFocus] {
+  outline: none !important; }
+
+.slickGrid .header {
+  height: 40px; }
+  .slickGrid .header .cell {
+    padding: 4px;
+    line-height: 32px; }
+
+.slickGrid .subHeader {
+  height: 21px; }
+  .slickGrid .subHeader .cell {
+    padding: 2px;
+    line-height: 17px; }
+
+.slickGrid .row {
+  height: 30px;
+  line-height: 30px; }
+  .slickGrid .row .cell {
+    padding: 0 2px; }
+
+.slickGrid {
   overflow: hidden;
-  border-left: 0px;
-}
+  outline: 0; }
+  .slickGrid .row.even {
+    background: #f9f9f9; }
+  .slickGrid .focus-sink {
+    position: fixed;
+    width: 0;
+    height: 0;
+    top: 0;
+    left: 0;
+    outline: 0; }
+  .slickGrid .viewport-wrap,
+  .slickGrid .viewport {
+    position: absolute;
+    width: 100%; }
+  .slickGrid .viewport-wrap {
+    bottom: 0;
+    overflow: hidden; }
+    .slickGrid .viewport-wrap .antiscroll-scrollbar {
+      z-index: 1; }
+  .slickGrid .viewport {
+    overflow: auto;
+    outline: 0; }
+    .slickGrid .viewport.T.L, .slickGrid .viewport.T.R, .slickGrid .viewport.pinned {
+      overflow: hidden; }
+    .slickGrid .viewport.antiscroll-inner {
+      height: 100%;
+      left: 0;
+      top: 0; }
+  .slickGrid .canvas {
+    position: relative; }
+  .slickGrid .row {
+    position: absolute;
+    border: 0;
+    width: 100%; }
+  .slickGrid .cell {
+    position: absolute;
+    height: 100%;
+    border: 1px solid transparent;
+    border-right: 1px dotted silver;
+    border-bottom-color: silver;
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    z-index: 1;
+    margin: 0;
+    white-space: nowrap;
+    cursor: default; }
+    .slickGrid .cell.highlighted {
+      background: lightskyblue;
+      background: rgba(0, 0, 255, 0.2);
+      -webkit-transition: all 0.5s;
+      -moz-transition: all 0.5s;
+      -o-transition: all 0.5s;
+      transition: all 0.5s; }
+    .slickGrid .cell.flashing {
+      border: 1px solid red !important; }
+    .slickGrid .cell.editable {
+      z-index: 11;
+      overflow: visible;
+      background: white;
+      border-color: black;
+      border-style: solid; }
+    .slickGrid .cell:focus {
+      outline: none; }
+    .slickGrid .cell.selected {
+      background: beige; }
+    .slickGrid .cell.active {
+      background: lightskyblue; }
 
-.slick-header-columns, .slick-headerrow-columns {
+.slickGrid .header,
+.slickGrid .subHeader {
   position: relative;
   white-space: nowrap;
   cursor: default;
   overflow: hidden;
-}
+  border-bottom: 1px solid silver;
+  background: #f7f7f7; }
 
-.slick-header-column.ui-state-default {
-  position: relative;
-  display: inline-block;
-  overflow: hidden;
-  -o-text-overflow: ellipsis;
-  text-overflow: ellipsis;
-  height: 16px;
-  line-height: 16px;
-  margin: 0;
-  padding: 4px;
+.slickGrid .header .cell,
+.slickGrid .subHeader .cell {
   border-right: 1px solid silver;
-  border-left: 0px;
-  border-top: 0px;
-  border-bottom: 0px;
-  float: left;
-}
+  border-left: 0;
+  border-top: 0;
+  border-bottom: 0; }
+  .slickGrid .header .cell.active,
+  .slickGrid .subHeader .cell.active {
+    background: transparent; }
 
-.slick-headerrow-column.ui-state-default {
-  padding: 4px;
-}
+.slickGrid .subHeader {
+  background: #ddd; }
+  .slickGrid .subHeader .cell input {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%; }
 
-.slick-header-column-sorted {
-  font-style: italic;
-}
+.slickGrid .row.slick-group {
+  background-color: #eef7ff; }
+
+.slickGrid .row.slick-group-totals {
+  background-color: #f2fff9; }
 
 .slick-sort-indicator {
   display: inline-block;
@@ -49,18 +135,15 @@ classes should alter those!
   height: 5px;
   margin-left: 4px;
   margin-top: 6px;
-  float: left;
-}
+  float: left; }
 
 .slick-sort-indicator-desc {
-  background: url(images/sort-desc.gif);
-}
+  background: url(images/sort-desc.gif); }
 
 .slick-sort-indicator-asc {
-  background: url(images/sort-asc.gif);
-}
+  background: url(images/sort-asc.gif); }
 
-.slick-resizable-handle {
+.slickGrid .resizer {
   position: absolute;
   font-size: 0.1px;
   display: block;
@@ -68,90 +151,31 @@ classes should alter those!
   width: 4px;
   right: 0px;
   top: 0;
-  height: 100%;
-}
+  height: 100%; }
 
 .slick-sortable-placeholder {
-  background: silver;
-}
-
-.grid-canvas {
-  position: relative;
-  outline: 0;
-}
-
-.slick-row.ui-widget-content, .slick-row.ui-state-active {
-  position: absolute;
-  border: 0px;
-  width: 100%;
-}
-
-.slick-cell, .slick-headerrow-column {
-  position: absolute;
-  border: 1px solid transparent;
-  border-right: 1px dotted silver;
-  border-bottom-color: silver;
-  overflow: hidden;
-  -o-text-overflow: ellipsis;
-  text-overflow: ellipsis;
-  vertical-align: middle;
-  z-index: 1;
-  padding: 1px 2px 2px 1px;
-  margin: 0;
-  white-space: nowrap;
-  cursor: default;
-}
-
-.slick-group {
-}
+  background: silver; }
 
 .slick-group-toggle {
-  display: inline-block;
-}
-
-.slick-cell.highlighted {
-  background: lightskyblue;
-  background: rgba(0, 0, 255, 0.2);
-  -webkit-transition: all 0.5s;
-  -moz-transition: all 0.5s;
-  -o-transition: all 0.5s;
-  transition: all 0.5s;
-}
-
-.slick-cell.flashing {
-  border: 1px solid red !important;
-}
-
-.slick-cell.editable {
-  z-index: 11;
-  overflow: visible;
-  background: white;
-  border-color: black;
-  border-style: solid;
-}
-
-.slick-cell:focus {
-  outline: none;
-}
+  display: inline-block; }
 
 .slick-reorder-proxy {
   display: inline-block;
   background: blue;
   opacity: 0.15;
-  filter: alpha(opacity = 15);
-  cursor: move;
-}
+  filter: alpha(opacity=15);
+  cursor: move; }
 
 .slick-reorder-guide {
   display: inline-block;
   height: 2px;
   background: blue;
   opacity: 0.7;
-  filter: alpha(opacity = 70);
-}
+  filter: alpha(opacity=70); }
 
 .slick-selection {
   z-index: 10;
   position: absolute;
-  border: 2px dashed black;
-}
+  border: 2px dashed black; }
+
+/*# sourceMappingURL=slick.grid.css.map */
