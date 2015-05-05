@@ -1,9 +1,14 @@
 # Welcome to SlickGrid
 
+## This is the 6pac slickgrid repo
+
+I am maintaining this branch as a separate 'alternative master'. Check the wiki for details.
+
+The master ReadMe.md follows below.
+
+--------------------------------------------------------------------------------------------------------------------
+
 Find documentation and examples in [the wiki](https://github.com/mleibman/SlickGrid/wiki).
-
-
-**UPDATE:  March 5th, 2014 - I have too many things going on in my life right now to really give SlickGrid support and development the time and attention it deserves.  I am not stopping it, but I will most likely be unresponsive for some time.  Sorry.**
 
 ## SlickGrid is an advanced JavaScript grid/spreadsheet component
 
