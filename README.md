@@ -1,5 +1,3 @@
-# Welcome to SlickGrid
-
 ## This is the 6pac slickgrid repo
 
 I am maintaining this branch as a separate 'alternative master'. Check the wiki for details.
@@ -7,6 +5,7 @@ I am maintaining this branch as a separate 'alternative master'. Check the wiki 
 The master ReadMe.md follows below.
 
 --------------------------------------------------------------------------------------------------------------------
+# Welcome to SlickGrid
 
 Find documentation and examples in [the wiki](https://github.com/mleibman/SlickGrid/wiki).
 
