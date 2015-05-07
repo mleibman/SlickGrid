@@ -53,6 +53,7 @@ contentViewport       .     .            .     // The scrolling region for the g
 
 **Adds [antiscroll](https://github.com/learnboost/antiscroll) compatability** to enable a uniform, OSX-style scrolling experience across browsers. Enable antiscroll by including the antiscroll library on your page, and passing the `useAntiscroll: true` option to your SlickGrid instance. By default we don't show scrollbars until the user begins scrolling (to mimic the way OSX does it); to change that behavior, you can set the `showScrollbarsOnHover` option.
 
+**Exposes** `grid` as the final parameter of the asyncPostRender callback. Signature is now `asyncPostRender(node, row, dataRow, column, grid)`
 
 ## (Original Documentation) Welcome to SlickGrid
 
