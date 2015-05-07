@@ -92,7 +92,8 @@ if (typeof Slick === "undefined") {
       forceSyncScrolling: false,
       addNewRowCssClass: "new-row",
       useAntiscroll: false,
-      showScrollbarsOnHover: false
+      showScrollbarsOnHover: false,
+      skipPaging: false // reveal one hidden row at a time instead of an entirely new page on keypress
     };
 
     var columnDefaults = {
@@ -3673,7 +3674,7 @@ if (typeof Slick === "undefined") {
       var pos = stepFn(activeRow, activeCell, activePosX);
       if (pos) {
         var isAddNewRow = (pos.row == getDataLength());
-        scrollCellIntoView(pos.row, pos.cell, !isAddNewRow);
+        scrollCellIntoView(pos.row, pos.cell, (options.skipPaging ? false : !isAddNewRow));
         setActiveCellInternal(getCellNode(pos.row, pos.cell));
         activePosX = pos.posX;
         return true;
