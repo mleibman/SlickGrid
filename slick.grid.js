@@ -92,7 +92,8 @@ if (typeof Slick === "undefined") {
       forceSyncScrolling: false,
       addNewRowCssClass: "new-row",
       useAntiscroll: false,
-      showScrollbarsOnHover: false
+      showScrollbarsOnHover: false,
+      skipPaging: false // reveal one hidden row at a time instead of an entirely new page on keypress
     };
 
     var columnDefaults = {
