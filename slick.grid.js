@@ -3673,7 +3673,7 @@ if (typeof Slick === "undefined") {
       var pos = stepFn(activeRow, activeCell, activePosX);
       if (pos) {
         var isAddNewRow = (pos.row == getDataLength());
-        scrollCellIntoView(pos.row, pos.cell, !isAddNewRow);
+        scrollCellIntoView(pos.row, pos.cell, (options.skipPaging ? false : !isAddNewRow));
         setActiveCellInternal(getCellNode(pos.row, pos.cell));
         activePosX = pos.posX;
         return true;
