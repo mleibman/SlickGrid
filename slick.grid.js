@@ -208,7 +208,7 @@ if (typeof Slick === "undefined") {
           .      .            .
           .      .            .
           .      .            .
-          .  CL  .     CR     . 
+          .  CL  .     CR     .
           .      .            .
           .      .            .
           .      .            .
@@ -336,7 +336,7 @@ if (typeof Slick === "undefined") {
 //      if (!options.showTopPanel) {
 //        $topPanelScroller.hide();
 //      }
-  
+
       contentViewportWrap.el = $(
         "<div class='viewport-wrap C L' tabIndex='0' hideFocus />" +
         "<div class='viewport-wrap C R' tabIndex='0' hideFocus />"
@@ -1384,9 +1384,14 @@ if (typeof Slick === "undefined") {
       return columnsById[id];
     }
 
+    // returns a jQuery node that matches the given id
+    // if the provided id is undefined, returns an empty jQuery object
     function getColumnNodeById(id) {
       var idx = getColumnIndex(id);
-      return getHeaderEls(idx);
+      if (idx > -1)
+        return getHeaderEls(idx);
+      else
+        return $([]);
     }
 
     // Return the header element(s) that wrap all column headers
@@ -1403,7 +1408,7 @@ if (typeof Slick === "undefined") {
       if (idx == null) {
         return header.el.children()
       } else {
-        return header.el.children()[idx]
+        return header.el.children().eq(idx)
       }
     }
 
