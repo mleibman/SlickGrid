@@ -1,10 +1,9 @@
 ## This is the 6pac slickgrid repo
 
-## This is the 6pac slickgrid repo
-
-I am maintaining this branch as a separate 'alternative master'. Check my wiki for details.
+I am maintaining this branch as a separate 'alternative master'. Check [my wiki](https://github.com/6pac/SlickGrid/wiki) for details.
 
 Original mleibman README follows:
+
 --------------------------------------------------------------------------------------------------------------------
 
 Find documentation and examples in [the wiki](https://github.com/mleibman/SlickGrid/wiki).
