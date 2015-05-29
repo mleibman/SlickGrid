@@ -1,4 +1,4 @@
-# Welcome to SlickGrid
+## This is the 6pac slickgrid repo
 
 ## This is the 6pac slickgrid repo
 
@@ -9,6 +9,7 @@ Original mleibman README follows:
 
 Find documentation and examples in [the wiki](https://github.com/mleibman/SlickGrid/wiki).
 
+# Welcome to SlickGrid
 
 ## SlickGrid is an advanced JavaScript grid/spreadsheet component
 
