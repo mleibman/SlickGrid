@@ -132,7 +132,7 @@ if (typeof Slick === "undefined") {
     var canvasWidth;
     var viewportHasHScroll, viewportHasVScroll;
     var headerColumnWidthDiff = 0, headerColumnHeightDiff = 0, // border+padding
-        cellWidthDiff = 0, cellHeightDiff = 0;
+        cellWidthDiff = 0, cellHeightDiff = 0, jQueryNewWidthBehaviour = false;
     var absoluteColumnMinWidth;
 
     var tabbingDirection = 1;
@@ -920,6 +920,12 @@ if (typeof Slick === "undefined") {
       var h = ["borderLeftWidth", "borderRightWidth", "paddingLeft", "paddingRight"];
       var v = ["borderTopWidth", "borderBottomWidth", "paddingTop", "paddingBottom"];
 
+	  // jquery prior to version 1.8 handles .width setter/getter as a direct css write/read
+	  // jquery 1.8 changed .width to read the true inner element width if box-sizing is set to border-box, and introduced a setter for .outerWidth
+	  // so for equivalent functionality, prior to 1.8 use .width, and after use .outerWidth
+	  var verArray = $.fn.jquery.split('.');
+	  jQueryNewWidthBehaviour = verArray[0]>=1 && verArray[1]>=8;
+	  
       el = $("<div class='ui-state-default slick-header-column' style='visibility:hidden'>-</div>").appendTo($headers);
       headerColumnWidthDiff = headerColumnHeightDiff = 0;
       if (el.css("box-sizing") != "border-box" && el.css("-moz-box-sizing") != "border-box" && el.css("-webkit-box-sizing") != "border-box") {
@@ -1142,9 +1148,15 @@ if (typeof Slick === "undefined") {
       var h;
       for (var i = 0, headers = $headers.children(), ii = headers.length; i < ii; i++) {
         h = $(headers[i]);
-        if (h.width() !== columns[i].width - headerColumnWidthDiff) {
-          h.width(columns[i].width - headerColumnWidthDiff);
-        }
+		if (jQueryNewWidthBehaviour) {
+			if (h.outerWidth() !== columns[i].width) {
+			  h.outerWidth(columns[i].width);
+			}
+		} else {
+			if (h.width() !== columns[i].width - headerColumnWidthDiff) {
+			  h.width(columns[i].width - headerColumnWidthDiff);
+			}
+		}
       }
 
       updateColumnCaches();
