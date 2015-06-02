@@ -8,7 +8,7 @@ classes should alter those!
 .slick-header.ui-state-default, .slick-headerrow.ui-state-default {
   width: 100%;
   overflow: hidden;
-  border-left: 0px;
+  border-left: 0px !important;
 }
 
 .slick-header-columns, .slick-headerrow-columns {
@@ -21,6 +21,7 @@ classes should alter those!
 .slick-header-column.ui-state-default {
   position: relative;
   display: inline-block;
+  /*box-sizing: content-box !important; */
   overflow: hidden;
   -o-text-overflow: ellipsis;
   text-overflow: ellipsis;
@@ -29,9 +30,9 @@ classes should alter those!
   margin: 0;
   padding: 4px;
   border-right: 1px solid silver;
-  border-left: 0px;
-  border-top: 0px;
-  border-bottom: 0px;
+  border-left: 0px !important;
+  border-top: 0px !important;
+  border-bottom: 0px !important;
   float: left;
 }
 
