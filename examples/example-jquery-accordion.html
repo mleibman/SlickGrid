@@ -87,16 +87,19 @@
   }
   
   $(function () {
-    $( "#accordion" ).accordion({
-		activate: function( event, ui ) {
-			var accHeaderId = '';
-			if (ui.newHeader && ui.newHeader.length>0) { accHeaderId = ui.newHeader[0].id; }
-			if (accHeaderId == 'acc_sect1') {
-				grid01.destroy();
-				grid01 = new Slick.Grid("#myGrid01", data01, columns, options);
-			}
-		}
-	});	
+    $( "#accordion" ).accordion(
+	// Workaround for IE 7-9 issue where div is blank after switching panels - need to destroy and recreate grid
+	//{
+	//	activate: function( event, ui ) {
+	//		var accHeaderId = '';
+	//		if (ui.newHeader && ui.newHeader.length>0) { accHeaderId = ui.newHeader[0].id; }
+	//		if (accHeaderId == 'acc_sect1') {
+	//			grid01.destroy();
+	//			grid01 = new Slick.Grid("#myGrid01", data01, columns, options);
+	//		}
+	//	}
+	//}
+	);	
 
     var data01 = CreateData();
     grid01 = new Slick.Grid("#myGrid01", data01, columns, options);
