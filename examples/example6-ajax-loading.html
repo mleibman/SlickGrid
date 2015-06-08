@@ -73,7 +73,7 @@
 <script src="../slick.grid.js"></script>
 
 <script>
-    var grid;
+    var grid, s;
     var loader = new Slick.Data.RemoteModel();
     var mpnFormatter = function (row, cell, value, columnDef, dataContext) {
         s ="<a href='" + dataContext.octopart_url + "' target=_blank>" + dataContext.mpn + "</a>";

@@ -75,7 +75,7 @@
       var url = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20rss"
         + "(" + recStart + "%2C" + recCount + ")"
         + "%20where%20url%3D%22http%3A%2F%2Frss.news.yahoo.com%2Frss%2Ftopstories%22"
-        + "&format=json"
+        + "&format=json";
 
       if (h_request != null) {
         clearTimeout(h_request);

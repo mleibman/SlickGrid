@@ -489,7 +489,7 @@ test("updating an item to not pass the filter", function() {
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2},{id:3,val:3}]);
     dv.setFilter(function(o) { return o["val"] !== 1337; });
     dv.onRowsChanged.subscribe(function(e,args) {
-        console.log(args)
+        console.log(args);
         ok(false, "onRowsChanged called");
     });
     dv.onRowCountChanged.subscribe(function(e,args) {

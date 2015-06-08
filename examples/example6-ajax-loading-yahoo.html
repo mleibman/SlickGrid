@@ -79,9 +79,9 @@
   var loader = new Slick.Data.RemoteModel();
 
   var storyTitleFormatter = function (row, cell, value, columnDef, dataContext) {
-    s ="<b><a href='" + dataContext["url"] + "' target=_blank>" +
+    var s ="<b><a href='" + dataContext["url"] + "' target=_blank>" +
               dataContext["title"] + "</a></b><br/>";
-    desc = dataContext["text"];
+    var desc = dataContext["text"];
     if (desc) { // on Hackernews many stories don't have a description
         s += desc;
     }
