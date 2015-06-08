@@ -1494,6 +1494,11 @@ if (typeof Slick === "undefined") {
     }
 
     function appendCellHtml(stringArray, row, cell, colspan, item) {
+      // stringArray: stringBuilder containing the HTML parts
+      // row, cell: row and column index
+      // colspan: HTML colspan
+      // item: grid data for row
+
       var m = columns[cell];
       var cellCss = "slick-cell l" + cell + " r" + Math.min(columns.length - 1, cell + colspan - 1) +
           (m.cssClass ? " " + m.cssClass : "");
