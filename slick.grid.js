@@ -3021,16 +3021,18 @@ if (typeof Slick === "undefined") {
       renderRows(rendered);
 
       // Render frozen rows
-      if (options.frozenBottom) {
-        renderRows({
-          top: actualFrozenRow, bottom: getDataLength() - 1, leftPx: rendered.leftPx, rightPx: rendered.rightPx
-        });
+      if (hasFrozenRows) {
+	      if (options.frozenBottom) {
+	        renderRows({
+	          top: actualFrozenRow, bottom: getDataLength() - 1, leftPx: rendered.leftPx, rightPx: rendered.rightPx
+	        });
+	      }
+	      else {
+	          renderRows({
+	           top: 0, bottom: options.frozenRow - 1, leftPx: rendered.leftPx, rightPx: rendered.rightPx
+	          });
+	        }
       }
-      else {
-          renderRows({
-           top: 0, bottom: options.frozenRow - 1, leftPx: rendered.leftPx, rightPx: rendered.rightPx
-          });
-        }      
 
       postProcessFromRow = visible.top;
       postProcessToRow = Math.min(getDataLengthIncludingAddNew() - 1, visible.bottom);
