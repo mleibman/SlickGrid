@@ -3013,7 +3013,26 @@ if (typeof Slick === "undefined") {
       cleanupRows(rendered);
 
       // add new rows & missing cells in existing rows
-      if (lastRenderedScrollLeft != scrollLeft) {    	  
+      if (lastRenderedScrollLeft != scrollLeft) {
+    	  
+    	  if ( hasFrozenRows ) {
+    		  
+    		  var renderedFrozenRows = jQuery.extend(true, {}, rendered);
+    		  
+    		  if (options.frozenBottom) {
+    			  
+    			 renderedFrozenRows.top=actualFrozenRow;
+    			 renderedFrozenRows.bottom=getDataLength();
+    		  }
+    		  else {
+             
+	             renderedFrozenRows.top=0;
+	             renderedFrozenRows.bottom=options.frozenRow;
+    		  }
+    		  
+    		  cleanUpAndRenderCells(renderedFrozenRows); 
+    	  }
+    	  
           cleanUpAndRenderCells(rendered);
       }
 
