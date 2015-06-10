@@ -2295,7 +2295,7 @@ if (typeof Slick === "undefined") {
             appendCellHtml(stringArrayL, row, i, colspan, d);
           }
         } else if (hasFrozenColumns() && ( i <= options.frozenColumn )) {
-          appendCellHtml(stringArrayL, row, i, colspan);
+          appendCellHtml(stringArrayL, row, i, colspan, d);
         }
 
         if (colspan > 1) {
@@ -3014,18 +3014,30 @@ if (typeof Slick === "undefined") {
 
       // add new rows & missing cells in existing rows
       if (lastRenderedScrollLeft != scrollLeft) {
-        cleanUpAndRenderCells(rendered);
+    	  if ( hasFrozenRows && rendered.top > options.frozenRow - 1 ) {
+              var renderedFrozenRows = jQuery.extend(true, {}, rendered);
+              renderedFrozenRows.top=0;
+              renderedFrozenRows.bottom=options.frozenRow - 1;
+              cleanUpAndRenderCells(renderedFrozenRows);    		  
+    	  }
+    	  
+          cleanUpAndRenderCells(rendered);
       }
 
       // render missing rows
       renderRows(rendered);
 
-      // Render frozen bottom rows
+      // Render frozen rows
       if (options.frozenBottom) {
         renderRows({
           top: actualFrozenRow, bottom: getDataLength() - 1, leftPx: rendered.leftPx, rightPx: rendered.rightPx
         });
       }
+      else {
+          renderRows({
+           top: 0, bottom: options.frozenRow - 1, leftPx: rendered.leftPx, rightPx: rendered.rightPx
+          });
+        }      
 
       postProcessFromRow = visible.top;
       postProcessToRow = Math.min(getDataLengthIncludingAddNew() - 1, visible.bottom);
