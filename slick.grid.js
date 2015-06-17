@@ -1200,6 +1200,7 @@ if (typeof Slick === "undefined") {
       var positionValid = limit.start <= currentPosition && currentPosition <= limit.end;
 
       return {
+    	limit: limit,
         valid: positionValid,
         message: positionValid? '': 'Column "'.concat($item.text(), '" can be reordered only within the "', limit.group.name, '" group!')
       };
@@ -1252,10 +1253,12 @@ if (typeof Slick === "undefined") {
           var cancel = false;
           clearInterval(columnScrollTimer);
           columnScrollTimer = null;
+          var limit = null;
 
           if (treeColumns.hasDepth()) {
             var validPositionInGroup = columnPositionValidInGroup(ui.item);
-
+            limit = validPositionInGroup.limit;
+            
             cancel = !validPositionInGroup.valid;
 
             if (cancel)
@@ -1276,13 +1279,30 @@ if (typeof Slick === "undefined") {
           }
           setColumns(reorderedColumns);
 
-          trigger(self.onColumnsReordered, {});
+          trigger(self.onColumnsReordered, { impactedColumns : getImpactedColumns( limit ) });
           e.stopPropagation();
           setupColumnResize();
         }
       });
     }
 
+	function getImpactedColumns( limit ) {
+    	var impactedColumns = [];
+    	
+    	if( limit != undefined ) {
+    		   		
+	   		for( var i = limit.start; i <= limit.end; i++ ) {
+	   			impactedColumns.push( columns[i] );
+	   		}
+    	}
+    	else {
+    		
+    		impactedColumns = columns;
+    	}
+   		   		
+   		return impactedColumns;
+    }    
+    
     function setupColumnResize() {
       var $col, j, k, c, pageX, columnElements, minPageX, maxPageX, firstResizable, lastResizable;
       columnElements = $headers.children();
