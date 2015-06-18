@@ -2353,7 +2353,18 @@ if (typeof Slick === "undefined") {
       // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
       if (item) {
         var value = getDataItemValueForColumn(item, m);
-        stringArray.push(getFormatter(row, m)(row, cell, value, m, item));
+        
+        // pass metadata to formatter
+        var metadata = data.getItemMetadata && data.getItemMetadata(row);
+        metadata = metadata && metadata.columns;
+        
+        if( metadata ) {
+        	var columnData = metadata[m.id] || metadata[cell];
+        	stringArray.push(getFormatter(row, m)(row, cell, value, m, item, columnData ));
+        }        
+        else {
+        	stringArray.push(getFormatter(row, m)(row, cell, value, m, item));
+        }
       }
 
       stringArray.push("</div>");
