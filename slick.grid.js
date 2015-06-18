@@ -1929,7 +1929,7 @@ if (typeof Slick === "undefined") {
       // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
       if (item) {
         var value = getDataItemValueForColumn(item, m);
-        markupArray.push(getFormatter(row, m)(row, cell, value, m, item));
+        markupArray.push(getFormatter(row, m)(row, cell, value, m, item, self));
       }
 
       markupArray.push("</div>");
@@ -3179,7 +3179,7 @@ if (typeof Slick === "undefined") {
         if (d) {
           var column = columns[activeCell];
           var formatter = getFormatter(activeRow, column);
-          activeCellNode.innerHTML = formatter(activeRow, activeCell, getDataItemValueForColumn(d, column), column, d);
+          activeCellNode.innerHTML = formatter(activeRow, activeCell, getDataItemValueForColumn(d, column), column, d, self);
           invalidatePostProcessingResults(activeRow);
         }
       }
