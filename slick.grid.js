@@ -2237,6 +2237,25 @@ if (typeof Slick === "undefined") {
           options.defaultFormatter;
     }
 
+    function callFormatter( row, cell, value, m, item ) {
+    	
+    	var result;
+    	
+        // pass metadata to formatter
+        var metadata = data.getItemMetadata && data.getItemMetadata(row);
+        metadata = metadata && metadata.columns;
+        
+        if( metadata ) {
+        	var columnData = metadata[m.id] || metadata[cell];
+        	result = getFormatter(row, m)(row, cell, value, m, item, columnData );
+        }        
+        else {
+        	result = getFormatter(row, m)(row, cell, value, m, item);
+        } 
+        
+        return result;
+    }    
+    
     function getEditor(row, cell) {
       var column = columns[cell];
       var rowMetadata = data.getItemMetadata && data.getItemMetadata(row);
@@ -2353,18 +2372,7 @@ if (typeof Slick === "undefined") {
       // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
       if (item) {
         var value = getDataItemValueForColumn(item, m);
-        
-        // pass metadata to formatter
-        var metadata = data.getItemMetadata && data.getItemMetadata(row);
-        metadata = metadata && metadata.columns;
-        
-        if( metadata ) {
-        	var columnData = metadata[m.id] || metadata[cell];
-        	stringArray.push(getFormatter(row, m)(row, cell, value, m, item, columnData ));
-        }        
-        else {
-        	stringArray.push(getFormatter(row, m)(row, cell, value, m, item));
-        }
+        stringArray.push(callFormatter(row, cell, value, m, item));
       }
 
       stringArray.push("</div>");
@@ -2466,7 +2474,7 @@ if (typeof Slick === "undefined") {
       if (currentEditor && activeRow === row && activeCell === cell) {
         currentEditor.loadValue(d);
       } else {
-        cellNode.innerHTML = d ? getFormatter(row, m)(row, cell, getDataItemValueForColumn(d, m), m, d) : "";
+    	cellNode.innerHTML = d ? callFormatter(row, cell, getDataItemValueForColumn(d, m), m, d) : "";
         invalidatePostProcessingResults(row);
       }
     }
@@ -2493,7 +2501,7 @@ if (typeof Slick === "undefined") {
         if (row === activeRow && columnIdx === activeCell && currentEditor) {
           currentEditor.loadValue(d);
         } else if (d) {
-          node.innerHTML = getFormatter(row, m)(row, columnIdx, getDataItemValueForColumn(d, m), m, d);
+          node.innerHTML = callFormatter(row, columnIdx, getDataItemValueForColumn(d, m), m, d);
         } else {
           node.innerHTML = "";
         }
@@ -3814,8 +3822,7 @@ if (typeof Slick === "undefined") {
         $(activeCellNode).removeClass("editable invalid");
         if (d) {
           var column = columns[activeCell];
-          var formatter = getFormatter(activeRow, column);
-          activeCellNode[0].innerHTML = formatter(activeRow, activeCell, getDataItemValueForColumn(d, column), column, d);
+          activeCellNode[0].innerHTML = callFormatter(activeRow, activeCell, getDataItemValueForColumn(d, column), column, d);
           invalidatePostProcessingResults(activeRow);
         }
       }
