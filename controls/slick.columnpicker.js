@@ -18,6 +18,16 @@
         $(this).fadeOut(options.fadeSpeed)
       });
       $menu.bind("click", updateColumn);
+      
+      // make columns hidden by default
+      var visibleColumns = [];
+      $.each(columns, function(idx){
+        column = columns[idx];
+        if(column.hidden == undefined || column.hidden == false){
+          visibleColumns.push(column);
+        }
+      });
+      grid.setColumns(visibleColumns);
 
     }
 
