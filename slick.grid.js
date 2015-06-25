@@ -4076,7 +4076,7 @@ if (typeof Slick === "undefined") {
         return 1;
       }
 
-      var columnData = metadata.columns[columns[cell].id] || metadata.columns[cell];
+      var columnData = columns[cell] && ( metadata.columns[columns[cell].id] || metadata.columns[cell] );
       var colspan = (columnData && columnData.colspan);
       if (colspan === "*") {
         colspan = columns.length - cell;
@@ -4392,14 +4392,14 @@ if (typeof Slick === "undefined") {
       }
 
       var columnMetadata = rowMetadata && rowMetadata.columns;
-      if (columnMetadata && columnMetadata[columns[cell].id] && typeof columnMetadata[columns[cell].id].focusable === "boolean") {
+      if (columnMetadata && columns[cell] && columnMetadata[columns[cell].id] && typeof columnMetadata[columns[cell].id].focusable === "boolean") {
         return columnMetadata[columns[cell].id].focusable;
       }
       if (columnMetadata && columnMetadata[cell] && typeof columnMetadata[cell].focusable === "boolean") {
         return columnMetadata[cell].focusable;
       }
 
-      return columns[cell].focusable;
+      return columns[cell] && columns[cell].focusable;
     }
 
     function canCellBeSelected(row, cell) {
