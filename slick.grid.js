@@ -2668,7 +2668,7 @@ if (typeof Slick === "undefined") {
       var numberOfRows = 0;
       var oldH = ( hasFrozenRows && !options.frozenBottom ) ? $canvasBottomL.height() : $canvasTopL.height();
 
-      if (hasFrozenRows && options.frozenBottom) {
+      if (hasFrozenRows ) {
         var numberOfRows = getDataLength() - options.frozenRow;
       } else {
         var numberOfRows = dataLengthIncludingAddNew + (options.leaveSpaceForNewRows ? numVisibleRows - 1 : 0);
