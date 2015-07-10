@@ -2760,12 +2760,14 @@ if (typeof Slick === "undefined") {
       getEditorLock().activate(editController);
       $(activeCellNode).addClass("editable");
 
+	  var useEditor = editor || getEditor(activeRow, activeCell);
+	  
       // don't clear the cell if a custom editor is passed through
-      if (!editor) {
+      if (!editor && !useEditor.suppressClearOnEdit) {
         activeCellNode.innerHTML = "";
       }
-
-      currentEditor = new (editor || getEditor(activeRow, activeCell))({
+ 
+      currentEditor = new useEditor({
         grid: self,
         gridPosition: absBox($container[0]),
         position: absBox(activeCellNode),
