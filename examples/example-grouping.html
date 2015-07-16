@@ -107,6 +107,8 @@
 <script src="../controls/slick.columnpicker.js"></script>
 
 <script>
+function isIEPreVer9() { var v = navigator.appVersion.match(/MSIE ([\d.]+)/i); return (v ? v[1] < 9 : false); }
+
 var dataView;
 var grid;
 var data = [];
@@ -312,7 +314,7 @@ $(function () {
     sortdir = args.sortAsc ? 1 : -1;
     sortcol = args.sortCol.field;
 
-    if ($.browser.msie && $.browser.version <= 8) {
+    if (isIEPreVer9()) {
       // using temporary Object.prototype.toString override
       // more limited and does lexicographic sort only by default, but can be much faster
 
