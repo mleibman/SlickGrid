@@ -155,7 +155,7 @@
 
     function getPagingInfo() {
       var totalPages = pagesize ? Math.max(1, Math.ceil(totalRows / pagesize)) : 1;
-      return {pageSize: pagesize, pageNum: pagenum, totalRows: totalRows, totalPages: totalPages};
+      return {pageSize: pagesize, pageNum: pagenum, totalRows: totalRows, totalPages: totalPages, dataView: self};
     }
 
     function sort(comparer, ascending) {
@@ -861,14 +861,14 @@
       prevRefreshHints = refreshHints;
       refreshHints = {};
 
-      if (totalRowsBefore != totalRows) {
+      if (totalRowsBefore !== totalRows) {
         onPagingInfoChanged.notify(getPagingInfo(), null, self);
       }
-      if (countBefore != rows.length) {
-        onRowCountChanged.notify({previous: countBefore, current: rows.length}, null, self);
+      if (countBefore !== rows.length) {
+        onRowCountChanged.notify({previous: countBefore, current: rows.length, dataView: self}, null, self);
       }
       if (diff.length > 0) {
-        onRowsChanged.notify({rows: diff}, null, self);
+        onRowsChanged.notify({rows: diff, dataView: self}, null, self);
       }
     }
 
@@ -906,7 +906,8 @@
 
         onSelectedRowIdsChanged.notify({
           "grid": grid,
-          "ids": selectedRowIds
+          "ids": selectedRowIds,
+          "dataView": self
         }, new Slick.EventData(), self);
       }
 
