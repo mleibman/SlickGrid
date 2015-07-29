@@ -73,7 +73,7 @@
 
     function handleClick(e, args) {
       // clicking on a row select checkbox
-      if (_grid.getColumns()[args.cell].id === _options.columnId && $(e.target).is(":checkbox")) {
+      if (_grid.getColumns()[args.cell].id === _options.columnId && $(e.target).attr("class").indexOf('slick-select') > -1 && $(e.target).attr("class").indexOf('locked') === -1) {
         // if editing, try to commit
         if (_grid.getEditorLock().isActive() && !_grid.getEditorLock().commitCurrentEdit()) {
           e.preventDefault();
@@ -135,10 +135,14 @@
     }
 
     function checkboxSelectionFormatter(row, cell, value, columnDef, dataContext) {
-      if (dataContext) {
-        return _selectedRowsLookup[row]
-            ? "<input type='checkbox' checked='checked'><label class='pseudo-checkbox'></label>"
-            : "<input type='checkbox'><label class='pseudo-checkbox'></label>";
+      if(dataContext){
+        if(dataContext.locked && !dataContext.lockedByMe){
+          return "<a class='slick-select locked' title='This order is currently locked by another user.'></a>";
+        }else if(dataContext.locked && dataContext.lockedByMe){
+          return "<a class='slick-select by-me' title='This order is currently locked by you.'></a>";
+        }else{
+          return "<a class='slick-select'></a>";
+        }
       }
       return null;
     }
