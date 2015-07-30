@@ -1407,18 +1407,25 @@ if (typeof Slick === "undefined") {
           (dataLoading ? " loading" : "") +
           (row === activeRow ? " active" : "") +
           (row % 2 == 1 ? " odd" : " even");
-
+      var attr = "";
       if (!d) {
         rowCss += " " + options.addNewRowCssClass;
       }
 
       var metadata = data.getItemMetadata && data.getItemMetadata(row);
 
-      if (metadata && metadata.cssClasses) {
-        rowCss += " " + metadata.cssClasses;
+      if (metadata) {
+        if(metadata.cssClasses){
+            rowCss += " " + metadata.cssClasses;
+        }
+        if(metadata.attr){
+            for(attribute in metadata.attr){
+                attr += attribute + "='" + metadata.attr[attribute] + "' ";
+            }
+        }
       }
 
-      stringArray.push("<div class='ui-widget-content " + rowCss + "' style='top:" + getRowTop(row) + "px'>");
+      stringArray.push("<div class='ui-widget-content " + rowCss + "' style='top:" + getRowTop(row) + "px' " + attr + ">");
 
       var colspan, m;
       for (var i = 0, ii = columns.length; i < ii; i++) {
