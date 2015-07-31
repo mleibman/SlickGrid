@@ -1419,8 +1419,10 @@ if (typeof Slick === "undefined") {
             rowCss += " " + metadata.cssClasses;
         }
         if(metadata.attr){
-            for(attribute in metadata.attr){
+            for (var attribute in metadata.attr){
+              if (metadata.attr.hasOwnProperty(attribute)){
                 attr += attribute + "='" + metadata.attr[attribute] + "' ";
+              }
             }
         }
       }
