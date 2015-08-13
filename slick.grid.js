@@ -3072,6 +3072,7 @@ if (typeof Slick === "undefined") {
       scrollTop = Math.max(0, $viewportScrollContainerY[0].scrollTop - (deltaY * options.rowHeight));
       scrollLeft = $viewportScrollContainerX[0].scrollLeft + (deltaX * 10);
       _handleScroll(true);
+      e.preventDefault();
     }
 
     function handleScroll() {
