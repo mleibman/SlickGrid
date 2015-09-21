@@ -3139,13 +3139,14 @@ if (typeof Slick === "undefined") {
 
       scrollTop = Math.max(0, $viewportScrollContainerY[0].scrollTop - (deltaY * options.rowHeight));
       scrollLeft = $viewportScrollContainerX[0].scrollLeft + (deltaX * 10);
-      _handleScroll(true);
+      var handled = _handleScroll(true);
+      if (handled) e.preventDefault();
     }
 
     function handleScroll() {
       scrollTop = $viewportScrollContainerY[0].scrollTop;
       scrollLeft = $viewportScrollContainerX[0].scrollLeft;
-      _handleScroll(false);
+      return _handleScroll(false);
     }
 
     function _handleScroll(isMouseWheel) {
@@ -3236,6 +3237,9 @@ if (typeof Slick === "undefined") {
       }
 
       trigger(self.onScroll, {scrollLeft: scrollLeft, scrollTop: scrollTop});
+	  
+      if (hScrollDist || vScrollDist) return true;
+      return false;
     }
 
     function asyncPostProcessRows() {
