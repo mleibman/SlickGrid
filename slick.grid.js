@@ -1218,6 +1218,7 @@ if (typeof Slick === "undefined") {
         $viewportScrollContainerX[0].scrollLeft = $viewportScrollContainerX[0].scrollLeft - 10;
       }
 
+	  var canDragScroll;
       $headers.sortable({
         containment: "parent",
         distance: 3,
@@ -1228,18 +1229,20 @@ if (typeof Slick === "undefined") {
         placeholder: "slick-sortable-placeholder ui-state-default slick-header-column",
         start: function (e, ui) {
           ui.placeholder.width(ui.helper.outerWidth() - headerColumnWidthDiff);
-          $(ui.helper).addClass("slick-header-column-active");
+          canDragScroll = !hasFrozenColumns() ||
+            (ui.placeholder.offset().left + ui.placeholder.width()) > $viewportScrollContainerX.offset().left;
+	      $(ui.helper).addClass("slick-header-column-active");
         },
         beforeStop: function (e, ui) {
           $(ui.helper).removeClass("slick-header-column-active");
         },
         sort: function (e, ui) {
-          if (e.originalEvent.pageX > $container[0].clientWidth) {
+          if (canDragScroll && e.originalEvent.pageX > $container[0].clientWidth) {
             if (!(columnScrollTimer)) {
               columnScrollTimer = setInterval(
                 scrollColumnsRight, 100);
             }
-          } else if (e.originalEvent.pageX < $viewportScrollContainerX.offset().left) {
+          } else if (canDragScroll && e.originalEvent.pageX < $viewportScrollContainerX.offset().left) {
             if (!(columnScrollTimer)) {
               columnScrollTimer = setInterval(
                 scrollColumnsLeft, 100);
