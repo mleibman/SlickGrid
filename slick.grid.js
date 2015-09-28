@@ -2313,7 +2313,6 @@ if (typeof Slick === "undefined") {
       var rowNode = $(e.target).closest(".slick-row")[0];
       if (rowNode != rowNodeFromLastMouseWheelEvent) {
         if (zombieRowNodeFromLastMouseWheelEvent && zombieRowNodeFromLastMouseWheelEvent != rowNode) {
-          $canvas[0].removeChild(zombieRowNodeFromLastMouseWheelEvent);
           if (options.enableAsyncPostRenderCleanup && zombieRowPostProcessedFromLastMouseWheelEvent) {
             queuePostProcessedRowForCleanup(zombieRowCacheFromLastMouseWheelEvent,
               zombieRowPostProcessedFromLastMouseWheelEvent);
