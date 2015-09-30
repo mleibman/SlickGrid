@@ -939,7 +939,7 @@ if (typeof Slick === "undefined") {
 	  // jquery 1.8 changed .width to read the true inner element width if box-sizing is set to border-box, and introduced a setter for .outerWidth
 	  // so for equivalent functionality, prior to 1.8 use .width, and after use .outerWidth
 	  var verArray = $.fn.jquery.split('.');
-	  jQueryNewWidthBehaviour = verArray[0]>=1 && verArray[1]>=8;
+	  jQueryNewWidthBehaviour = (verArray[0]==1 && verArray[1]>=8) ||  verArray[0] >=2;
 	  
       el = $("<div class='ui-state-default slick-header-column' style='visibility:hidden'>-</div>").appendTo($headers);
       headerColumnWidthDiff = headerColumnHeightDiff = 0;
