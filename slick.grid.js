@@ -3867,12 +3867,17 @@ if (typeof Slick === "undefined") {
         activeCellNode[0].innerHTML = "";
       }
 
+      var metadata = data.getItemMetadata && data.getItemMetadata(activeRow);
+      metadata = metadata && metadata.columns;
+      var columnMetaData = metadata[columnDef.id] || metadata[activeCell];      
+      
       currentEditor = new (editor || getEditor(activeRow, activeCell))({
         grid: self,
         gridPosition: absBox($container[0]),
         position: absBox(activeCellNode[0]),
         container: activeCellNode,
         column: columnDef,
+        columnMetaData: columnMetaData,
         item: item || {},
         commitChanges: commitEditAndSetFocus,
         cancelChanges: cancelEditAndSetFocus
@@ -4084,7 +4089,7 @@ if (typeof Slick === "undefined") {
         colspan = colspan || 1;
       }
 
-      return colspan;
+      return parseInt( colspan );
     }
 
     function findFirstFocusableCell(row) {
