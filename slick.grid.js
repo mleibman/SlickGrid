@@ -92,7 +92,8 @@ if (typeof Slick === "undefined") {
       multiColumnSort: false,
       defaultFormatter: defaultFormatter,
       forceSyncScrolling: false,
-      addNewRowCssClass: "new-row"
+      addNewRowCssClass: "new-row",
+      doPaging: true
     };
 
     var columnDefaults = {
@@ -3689,13 +3690,11 @@ if (typeof Slick === "undefined") {
     }
 
     function scrollCellIntoView(row, cell, doPaging) {
-      // Don't scroll to frozen cells
+
+      scrollRowIntoView(row, doPaging);
+
       if (cell <= options.frozenColumn) {
         return;
-      }
-
-      if (row < actualFrozenRow) {
-        scrollRowIntoView(row, doPaging);
       }
 
       var colspan = getColspan(row, cell);
@@ -4011,18 +4010,22 @@ if (typeof Slick === "undefined") {
     	
 	      var viewportScrollH = $viewportScrollContainerY.height();
 	
-	      var rowAtTop = row * options.rowHeight;
-	      var rowAtBottom = (row + 1) * options.rowHeight
+	      // if frozen row on top
+	      // subtract number of frozen row
+	      var rowNumber = ( hasFrozenRows && !options.frozenBottom ? row - options.frozenRow : row );
+	      
+	      var rowAtTop = rowNumber * options.rowHeight;
+	      var rowAtBottom = (rowNumber + 1) * options.rowHeight
 	        - viewportScrollH
 	        + (viewportHasHScroll ? scrollbarDimensions.height : 0);
 	
 	      // need to page down?
-	      if ((row + 1) * options.rowHeight > scrollTop + viewportScrollH + offset) {
+	      if ((rowNumber + 1) * options.rowHeight > scrollTop + viewportScrollH + offset) {
 	        scrollTo(doPaging ? rowAtTop : rowAtBottom);
 	        render();
 	      }
 	      // or page up?
-	      else if (row * options.rowHeight < scrollTop + offset) {
+	      else if (rowNumber * options.rowHeight < scrollTop + offset) {
 	        scrollTo(doPaging ? rowAtBottom : rowAtTop);
 	        render();
 	      }
@@ -4351,7 +4354,7 @@ if (typeof Slick === "undefined") {
         if (( !options.frozenBottom && pos.row >= actualFrozenRow )
           || ( options.frozenBottom && pos.row < actualFrozenRow )
           ) {
-          scrollCellIntoView(pos.row, pos.cell, !isAddNewRow);
+          scrollCellIntoView(pos.row, pos.cell, !isAddNewRow && options.doPaging);
         }
 
         setActiveCellInternal(getCellNode(pos.row, pos.cell))
