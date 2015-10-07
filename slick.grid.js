@@ -251,15 +251,16 @@ if (typeof Slick === "undefined") {
         throw new Error("SlickGrid requires a valid container, " + container + " does not exist in the DOM.");
       }
 
-      if (options.useAntiscroll && !$.isFunction($.fn.antiscroll)) {
-        throw new ReferenceError('The { useAntiscroll: true } option was passed to SlickGrid, but the antiscroll library is not loaded. You can download the library here: https://github.com/bcherny/antiscroll.');
-      }
-
       // calculate these only once and share between grid instances
       maxSupportedCssHeight = maxSupportedCssHeight || getMaxSupportedCssHeight();
       scrollbarDimensions   = scrollbarDimensions   || measureScrollbar();
 
       options = $.extend({}, defaults, options);
+      
+      if (options.useAntiscroll && !$.isFunction($.fn.antiscroll)) {
+        throw new ReferenceError('The { useAntiscroll: true } option was passed to SlickGrid, but the antiscroll library is not loaded. You can download the library here: https://github.com/bcherny/antiscroll.');
+      }
+
       validateAndEnforceOptions();
       columnDefaults.width = options.defaultColumnWidth;
 
