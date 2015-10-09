@@ -1,6 +1,12 @@
 {
   "name": "slickgrid",
-  "version": "2.3.15",
+  "version": "2.3.17",
+  "main": [
+    "slick.core.js",
+    "slick.grid.js",
+    "slick.grid.css"
+  ],
+  "ignore": [],
   "homepage": "https://github.com/SimpleAsCouldBe/SlickGrid",
   "authors": [
     "Michael Leibman",

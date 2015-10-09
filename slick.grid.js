@@ -246,17 +246,12 @@ if (typeof Slick === "undefined") {
     // Initialization
 
     function init() {
-      $container = $(container);
-      if ($container.length < 1) {
-        throw new Error("SlickGrid requires a valid container, " + container + " does not exist in the DOM.");
-      }
-
       // calculate these only once and share between grid instances
       maxSupportedCssHeight = maxSupportedCssHeight || getMaxSupportedCssHeight();
       scrollbarDimensions   = scrollbarDimensions   || measureScrollbar();
 
       options = $.extend({}, defaults, options);
-      
+
       if (options.useAntiscroll && !$.isFunction($.fn.antiscroll)) {
         throw new ReferenceError('The { useAntiscroll: true } option was passed to SlickGrid, but the antiscroll library is not loaded. You can download the library here: https://github.com/bcherny/antiscroll.');
       }
@@ -275,6 +270,23 @@ if (typeof Slick === "undefined") {
         "commitCurrentEdit": commitCurrentEdit,
         "cancelCurrentEdit": cancelCurrentEdit
       };
+
+      if (!options.explicitInitialization) {
+        finishInitialization();
+      }
+
+    }
+
+
+    function finishInitialization(newContainer) {
+      if(initialized) { return }
+      initialized = true;
+
+      container = container || newContainer
+      $container = $(container);
+      if ($container.length < 1) {
+        throw new Error("SlickGrid requires a valid container, " + container + " does not exist in the DOM.");
+      }
 
       $container.empty().addClass(objectName +' '+ uid +' ui-widget');
       if (options.debug) { $container.addClass('debug') }
@@ -374,85 +386,77 @@ if (typeof Slick === "undefined") {
 
       $focusSink2 = $focusSink.clone().appendTo($container); // after the grid, in tab index order.
 
-      if (!options.explicitInitialization) {
-        finishInitialization();
-      }
-    }
+      // Start of original finishInitialization
 
-    function finishInitialization() {
-      if (!initialized) {
-        initialized = true;
+      calculateViewportWidth();
 
-        calculateViewportWidth();
-
-        // header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
-        // calculate the diff so we can set consistent sizes
+      // header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
+      // calculate the diff so we can set consistent sizes
 //        measureCellPaddingAndBorder();
 
-        // for usability reasons, all text selection in SlickGrid is disabled
-        // with the exception of input and textarea elements (selection must
-        // be enabled there so that editors work as expected); note that
-        // selection in grid cells (grid body) is already unavailable in
-        // all browsers except IE
-        disableSelection(header.el); // disable all text selection in header (including input and textarea)
+      // for usability reasons, all text selection in SlickGrid is disabled
+      // with the exception of input and textarea elements (selection must
+      // be enabled there so that editors work as expected); note that
+      // selection in grid cells (grid body) is already unavailable in
+      // all browsers except IE
+      disableSelection(header.el); // disable all text selection in header (including input and textarea)
 
-        if (!options.enableTextSelectionOnCells) {
-          // disable text selection in grid cells except in input and textarea elements
-          // (this is IE-specific, because selectstart event will only fire in IE)
-          contentViewport.el.bind("selectstart.ui", function (event) {
-            return $(event.target).is("input,textarea");
-          });
-        }
+      if (!options.enableTextSelectionOnCells) {
+        // disable text selection in grid cells except in input and textarea elements
+        // (this is IE-specific, because selectstart event will only fire in IE)
+        contentViewport.el.bind("selectstart.ui", function (event) {
+          return $(event.target).is("input,textarea");
+        });
+      }
 
-        updateColumnCaches();
-        createCssRules();
-        updatePinnedState();
-        setupColumnSort();
-        resizeCanvas();
-        updateAntiscroll();
-        bindAncestorScrollEvents();
+      updateColumnCaches();
+      createCssRules();
+      updatePinnedState();
+      setupColumnSort();
+      resizeCanvas();
+      updateAntiscroll();
+      bindAncestorScrollEvents();
 
-        $container
-          .bind("resize.slickgrid", resizeCanvas);
-        contentViewport.el
-          .bind("scroll", onScroll);
-        topViewport.el
-          .bind("mousewheel", onHeaderMouseWheel); // modern browsers only, not in gecko
-        header.el
-          .bind("contextmenu", handleHeaderContextMenu)
-          .bind("click", handleHeaderClick)
-          .delegate(".slick-header-column", "mouseenter", handleHeaderMouseEnter)
-          .delegate(".slick-header-column", "mouseleave", handleHeaderMouseLeave);
-        //$subHeaderScroller
-        //  .bind("scroll", handleSubHeaderScroll);
-        subHeader.el
-          .bind('contextmenu', handleSubHeaderContextMenu);
-        $focusSink.add($focusSink2)
-          .bind("keydown", handleKeyDown);
-        contentCanvas.el
-          .bind("keydown", handleKeyDown)
-          .bind("click", handleClick)
-          .bind("dblclick", handleDblClick)
-          .bind("contextmenu", handleContextMenu)
-          .bind("draginit", handleDragInit)
-          .bind("dragstart", {distance: 3}, handleDragStart)
-          .bind("drag", handleDrag)
-          .bind("dragend", handleDragEnd)
-          .delegate(".cell", "mouseenter", handleMouseEnter)
-          .delegate(".cell", "mouseleave", handleMouseLeave);
+      $container
+        .bind("resize.slickgrid", resizeCanvas);
+      contentViewport.el
+        .bind("scroll", onScroll);
+      topViewport.el
+        .bind("mousewheel", onHeaderMouseWheel); // modern browsers only, not in gecko
+      header.el
+        .bind("contextmenu", handleHeaderContextMenu)
+        .bind("click", handleHeaderClick)
+        .delegate(".slick-header-column", "mouseenter", handleHeaderMouseEnter)
+        .delegate(".slick-header-column", "mouseleave", handleHeaderMouseLeave);
+      //$subHeaderScroller
+      //  .bind("scroll", handleSubHeaderScroll);
+      subHeader.el
+        .bind('contextmenu', handleSubHeaderContextMenu);
+      $focusSink.add($focusSink2)
+        .bind("keydown", handleKeyDown);
+      contentCanvas.el
+        .bind("keydown", handleKeyDown)
+        .bind("click", handleClick)
+        .bind("dblclick", handleDblClick)
+        .bind("contextmenu", handleContextMenu)
+        .bind("draginit", handleDragInit)
+        .bind("dragstart", {distance: 3}, handleDragStart)
+        .bind("drag", handleDrag)
+        .bind("dragend", handleDragEnd)
+        .delegate(".cell", "mouseenter", handleMouseEnter)
+        .delegate(".cell", "mouseleave", handleMouseLeave);
 
-        // Work around http://crbug.com/312427.
-        if (navigator.userAgent.toLowerCase().match(/webkit/) &&
-          navigator.userAgent.toLowerCase().match(/macintosh/)) {
-          contentCanvas.el.bind("mousewheel", function(evt){
-            var scrolledRow = $(evt.target).closest(".row")[0];
-            protectedRowIdx = getRowFromNode(scrolledRow);
-            //      console.log('handleOsxMousewheel', {
-            //        rowIdx: getRowFromPosition(scrolledRow.offsetTop + e.originalEvent.offsetY), // the row's offset plus the cursor's offset in the cell
-            //        protectedRowIdx: protectedRowIdx
-            //      });
-          });
-        }
+      // Work around http://crbug.com/312427.
+      if (navigator.userAgent.toLowerCase().match(/webkit/) &&
+        navigator.userAgent.toLowerCase().match(/macintosh/)) {
+        contentCanvas.el.bind("mousewheel", function(evt){
+          var scrolledRow = $(evt.target).closest(".row")[0];
+          protectedRowIdx = getRowFromNode(scrolledRow);
+          //      console.log('handleOsxMousewheel', {
+          //        rowIdx: getRowFromPosition(scrolledRow.offsetTop + e.originalEvent.offsetY), // the row's offset plus the cursor's offset in the cell
+          //        protectedRowIdx: protectedRowIdx
+          //      });
+        });
       }
     }
 
