@@ -3868,7 +3868,7 @@ if (typeof Slick === "undefined") {
 
       var metadata = data.getItemMetadata && data.getItemMetadata(activeRow);
       metadata = metadata && metadata.columns;
-      var columnMetaData = metadata[columnDef.id] || metadata[activeCell];      
+      var columnMetaData = metadata && ( metadata[columnDef.id] || metadata[activeCell] );      
       
       currentEditor = new (editor || getEditor(activeRow, activeCell))({
         grid: self,
