@@ -975,6 +975,12 @@
       return filteredItems;
     }
 
+    function setOptions (opts) {
+      for (var key in opts) {
+        options[key] = opts[key];
+      }
+    }
+
     $.extend(this, {
       // methods
       "beginUpdate": beginUpdate,
@@ -1012,6 +1018,7 @@
       "deleteItem": deleteItem,
       "syncGridSelection": syncGridSelection,
       "syncGridCellCssStyles": syncGridCellCssStyles,
+      "setOptions": setOptions,
 
       // data provider methods
       "getLength": getLength,
