@@ -2310,13 +2310,9 @@ if (typeof Slick === "undefined") {
       var cell = 0;
 
       var w = 0;
-      for (var i = 0; i < columns.length && w < x; i++) {
+      for (var i = 0; i < columns.length && w <= x; i++) {
         w += columns[i].width;
         cell++;
-      }
-
-      if (cell < 0) {
-        cell = 0;
       }
 
       return {row: row, cell: cell - 1};
