@@ -45,7 +45,8 @@
 
   var options = {
     enableCellNavigation: true,
-    enableColumnReorder: false
+    enableColumnReorder: false,
+    explicitInitialization: true
   };
 
   $(function () {
@@ -61,7 +62,14 @@
       };
     }
 
-    grid = new Slick.Grid("#myGrid", data, columns, options);
+    grid = new Slick.Grid(null, data, columns, options);
+
+    setTimeout(function(){ $("#myGrid").text("Delaying...") }, 10);
+    setTimeout(function(){ $("#myGrid").text("One...") }, 1000);
+    setTimeout(function(){ $("#myGrid").text("Two...") }, 2000);
+    setTimeout(function(){
+      grid.init($("#myGrid"))
+    }, 3000);
   })
 </script>
 </body>
