@@ -77,7 +77,7 @@
     var onRowsChanged = new Slick.Event();
     var onPagingInfoChanged = new Slick.Event();
 
-    options = $.extend(true, {}, defaults, options);
+    setOptions(options);
 
 
     function beginUpdate() {
@@ -975,6 +975,10 @@
       return filteredItems;
     }
 
+    function setOptions (opts) {
+      return options = $.extend(true, {}, defaults, options, opts);
+    }
+
     $.extend(this, {
       // methods
       "beginUpdate": beginUpdate,
@@ -1012,6 +1016,7 @@
       "deleteItem": deleteItem,
       "syncGridSelection": syncGridSelection,
       "syncGridCellCssStyles": syncGridCellCssStyles,
+      "setOptions": setOptions,
 
       // data provider methods
       "getLength": getLength,
