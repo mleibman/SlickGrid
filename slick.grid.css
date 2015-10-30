@@ -1,5 +1,5 @@
 .slickGrid .header,
-.slickGrid .subHeader,
+.slickGrid .subHeaders,
 .slickGrid .row,
 .slickGrid .cell {
   box-sizing: border-box; }
@@ -13,9 +13,11 @@
     padding: 4px;
     line-height: 32px; }
 
-.slickGrid .subHeader {
-  height: 21px; }
-  .slickGrid .subHeader .cell {
+.slickGrid .subHeaders .subHeader-row {
+  height: 21px;
+  position: relative; }
+  .slickGrid .subHeaders .subHeader-row .cell {
+    height: 21px;
     padding: 2px;
     line-height: 17px; }
 
@@ -98,7 +100,7 @@
       background: lightskyblue; }
 
 .slickGrid .header,
-.slickGrid .subHeader {
+.slickGrid .subHeaders {
   position: relative;
   white-space: nowrap;
   cursor: default;
@@ -107,18 +109,18 @@
   background: #f7f7f7; }
 
 .slickGrid .header .cell,
-.slickGrid .subHeader .cell {
+.slickGrid .subHeaders .cell {
   border-right: 1px solid silver;
   border-left: 0;
   border-top: 0;
   border-bottom: 0; }
   .slickGrid .header .cell.active,
-  .slickGrid .subHeader .cell.active {
+  .slickGrid .subHeaders .cell.active {
     background: transparent; }
 
-.slickGrid .subHeader {
+.slickGrid .subHeaders {
   background: #ddd; }
-  .slickGrid .subHeader .cell input {
+  .slickGrid .subHeaders .cell input {
     box-sizing: border-box;
     width: 100%;
     height: 100%; }

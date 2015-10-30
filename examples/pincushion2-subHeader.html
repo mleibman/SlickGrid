@@ -16,11 +16,14 @@
       <h2>Demonstrates:</h2>
       <ul>
         <li>Pinned columns.</li>
-        <li>Sub Headers under the main headers. They are locked to the top of the grid. Renamed from `headerRow` to `subHeader`.</li>
+        <li>Sub Headers under the main headers. They are locked to the top of the grid. Renamed from `headerRow` to `subHeaders`.</li>
         <li>Use of `subHeaderRenderer` to draw subHeader cell contents.</li>
       </ul>
 
-      <button id="toggle">Toggle subHeader</button>
+      <button id="remove">-1 subHeader</button>
+      <button id="add">+1 subHeader</button>
+
+      <button id="toggle">Toggle subHeaders</button>
 
     </td>
   </tr>
@@ -73,15 +76,19 @@
     return true;
   }
 
-  var options = {
-    pinnedColumn: 0,
-//    explicitInitialization: true,
-    showSubHeader: true,
-    subHeaderRenderer: function(col){
+  var subHeaderRenderers = [
+    function(col){
       return $("<div><input type='text' /></div>")
               .data("columnId", col.id)
               .val(columnFilters[col.id]);
     }
+  ];
+
+  var options = {
+    pinnedColumn: 0,
+//    explicitInitialization: true,
+    showSubHeaders: true,
+    subHeaderRenderers: subHeaderRenderers
   };
 
   $(function () {
@@ -128,8 +135,29 @@
     grid.onHeaderContextMenu.subscribe(function(){    console.log('onHeaderContextMenu',    arguments); });
 
     shown = true;
+
+    function updateSubHeaders () {
+      subHeaderRenderers.forEach(function (renderer, m) {
+        grid.getColumns().forEach(function (col) {
+          grid.updateSubHeaders(col.id, m);
+        });
+      });
+    }
+
     $('#toggle').bind('click', function(){
-      grid.setSubHeaderVisibility( shown = !shown )
+      grid.setSubHeadersVisibility( shown = !shown )
+    });
+    $('#add').bind('click', function(){
+      subHeaderRenderers.push(function(col){
+        return $("<div>" + col.id + "</div>");
+      });
+      grid.setOptions({ subHeaderRenderers: subHeaderRenderers });
+      updateSubHeaders();
+    });
+    $('#remove').bind('click', function(){
+      subHeaderRenderers.splice(-1);
+      grid.setOptions({ subHeaderRenderers: subHeaderRenderers });
+      updateSubHeaders();
     });
   })
 </script>
