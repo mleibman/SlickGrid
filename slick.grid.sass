@@ -17,7 +17,7 @@
 //    background-color: rgba(0, 0, 255, 0.05)
 
 .slickGrid .header,
-.slickGrid .subHeader,
+.slickGrid .subHeaders,
 .slickGrid .row,
 .slickGrid .cell
   box-sizing: border-box
@@ -34,13 +34,16 @@
     padding: $padding
     line-height: $h - $padding*2
 
-.slickGrid .subHeader
+.slickGrid .subHeaders
   $h: 21px
-  height: $h
-  .cell
-    $padding: 2px
-    padding: $padding
-    line-height: $h - $padding*2
+  .subHeader-row
+    height: $h
+    position: relative
+    .cell
+      $padding: 2px
+      height: $h
+      padding: $padding
+      line-height: $h - $padding*2
 
 // Height for normal grid rows
 .slickGrid .row
@@ -142,7 +145,7 @@
       background: lightskyblue
 
 .slickGrid .header,
-.slickGrid .subHeader
+.slickGrid .subHeaders
   position: relative
   white-space: nowrap
   cursor: default
@@ -151,7 +154,7 @@
   background: #f7f7f7
 
 .slickGrid .header,
-.slickGrid .subHeader
+.slickGrid .subHeaders
   .cell
     border-right: 1px solid silver
     border-left: 0
@@ -161,7 +164,7 @@
     &.active
       background: transparent
 
-.slickGrid .subHeader
+.slickGrid .subHeaders
   background: #ddd
   .cell input
     box-sizing: border-box

@@ -73,7 +73,7 @@ if (typeof Slick === "undefined") {
       asyncPostRenderDelay: 50,
       autoHeight: false,
       editorLock: Slick.GlobalEditorLock,
-      showSubHeader: false,
+      showSubHeaders: false,
       addRowIndexToClassName: true,
       formatterFactory: null,
       editorFactory: null,
@@ -86,7 +86,7 @@ if (typeof Slick === "undefined") {
       multiColumnSort: false,
       defaultFormatter: defaultFormatter,
       columnHeaderRenderer: columnHeaderRenderer,
-      subHeaderRenderer: subHeaderRenderer,
+      subHeaderRenderers: [], // Array[(Column) => jQuery]
       forceSyncScrolling: false,
       addNewRowCssClass: "new-row",
       useAntiscroll: false,
@@ -215,7 +215,7 @@ if (typeof Slick === "undefined") {
     var topViewport         = [{},{}],  // The scrolling region
         topCanvas           = [{},{}],  // The full size of content (both off and on screen)
         header              = [{},{}],  // The column headers
-        subHeader           = [{},{}],  // Optional row of cells below the column headers
+        subHeaders          = [{},{}],  // Optional rows of cells below the column headers
         contentViewportWrap = {},       // Content viewports are wrapped with elements that have
                                         //   the same dimensions as the viewports themselves.
                                         //   This is in service of the antiscroll plugin.
@@ -298,10 +298,10 @@ if (typeof Slick === "undefined") {
        .slickGrid
        .viewport.T.L > .canvas.T.L
        .header
-       .subHeader
+       .subHeaders > .subHeader-row * M
        .viewport.T.R > .canvas.T.R
        .header
-       .subHeader
+       .subHeaders > .subHeader-row * M
        .viewport.C.L > .canvas.C.L
        .row * N
        .viewport.C.R > .canvas.C.R
@@ -322,12 +322,12 @@ if (typeof Slick === "undefined") {
         "<div class='header' />" +
         "<div class='header' />"
       );
-      subHeader.el = $(
-        "<div class='subHeader' />" +
-        "<div class='subHeader' />"
+      subHeaders.el = $(
+        "<div class='subHeaders' />" +
+        "<div class='subHeaders' />"
       );
 
-      if (!options.showSubHeader) { subHeader.el.hide(); }
+      if (!options.showSubHeaders) { subHeaders.el.hide(); }
 
       contentViewportWrap.el = $(
         "<div class='viewport-wrap C L' tabIndex='0' hideFocus />" +
@@ -347,8 +347,8 @@ if (typeof Slick === "undefined") {
       // ----------------------- Matryoshka the elements together
       topCanvas.el[0].appendChild(header.el[0]);
       topCanvas.el[1].appendChild(header.el[1]);
-      topCanvas.el[0].appendChild(subHeader.el[0]);
-      topCanvas.el[1].appendChild(subHeader.el[1]);
+      topCanvas.el[0].appendChild(subHeaders.el[0]);
+      topCanvas.el[1].appendChild(subHeaders.el[1]);
       topViewport.el[0].appendChild(topCanvas.el[0]);
       topViewport.el[1].appendChild(topCanvas.el[1]);
       contentViewport.el[0].appendChild(contentCanvas.el[0]);
@@ -403,9 +403,7 @@ if (typeof Slick === "undefined") {
         .bind("click", handleHeaderClick)
         .delegate(".slick-header-column", "mouseenter", handleHeaderMouseEnter)
         .delegate(".slick-header-column", "mouseleave", handleHeaderMouseLeave);
-      //$subHeaderScroller
-      //  .bind("scroll", handleSubHeaderScroll);
-      subHeader.el
+      subHeaders.el
         .bind('contextmenu', handleSubHeaderContextMenu);
       $focusSink.add($focusSink2)
         .bind("keydown", handleKeyDown);
@@ -653,26 +651,36 @@ if (typeof Slick === "undefined") {
 
     // Updates the contents of a single subHeader cell
     // Does not destroy, remove event listeners, update any attached .data(), etc.
-    function updateSubHeader(columnId){
+    function updateSubHeaders(columnId, rowIndex){
       if (!initialized) { return; }
-      var idx = getColumnIndex(columnId);
-      if (idx == null) { return; }
+      var columnIndex = getColumnIndex(columnId);
+      if (columnIndex == null) {
+        throw new ReferenceError('Slick.Grid#updateSubHeader cannot update subheader because column ' + columnId + ' is not defined on the given grid');
+      }
+      if (rowIndex == null) {
+        rowIndex = 0;
+      }
+
       // Get needed data for this column
-      var columnDef = columns[idx];
-      var $subHeader = subHeader.el.children().eq(idx);
+      var columnDef = columns[columnIndex];
+      newEl = options.subHeaderRenderers[rowIndex](columnDef);
+
       // Replace only the contents, but copy over any className that the subHeaderRenderer might have added
-      newEl = options.subHeaderRenderer(columnDef);
-      $subHeader
+      subHeaders.el
+        .map(function (n, a) { return $(a).find('.subHeader-row'); })
+        .map(function (n, a) { return a[rowIndex]; })
+        .children()
+        .eq(columnIndex)
         .html(newEl.html())
         .addClass(newEl[0].className);
     }
 
-    function getSubHeader() { return subHeader.el; }
+    function getSubHeader() { return subHeaders.el; }
 
     // Use a columnId to return the related header dom element
     function getSubHeaderColumn(columnId) {
       var idx = getColumnIndex(columnId);
-      return subHeader.el.children().eq(idx);
+      return subHeaders.el.children().eq(idx);
     }
 
     function createColumnHeaders() {
@@ -689,7 +697,7 @@ if (typeof Slick === "undefined") {
         });
 
       // Broadcast destroy events and empty out any current subHeaders
-      subHeader.el.children()
+      subHeaders.el.children()
         .each(function () {
           var columnDef = $(this).data("column");
           if (columnDef) {
@@ -698,14 +706,22 @@ if (typeof Slick === "undefined") {
         });
 
       header.el.empty();
-      subHeader.el.empty();
+      subHeaders.el.empty();
+
+      // generate subheader rows
+      for (var i = 0; i < options.subHeaderRenderers.length; i++) {
+        var l = subHeaders.el.eq(0).append($('<div class="subHeader-row">'));
+        l.data('subHeader-row-' + i);
+        var r = subHeaders.el.eq(1).append($('<div class="subHeader-row">'));
+        r.data('subHeader-row-' + i);
+      }
 
       // Build new headers based on column data.
-      var $headerHolder, $subHeaderHolder, m, oneHeader, oneSubHeader;
+      var $headerHolder, $subHeaderHolder, m, oneHeader;
       for (var i = 0; i < columns.length; i++) {
         // Select the correct region to draw into based on the column index.
         $headerHolder    = i > options.pinnedColumn ? header.el.eq(1) : header.el.eq(0);
-        $subHeaderHolder = i > options.pinnedColumn ? subHeader.el.eq(1) : subHeader.el.eq(0);
+        $subHeaderHolder = i > options.pinnedColumn ? subHeaders.el.eq(1) : subHeaders.el.eq(0);
 
         m = columns[i];
         oneHeader = options.columnHeaderRenderer(m);
@@ -739,17 +755,18 @@ if (typeof Slick === "undefined") {
         }
 
         trigger(self.onHeaderCellRendered, { "node": oneHeader[0], "column": m });
-        oneSubHeader = options.subHeaderRenderer(m);
-        if(oneSubHeader) {
+        options.subHeaderRenderers.forEach(function (renderer, n) {
+          var oneSubHeader = renderer(m);
           oneSubHeader
             .data("column", m)
             .addClass("cell l" + i + " r" + i)
-            .appendTo($subHeaderHolder);
+            .appendTo($subHeaderHolder.find('.subHeader-row').eq(n));
           trigger(self.onSubHeaderCellRendered, {
             "node": oneSubHeader[0],
-            "column": m
+            "column": m,
+            "subHeader": n
           });
-        }
+        });
       }
       setSortColumns(sortColumns);
       setupColumnResize();
@@ -766,12 +783,6 @@ if (typeof Slick === "undefined") {
         .html("<span class='name'>" + column.name + "</span>")
         .attr("title", column.toolTip || "");
       return $el;
-    }
-
-    // Given a column object, return a jquery element with HTML for a single subHeader column cell
-    // If you're using subHeaders, you should override this function
-    function subHeaderRenderer (col) {
-      return undefined; //$("<div />");
     }
 
     function setupColumnSort() {
@@ -1084,6 +1095,7 @@ if (typeof Slick === "undefined") {
       createColumnHeaders();
       updateCanvasWidth();
       invalidateAllRows();
+      resizeCanvas();
     }
 
     // enable antiscroll for an element
@@ -1558,6 +1570,16 @@ if (typeof Slick === "undefined") {
         options.pinnedColumn = args.pinnedColumn; // $extend usually works, but not in the case where the new value is undefined. $.extend does not copy over null or undefined values.
       }
 
+      // Do we need to redraw the subheader rows?
+      if (args.hasOwnProperty('subHeaderRenderers')) {
+        var subHeaderCount = subHeaders.el.eq(0).find('.subHeader-row').length;
+        if (subHeaderCount !== options.subHeaderRenderers.length) {
+          createColumnHeaders();
+          calculateHeights();
+          resizeCanvas();
+        }
+      }
+
       options = $.extend(options, args);
       validateAndEnforceOptions();
 
@@ -1618,13 +1640,13 @@ if (typeof Slick === "undefined") {
       }
     }
 
-    function setSubHeaderVisibility(visible) {
-      if (options.showSubHeader != visible) {
-        options.showSubHeader = visible;
+    function setSubHeadersVisibility(visible) {
+      if (options.showSubHeaders != visible) {
+        options.showSubHeaders = visible;
         if (visible) {
-          subHeader.el.show();
+          subHeaders.el.show();
         } else {
-          subHeader.el.hide();
+          subHeaders.el.hide();
         }
       }
       resizeCanvas();
@@ -2736,7 +2758,7 @@ if (typeof Slick === "undefined") {
     }
 
     function handleSubHeaderContextMenu(e) {
-      var $subHeader = $(e.target).closest(".cell", ".subHeader");
+      var $subHeader = $(e.target).closest(".cell", ".subHeaders");
       var column = $subHeader && $subHeader.data("column");
       trigger(self.onSubHeaderContextMenu, {column: column}, e);
     }
@@ -3707,7 +3729,7 @@ if (typeof Slick === "undefined") {
         topViewport: topViewport,
         topCanvas: topCanvas,
         header: header,
-        subHeader: subHeader,
+        subHeaders: subHeaders,
         contentViewportWrap: contentViewportWrap,
         contentViewport: contentViewport,
         contentCanvas: contentCanvas,
@@ -3812,7 +3834,7 @@ if (typeof Slick === "undefined") {
       "getColumnIndex": getColumnIndex,
       "getColumnNodeById": getColumnNodeById,
       "updateColumnHeader": updateColumnHeader,
-      "updateSubHeader": updateSubHeader,
+      "updateSubHeaders": updateSubHeaders,
       "createColumnHeaders": createColumnHeaders,
       "setSortColumn": setSortColumn,
       "setSortColumns": setSortColumns,
@@ -3876,10 +3898,10 @@ if (typeof Slick === "undefined") {
       "gotoCell": gotoCell,
       "getHeaderEl":            getHeaderEl,
       "getHeaderEls":           getHeaderEls,
-      "setSubHeaderVisibility": setSubHeaderVisibility,
+      "setSubHeadersVisibility": setSubHeadersVisibility,
       "getSubHeader":           getSubHeader,
       "getSubHeaderColumn":     getSubHeaderColumn,
-      "setHeaderRowVisibility": setSubHeaderVisibility, // alias for backwards compatibility
+      "setHeaderRowVisibility": setSubHeadersVisibility, // alias for backwards compatibility
       "getHeaderRow":           getSubHeader,
       "getHeaderRowColumn":     getSubHeaderColumn,
       "getGridPosition": getGridPosition,
