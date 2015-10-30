@@ -1549,11 +1549,11 @@ if (typeof Slick === "undefined") {
 
       makeActiveCellNormal();
 
-      if (options.enableAddRow !== args.enableAddRow) {
+      if (args.hasOwnProperty('enableAddRow') && options.enableAddRow !== args.enableAddRow) {
         invalidateRow(getDataLength());
       }
 
-      if (args.pinnedColumn !== options.pinnedColumn) {
+      if (args.hasOwnProperty('pinnedColumn') && args.pinnedColumn !== options.pinnedColumn) {
         pinnedColChanged = true;
         options.pinnedColumn = args.pinnedColumn; // $extend usually works, but not in the case where the new value is undefined. $.extend does not copy over null or undefined values.
       }
