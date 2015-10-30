@@ -77,7 +77,7 @@
     var onRowsChanged = new Slick.Event();
     var onPagingInfoChanged = new Slick.Event();
 
-    options = $.extend(true, {}, defaults, options);
+    setOptions(options);
 
 
     function beginUpdate() {
@@ -103,7 +103,7 @@
       for (var i = startingIndex, l = items.length; i < l; i++) {
         id = items[i][idProperty];
         if (id === undefined) {
-          throw "Each data element must implement a unique 'id' property";
+          throw "Each data element must implement a unique 'id' property, it can't be undefined." ;
         }
         idxById[id] = i;
       }
@@ -114,7 +114,7 @@
       for (var i = 0, l = items.length; i < l; i++) {
         id = items[i][idProperty];
         if (id === undefined || idxById[id] !== i) {
-          throw "Each data element must implement a unique 'id' property";
+          throw "Each data element must implement a unique 'id' property. `"+ id +"` is not unique." ;
         }
       }
     }
@@ -512,7 +512,7 @@
           group = groups[i];
           group.groups = extractGroups(group.rows, group);
         }
-      }      
+      }
 
       groups.sort(groupingInfos[level].comparer);
 
@@ -562,7 +562,7 @@
       level = level || 0;
       var gi = groupingInfos[level];
       var groupCollapsed = gi.collapsed;
-      var toggledGroups = toggledGroupsByLevel[level];      
+      var toggledGroups = toggledGroupsByLevel[level];
       var idx = groups.length, g;
       while (idx--) {
         g = groups[idx];
@@ -584,7 +584,7 @@
         g.collapsed = groupCollapsed ^ toggledGroups[g.groupingKey];
         g.title = gi.formatter ? gi.formatter(g) : g.value;
       }
-    } 
+    }
 
     function flattenGroupedRows(groups, level) {
       level = level || 0;
@@ -852,8 +852,6 @@
       }
       if (countBefore != rows.length) {
         onRowCountChanged.notify({previous: countBefore, current: rows.length}, null, self);
-      }
-      if (diff.length > 0) {
         onRowsChanged.notify({rows: diff}, null, self);
       }
     }
@@ -901,7 +899,7 @@
           inHandler = true;
           var selectedRows = self.mapIdsToRows(selectedRowIds);
           if (!preserveHidden) {
-            setSelectedRowIds(self.mapRowsToIds(selectedRows));       
+            setSelectedRowIds(self.mapRowsToIds(selectedRows));
           }
           grid.setSelectedRows(selectedRows);
           inHandler = false;
@@ -973,6 +971,14 @@
       this.onRowCountChanged.subscribe(update);
     }
 
+    function getFilteredItems () {
+      return filteredItems;
+    }
+
+    function setOptions (opts) {
+      return options = $.extend(true, {}, defaults, options, opts);
+    }
+
     $.extend(this, {
       // methods
       "beginUpdate": beginUpdate,
@@ -980,6 +986,7 @@
       "setPagingOptions": setPagingOptions,
       "getPagingInfo": getPagingInfo,
       "getItems": getItems,
+      "getFilteredItems": getFilteredItems,
       "setItems": setItems,
       "setFilter": setFilter,
       "sort": sort,
@@ -1009,6 +1016,7 @@
       "deleteItem": deleteItem,
       "syncGridSelection": syncGridSelection,
       "syncGridCellCssStyles": syncGridCellCssStyles,
+      "setOptions": setOptions,
 
       // data provider methods
       "getLength": getLength,
