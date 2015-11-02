@@ -1,6 +1,6 @@
 {
   "name": "slickgrid",
-  "version": "2.3.22",
+  "version": "3.0.0",
   "main": [
     "slick.core.js",
     "slick.grid.js",
