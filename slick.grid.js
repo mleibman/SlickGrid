@@ -91,7 +91,8 @@ if (typeof Slick === "undefined") {
       addNewRowCssClass: "new-row",
       useAntiscroll: false,
       showScrollbarsOnHover: false,
-      skipPaging: false // reveal one hidden row at a time instead of an entirely new page on keypress
+      skipPaging: false, // reveal one hidden row at a time instead of an entirely new page on keypress
+      appendSubheadersToContainer: false // useful for fixed subheaders, or to make subheaders appear as footers
     };
 
     var columnDefaults = {
@@ -347,14 +348,21 @@ if (typeof Slick === "undefined") {
       // ----------------------- Matryoshka the elements together
       topCanvas.el[0].appendChild(header.el[0]);
       topCanvas.el[1].appendChild(header.el[1]);
-      topCanvas.el[0].appendChild(subHeaders.el[0]);
-      topCanvas.el[1].appendChild(subHeaders.el[1]);
       topViewport.el[0].appendChild(topCanvas.el[0]);
       topViewport.el[1].appendChild(topCanvas.el[1]);
       contentViewport.el[0].appendChild(contentCanvas.el[0]);
       contentViewport.el[1].appendChild(contentCanvas.el[1]);
       contentViewportWrap.el[0].appendChild(contentViewport.el[0]);
       contentViewportWrap.el[1].appendChild(contentViewport.el[1]);
+
+      // TODO: support subHeaders.el[1]
+      if (options.appendSubheadersToContainer) {
+        $container.append(subHeaders.el[0]);
+      } else {
+        topCanvas.el[0].appendChild(subHeaders.el[0]);
+        topCanvas.el[1].appendChild(subHeaders.el[1]);
+      }
+
       $container.append( topViewport.el, contentViewportWrap.el );
 
       measureCssSizes(); // Wins award for most 's'es in a row.
@@ -554,6 +562,11 @@ if (typeof Slick === "undefined") {
             contentViewportWrap.el[0].style.width =
               null;
         }
+
+        if (options.appendSubheadersToContainer) {
+          subHeaders.el.find('.subHeader-row').css('width', canvasWidthL);
+        }
+
         viewportHasHScroll = (canvasWidth > contentViewport.width - scrollbarDimensions.width);
       }
 
@@ -1943,7 +1956,8 @@ if (typeof Slick === "undefined") {
         - parseFloat($.css($container[0], "paddingTop", true))
         - parseFloat($.css($container[0], "paddingBottom", true))
         - parseFloat($.css(topViewport.el[0], "height"))
-        - getVBoxDelta(topViewport.el.eq(0));
+        - getVBoxDelta(topViewport.el.eq(0))
+        - (options.appendSubheadersToContainer ? subHeaders.el.height() : 0);
       }
       numVisibleRows = Math.ceil(contentViewport.height / options.rowHeight);
 
@@ -2399,6 +2413,10 @@ if (typeof Slick === "undefined") {
         prevScrollLeft = scrollLeft;
         contentScroller.scrollLeft = scrollLeft;
         topViewport.scroller.scrollLeft = scrollLeft;
+
+        if (options.appendSubheadersToContainer) {
+          subHeaders.el.scrollLeft(scrollLeft);
+        }
       }
 
       if (vScrollDist) {
