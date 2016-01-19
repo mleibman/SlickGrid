@@ -16,12 +16,12 @@
     "lib"
   ],
   "dependencies": {
-    "jquery": "~1.7.0",
-    "jquery-ui": "~1.8.24",
+    "jquery": "~1.8.3",
+    "jquery-ui": "~1.8.23",
     "jquery.event": "threedubmedia/jquery.threedubmedia#2.2",
     "jquery-mousewheel": "jquery/jquery-mousewheel#3.0.6",
     "jquery-simulate": "1.0.0",
-    "jquery.sparkline": "gwatts/jquery.sparkline#2.0",
+    "jquery.sparkline": "gwatts/jquery.sparkline#2.x.x",
     "jquery-jsonp": "jaubourg/jquery-jsonp#2.4.0",
     "handlebars": "~2.0.0",
     "qunit": "~1.0.0"
