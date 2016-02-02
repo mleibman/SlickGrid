@@ -7,7 +7,8 @@
           Avg: AvgAggregator,
           Min: MinAggregator,
           Max: MaxAggregator,
-          Sum: SumAggregator
+          Sum: SumAggregator,
+          Count: CountAggregator
         }
       }
     }
@@ -1118,6 +1119,28 @@
       }
       groupTotals.sum[this.field_] = this.sum_;
     }
+  }
+
+  function CountAggregator(field) {
+      this.field_ = field;
+
+      this.init = function () {
+          this.sum_ = 0;
+      };
+
+      this.accumulate = function (item) {
+          var val = item[this.field_];
+          if (val != null && val !== "") {
+              this.sum_ += 1
+          }
+      };
+
+      this.storeResult = function (groupTotals) {
+          if (!groupTotals.sum) {
+              groupTotals.sum = {};
+          }
+          groupTotals.sum[this.field_] = this.sum_;
+      }
   }
 
   // TODO:  add more built-in aggregators
