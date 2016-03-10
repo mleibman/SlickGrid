@@ -1,4 +1,4 @@
-@import url('slick-default-theme.css');
+@import url('../slick-default-theme.css');
 
 * {
   font-family: arial;
@@ -8,7 +8,7 @@
 body {
   background: beige;
   padding: 0;
-  margin: 8;
+  margin: 8px;
 }
 
 h2 {
