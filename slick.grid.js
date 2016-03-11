@@ -2287,7 +2287,7 @@ if (typeof Slick === "undefined") {
         return;
       }
 
-      if ((activeCell != cell.cell || activeRow != cell.row) && canCellBeActive(cell.row, cell.cell)) {
+      if (((activeCell != cell.cell || activeRow != cell.row) || options.autoEdit) && canCellBeActive(cell.row, cell.cell)) {
         if (!getEditorLock().isActive() || getEditorLock().commitCurrentEdit()) {
           scrollRowIntoView(cell.row, false);
           setActiveCellInternal(getCellNode(cell.row, cell.cell));
