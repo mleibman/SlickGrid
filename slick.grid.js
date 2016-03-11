@@ -1082,7 +1082,7 @@ if (typeof Slick === "undefined") {
             growSize = Math.min(Math.floor(growProportion * currentWidth) - currentWidth, (c.maxWidth - currentWidth) || 1000000) || 1;
           }
           total += growSize;
-          widths[i] += growSize;
+          widths[i] += (total <= availWidth ? growSize : 0);
         }
         if (prevTotal >= total) {  // avoid infinite loop
           break;
