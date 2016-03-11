@@ -918,26 +918,34 @@ if (typeof Slick === "undefined") {
     }
 
     function createCssRules() {
-      $style = $("<style type='text/css' rel='stylesheet' />").appendTo($("head"));
-      var rowHeight = (options.rowHeight - cellHeightDiff);
-      var rules = [
-        "." + uid + " .slick-header-column { left: 1000px; }",
-        "." + uid + " .slick-top-panel { height:" + options.topPanelHeight + "px; }",
-        "." + uid + " .slick-headerrow-columns { height:" + options.headerRowHeight + "px; }",
-        "." + uid + " .slick-cell { height:" + rowHeight + "px; }",
-        "." + uid + " .slick-row { height:" + options.rowHeight + "px; }"
-      ];
+        $style = $("<style type='text/css' rel='stylesheet' />").appendTo($("head"));
+        var rowHeight = (options.rowHeight - cellHeightDiff);
+        if ($style[0].styleSheet) { // IE
+            $style[0].styleSheet.cssText = "";
+        } else {
+            $style[0].appendChild(document.createTextNode(""));
+        }
+        var sheet = $style[0].sheet;
+        var index = 0;
+        addCssRule(sheet, "." + uid + " .slick-header-column", "left: 1000px;", index++);
+        addCssRule(sheet, "." + uid + " .slick-top-panel", "height:" + options.topPanelHeight + "px;", index++);
+        addCssRule(sheet, "." + uid + " .slick-headerrow-columns", "height:" + options.headerRowHeight + "px;", index++);
+        addCssRule(sheet, "." + uid + " .slick-cell", "height:" + rowHeight + "px;", index++);
+        addCssRule(sheet, "." + uid + " .slick-row", "height:" + options.rowHeight + "px;", index++);
 
-      for (var i = 0; i < columns.length; i++) {
-        rules.push("." + uid + " .l" + i + " { }");
-        rules.push("." + uid + " .r" + i + " { }");
-      }
+        for (var i = 0; i < columns.length; i++) {
+            addCssRule(sheet, "." + uid + " .l" + i, "", index++);
+            addCssRule(sheet, "." + uid + " .r" + i, "", index++);
+        }
+    }
 
-      if ($style[0].styleSheet) { // IE
-        $style[0].styleSheet.cssText = rules.join(" ");
-      } else {
-        $style[0].appendChild(document.createTextNode(rules.join(" ")));
-      }
+    function addCssRule(sheet, selector, rules, index) {
+        if (sheet.insertRule) {
+            sheet.insertRule(selector + "{" + rules + "}", index);
+        }
+        else {
+            sheet.addRule(selector, rules, index);
+        }
     }
 
     function getColumnCssRules(idx) {
