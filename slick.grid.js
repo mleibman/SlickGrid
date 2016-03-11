@@ -940,9 +940,42 @@ if (typeof Slick === "undefined") {
       }
     }
 
+    function getStyleSheetOwner(sheet) {
+      return sheet.ownerNode || sheet.owningElement;
+    }
+
+    function objectHasSheetOwner(styles, sheet) {
+      for (var style in styles) {
+        if (getStyleSheetOwner(styles[style]) == getStyleSheetOwner(sheet)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // Fix for Google Chrome
+    function getAllStyleSheets() {
+      var result = [];
+      for (var style in document.styleSheets) {
+        if (document.styleSheets[style] instanceof CSSStyleSheet) {
+          result.push(document.styleSheets[style]);
+        }
+      }
+      if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
+        var sheets = $("head").find('style');
+        for (var i = 0; i < sheets.length; i++) {
+          if (sheets[i].sheet instanceof CSSStyleSheet && 
+              !objectHasSheetOwner(result, sheets[i].sheet)) {
+            result.push(sheets[i].sheet);
+          }
+        }
+      }
+      return result;
+    }
+
     function getColumnCssRules(idx) {
       if (!stylesheet) {
-        var sheets = document.styleSheets;
+        var sheets = getAllStyleSheets();
         for (var i = 0; i < sheets.length; i++) {
           if ((sheets[i].ownerNode || sheets[i].owningElement) == $style[0]) {
             stylesheet = sheets[i];
