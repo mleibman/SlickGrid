@@ -1,0 +1,126 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <link rel="stylesheet" href="../controls/slick.pager.css" type="text/css"/>
+  <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css"/>
+  <style>
+    .slick-cell-checkboxsel {
+      background: #f0f0f0;
+      border-right-color: silver;
+      border-right-style: solid;
+    }
+  </style>
+  <title>Radio row select column</title>
+</head>
+<body>
+<div style="position:relative">
+  <div style="width:600px;">
+    <div id="myGrid" style="width:100%;height:527px;"></div>
+    <div id="pager" style="width:100%;height:20px;"></div>
+  </div>
+
+  <div class="options-panel">
+    <h2>Demonstrates:</h2>
+    <ul>
+      <li>Radio row select column</li>
+      <li>DataView syncGridSelection use</li>
+    </ul>
+      <h2>View Source:</h2>
+      <ul>
+        <li><A href="https://github.com/borota/SlickGrid/blob/gh-pages/examples/example-radio-row-select.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+      </ul>
+  </div>
+</div>
+<br />
+<div>
+  <span id="selected-row">No row selected.</span>
+</div>
+
+<script src="../lib/jquery-1.7.min.js"></script>
+<script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
+<script src="../lib/jquery.event.drag-2.2.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../plugins/slick.radioselectcolumn.js"></script>
+<script src="../plugins/slick.rowselectionmodel.js"></script>
+<script src="../controls/slick.columnpicker.js"></script>
+<script src="../slick.editors.js"></script>
+<script src="../slick.grid.js"></script>
+<script src="../slick.dataview.js"></script>
+<script src="../controls/slick.pager.js"></script>
+
+<script>
+  var dataView;
+  var grid;
+  var data = [];
+  var options = {
+    editable: true,
+    enableCellNavigation: true,
+    asyncEditorLoading: false,
+    autoEdit: false,
+    multiSelect: false 
+  };
+  var columns = [];
+  var $selectedRow = $("#selected-row");
+
+  $(function () {
+    for (var i = 0; i < 100; i++) {
+      var d = (data[i] = {});
+      d.id = i;
+      d[0] = "Row " + i;
+    }
+
+    var radioSelector = new Slick.RadioSelectColumn({
+      cssClass: "slick-cell-checkboxsel"
+    });
+
+    columns.push(radioSelector.getColumnDefinition());
+
+    for (var i = 0; i < 5; i++) {
+      columns.push({
+        id: i,
+        name: String.fromCharCode("A".charCodeAt(0) + i),
+        field: i,
+        width: 100,
+        editor: Slick.Editors.Text
+      });
+    }
+
+    dataView = new Slick.Data.DataView();
+    dataView.setPagingOptions({ pageSize: 20 });
+    grid = new Slick.Grid("#myGrid", dataView, columns, options);
+    grid.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow: false}));
+    grid.registerPlugin(radioSelector);
+
+    var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
+    var pager = new Slick.Controls.Pager(dataView, grid, $("#pager"));
+
+    // wire up model events to drive the grid
+    dataView.onRowCountChanged.subscribe(function (e, args) {
+      grid.updateRowCount();
+      grid.render();
+    });
+
+    dataView.onRowsChanged.subscribe(function (e, args) {
+      grid.invalidateRows(args.rows);
+      grid.render();
+    });
+	
+    var onSelectedRowIdsChanged = dataView.syncGridSelection(grid, true, true);
+    onSelectedRowIdsChanged.subscribe(function (e, args) {
+      if (args.ids && args.ids.length) {
+        $selectedRow.html(dataView.getItemById(args.ids[0])[0] + " selected.");
+      }
+      else {
+        $selectedRow.html("No row selected.");
+      }
+    });
+    dataView.setItems(data);
+  })
+</script>
+</body>
+</html>
