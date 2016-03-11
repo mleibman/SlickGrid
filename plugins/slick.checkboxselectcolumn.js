@@ -73,7 +73,7 @@
 
     function handleClick(e, args) {
       // clicking on a row select checkbox
-      if (_grid.getColumns()[args.cell].id === _options.columnId && $(e.target).is(":checkbox")) {
+      if (_grid.getColumns()[args.cell].id === _options.columnId) {
         // if editing, try to commit
         if (_grid.getEditorLock().isActive() && !_grid.getEditorLock().commitCurrentEdit()) {
           e.preventDefault();
