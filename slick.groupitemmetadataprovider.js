@@ -52,7 +52,7 @@
           (item.collapsed ? options.toggleCollapsedCssClass : options.toggleExpandedCssClass) +
           "' style='margin-left:" + indentation +"'>" +
           "</span>" +
-          "<span class='" + options.groupTitleCssClass + "' level='" + item.level + "'>" +
+          "<span class='" + options.groupTitleCssClass + "' data-level='" + item.level + "'>" +
             item.title +
           "</span>";
     }
