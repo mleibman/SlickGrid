@@ -224,9 +224,15 @@
 
 
       // Position the menu.
-      $menu
-        .offset({ top: $(this).offset().top + $(this).height(), left: $(this).offset().left });
-
+      // Check container dimensions - if the menu would be popped too far to the right and thus
+      // outside of its container, inch it over to the left.
+      var gridRight = _grid.getGridPosition().right;
+      var positionRight = ($(this).offset().left + $menu.width()) > gridRight;
+      var offset = { top: $(this).offset().top + $(this).height(), left: $(this).offset().left};
+      if (positionRight) {
+        offset.left += ($(this).width() / 2) - $menu.width();
+      }
+      $menu.offset(offset);
 
       // Mark the header as active to keep the highlighting.
       $activeHeaderColumn = $menuButton.closest(".slick-header-column");
