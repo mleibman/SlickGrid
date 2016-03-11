@@ -98,7 +98,8 @@ if (typeof Slick === "undefined") {
       headerCssClass: null,
       defaultSortAsc: true,
       focusable: true,
-      selectable: true
+      selectable: true,
+      autosizeRatio: 1
     };
 
     // scroller
@@ -1070,20 +1071,35 @@ if (typeof Slick === "undefined") {
       // grow
       prevTotal = total;
       while (total < availWidth) {
-        var growProportion = availWidth / total;
-        for (i = 0; i < columns.length && total < availWidth; i++) {
+        var growIncrement = [], totalGrowIncrement = 0;
+        for (i = 0; i < columns.length; i++) {
           c = columns[i];
           var currentWidth = widths[i];
-          var growSize;
 
           if (!c.resizable || c.maxWidth <= currentWidth) {
-            growSize = 0;
+            growIncrement[i] = -1;
           } else {
-            growSize = Math.min(Math.floor(growProportion * currentWidth) - currentWidth, (c.maxWidth - currentWidth) || 1000000) || 1;
+            //grow is proportionnal to both currentWidth and autosizeRatio
+            growIncrement[i] = currentWidth * c.autosizeRatio;
+            totalGrowIncrement += growIncrement[i];
           }
-          total += growSize;
-          widths[i] += growSize;
         }
+        if (totalGrowIncrement == 0) {
+          //all columns have reached maxWidth
+          break;
+        }
+        for (i = 0; i < columns.length; i++) {
+          if (growIncrement[i] === -1) {continue;}
+          //normalize grow
+          growIncrement[i] = growIncrement[i] / totalGrowIncrement * (availWidth - prevTotal);
+          var currentWidth = widths[i];
+          c = columns[i];
+          growIncrement[i] = Math.min(Math.floor(growIncrement[i]), (c.maxWidth - currentWidth) || 1000000) || 1;
+	  //apply grow
+          total += growIncrement[i];
+          widths[i] += growIncrement[i];
+        }
+
         if (prevTotal >= total) {  // avoid infinite loop
           break;
         }
