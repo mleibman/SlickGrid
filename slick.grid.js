@@ -2273,7 +2273,11 @@ if (typeof Slick === "undefined") {
         // don't steal it back - keyboard events will still bubble up
         // IE9+ seems to default DIVs to tabIndex=0 instead of -1, so check for cell clicks directly.
         if (e.target != document.activeElement || $(e.target).hasClass("slick-cell")) {
+          var selection = getTextSelection(); //store text-selection and restore it after
           setFocus();
+          if ( options.enableTextSelectionOnCells ) {
+            setTextSelection(selection);
+          }
         }
       }
 
@@ -2451,6 +2455,23 @@ if (typeof Slick === "undefined") {
         $focusSink[0].focus();
       } else {
         $focusSink2[0].focus();
+      }
+    }
+
+    //This get/set methods are used for keeping text-selection. These don't consider IE because they don't loose text-selection.
+    function getTextSelection(){
+      var selection = null;
+      if (window.getSelection && window.getSelection().rangeCount > 0) {
+        selection = window.getSelection().getRangeAt(0);
+      }
+      return selection;
+    }
+
+    function setTextSelection(selection){
+      if (window.getSelection && selection) {
+        var target = window.getSelection();
+        target.removeAllRanges();
+        target.addRange(selection);
       }
     }
 
