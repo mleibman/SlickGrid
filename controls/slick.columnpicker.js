@@ -132,6 +132,10 @@
         }
 
         grid.setColumns(visibleColumns);
+        
+        if (grid.getSelectedRows().length > 0) {
+          grid.setSelectedRows(grid.getSelectedRows());
+        }
       }
     }
 
