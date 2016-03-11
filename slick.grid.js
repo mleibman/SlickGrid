@@ -16,6 +16,22 @@
  *     and do proper cleanup.
  */
 
+//function took from underscore.js
+function debounce(func, wait, immediate) {
+  var timeout;
+  return function() {
+    var context = this, args = arguments;
+    var later = function() {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+    var callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
+  };
+};
+
 // make sure required JavaScript modules are loaded
 if (typeof jQuery === "undefined") {
   throw "SlickGrid requires jquery module to be loaded";
@@ -1941,7 +1957,7 @@ if (typeof Slick === "undefined") {
       }
     }
 
-    function render() {
+    var render = debounce(function(){
       if (!initialized) { return; }
       var visible = getVisibleRange();
       var rendered = getRenderedRange();
@@ -1964,7 +1980,7 @@ if (typeof Slick === "undefined") {
       lastRenderedScrollTop = scrollTop;
       lastRenderedScrollLeft = scrollLeft;
       h_render = null;
-    }
+    }, 250);
 
     function handleHeaderRowScroll() {
       var scrollLeft = $headerRowScroller[0].scrollLeft;
