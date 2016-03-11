@@ -1420,13 +1420,13 @@ if (typeof Slick === "undefined") {
 
       stringArray.push("<div class='ui-widget-content " + rowCss + "' style='top:" + getRowTop(row) + "px'>");
 
-      var colspan, m;
+      var colspan, m, columnMetaData;
       for (var i = 0, ii = columns.length; i < ii; i++) {
         m = columns[i];
         colspan = 1;
         if (metadata && metadata.columns) {
-          var columnData = metadata.columns[m.id] || metadata.columns[i];
-          colspan = (columnData && columnData.colspan) || 1;
+          columnMetaData = metadata.columns[m.id] || metadata.columns[i];
+          colspan = (columnMetaData && columnMetaData.colspan) || 1;
           if (colspan === "*") {
             colspan = ii - i;
           }
@@ -1439,7 +1439,7 @@ if (typeof Slick === "undefined") {
             break;
           }
 
-          appendCellHtml(stringArray, row, i, colspan, d);
+          appendCellHtml(stringArray, row, i, colspan, d, columnMetaData);
         }
 
         if (colspan > 1) {
@@ -1450,10 +1450,16 @@ if (typeof Slick === "undefined") {
       stringArray.push("</div>");
     }
 
-    function appendCellHtml(stringArray, row, cell, colspan, item) {
+    function appendCellHtml(stringArray, row, cell, colspan, item, columnMetaData) {
       var m = columns[cell];
-      var cellCss = "slick-cell l" + cell + " r" + Math.min(columns.length - 1, cell + colspan - 1) +
-          (m.cssClass ? " " + m.cssClass : "");
+      var cssClass = m.cssClass ? " " + m.cssClass : "";
+
+      // Override cssClass if one exists in columnMetaData
+      if (columnMetaData && typeof columnMetaData.cssClass !== "undefined") {
+        cssClass = " " + columnMetaData.cssClass;
+      }
+
+      var cellCss = "slick-cell l" + cell + " r" + Math.min(columns.length - 1, cell + colspan - 1) + cssClass;
       if (row === activeRow && cell === activeCell) {
         cellCss += (" active");
       }
@@ -1825,16 +1831,17 @@ if (typeof Slick === "undefined") {
           }
 
           colspan = 1;
+          var columnMetaData;
           if (metadata) {
-            var columnData = metadata[columns[i].id] || metadata[i];
-            colspan = (columnData && columnData.colspan) || 1;
+            var columnMetaData = metadata[columns[i].id] || metadata[i];
+            colspan = (columnMetaData && columnMetaData.colspan) || 1;
             if (colspan === "*") {
               colspan = ii - i;
             }
           }
 
           if (columnPosRight[Math.min(ii - 1, i + colspan - 1)] > range.leftPx) {
-            appendCellHtml(stringArray, row, i, colspan, d);
+            appendCellHtml(stringArray, row, i, colspan, d, columnMetaData);
             cellsAdded++;
           }
 
