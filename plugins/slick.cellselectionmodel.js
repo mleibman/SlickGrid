@@ -56,6 +56,9 @@
     }
 
     function setSelectedRanges(ranges) {
+      // simle check for: empty selection didn't change, prevent firing onSelectedRangesChanged
+      if ((!_ranges || _ranges.length === 0) && (!ranges || ranges.length === 0)) { return; }
+
       _ranges = removeInvalidRanges(ranges);
       _self.onSelectedRangesChanged.notify(_ranges);
     }
