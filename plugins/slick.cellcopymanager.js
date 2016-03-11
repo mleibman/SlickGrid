@@ -11,10 +11,15 @@
     var _grid;
     var _self = this;
     var _copiedRanges;
+    var _clearCopiedSelectionOnPaste = true;
 
     function init(grid) {
       _grid = grid;
       _grid.onKeyDown.subscribe(handleKeyDown);
+    }
+    
+     function setClearCopiedSelectionOnPaste(val) {
+        _clearCopiedSelectionOnPaste = val;
     }
 
     function destroy() {
@@ -46,10 +51,12 @@
         if (e.which == 86 && (e.ctrlKey || e.metaKey)) {
           if (_copiedRanges) {
             e.preventDefault();
-            clearCopySelection();
             ranges = _grid.getSelectionModel().getSelectedRanges();
             _self.onPasteCells.notify({from: _copiedRanges, to: ranges});
-            _copiedRanges = null;
+            if (_clearCopiedSelectionOnPaste === true) {
+                clearCopySelection();
+                _copiedRanges = null;
+            }
           }
         }
       }
@@ -77,6 +84,7 @@
       "init": init,
       "destroy": destroy,
       "clearCopySelection": clearCopySelection,
+      "setClearCopiedSelectionOnPaste": setClearCopiedSelectionOnPaste,
 
       "onCopyCells": new Slick.Event(),
       "onCopyCancelled": new Slick.Event(),
