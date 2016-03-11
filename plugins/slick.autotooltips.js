@@ -49,7 +49,7 @@
       if (cell) {
         var $node = $(_grid.getCellNode(cell.row, cell.cell));
         var text;
-        if ($node.innerWidth() < $node[0].scrollWidth) {
+        if ($node.innerWidth() < $node[0].scrollWidth || $node.innerHeight() < $node[0].scrollHeight) {
           text = $.trim($node.text());
           if (options.maxToolTipLength && text.length > options.maxToolTipLength) {
             text = text.substr(0, options.maxToolTipLength - 3) + "...";
