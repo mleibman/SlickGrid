@@ -1406,6 +1406,7 @@ if (typeof Slick === "undefined") {
       var rowCss = "slick-row" +
           (dataLoading ? " loading" : "") +
           (row === activeRow ? " active" : "") +
+          (selectedRows.indexOf(row) === -1 ? "" : " selected") +
           (row % 2 == 1 ? " odd" : " even");
 
       if (!d) {
