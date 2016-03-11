@@ -1262,7 +1262,7 @@ if (typeof Slick === "undefined") {
       invalidateAllRows();
       updateRowCount();
       if (scrollToTop) {
-        scrollTo(0);
+        scrollTo(0, 0);
       }
     }
 
@@ -1331,7 +1331,13 @@ if (typeof Slick === "undefined") {
       return Math.floor((y + offset) / options.rowHeight);
     }
 
-    function scrollTo(y) {
+    function scrollTo(x, y) {
+      if (x === undefined)
+        x = prevScrollLeft;
+      if (y === undefined)
+        y = prevScrollTop;
+
+      x = Math.max(x, 0);
       y = Math.max(y, 0);
       y = Math.min(y, th - viewportH + (viewportHasHScroll ? scrollbarDimensions.height : 0));
 
@@ -1347,10 +1353,21 @@ if (typeof Slick === "undefined") {
         updateRowPositions();
       }
 
+      var viewportChanged = false;
+
       if (prevScrollTop != newScrollTop) {
         vScrollDir = (prevScrollTop + oldOffset < newScrollTop + offset) ? 1 : -1;
         $viewport[0].scrollTop = (lastRenderedScrollTop = scrollTop = prevScrollTop = newScrollTop);
+        viewportChanged = true;
+      }
 
+      var newScrollLeft = x;
+      if (prevScrollLeft != newScrollLeft) {
+        $viewport[0].scrollLeft = (lastRenderedScrollLeft = scrollLeft = prevScrollLeft = newScrollLeft);
+        viewportChanged = true;
+      }
+
+      if (viewportChanged) {
         trigger(self.onViewportChanged, {});
       }
     }
@@ -1674,10 +1691,10 @@ if (typeof Slick === "undefined") {
         page = offset = 0;
       } else if (oldScrollTopInRange) {
         // maintain virtual position
-        scrollTo(scrollTop + offset);
+        scrollTo(undefined, scrollTop + offset);
       } else {
         // scroll to bottom
-        scrollTo(th - viewportH);
+        scrollTo(undefined, th - viewportH);
       }
 
       if (h != oldH && options.autoHeight) {
@@ -1992,7 +2009,7 @@ if (typeof Slick === "undefined") {
 
         // switch virtual pages if needed
         if (vScrollDist < viewportH) {
-          scrollTo(scrollTop + offset);
+          scrollTo(undefined, scrollTop + offset);
         } else {
           var oldOffset = offset;
           if (h == viewportH) {
@@ -2740,24 +2757,24 @@ if (typeof Slick === "undefined") {
 
       // need to page down?
       if ((row + 1) * options.rowHeight > scrollTop + viewportH + offset) {
-        scrollTo(doPaging ? rowAtTop : rowAtBottom);
+        scrollTo(undefined, doPaging ? rowAtTop : rowAtBottom);
         render();
       }
       // or page up?
       else if (row * options.rowHeight < scrollTop + offset) {
-        scrollTo(doPaging ? rowAtBottom : rowAtTop);
+        scrollTo(undefined, doPaging ? rowAtBottom : rowAtTop);
         render();
       }
     }
 
     function scrollRowToTop(row) {
-      scrollTo(row * options.rowHeight);
+      scrollTo(undefined, row * options.rowHeight);
       render();
     }
 
     function scrollPage(dir) {
       var deltaRows = dir * numVisibleRows;
-      scrollTo((getRowFromPosition(scrollTop) + deltaRows) * options.rowHeight);
+      scrollTo(undefined, (getRowFromPosition(scrollTop) + deltaRows) * options.rowHeight);
       render();
 
       if (options.enableCellNavigation && activeRow != null) {
@@ -3372,6 +3389,7 @@ if (typeof Slick === "undefined") {
       "scrollRowIntoView": scrollRowIntoView,
       "scrollRowToTop": scrollRowToTop,
       "scrollCellIntoView": scrollCellIntoView,
+      "scrollTo": scrollTo,
       "getCanvasNode": getCanvasNode,
       "focus": setFocus,
 
