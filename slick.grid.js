@@ -1452,8 +1452,15 @@ if (typeof Slick === "undefined") {
 
     function appendCellHtml(stringArray, row, cell, colspan, item) {
       var m = columns[cell];
+      var cssClass = m.cssClass;
+
+      var metadata = item.getItemMetadata && item.getItemMetadata(row);
+      if (metadata && metadata.columns && metadata.columns[cell]) {
+          cssClass = metadata.columns[cell].cssClass;
+      }
+
       var cellCss = "slick-cell l" + cell + " r" + Math.min(columns.length - 1, cell + colspan - 1) +
-          (m.cssClass ? " " + m.cssClass : "");
+          (cssClass ? " " + cssClass : "");
       if (row === activeRow && cell === activeCell) {
         cellCss += (" active");
       }
