@@ -20,9 +20,7 @@
 if (typeof jQuery === "undefined") {
   throw "SlickGrid requires jquery module to be loaded";
 }
-if (!jQuery.fn.drag) {
-  throw "SlickGrid requires jquery.event.drag module to be loaded";
-}
+
 if (typeof Slick === "undefined") {
   throw "slick.core.js not loaded";
 }
@@ -64,6 +62,7 @@ if (typeof Slick === "undefined") {
       autoEdit: true,
       enableCellNavigation: true,
       enableColumnReorder: true,
+      enableColumnResize: true,
       asyncEditorLoading: false,
       asyncEditorLoadDelay: 100,
       forceFitColumns: false,
@@ -190,6 +189,10 @@ if (typeof Slick === "undefined") {
       $container = $(container);
       if ($container.length < 1) {
         throw new Error("SlickGrid requires a valid container, " + container + " does not exist in the DOM.");
+      }
+
+      if (options.enableColumnResize && !jQuery.fn.drag) {
+        throw "SlickGrid requires jquery.event.drag module to be loaded";
       }
 
       // calculate these only once and share between grid instances
@@ -597,7 +600,11 @@ if (typeof Slick === "undefined") {
       }
 
       setSortColumns(sortColumns);
-      setupColumnResize();
+
+      if (options.enableColumnResize) {
+        setupColumnResize();
+      }
+
       if (options.enableColumnReorder) {
         setupColumnReorder();
       }
