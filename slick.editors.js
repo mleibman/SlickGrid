@@ -156,22 +156,25 @@
     var defaultValue;
     var scope = this;
     var calendarOpen = false;
+    var datePickerOptions = {
+      showOn: "button",
+      buttonImageOnly: true,
+      buttonImage: "../images/calendar.gif",
+      beforeShow: function () {
+        calendarOpen = true;
+      },
+      onClose: function () {
+        calendarOpen = false;
+      }
+    };
+    // Override DatePicker options from datePickerOptions on column definition
+    $.extend(datePickerOptions, args.column.datePickerOptions);
 
     this.init = function () {
       $input = $("<INPUT type=text class='editor-text' />");
       $input.appendTo(args.container);
       $input.focus().select();
-      $input.datepicker({
-        showOn: "button",
-        buttonImageOnly: true,
-        buttonImage: "../images/calendar.gif",
-        beforeShow: function () {
-          calendarOpen = true
-        },
-        onClose: function () {
-          calendarOpen = false
-        }
-      });
+      $input.datepicker(datePickerOptions);
       $input.width($input.width() - 18);
     };
 
