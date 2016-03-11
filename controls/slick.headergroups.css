@@ -1,0 +1,6 @@
+.slick-header-columns {
+    border-bottom: none;
+}
+.slick-header-columns:last-child{
+    border-bottom: 1px solid silver;
+}

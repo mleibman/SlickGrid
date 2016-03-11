@@ -855,6 +855,7 @@ if (typeof Slick === "undefined") {
               applyColumnHeaderWidths();
               if (options.syncColumnCellResize) {
                 applyColumnWidths();
+                trigger(self.onColumnsResized, {});
               }
             })
             .bind("dragend", function (e, dd) {
