@@ -138,7 +138,12 @@
        
         e.preventDefault();
         e.stopPropagation();        
-      }           
+      }
+      else if (e.which == 27) {
+        setSelectedRanges([]);
+        e.preventDefault();
+        e.stopPropagation();
+      }
     }
 
     $.extend(this, {
