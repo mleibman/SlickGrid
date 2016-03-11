@@ -1,0 +1,141 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <title>SlickGrid example 15: Editable Row</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <style>
+    .ic-rowEdit-disabled {
+      display: none;
+    }
+    
+	.ic-rowEdit-enabled {
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+<div style="position:relative">
+  <div style="width:520px;">
+    <div id="myGrid" style="width:100%;height:500px;"></div>
+  </div>
+
+  <div class="options-panel">
+    <h2>About</h2>
+    This example create a grid without cell editing, but alllow a row edition.
+    <h2>Demonstrates</h2>
+    <ul>
+      <li>enableRowAsEditable()</li>
+      <li>disableRowAsEditable()</li>
+    </ul>
+    <h2>View Source:</h2>
+    <ul>
+        <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example15-editablerow.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+    </ul>
+  </div>
+</div>
+
+<script src="../lib/jquery-1.7.min.js"></script>
+<script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
+<script src="../lib/jquery.event.drag-2.2.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../slick.editors.js"></script>
+<script src="../slick.formatters.js"></script>
+<script src="../plugins/slick.cellselectionmodel.js"></script>
+<script src="../plugins/slick.checkboxselectcolumn.js"></script>
+<script src="../plugins/slick.rowmovemanager.js"></script>
+<script src="../slick.grid.js"></script>
+
+<script>
+  var grid;
+  var columns = [
+    {id: "title", name: "Title", field: "title", editor: Slick.Editors.Text, sortable: true },
+    {id: "duration", name: "Duration", field: "duration", editor: Slick.Editors.Text},
+    {id: "%", name: "% Complete", field: "percentComplete", editor: Slick.Editors.Text, sortable: true },
+    {id: "start", name: "Start", field: "start",  sortable: true, editor: Slick.Editors.Date},
+    {id: "finish", name: "Finish", field: "finish",  sortable: true, editor: Slick.Editors.Date},
+    {id: "effort-driven", name: "Effort Driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark, editor: Slick.Editors.Checkbox, cannotTriggerInsert: true},
+	{id: "edit", name: "Edit", cssClass: "cell-effort-driven", field: "edit", formatter: TaskEditRow }
+  ];
+
+  var options = {
+	defaultSortAsc: true,
+    editable: false,
+	editableRow: true,	
+    enableCellNavigation: true,
+    enableColumnReorder: false
+  };
+
+  function TaskEditRow (row, cell, value, columnDef, dataContext) {
+    var node = null;
+    if (grid) {
+      var hash = grid.getCellCssStyles(grid.getOptions().editableRowCssClass);
+	  if (hash) {
+	    node = hash[row];
+	  }
+	}
+    if (node) {
+      return "<img id='ic-edit-grid'    class='ic-rowEdit-disabled' src='../images/ic-edit.png' />" + 
+             "<img id='ic-edit-confirm' class='ic-rowEdit-enabled'  src='../images/tick.png' />" + 
+             "<img id='ic-edit-delete'  class='ic-rowEdit-enabled'  src='../images/ic-delete.png' />";
+    }
+    else {
+      return "<img id='ic-edit-grid'    class='ic-rowEdit-enabled'  src='../images/ic-edit.png' />" + 
+             "<img id='ic-edit-confirm' class='ic-rowEdit-disabled' src='../images/tick.png' />" + 
+             "<img id='ic-edit-delete'  class='ic-rowEdit-disabled' src='../images/ic-delete.png' />";
+    }
+  }
+
+
+  
+  $(function () {
+    var data = [];
+    for (var i = 0; i < 500; i++) {
+      data[i] = {
+        title: "Task " + i,
+        duration: "5 days",
+        percentComplete: Math.round(Math.random() * 100),
+        start: "01/01/2009",
+        finish: "01/05/2009",
+        effortDriven: (i % 5 == 0),
+      };
+    }
+
+    grid = new Slick.Grid("#myGrid", data, columns, options);
+	
+	grid.onClick.subscribe(function (e, args) {
+      if (args.cell == 6) {
+        var node = grid.getCellNode(args.row, args.cell);
+		var nodeEdit = node.childNodes[0];
+		var nodeConfirm = node.childNodes[1];
+		var nodeDel = node.childNodes[2];
+
+		if (e.target.id == 'ic-edit-grid') {
+		  grid.enableRowAsEditable(args.row);
+		  $(nodeEdit).removeClass("ic-rowEdit-enabled noClass").addClass("ic-rowEdit-disabled");
+		  $(nodeConfirm).removeClass("ic-rowEdit-disabled noClass").addClass("ic-rowEdit-enabled");
+		  $(nodeDel).removeClass("ic-rowEdit-disabled noClass").addClass("ic-rowEdit-enabled");
+        } 
+		
+	    if (e.target.id == 'ic-edit-delete') {
+		  grid.disableRowAsEditable(args.row);
+		  $(nodeEdit).removeClass("ic-rowEdit-disabled noClass").addClass("ic-rowEdit-enabled");
+		  $(nodeConfirm).removeClass("ic-rowEdit-enabled noClass").addClass("ic-rowEdit-disabled");
+		  $(nodeDel).removeClass("ic-rowEdit-enabled noClass").addClass("ic-rowEdit-disabled");
+	    }
+        
+		if (e.target.id == 'ic-edit-confirm') {
+		  grid.disableRowAsEditable(args.row);
+		  $(nodeEdit).removeClass("ic-rowEdit-disabled noClass").addClass("ic-rowEdit-enabled");
+		  $(nodeConfirm).removeClass("ic-rowEdit-enabled noClass").addClass("ic-rowEdit-disabled");
+		  $(nodeDel).removeClass("ic-rowEdit-enabled noClass").addClass("ic-rowEdit-disabled");
+        }
+      }
+	});
+  })
+</script>
+</body>
+</html>

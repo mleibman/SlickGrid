@@ -77,6 +77,16 @@ classes should alter those!
   background-color: beige;
 }
 
+.slick-cell.editableRow {
+  z-index: 11;
+  overflow: visible;
+  background: #F5DA81;
+  border-color: none;
+  border-style: none;
+  font-style: italic;
+  font-weight: bold;
+}
+
 .slick-cell.active {
   border-color: gray;
   border-style: solid;
