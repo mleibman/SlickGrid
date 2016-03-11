@@ -2206,51 +2206,52 @@ if (typeof Slick === "undefined") {
 
     function handleKeyDown(e) {
       trigger(self.onKeyDown, {row: activeRow, cell: activeCell}, e);
-      var handled = e.isImmediatePropagationStopped();
+      if (e.isImmediatePropagationStopped()) {
+        return;
+      }
 
-      if (!handled) {
-        if (!e.shiftKey && !e.altKey && !e.ctrlKey) {
-          if (e.which == 27) {
-            if (!getEditorLock().isActive()) {
-              return; // no editing mode to cancel, allow bubbling and default processing (exit without cancelling the event)
-            }
-            cancelEditAndSetFocus();
-          } else if (e.which == 34) {
-            navigatePageDown();
-            handled = true;           
-          } else if (e.which == 33) {
-            navigatePageUp();
-            handled = true;
-          } else if (e.which == 37) {
-            handled = navigateLeft();
-          } else if (e.which == 39) {
-            handled = navigateRight();
-          } else if (e.which == 38) {
-            handled = navigateUp();
-          } else if (e.which == 40) {
-            handled = navigateDown();
-          } else if (e.which == 9) {
-            handled = navigateNext();
-          } else if (e.which == 13) {
-            if (options.editable) {
-              if (currentEditor) {
-                // adding new row
-                if (activeRow === getDataLength()) {
-                  navigateDown();
-                } else {
-                  commitEditAndSetFocus();
-                }
+      var handled;
+      if (!e.shiftKey && !e.altKey && !e.ctrlKey) {
+        if (e.which == 27) {
+          if (!getEditorLock().isActive()) {
+            return; // no editing mode to cancel, allow bubbling and default processing (exit without cancelling the event)
+          }
+          cancelEditAndSetFocus();
+        } else if (e.which == 34) {
+          navigatePageDown();
+          handled = true;
+        } else if (e.which == 33) {
+          navigatePageUp();
+          handled = true;
+        } else if (e.which == 37) {
+          handled = navigateLeft();
+        } else if (e.which == 39) {
+          handled = navigateRight();
+        } else if (e.which == 38) {
+          handled = navigateUp();
+        } else if (e.which == 40) {
+          handled = navigateDown();
+        } else if (e.which == 9) {
+          handled = navigateNext();
+        } else if (e.which == 13) {
+          if (options.editable) {
+            if (currentEditor) {
+              // adding new row
+              if (activeRow === getDataLength()) {
+                navigateDown();
               } else {
-                if (getEditorLock().commitCurrentEdit()) {
-                  makeActiveCellEditable();
-                }
+                commitEditAndSetFocus();
+              }
+            } else {
+              if (getEditorLock().commitCurrentEdit()) {
+                makeActiveCellEditable();
               }
             }
-            handled = true;
           }
-        } else if (e.which == 9 && e.shiftKey && !e.ctrlKey && !e.altKey) {
-          handled = navigatePrev();
+          handled = true;
         }
+      } else if (e.which == 9 && e.shiftKey && !e.ctrlKey && !e.altKey) {
+        handled = navigatePrev();
       }
 
       if (handled) {
