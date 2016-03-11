@@ -59,6 +59,7 @@
      * @method stopImmediatePropagation
      */
     this.stopImmediatePropagation = function () {
+      isPropagationStopped = true;
       isImmediatePropagationStopped = true;
     };
 
@@ -122,7 +123,7 @@
       scope = scope || this;
 
       var returnValue;
-      for (var i = 0; i < handlers.length && !(e.isPropagationStopped() || e.isImmediatePropagationStopped()); i++) {
+      for (var i = 0; i < handlers.length && !e.isImmediatePropagationStopped(); i++) {
         returnValue = handlers[i].call(scope, e, args);
       }
 
