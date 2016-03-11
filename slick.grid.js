@@ -2454,8 +2454,8 @@ if (typeof Slick === "undefined") {
       }
     }
 
-    function scrollCellIntoView(row, cell, doPaging) {
-      scrollRowIntoView(row, doPaging);
+    function scrollCellIntoView(row, cell, doPaging, doCentering) {
+      scrollRowIntoView(row, doPaging, doCentering);
 
       var colspan = getColspan(row, cell);
       var left = columnPosLeft[cell],
@@ -2734,12 +2734,19 @@ if (typeof Slick === "undefined") {
       return activeCellNode;
     }
 
-    function scrollRowIntoView(row, doPaging) {
+    function scrollRowIntoView(row, doPaging, doCentering) {
+      var height = viewportH - (viewportHasHScroll ? scrollbarDimensions.height : 0);
       var rowAtTop = row * options.rowHeight;
-      var rowAtBottom = (row + 1) * options.rowHeight - viewportH + (viewportHasHScroll ? scrollbarDimensions.height : 0);
+      var rowAtBottom = (row + 1) * options.rowHeight - height;
 
+      // need to center row?
+      if (doCentering) {
+        var centerOffset = (height - options.rowHeight) / 2;
+        scrollTo(rowAtTop - centerOffset);
+        render();
+      }
       // need to page down?
-      if ((row + 1) * options.rowHeight > scrollTop + viewportH + offset) {
+      else if ((row + 1) * options.rowHeight > scrollTop + viewportH + offset) {
         scrollTo(doPaging ? rowAtTop : rowAtBottom);
         render();
       }
