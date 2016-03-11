@@ -4,7 +4,8 @@
     var columnCheckboxes;
 
     var defaults = {
-      fadeSpeed:250
+      fadeSpeed:250,
+      zIndex:20
     };
 
     function init() {
@@ -12,7 +13,7 @@
       grid.onColumnsReordered.subscribe(updateColumnOrder);
       options = $.extend({}, defaults, options);
 
-      $menu = $("<span class='slick-columnpicker' style='display:none;position:absolute;z-index:20;' />").appendTo(document.body);
+      $menu = $("<span class='slick-columnpicker' style='display:none;position:absolute;' />").zIndex(options.zIndex).appendTo(document.body);
 
       $menu.bind("mouseleave", function (e) {
         $(this).fadeOut(options.fadeSpeed)
