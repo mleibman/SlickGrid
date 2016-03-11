@@ -36,7 +36,15 @@
 
     function handleSelectedRowsChanged(e, args) {
       var selectedRows = _grid.getSelectedRows();
-      var lookup = {}, row, i;
+      var data = _grid.getData();
+      var selectableRowCount = 0;
+      var lookup = {}, row, i, rowSelectable;
+      for (i = 0; i < _grid.getDataLength(); i++) {
+        rowSelectable = data.getItemMetadata(i).selectable != false;
+        if (rowSelectable) {
+          selectableRowCount += 1;
+        }
+      }
       for (i = 0; i < selectedRows.length; i++) {
         row = selectedRows[i];
         lookup[row] = true;
@@ -51,7 +59,7 @@
       _selectedRowsLookup = lookup;
       _grid.render();
 
-      if (selectedRows.length && selectedRows.length == _grid.getDataLength()) {
+      if (selectedRows.length == selectableRowCount) {
         _grid.updateColumnHeader(_options.columnId, "<input type='checkbox' checked='checked'>", _options.toolTip);
       } else {
         _grid.updateColumnHeader(_options.columnId, "<input type='checkbox'>", _options.toolTip);
@@ -88,11 +96,13 @@
     }
 
     function toggleRowSelection(row) {
+      var data = _grid.getData(),
+          rowSelectable = data.getItemMetadata(row).selectable != false;
       if (_selectedRowsLookup[row]) {
         _grid.setSelectedRows($.grep(_grid.getSelectedRows(), function (n) {
           return n != row
         }));
-      } else {
+      } else if (rowSelectable) {
         _grid.setSelectedRows(_grid.getSelectedRows().concat(row));
       }
     }
@@ -107,9 +117,14 @@
         }
 
         if ($(e.target).is(":checked")) {
-          var rows = [];
+          var rows = [],
+              data = _grid.getData(),
+              rowSelectable;
           for (var i = 0; i < _grid.getDataLength(); i++) {
-            rows.push(i);
+            rowSelectable = data.getItemMetadata(i).selectable != false;
+            if (rowSelectable) {
+              rows.push(i);
+            }
           }
           _grid.setSelectedRows(rows);
         } else {
