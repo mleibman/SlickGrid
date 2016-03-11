@@ -71,7 +71,7 @@ if (typeof Slick === "undefined") {
       asyncPostRenderDelay: 50,
       autoHeight: false,
       editorLock: Slick.GlobalEditorLock,
-      showHeaderRow: false,
+      showHeaderRow: null,
       headerRowHeight: 25,
       showTopPanel: false,
       topPanelHeight: 25,
@@ -584,7 +584,7 @@ if (typeof Slick === "undefined") {
           "column": m
         });
 
-        if (options.showHeaderRow) {
+        if (options.showHeaderRow!==null) {
           var headerRowCell = $("<div class='ui-state-default slick-headerrow-column l" + i + " r" + i + "'></div>")
               .data("column", m)
               .appendTo($headerRow);
