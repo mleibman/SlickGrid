@@ -224,9 +224,11 @@
 
 
       // Position the menu.
-      $menu
-        .offset({ top: $(this).offset().top + $(this).height(), left: $(this).offset().left });
-
+      $menu.position({
+        my: "left top",
+        at: "left bottom",
+        of: $(this)
+      });
 
       // Mark the header as active to keep the highlighting.
       $activeHeaderColumn = $menuButton.closest(".slick-header-column");
