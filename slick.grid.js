@@ -420,6 +420,7 @@ if (typeof Slick === "undefined") {
 
       if (canvasWidth != oldCanvasWidth || forceColumnWidthsUpdate) {
         applyColumnWidths();
+        applyColumnHeaderWidths();
       }
     }
 
@@ -1225,6 +1226,7 @@ if (typeof Slick === "undefined") {
         createCssRules();
         resizeCanvas();
         applyColumnWidths();
+        applyColumnHeaderWidths();
         handleScroll();
       }
     }
@@ -3268,6 +3270,11 @@ if (typeof Slick === "undefined") {
       }
       selectionModel.setSelectedRanges(rowsToRanges(rows));
     }
+    
+    function scrollPort(px) {
+        scrollTo(px);
+        render();
+      }
 
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3414,7 +3421,10 @@ if (typeof Slick === "undefined") {
 
       // IEditor implementation
       "getEditorLock": getEditorLock,
-      "getEditController": getEditController
+      "getEditController": getEditController,
+      
+      
+      "scrollPort": scrollPort
     });
 
     init();
