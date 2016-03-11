@@ -16,6 +16,7 @@
  *     and do proper cleanup.
  */
 
+// Just testing this to show kenny cool git stuff.
 // make sure required JavaScript modules are loaded
 if (typeof jQuery === "undefined") {
   throw "SlickGrid requires jquery module to be loaded";
@@ -413,7 +414,7 @@ if (typeof Slick === "undefined") {
         $canvas.width(canvasWidth);
         $headerRow.width(canvasWidth);
         $headers.width(getHeadersWidth());
-        viewportHasHScroll = (canvasWidth > viewportW - scrollbarDimensions.width);
+        viewportHasHScroll = (canvasWidth >= viewportW - scrollbarDimensions.width);
       }
 
       $headerRowSpacer.width(canvasWidth + (viewportHasVScroll ? scrollbarDimensions.width : 0));
@@ -1986,7 +1987,7 @@ if (typeof Slick === "undefined") {
         $headerRowScroller[0].scrollLeft = scrollLeft;
       }
 
-      if (vScrollDist) {
+	  if(vScrollDist && (vScrollDist > options.rowHeight)) {
         vScrollDir = prevScrollTop < scrollTop ? 1 : -1;
         prevScrollTop = scrollTop;
 
