@@ -158,19 +158,22 @@
     var calendarOpen = false;
 
     this.init = function () {
+      console.log(args);
+      console.log(args.column.datePickerImageUrl)
       $input = $("<INPUT type=text class='editor-text' />");
       $input.appendTo(args.container);
       $input.focus().select();
       $input.datepicker({
         showOn: "button",
         buttonImageOnly: true,
-        buttonImage: "../images/calendar.gif",
+        buttonImage: args.column.datePickerImageUrl,
         beforeShow: function () {
           calendarOpen = true
         },
         onClose: function () {
           calendarOpen = false
-        }
+        },
+        dateFormat: "dd-mm-yy"
       });
       $input.width($input.width() - 18);
     };
