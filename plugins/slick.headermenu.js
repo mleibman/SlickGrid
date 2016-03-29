@@ -111,6 +111,10 @@
 
 
     function handleBodyMouseDown(e) {
+      // Determine if the user clicked on the header dropdown button intending to close the menu.
+      if ($menu && e && $(e.target).parents().andSelf().filter('.slick-header-menubutton').length){
+        _self.hideIntended = true;
+      }
       if ($menu && $menu[0] != e.target && !$.contains($menu[0], e.target)) {
         hideMenu();
       }
@@ -165,6 +169,11 @@
 
 
     function showMenu(e) {
+      if (_self.hideIntended) {
+        _self.hideIntended = false;
+        return false; // don't propagate and register as a header click
+      }
+
       var $menuButton = $(this);
       var menu = $menuButton.data("menu");
       var columnDef = $menuButton.data("column");
