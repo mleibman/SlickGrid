@@ -210,6 +210,7 @@ if (typeof Slick === "undefined") {
         if (m.maxWidth && m.width > m.maxWidth) {
           m.width = m.maxWidth;
         }
+        m.haveSubValues=(m.field.indexOf('.')||m.field.indexOf('['));
       }
 
       // validate loaded JavaScript modules against requested options
@@ -1397,7 +1398,11 @@ if (typeof Slick === "undefined") {
       if (options.dataItemColumnValueExtractor) {
         return options.dataItemColumnValueExtractor(item, columnDef);
       }
-      return item[columnDef.field];
+      if (columnDef.haveSubValues){
+         return new Function("itm","return itm."+columnDef.field)(item)
+      } else {
+        return item[columnDef.field];
+      }
     }
 
     function appendRowHtml(stringArray, row, range, dataLength) {
