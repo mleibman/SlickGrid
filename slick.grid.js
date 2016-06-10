@@ -2755,6 +2755,11 @@ if (typeof Slick === "undefined") {
       render();
     }
 
+    function scrollGridToPosition(position) {
+      scrollTo(position);
+      render();
+    }
+
     function scrollPage(dir) {
       var deltaRows = dir * numVisibleRows;
       scrollTo((getRowFromPosition(scrollTop) + deltaRows) * options.rowHeight);
@@ -3372,6 +3377,7 @@ if (typeof Slick === "undefined") {
       "scrollRowIntoView": scrollRowIntoView,
       "scrollRowToTop": scrollRowToTop,
       "scrollCellIntoView": scrollCellIntoView,
+      "scrollGridToPosition": scrollGridToPosition,
       "getCanvasNode": getCanvasNode,
       "focus": setFocus,
 
