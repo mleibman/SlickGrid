@@ -486,6 +486,14 @@
           group.value = val;
           group.level = level;
           group.groupingKey = (parentGroup ? parentGroup.groupingKey + groupingDelimiter : '') + val;
+
+          if (_.isFunction(gi.filterPredefinedValues)) {
+            var filterGroup = gi.filterPredefinedValues(group,parentGroup);
+            if (filterGroup) {
+              continue;
+            }
+          }
+
           groups[groups.length] = group;
           groupsByVal[val] = group;
         }
