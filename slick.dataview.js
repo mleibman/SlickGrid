@@ -489,7 +489,7 @@
 
           if (_.isFunction(gi.filterPredefinedValues)) {
             var filterGroup = gi.filterPredefinedValues(group,parentGroup);
-            if (filterGroup) {
+            if (!filterGroup) {
               continue;
             }
           }
