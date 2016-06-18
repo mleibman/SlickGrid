@@ -25,3 +25,6 @@ Some highlights:
 * Advanced detached & multi-field editors with undo/redo support.
 * “GlobalEditorLock” to manage concurrent edits in cases where multiple Views on a page can edit the same data.
 * Support for [millions of rows](http://stackoverflow.com/a/2569488/1269037)
+
+
+I am amit, new contributer
