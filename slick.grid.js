@@ -2457,6 +2457,12 @@ if (typeof Slick === "undefined") {
 
       if (!handled) {
         if (!e.shiftKey && !e.altKey && !e.ctrlKey) {
+		  // editor may specify an array of keys to bubble
+          if (options.editable && currentEditor && currentEditor.keyCaptureList) {
+            if (currentEditor.keyCaptureList.indexOf( e.which ) > -1) { 
+                return;
+            }
+          }
           if (e.which == keyCode.ESCAPE) {
             if (!getEditorLock().isActive()) {
               return; // no editing mode to cancel, allow bubbling and default processing (exit without cancelling the event)
