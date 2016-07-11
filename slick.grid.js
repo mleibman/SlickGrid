@@ -338,8 +338,8 @@ if (typeof Slick === "undefined") {
         $headerScroller
             .on("contextmenu", handleHeaderContextMenu)
             .on("click", handleHeaderClick)
-            .delegate(".slick-header-column", "mouseenter", handleHeaderMouseEnter)
-            .delegate(".slick-header-column", "mouseleave", handleHeaderMouseLeave);
+            .on("mouseenter", ".slick-header-column", handleHeaderMouseEnter)
+            .on("mouseleave", ".slick-header-column", handleHeaderMouseLeave);
         $headerRowScroller
             .on("scroll", handleHeaderRowScroll);
 
@@ -359,8 +359,8 @@ if (typeof Slick === "undefined") {
             .on("dragstart", {distance: 3}, handleDragStart)
             .on("drag", handleDrag)
             .on("dragend", handleDragEnd)
-            .delegate(".slick-cell", "mouseenter", handleMouseEnter)
-            .delegate(".slick-cell", "mouseleave", handleMouseLeave);
+            .on("mouseenter", ".slick-cell", handleMouseEnter)
+            .on("mouseleave", ".slick-cell", handleMouseLeave);
 
         // Work around http://crbug.com/312427.
         if (navigator.userAgent.toLowerCase().match(/webkit/) &&

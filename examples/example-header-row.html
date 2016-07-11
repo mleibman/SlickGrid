@@ -111,7 +111,7 @@
     });
 
 
-    $(grid.getHeaderRow()).delegate(":input", "change keyup", function (e) {
+    $(grid.getHeaderRow()).on("change keyup", ":input", function (e) {
       var columnId = $(this).data("columnId");
       if (columnId != null) {
         columnFilters[columnId] = $.trim($(this).val());
