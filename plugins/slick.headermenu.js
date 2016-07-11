@@ -100,13 +100,13 @@
       _grid.setColumns(_grid.getColumns());
 
       // Hide the menu on outside click.
-      $(document.body).bind("mousedown", handleBodyMouseDown);
+      $(document.body).on("mousedown", handleBodyMouseDown);
     }
 
 
     function destroy() {
       _handler.unsubscribeAll();
-      $(document.body).unbind("mousedown", handleBodyMouseDown);
+      $(document.body).off("mousedown", handleBodyMouseDown);
     }
 
 
@@ -149,7 +149,7 @@
         }
 
         $el
-          .bind("click", showMenu)
+          .on("click", showMenu)
           .appendTo(args.node);
       }
     }
@@ -195,7 +195,7 @@
           .data("command", item.command || '')
           .data("column", columnDef)
           .data("item", item)
-          .bind("click", handleMenuItemClick)
+          .on("click", handleMenuItemClick)
           .appendTo($menu);
 
         if (item.disabled) {

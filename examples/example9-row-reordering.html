@@ -282,19 +282,19 @@ $(function () {
 
   $.drop({mode: "mouse"});
   $("#dropzone")
-      .bind("dropstart", function (e, dd) {
+      .on("dropstart", function (e, dd) {
         if (dd.mode != "recycle") {
           return;
         }
         $(this).css("background", "yellow");
       })
-      .bind("dropend", function (e, dd) {
+      .on("dropend", function (e, dd) {
         if (dd.mode != "recycle") {
           return;
         }
         $(dd.available).css("background", "pink");
       })
-      .bind("drop", function (e, dd) {
+      .on("drop", function (e, dd) {
         if (dd.mode != "recycle") {
           return;
         }
