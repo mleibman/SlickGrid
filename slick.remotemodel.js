@@ -1,4 +1,15 @@
-(function ($) {
+(function (factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery'], factory);
+  } else if (typeof exports === 'object') {
+    // Node/CommonJS
+    module.exports = factory(require('jquery'));
+  } else {
+    // Browser globals
+    factory(jQuery);
+  }
+}(function ($) {
   /***
    * A sample AJAX data store implementation.
    * Right now, it's hooked up to load Hackernews stories, but can
@@ -170,4 +181,4 @@
 
   // Slick.Data.RemoteModel
   $.extend(true, window, { Slick: { Data: { RemoteModel: RemoteModel }}});
-})(jQuery);
+}));

@@ -4,7 +4,19 @@
  * @namespace Slick
  */
 
-(function ($) {
+// CommonJS, AMD or browser globals
+(function (factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery'], factory);
+  } else if (typeof exports === 'object') {
+    // Node/CommonJS
+    module.exports = factory(require('jquery'));
+  } else {
+    // Browser globals
+    factory(jQuery);
+  }
+}(function ($) {
   // register namespace
   $.extend(true, window, {
     "Slick": {
@@ -509,4 +521,4 @@
 
     this.init();
   }
-})(jQuery);
+}));

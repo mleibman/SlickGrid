@@ -1,4 +1,15 @@
-(function ($) {
+(function (factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery'], factory);
+  } else if (typeof exports === 'object') {
+    // Node/CommonJS
+    module.exports = factory(require('jquery'));
+  } else {
+    // Browser globals
+    factory(jQuery);
+  }
+}(function ($) {
   function SlickGridPager(dataView, grid, $container) {
     var $status;
 
@@ -151,4 +162,4 @@
 
   // Slick.Controls.Pager
   $.extend(true, window, { Slick: { Controls: { Pager: SlickGridPager }}});
-})(jQuery);
+}));

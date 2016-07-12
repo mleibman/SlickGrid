@@ -16,20 +16,30 @@
  *     and do proper cleanup.
  *
  */
+(function (factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery'], factory);
+  } else if (typeof exports === 'object') {
+    // Node/CommonJS
+    module.exports = factory(require('jquery'));
+  } else {
+    // Browser globals
+    factory(jQuery);
+  }
+}(function ($) {
 
-// make sure required JavaScript modules are loaded
-if (typeof jQuery === "undefined") {
-  throw "SlickGrid requires jquery module to be loaded";
-}
-if (!jQuery.fn.drag) {
-  throw "SlickGrid requires jquery.event.drag module to be loaded";
-}
-if (typeof Slick === "undefined") {
-  throw "slick.core.js not loaded";
-}
+  // make sure required JavaScript modules are loaded
+  if (typeof jQuery === "undefined") {
+    throw "SlickGrid requires jquery module to be loaded";
+  }
+  if (!jQuery.fn.drag) {
+    throw "SlickGrid requires jquery.event.drag module to be loaded";
+  }
+  if (typeof Slick === "undefined") {
+    throw "slick.core.js not loaded";
+  }
 
-
-(function ($) {
   // Slick.Grid
   $.extend(true, window, {
     Slick: {
@@ -1261,7 +1271,7 @@ if (typeof Slick === "undefined") {
           if (treeColumns.hasDepth()) {
             var validPositionInGroup = columnPositionValidInGroup(ui.item);
             limit = validPositionInGroup.limit;
-            
+
             cancel = !validPositionInGroup.valid;
 
             if (cancel)
@@ -1291,21 +1301,21 @@ if (typeof Slick === "undefined") {
 
 	function getImpactedColumns( limit ) {
     	var impactedColumns = [];
-    	
+
     	if( limit != undefined ) {
-    		   		
+
 	   		for( var i = limit.start; i <= limit.end; i++ ) {
 	   			impactedColumns.push( columns[i] );
 	   		}
     	}
     	else {
-    		
+
     		impactedColumns = columns;
     	}
-   		   		
+
    		return impactedColumns;
-    }    
-    
+    }
+
     function setupColumnResize() {
       var $col, j, k, c, pageX, columnElements, minPageX, maxPageX, firstResizable, lastResizable;
       columnElements = $headers.children();
@@ -2241,24 +2251,24 @@ if (typeof Slick === "undefined") {
     }
 
     function callFormatter( row, cell, value, m, item ) {
-    	
+
     	var result;
-    	
+
         // pass metadata to formatter
         var metadata = data.getItemMetadata && data.getItemMetadata(row);
         metadata = metadata && metadata.columns;
-        
+
         if( metadata ) {
         	var columnData = metadata[m.id] || metadata[cell];
         	result = getFormatter(row, m)(row, cell, value, m, item, columnData );
-        }        
+        }
         else {
         	result = getFormatter(row, m)(row, cell, value, m, item);
-        } 
-        
+        }
+
         return result;
-    }    
-    
+    }
+
     function getEditor(row, cell) {
       var column = columns[cell];
       var rowMetadata = data.getItemMetadata && data.getItemMetadata(row);
@@ -3056,25 +3066,25 @@ if (typeof Slick === "undefined") {
 
       // add new rows & missing cells in existing rows
       if (lastRenderedScrollLeft != scrollLeft) {
-    	  
+
     	  if ( hasFrozenRows ) {
-    		  
+
     		  var renderedFrozenRows = jQuery.extend(true, {}, rendered);
-    		  
+
     		  if (options.frozenBottom) {
-    			  
+
     			 renderedFrozenRows.top=actualFrozenRow;
     			 renderedFrozenRows.bottom=getDataLength();
     		  }
     		  else {
-             
+
 	             renderedFrozenRows.top=0;
 	             renderedFrozenRows.bottom=options.frozenRow;
     		  }
-    		  
-    		  cleanUpAndRenderCells(renderedFrozenRows); 
+
+    		  cleanUpAndRenderCells(renderedFrozenRows);
     	  }
-    	  
+
           cleanUpAndRenderCells(rendered);
       }
 
@@ -3237,7 +3247,7 @@ if (typeof Slick === "undefined") {
       }
 
       trigger(self.onScroll, {scrollLeft: scrollLeft, scrollTop: scrollTop});
-	  
+
       if (hScrollDist || vScrollDist) return true;
       return false;
     }
@@ -4010,14 +4020,14 @@ if (typeof Slick === "undefined") {
 	    if (!hasFrozenRows ||
 	  	  ( !options.frozenBottom && row > actualFrozenRow - 1 ) ||
 	  	  ( options.frozenBottom && row < actualFrozenRow - 1 ) ) {
-    	
+
 	      var viewportScrollH = $viewportScrollContainerY.height();
-	
+
 	      var rowAtTop = row * options.rowHeight;
 	      var rowAtBottom = (row + 1) * options.rowHeight
 	        - viewportScrollH
 	        + (viewportHasHScroll ? scrollbarDimensions.height : 0);
-	
+
 	      // need to page down?
 	      if ((row + 1) * options.rowHeight > scrollTop + viewportScrollH + offset) {
 	        scrollTo(doPaging ? rowAtTop : rowAtBottom);
@@ -4722,4 +4732,4 @@ if (typeof Slick === "undefined") {
 
     init();
   }
-}(jQuery));
+}));

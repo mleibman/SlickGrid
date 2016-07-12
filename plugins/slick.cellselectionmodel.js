@@ -1,4 +1,15 @@
-(function ($) {
+(function (factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery'], factory);
+  } else if (typeof exports === 'object') {
+    // Node/CommonJS
+    module.exports = factory(require('jquery'));
+  } else {
+    // Browser globals
+    factory(jQuery);
+  }
+}(function ($) {
   // register namespace
   $.extend(true, window, {
     "Slick": {
@@ -99,7 +110,7 @@
         if (!ranges.length)
           ranges.push(new Slick.Range(active.row, active.cell));
 
-        // keyboard can work with last range only          
+        // keyboard can work with last range only
         last = ranges.pop();
 
         // can't handle selection out of active cell
@@ -122,7 +133,7 @@
           dRow += dirRow;
         }
 
-        // define new selection range 
+        // define new selection range
         var new_last = new Slick.Range(active.row, active.cell, active.row + dirRow * dRow, active.cell + dirCell * dCell);
         if (removeInvalidRanges([new_last]).length) {
           ranges.push(new_last);
@@ -151,4 +162,4 @@
       "onSelectedRangesChanged": new Slick.Event()
     });
   }
-})(jQuery);
+}));
