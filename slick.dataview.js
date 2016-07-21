@@ -1,4 +1,12 @@
-(function ($) {
+(function (factory) {
+  if (typeof define === 'function' && define.amd) {
+    define(['jquery'], factory);
+  } else if (typeof exports === 'object') {
+    module.exports = factory(require('jquery'));
+  } else {
+    factory(jQuery);
+  }
+}(function ($) {
   $.extend(true, window, {
     Slick: {
       Data: {
@@ -1183,4 +1191,4 @@
 
   // TODO:  add more built-in aggregators
   // TODO:  merge common aggregators in one to prevent needles iterating
-})(jQuery);
+}));

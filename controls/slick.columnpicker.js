@@ -1,4 +1,12 @@
-(function ($) {
+(function (factory) {
+  if (typeof define === 'function' && define.amd) {
+    define(['jquery'], factory);
+  } else if (typeof exports === 'object') {
+    module.exports = factory(require('jquery'));
+  } else {
+    factory(jQuery);
+  }
+}(function ($) {
   /**
    *
    * @param {Array, Slick.TreeColumns} columns
@@ -396,5 +404,5 @@
 
   // Slick.Controls.ColumnPicker
   $.extend(true, window, { Slick: { Controls: { ColumnPicker: SlickColumnPicker }}});
-})(jQuery);
+}));
 
