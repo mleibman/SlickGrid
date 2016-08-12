@@ -29,7 +29,7 @@
     this.init = function () {
       $input = $("<INPUT type=text class='editor-text' />")
           .appendTo(args.container)
-          .bind("keydown.nav", function (e) {
+          .on("keydown.nav", function (e) {
             if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
               e.stopImmediatePropagation();
             }
@@ -98,7 +98,7 @@
     this.init = function () {
       $input = $("<INPUT type=text class='editor-text' />");
 
-      $input.bind("keydown.nav", function (e) {
+      $input.on("keydown.nav", function (e) {
         if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
           e.stopImmediatePropagation();
         }
@@ -167,7 +167,7 @@
     this.init = function () {
       $input = $("<INPUT type=text class='editor-text' />");
 
-      $input.bind("keydown.nav", function (e) {
+      $input.on("keydown.nav", function (e) {
         if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
           e.stopImmediatePropagation();
         }
@@ -188,22 +188,22 @@
 	function getDecimalPlaces() {
 		// returns the number of fixed decimal places or null
 		var rtn = args.column.editorFixedDecimalPlaces;
-		if (typeof rtn == 'undefined') { 
+		if (typeof rtn == 'undefined') {
 			rtn = FloatEditor.DefaultDecimalPlaces;
 		}
 		return (!rtn && rtn!==0 ? null : rtn);
 	}
-	
+
     this.loadValue = function (item) {
       defaultValue = item[args.column.field];
-	  
+
 	  var decPlaces = getDecimalPlaces();
-	  if (decPlaces !== null 
-	  && (defaultValue || defaultValue===0) 
-	  && defaultValue.toFixed) { 
+	  if (decPlaces !== null
+	  && (defaultValue || defaultValue===0)
+	  && defaultValue.toFixed) {
 		defaultValue = defaultValue.toFixed(decPlaces);
 	  }
-	  
+
       $input.val(defaultValue);
       $input[0].defaultValue = defaultValue;
       $input.select();
@@ -213,12 +213,12 @@
 	  var rtn = parseFloat($input.val()) || 0;
 
 	  var decPlaces = getDecimalPlaces();
-	  if (decPlaces !== null 
-	  && (rtn || rtn===0) 
-	  && rtn.toFixed) { 
+	  if (decPlaces !== null
+	  && (rtn || rtn===0)
+	  && rtn.toFixed) {
 		rtn = parseFloat(rtn.toFixed(decPlaces));
 	  }
-	  
+
       return rtn;
     };
 
@@ -255,7 +255,7 @@
   }
 
   FloatEditor.DefaultDecimalPlaces = null;
-  
+
   function DateEditor(args) {
     var $input;
     var defaultValue;
@@ -470,7 +470,7 @@
         }
       });
 
-      $picker.find(".editor-percentcomplete-buttons button").bind("click", function (e) {
+      $picker.find(".editor-percentcomplete-buttons button").on("click", function (e) {
         $input.val($(this).attr("val"));
         $picker.find(".editor-percentcomplete-slider").slider("value", $(this).attr("val"));
       })
@@ -541,9 +541,9 @@
       $("<DIV style='text-align:right'><BUTTON>Save</BUTTON><BUTTON>Cancel</BUTTON></DIV>")
           .appendTo($wrapper);
 
-      $wrapper.find("button:first").bind("click", this.save);
-      $wrapper.find("button:last").bind("click", this.cancel);
-      $input.bind("keydown", this.handleKeyDown);
+      $wrapper.find("button:first").on("click", this.save);
+      $wrapper.find("button:last").on("click", this.cancel);
+      $input.on("keydown", this.handleKeyDown);
 
       scope.position(args.position);
       $input.focus().select();
