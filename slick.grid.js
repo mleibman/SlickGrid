@@ -1,13 +1,13 @@
 /**
  * @license
- * (c) 2009-2013 Michael Leibman
+ * (c) 2009-2016 Michael Leibman
  * michael{dot}leibman{at}gmail{dot}com
  * http://github.com/mleibman/slickgrid
  *
  * Distributed under MIT license.
  * All rights reserved.
  *
- * SlickGrid v2.2
+ * SlickGrid v2.3
  *
  * NOTES:
  *     Cell/row DOM manipulations are done directly bypassing jQuery's DOM manipulation methods.
@@ -3560,7 +3560,7 @@ if (typeof Slick === "undefined") {
     // Public API
 
     $.extend(this, {
-      "slickGridVersion": "2.2.4",
+      "slickGridVersion": "2.3.0",
 
       // Events
       "onScroll": new Slick.Event(),
