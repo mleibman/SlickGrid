@@ -82,7 +82,7 @@
         var range = _grid.getRenderedRange();
         this.getData().setRefreshHints({
           ignoreDiffsBefore: range.top,
-          ignoreDiffsAfter: range.bottom
+          ignoreDiffsAfter: range.bottom + 1
         });
 
         if (item.collapsed) {
@@ -106,7 +106,7 @@
             var range = _grid.getRenderedRange();
             this.getData().setRefreshHints({
               ignoreDiffsBefore: range.top,
-              ignoreDiffsAfter: range.bottom
+              ignoreDiffsAfter: range.bottom + 1
             });
 
             if (item.collapsed) {

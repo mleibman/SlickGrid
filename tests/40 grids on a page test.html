@@ -1,0 +1,320 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <title>SlickGrid example: Two Basic grids on page</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="../examples/examples.css" type="text/css"/>
+  <style>
+  #myGrid01, #myGrid02, #myGrid03, #myGrid04, #myGrid05, #myGrid06, #myGrid07, #myGrid08, #myGrid09, #myGrid10, 
+  #myGrid11, #myGrid12, #myGrid13, #myGrid14, #myGrid15, #myGrid16, #myGrid17, #myGrid18, #myGrid19, #myGrid20, 
+  #myGrid21, #myGrid22, #myGrid23, #myGrid24, #myGrid25, #myGrid26, #myGrid27, #myGrid28, #myGrid29, #myGrid30, 
+  #myGrid31, #myGrid32, #myGrid33, #myGrid34, #myGrid35, #myGrid36, #myGrid37, #myGrid38, #myGrid39, #myGrid40 {
+	background: white;
+	outline: 0;
+	border: 1px solid gray;
+  }
+  </style>
+</head>
+<body>
+<table width="100%">
+  <tr>
+    <td valign="top" width="50%">
+	  Grid 01
+      <div id="myGrid01" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 02
+      <div id="myGrid02" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 03
+      <div id="myGrid03" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 04
+      <div id="myGrid04" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 05
+      <div id="myGrid05" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 06
+      <div id="myGrid06" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 07
+      <div id="myGrid07" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 08
+      <div id="myGrid08" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 09
+      <div id="myGrid09" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 10
+      <div id="myGrid10" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 11
+      <div id="myGrid11" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 12
+      <div id="myGrid12" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 13
+      <div id="myGrid13" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 14
+      <div id="myGrid14" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 15
+      <div id="myGrid15" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 16
+      <div id="myGrid16" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 17
+      <div id="myGrid17" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 18
+      <div id="myGrid18" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 19
+      <div id="myGrid19" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 20
+      <div id="myGrid20" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 21
+     <div id="myGrid21" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 22
+      <div id="myGrid22" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 23
+      <div id="myGrid23" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 24
+      <div id="myGrid24" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 25
+      <div id="myGrid25" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 26
+      <div id="myGrid26" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 27
+      <div id="myGrid27" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 28
+      <div id="myGrid28" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 29
+      <div id="myGrid29" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 30
+      <div id="myGrid30" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 31
+     <div id="myGrid31" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 32
+      <div id="myGrid32" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 33
+      <div id="myGrid33" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 34
+      <div id="myGrid34" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 35
+      <div id="myGrid35" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 36
+      <div id="myGrid36" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 37
+      <div id="myGrid37" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 38
+      <div id="myGrid38" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 39
+      <div id="myGrid39" style="width:600px;height:300px;"></div>
+	  <br/>
+ 	  Grid 40
+      <div id="myGrid40" style="width:600px;height:300px;"></div>
+	  <br/>
+    <td valign="top">
+      <h2>Demonstrates:</h2>
+      <ul>
+        <li>two basic grids with minimal configuration</li>
+      </ul>
+        <h2>View Source:</h2>
+        <ul>
+            <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example1-simple.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+        </ul>
+    </td>
+  </tr>
+</table>
+
+<script src="../lib/jquery-1.11.2.min.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../slick.grid.js"></script>
+
+<script>
+    var grid01, grid02, grid03, grid04, grid05, grid06, grid07, grid08, grid09, grid10;
+    var grid11, grid12, grid13, grid14, grid15, grid16, grid17, grid18, grid19, grid20;
+    var grid21, grid22, grid23, grid24, grid25, grid26, grid27, grid28, grid29, grid30;
+    var grid31, grid32, grid33, grid34, grid35, grid36, grid37, grid38, grid39, grid40;
+  var columns = [
+    {id: "title", name: "Title", field: "title"},
+    {id: "duration", name: "Duration", field: "duration"},
+    {id: "%", name: "% Complete", field: "percentComplete"},
+    {id: "start", name: "Start", field: "start"},
+    {id: "finish", name: "Finish", field: "finish"},
+    {id: "effort-driven", name: "Effort Driven", field: "effortDriven"}
+  ];
+
+  var options = {
+    enableCellNavigation: true,
+    enableColumnReorder: false
+  };
+
+  function CreateData() {
+    var data = [];
+    for (var i = 0; i < 500; i++) {
+      data[i] = {
+        title: "Task " + i,
+        duration: "5 days",
+        percentComplete: Math.round(Math.random() * 100),
+        start: "01/01/2009",
+        finish: "01/05/2009",
+        effortDriven: (i % 5 == 0)
+      };
+    }
+	return data;
+  }
+  
+  $(function () {
+    var data01 = CreateData();
+    grid01 = new Slick.Grid("#myGrid01", data01, columns, options);
+
+    var data02 = CreateData();
+    grid02 = new Slick.Grid("#myGrid02", data02, columns, options);
+
+    var data03 = CreateData();
+    grid03 = new Slick.Grid("#myGrid03", data03, columns, options);
+
+    var data04 = CreateData();
+    grid04 = new Slick.Grid("#myGrid04", data04, columns, options);
+
+    var data05 = CreateData();
+    grid05 = new Slick.Grid("#myGrid05", data05, columns, options);
+
+    var data06 = CreateData();
+    grid06 = new Slick.Grid("#myGrid06", data06, columns, options);
+
+    var data07 = CreateData();
+    grid07 = new Slick.Grid("#myGrid07", data07, columns, options);
+
+    var data08 = CreateData();
+    grid08 = new Slick.Grid("#myGrid08", data08, columns, options);
+
+    var data09 = CreateData();
+    grid09 = new Slick.Grid("#myGrid09", data09, columns, options);
+
+    var data10 = CreateData();
+    grid10 = new Slick.Grid("#myGrid10", data10, columns, options);
+
+    var data11 = CreateData();
+    grid11 = new Slick.Grid("#myGrid11", data11, columns, options);
+
+    var data12 = CreateData();
+    grid12 = new Slick.Grid("#myGrid12", data12, columns, options);
+
+    var data13 = CreateData();
+    grid13 = new Slick.Grid("#myGrid13", data13, columns, options);
+
+    var data14 = CreateData();
+    grid14 = new Slick.Grid("#myGrid14", data14, columns, options);
+
+    var data15 = CreateData();
+    grid15 = new Slick.Grid("#myGrid15", data15, columns, options);
+
+    var data16 = CreateData();
+    grid16 = new Slick.Grid("#myGrid16", data16, columns, options);
+
+    var data17 = CreateData();
+    grid17 = new Slick.Grid("#myGrid17", data17, columns, options);
+
+    var data18 = CreateData();
+    grid18 = new Slick.Grid("#myGrid18", data18, columns, options);
+
+    var data19 = CreateData();
+    grid19 = new Slick.Grid("#myGrid19", data19, columns, options);
+
+    var data20 = CreateData();
+    grid20 = new Slick.Grid("#myGrid20", data20, columns, options);
+
+    var data21 = CreateData();
+    grid21 = new Slick.Grid("#myGrid21", data21, columns, options);
+
+    var data22 = CreateData();
+    grid22 = new Slick.Grid("#myGrid22", data22, columns, options);
+
+    var data23 = CreateData();
+    grid23 = new Slick.Grid("#myGrid23", data23, columns, options);
+
+    var data24 = CreateData();
+    grid24 = new Slick.Grid("#myGrid24", data24, columns, options);
+
+    var data25 = CreateData();
+    grid25 = new Slick.Grid("#myGrid25", data25, columns, options);
+
+    var data26 = CreateData();
+    grid26 = new Slick.Grid("#myGrid26", data26, columns, options);
+
+    var data27 = CreateData();
+    grid27 = new Slick.Grid("#myGrid27", data27, columns, options);
+
+    var data28 = CreateData();
+    grid28 = new Slick.Grid("#myGrid28", data28, columns, options);
+
+    var data29 = CreateData();
+    grid29 = new Slick.Grid("#myGrid29", data29, columns, options);
+
+    var data30 = CreateData();
+    grid30 = new Slick.Grid("#myGrid30", data30, columns, options);
+
+    var data31 = CreateData();
+    grid31 = new Slick.Grid("#myGrid31", data31, columns, options);
+
+    var data32 = CreateData();
+    grid32 = new Slick.Grid("#myGrid32", data32, columns, options);
+
+    var data33 = CreateData();
+    grid33 = new Slick.Grid("#myGrid33", data33, columns, options);
+
+    var data34 = CreateData();
+    grid34 = new Slick.Grid("#myGrid34", data34, columns, options);
+
+    var data35 = CreateData();
+    grid35 = new Slick.Grid("#myGrid35", data35, columns, options);
+
+    var data36 = CreateData();
+    grid36 = new Slick.Grid("#myGrid36", data36, columns, options);
+
+    var data37 = CreateData();
+    grid37 = new Slick.Grid("#myGrid37", data37, columns, options);
+
+    var data38 = CreateData();
+    grid38 = new Slick.Grid("#myGrid38", data38, columns, options);
+
+    var data39 = CreateData();
+    grid39 = new Slick.Grid("#myGrid39", data39, columns, options);
+
+    var data40 = CreateData();
+    grid40 = new Slick.Grid("#myGrid40", data40, columns, options);
+	})
+</script>
+</body>
+</html>

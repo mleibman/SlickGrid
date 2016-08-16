@@ -4,7 +4,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <title>SlickGrid example 9: Row reordering</title>
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
   <style>
     .cell-effort-driven {
@@ -74,7 +74,7 @@
       </div>
         <h2>View Source:</h2>
         <ul>
-            <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example9-row-reordering.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+            <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example9-row-reordering.html" target="_sourcewindow"> View the source for this example on Github</a></li>
         </ul>
     </div>
   </div>
@@ -82,10 +82,10 @@
 
 <script src="../lib/firebugx.js"></script>
 
-<script src="../lib/jquery-1.7.min.js"></script>
-<script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
-<script src="../lib/jquery.event.drag-2.2.js"></script>
-<script src="../lib/jquery.event.drop-2.2.js"></script>
+<script src="../lib/jquery-1.11.2.min.js"></script>
+<script src="../lib/jquery-ui-1.11.3.min.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
+<script src="../lib/jquery.event.drop-2.3.0.js"></script>
 
 <script src="../slick.core.js"></script>
 <script src="../plugins/slick.cellrangeselector.js"></script>
@@ -282,19 +282,19 @@ $(function () {
 
   $.drop({mode: "mouse"});
   $("#dropzone")
-      .bind("dropstart", function (e, dd) {
+      .on("dropstart", function (e, dd) {
         if (dd.mode != "recycle") {
           return;
         }
         $(this).css("background", "yellow");
       })
-      .bind("dropend", function (e, dd) {
+      .on("dropend", function (e, dd) {
         if (dd.mode != "recycle") {
           return;
         }
         $(dd.available).css("background", "pink");
       })
-      .bind("drop", function (e, dd) {
+      .on("drop", function (e, dd) {
         if (dd.mode != "recycle") {
           return;
         }

@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
   <style>
@@ -37,16 +37,16 @@
     </ul>
       <h2>View Source:</h2>
       <ul>
-          <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-header-row.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+          <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-header-row.html" target="_sourcewindow"> View the source for this example on Github</a></li>
       </ul>
   </div>
 </div>
 
 <script src="../lib/firebugx.js"></script>
 
-<script src="../lib/jquery-1.7.min.js"></script>
-<script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
-<script src="../lib/jquery.event.drag-2.2.js"></script>
+<script src="../lib/jquery-1.11.2.min.js"></script>
+<script src="../lib/jquery-ui-1.11.3.min.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
 
 <script src="../slick.core.js"></script>
 <script src="../slick.dataview.js"></script>
@@ -111,7 +111,7 @@
     });
 
 
-    $(grid.getHeaderRow()).delegate(":input", "change keyup", function (e) {
+    $(grid.getHeaderRow()).on("change keyup", ":input", function (e) {
       var columnId = $(this).data("columnId");
       if (columnId != null) {
         columnFilters[columnId] = $.trim($(this).val());

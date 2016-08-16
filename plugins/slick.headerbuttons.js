@@ -122,11 +122,11 @@
           }
 
           if (button.handler) {
-            btn.bind("click", button.handler);
+            btn.on("click", button.handler);
           }
 
           btn
-            .bind("click", handleButtonClick)
+            .on("click", handleButtonClick)
             .appendTo(args.node);
         }
       }

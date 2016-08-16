@@ -4,7 +4,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <title>SlickGrid example 10: Async post render</title>
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
   <style>
     .cell-title {
@@ -50,19 +50,22 @@
     The grid is editable, so you can edit the numbers and see the changes reflected (almost) immediately in the graph.
     The graph cell behaves just like an ordinary cell and can be resized/reordered.
     The graphs themselves are created using the excellent <a href="http://www.omnipotent.net/jquery.sparkline/"
-                                                             target="_blank">jQuery Sparklines</a> library.
+                                                             target="_blank">jQuery Sparklines</a> library.<br/><br/>
+nb: sparkline 2.x will <a href="https://github.com/mleibman/SlickGrid/issues/855">cause a memory leak</a> in the current architecture, so we use sparkline 1.x and jquery-migrate for now.
   </p>
     <h2>View Source:</h2>
     <ul>
-        <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example10-async-post-render.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+        <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example10-async-post-render.html" target="_sourcewindow"> View the source for this example on Github</a></li>
     </ul>
 </div>
 
 <script src="../lib/firebugx.js"></script>
 
-<script src="../lib/jquery-1.7.min.js"></script>
-<script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
-<script src="../lib/jquery.event.drag-2.2.js"></script>
+<script src="../lib/jquery-1.11.2.min.js"></script>
+<script src="../lib/jquery-ui-1.11.3.min.js"></script>
+<script src="../lib/jquery-migrate-1.2.1.min.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
+<!-- nb: sparkline 2.x will cause a memory leak in the current architecture, so we use sparkline 1.x and jquery-migrate -->
 <script src="../lib/jquery.sparkline.min.js"></script>
 
 <script src="../slick.core.js"></script>

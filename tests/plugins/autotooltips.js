@@ -11,7 +11,7 @@
       ],
       data            = [], // The grid data
       LONG_VALUE      = "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong",
-      MEDIUM_VALUE    = "mediummmmmmm"
+      MEDIUM_VALUE    = "mediummmmmmm",
       SHORT_VALUE     = "short",
       TOOLTIP         = "tooltip",
       TRUNCATED_VALUE = LONG_VALUE.substr(0, 17) + "...",
