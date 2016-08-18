@@ -1,13 +1,14 @@
-## This is the 6pac slickgrid repo
+## This is the 6pac SlickGrid repo
 
-I am maintaining this branch as a separate 'alternative master'. Check [my wiki](https://github.com/6pac/SlickGrid/wiki) for details.
+This is the acknowledged most active non-customised fork of SlickGrid.
 
-Once we take on SlickGrid we all add [my patch for my specific app requirement]. This 'application noise' makes it much harder to share updates to SlickGrid with other users, who may want some of the changes, but find others irrelevant.  
+This repo is deliberately **non-customised**. I have *only* kept jQuery up to date, made bug fixes where necessary and added small features carefully considered to enhance the overall usefulness of the grid.  
 
-This repo is deliberately **non-customised**. We have *only* kept jQuery up to date, made bug fixes where necessary and added small features carefully considered to enhance the overall usefulness of the grid.  
-Example pages showcase any new features.
+Check out the [Example Pages](https://github.com/6pac/SlickGrid/wiki/Examples) for examples demonstrating new features and use cases, such as dynamic grid creation and editors with third party controls.
 
-The following, in short, are the changes made since forking from the main MLeibman branch, a significant number in response to issues or pull requests.
+Also check out my [wiki](https://github.com/6pac/SlickGrid/wiki).
+
+The following are the changes made since forking from the main MLeibman branch, a significant number in response to issues or pull requests.
 
 **Maintenance:**
 
@@ -44,31 +45,4 @@ The following, in short, are the changes made since forking from the main MLeibm
 * Add example of dynamic tab and grid creation for basic grid 
 * Add example of dynamic tab and grid creation for grid with all the features of example-4-model
 
-# Original mleibman README follows:
-
-
-
-
-
-Find documentation and examples in [the wiki](https://github.com/mleibman/SlickGrid/wiki).
-
-# Welcome to SlickGrid
-
-## SlickGrid is an advanced JavaScript grid/spreadsheet component
-
-Some highlights:
-
-* Adaptive virtual scrolling (handle hundreds of thousands of rows with extreme responsiveness)
-* Extremely fast rendering speed
-* Supports jQuery UI Themes
-* Background post-rendering for richer cells
-* Configurable & customizable
-* Full keyboard navigation
-* Column resize/reorder/show/hide
-* Column autosizing & force-fit
-* Pluggable cell formatters & editors
-* Support for editing and creating new rows.
-* Grouping, filtering, custom aggregators, and more!
-* Advanced detached & multi-field editors with undo/redo support.
-* “GlobalEditorLock” to manage concurrent edits in cases where multiple Views on a page can edit the same data.
-* Support for [millions of rows](http://stackoverflow.com/a/2569488/1269037)
+Original mleibman [wiki](https://github.com/mleibman/SlickGrid/wiki).

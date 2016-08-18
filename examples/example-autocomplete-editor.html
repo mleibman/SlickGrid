@@ -6,15 +6,6 @@
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
   <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
-  <style>
-    .cell-title {
-      font-weight: bold;
-    }
-
-    .cell-effort-driven {
-      text-align: center;
-    }
-  </style>
 </head>
 <body>
 <div style="position:relative">
@@ -25,8 +16,7 @@
   <div class="options-panel">
     <h2>Demonstrates:</h2>
     <ul>
-      <li>adding basic keyboard navigation and editing</li>
-      <li>custom editors and validators</li>
+      <li>jQueryUI 'Autocomplete' javascript editor</li>
       <li>auto-edit settings</li>
     </ul>
 
@@ -36,7 +26,7 @@
     <button onclick="grid.setOptions({autoEdit:false})">Auto-edit OFF</button>
       <h2>View Source:</h2>
       <ul>
-          <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-chosen-editor.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+          <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-autocomplete-editor.html" target="_sourcewindow"> View the source for this example on Github</a></li>
       </ul>
   </div>
 </div>
@@ -311,15 +301,6 @@ function AutoCompleteEditor(args) {
       $input = $("<INPUT id='tags' class='editor-text' />");
       $input.appendTo(args.container);
       $input.focus().select();
-      //$input.on("keydown.nav", function (e) {
-      //    if ((e.keyCode == $.ui.keyCode.DOWN || e.keyCode == $.ui.keyCode.UP ||
-      //         e.keyCode == $.ui.keyCode.ENTER)
-      //      && $('ul.ui-autocomplete').is(':visible')) e.stopPropagation();
-
-      //    if (e.keyCode == $.ui.keyCode.LEFT || e.keyCode == $.ui.keyCode.RIGHT)
-      //        e.stopImmediatePropagation();
-      //});
-      minLength: 3,
 
       $input.autocomplete({
           source: args.column.dataSource
@@ -390,7 +371,7 @@ function AutoCompleteEditor(args) {
       d["duration"] = "5 days";
       d["start"] = "01/01/2009";
       d["finish"] = "01/05/2009";
-      d["country"] = countryList[Math.round(Math.random() * countryList.length)];
+      d["country"] = countryList[Math.trunc(Math.random() * countryList.length)];
     }
 
     grid = new Slick.Grid("#myGrid", data, columns, options);
