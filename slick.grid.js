@@ -170,7 +170,9 @@ if (typeof Slick === "undefined") {
     var columnPosLeft = [];
     var columnPosRight = [];
 
-
+	var pagingActive = false;
+	var pagingIsLastPage = false;
+	
     // async call handles
     var h_editorLoader = null;
     var h_render = null;
@@ -1397,7 +1399,9 @@ if (typeof Slick === "undefined") {
     }
 
     function getDataLengthIncludingAddNew() {
-      return getDataLength() + (options.enableAddRow ? 1 : 0);
+      return getDataLength() + (!options.enableAddRow ? 0
+		: (!pagingActive || pagingIsLastPage ? 1 : 0)
+	  );
     }
 
     function getDataItem(i) {
@@ -1705,7 +1709,8 @@ if (typeof Slick === "undefined") {
         return;
       }
       vScrollDir = 0;
-      for (i = 0, rl = rows.length; i < rl; i++) {
+	  rl = rows.length;
+      for (i = 0;  i < rl; i++) {
         if (currentEditor && activeRow === rows[i]) {
           makeActiveCellNormal();
         }
@@ -1802,9 +1807,15 @@ if (typeof Slick === "undefined") {
       render();
     }
 
+    function updatePagingStatusFromView( pagingInfo ) {
+		pagingActive = (pagingInfo.pageSize !== 0);
+		pagingIsLastPage = (pagingInfo.pageNum == pagingInfo.totalPages - 1);
+	}
+
     function updateRowCount() {
       if (!initialized) { return; }
 
+      var dataLength = getDataLength();
       var dataLengthIncludingAddNew = getDataLengthIncludingAddNew();
       var numberOfRows = dataLengthIncludingAddNew +
           (options.leaveSpaceForNewRows ? numVisibleRows - 1 : 0);
@@ -1818,15 +1829,15 @@ if (typeof Slick === "undefined") {
 
       // remove the rows that are now outside of the data range
       // this helps avoid redundant calls to .removeRow() when the size of the data decreased by thousands of rows
-      var l = dataLengthIncludingAddNew - 1;
+      var r1 = dataLength - 1;
       for (var i in rowsCache) {
-        if (i > l) {
+        if (i > r1) {
           removeRowFromCache(i);
         }
       }
       if (options.enableAsyncPostRenderCleanup) { startPostProcessingCleanup(); }
 
-      if (activeCellNode && activeRow > l) {
+      if (activeCellNode && activeRow > r1) {
         resetActiveCell();
       }
 
@@ -3621,6 +3632,7 @@ if (typeof Slick === "undefined") {
       "getSelectedRows": getSelectedRows,
       "setSelectedRows": setSelectedRows,
       "getContainerNode": getContainerNode,
+	  "updatePagingStatusFromView": updatePagingStatusFromView,
 
       "render": render,
       "invalidate": invalidate,

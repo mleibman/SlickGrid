@@ -2,20 +2,18 @@
 
 This is the acknowledged most active non-customised fork of SlickGrid.
 
-It aims to be a viable alternative master repo, building on the current state of the mleibman/SlickGrid master branch, keeping libraries up to date and applying small, safe core patches and enhancements without turning into a personalised build.
+It aims to be a viable alternative master repo, building on the legacy of the mleibman/SlickGrid master branch, keeping libraries up to date and applying small, safe core patches and enhancements without turning into a personalised build.
 
 Check out the [examples](https://github.com/6pac/SlickGrid/wiki/Examples) for examples demonstrating new features and use cases, such as dynamic grid creation and editors with third party controls.
 
 Also check out my [wiki](https://github.com/6pac/SlickGrid/wiki).
 
-The following are the changes made since forking from the main MLeibman branch, a significant number in response to issues or pull requests.
+The following are the changes (most recent first) made since forking from the main MLeibman branch, a significant number in response to issues or pull requests.
 
 **Maintenance:**
 
-most recent first
-
 * breaking change: updated jquery.event.drag-2.2.js and jquery.event.drop-2.2.js to be compatible with jQuery 3, bumped these to jquery.event.drag-2.3.0.js and jquery.event.drop-2.3.0.js
-* tested with jQuery 1.8.3, 1.11.2, 2.2.4, and 3.1.0
+* tested with jQuery 1.8.3, 1.11.2, 2.2.4, and 3.1.0  -- thanks to lfilho
 * updated repo to work with jQuery 3.x (without needing jQuery-Migrate) -- thanks to lfilho
 * fix bug with refresh last row of grid
 * fix bug in compound editor example 'isValueChanged' method
