@@ -2550,8 +2550,10 @@ if (typeof Slick === "undefined") {
       if (e.isImmediatePropagationStopped()) {
         return;
       }
-
-      if ((activeCell != cell.cell || activeRow != cell.row) && canCellBeActive(cell.row, cell.cell)) {
+      
+	  // this optimisation causes trouble - MLeibman #329
+      //if ((activeCell != cell.cell || activeRow != cell.row) && canCellBeActive(cell.row, cell.cell)) {
+      if (canCellBeActive(cell.row, cell.cell)) {
         if (!getEditorLock().isActive() || getEditorLock().commitCurrentEdit()) {
           scrollRowIntoView(cell.row, false);
           setActiveCellInternal(getCellNode(cell.row, cell.cell));
@@ -2776,10 +2778,11 @@ if (typeof Slick === "undefined") {
       } else {
         activeRow = activeCell = null;
       }
-
-      if (activeCellChanged) {
+	
+	  // this optimisation causes trouble - MLeibman #329
+      //if (activeCellChanged) {
         trigger(self.onActiveCellChanged, getActiveCell());
-      }
+      //}
     }
 
     function clearTextSelection() {
