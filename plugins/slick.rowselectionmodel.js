@@ -121,8 +121,8 @@
 
         if (active >= 0 && active < _grid.getDataLength()) {
           _grid.scrollRowIntoView(active);
-          _ranges = rowsToRanges(getRowsRange(top, bottom));
-          setSelectedRanges(_ranges);
+          var tempRanges = rowsToRanges(getRowsRange(top, bottom));
+          setSelectedRanges(tempRanges);
         }
 
         e.preventDefault();
@@ -166,8 +166,8 @@
         _grid.setActiveCell(cell.row, cell.cell);
       }
 
-      _ranges = rowsToRanges(selection);
-      setSelectedRanges(_ranges);
+      var tempRanges = rowsToRanges(selection);
+      setSelectedRanges(tempRanges);
       e.stopImmediatePropagation();
 
       return true;
