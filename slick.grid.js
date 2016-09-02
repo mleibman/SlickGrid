@@ -99,7 +99,8 @@
       multiColumnSort: false,
       defaultFormatter: defaultFormatter,
       forceSyncScrolling: false,
-      addNewRowCssClass: "new-row"
+      addNewRowCssClass: "new-row",
+      doPaging: true
     };
 
     var columnDefaults = {
@@ -3703,13 +3704,11 @@
     }
 
     function scrollCellIntoView(row, cell, doPaging) {
-      // Don't scroll to frozen cells
+
+      scrollRowIntoView(row, doPaging);
+
       if (cell <= options.frozenColumn) {
         return;
-      }
-
-      if (row < actualFrozenRow) {
-        scrollRowIntoView(row, doPaging);
       }
 
       var colspan = getColspan(row, cell);
@@ -3881,12 +3880,17 @@
         activeCellNode[0].innerHTML = "";
       }
 
+      var metadata = data.getItemMetadata && data.getItemMetadata(activeRow);
+      metadata = metadata && metadata.columns;
+      var columnMetaData = metadata && ( metadata[columnDef.id] || metadata[activeCell] );
+
       currentEditor = new (editor || getEditor(activeRow, activeCell))({
         grid: self,
         gridPosition: absBox($container[0]),
         position: absBox(activeCellNode[0]),
         container: activeCellNode,
         column: columnDef,
+        columnMetaData: columnMetaData,
         item: item || {},
         commitChanges: commitEditAndSetFocus,
         cancelChanges: cancelEditAndSetFocus
@@ -4020,18 +4024,22 @@
 
 	      var viewportScrollH = $viewportScrollContainerY.height();
 
-	      var rowAtTop = row * options.rowHeight;
-	      var rowAtBottom = (row + 1) * options.rowHeight
+	      // if frozen row on top
+	      // subtract number of frozen row
+	      var rowNumber = ( hasFrozenRows && !options.frozenBottom ? row - options.frozenRow : row );
+
+	      var rowAtTop = rowNumber * options.rowHeight;
+	      var rowAtBottom = (rowNumber + 1) * options.rowHeight
 	        - viewportScrollH
 	        + (viewportHasHScroll ? scrollbarDimensions.height : 0);
 
 	      // need to page down?
-	      if ((row + 1) * options.rowHeight > scrollTop + viewportScrollH + offset) {
+	      if ((rowNumber + 1) * options.rowHeight > scrollTop + viewportScrollH + offset) {
 	        scrollTo(doPaging ? rowAtTop : rowAtBottom);
 	        render();
 	      }
 	      // or page up?
-	      else if (row * options.rowHeight < scrollTop + offset) {
+	      else if (rowNumber * options.rowHeight < scrollTop + offset) {
 	        scrollTo(doPaging ? rowAtBottom : rowAtTop);
 	        render();
 	      }
@@ -4098,7 +4106,7 @@
         colspan = colspan || 1;
       }
 
-      return colspan;
+      return parseInt( colspan );
     }
 
     function findFirstFocusableCell(row) {
@@ -4360,7 +4368,7 @@
         if (( !options.frozenBottom && pos.row >= actualFrozenRow )
           || ( options.frozenBottom && pos.row < actualFrozenRow )
           ) {
-          scrollCellIntoView(pos.row, pos.cell, !isAddNewRow);
+          scrollCellIntoView(pos.row, pos.cell, !isAddNewRow && options.doPaging);
         }
 
         setActiveCellInternal(getCellNode(pos.row, pos.cell))
