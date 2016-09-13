@@ -73,7 +73,7 @@
       $menu
           .css("top", e.pageY - 10)
           .css("left", e.pageX - 10)
-          .css("max-height", jQuery(window).height() - e.pageY -10)
+          .css("max-height", $(window).height() - e.pageY -10)
           .fadeIn(options.fadeSpeed);
     }
 
