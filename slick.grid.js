@@ -1055,9 +1055,10 @@ if (typeof Slick === "undefined") {
     }
 
     function getColumnCssRules(idx) {
+      var i;
       if (!stylesheet) {
         var sheets = document.styleSheets;
-        for (var i = 0; i < sheets.length; i++) {
+        for (i = 0; i < sheets.length; i++) {
           if ((sheets[i].ownerNode || sheets[i].owningElement) == $style[0]) {
             stylesheet = sheets[i];
             break;
@@ -1073,7 +1074,7 @@ if (typeof Slick === "undefined") {
         columnCssRulesR = [];
         var cssRules = (stylesheet.cssRules || stylesheet.rules);
         var matches, columnIdx;
-        for (var i = 0; i < cssRules.length; i++) {
+        for (i = 0; i < cssRules.length; i++) {
           var selector = cssRules[i].selectorText;
           if (matches = /\.l\d+/.exec(selector)) {
             columnIdx = parseInt(matches[0].substr(2, matches[0].length - 2), 10);
@@ -1353,7 +1354,7 @@ if (typeof Slick === "undefined") {
       return options;
     }
 
-    function setOptions(args) {
+    function setOptions(args, suppressRender) {
       if (!getEditorLock().commitCurrentEdit()) {
         return;
       }
@@ -1368,7 +1369,7 @@ if (typeof Slick === "undefined") {
       validateAndEnforceOptions();
 
       $viewport.css("overflow-y", options.autoHeight ? "hidden" : "auto");
-      render();
+      if (!suppressRender) { render(); }
     }
 
     function validateAndEnforceOptions() {
