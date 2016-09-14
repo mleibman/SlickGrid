@@ -12,7 +12,7 @@
       grid.onColumnsReordered.subscribe(updateColumnOrder);
       options = $.extend({}, defaults, options);
 
-      $menu = $("<span class='slick-columnpicker' style='display:none;position:absolute;z-index:20;' />").appendTo(document.body);
+      $menu = $("<span class='slick-columnpicker' style='display:none;position:absolute;z-index:20;overflow-y:scroll;' />").appendTo(document.body);
 
       $menu.on("mouseleave", function (e) {
         $(this).fadeOut(options.fadeSpeed)
@@ -73,6 +73,7 @@
       $menu
           .css("top", e.pageY - 10)
           .css("left", e.pageX - 10)
+          .css("max-height", $(window).height() - e.pageY -10)
           .fadeIn(options.fadeSpeed);
     }
 
