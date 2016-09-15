@@ -362,6 +362,12 @@
       updateIdxById(idx);
       refresh();
     }
+    
+    function clearItems() {      
+      idxById = {};
+      items = [];
+      refresh();
+    }
 
     function getLength() {
       return rows.length;
@@ -1027,6 +1033,7 @@
       "deleteItem": deleteItem,
       "syncGridSelection": syncGridSelection,
       "syncGridCellCssStyles": syncGridCellCssStyles,
+      "clearItems": clearItems,
 
       // data provider methods
       "getLength": getLength,
