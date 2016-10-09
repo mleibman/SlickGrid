@@ -324,7 +324,7 @@ var countryIsoAndNameList = {
         this.keyCaptureList = [ Slick.keyCode.UP, Slick.keyCode.DOWN, Slick.keyCode.ENTER ];
 
         this.init = function () {
-            $input = $('<select class="control-in-grid"></select>');
+            $input = $('<select></select>');
             $input.width(args.container.clientWidth + 3);
             PopulateSelect($input[0], args.column.dataSource, true);
 
@@ -416,7 +416,7 @@ var countryIsoAndNameList = {
     {id: "start", name: "Start", field: "start", minWidth: 60, editor: Slick.Editors.Date},
     {id: "finish", name: "Finish", field: "finish", minWidth: 60, editor: Slick.Editors.Date},
 	{id: "CountryOfOrigin", name: "Country Of Origin", field: "country", minWidth: 200, formatter: Select2Formatter, 
-		editor: Select2Editor, dataSource: countryIsoAndNameList, valueColumnIndex: 0, displayColumnIndex: 1}
+		editor: Select2Editor, dataSource: countryIsoAndNameList }
   ];
   var options = {
     editable: true,
