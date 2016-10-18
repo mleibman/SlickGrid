@@ -44,7 +44,7 @@
         }
 
         $("<label />")
-            .text(columns[i].name)
+            .html(columns[i].name)
             .prepend($input)
             .appendTo($li);
       }
