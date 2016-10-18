@@ -91,7 +91,8 @@ if (typeof Slick === "undefined") {
       multiColumnSort: false,
       defaultFormatter: defaultFormatter,
       forceSyncScrolling: false,
-      addNewRowCssClass: "new-row"
+      addNewRowCssClass: "new-row",
+      preserveCopiedSelectionOnPaste: false
     };
 
     var columnDefaults = {
