@@ -139,6 +139,10 @@ input.editor-text {
 }
 
 .ui-datepicker-trigger {
+  background:url("../images/calendar.gif") top left no-repeat;
+  width: 16px;
+  height: 16px;
+
   margin-top: 2px;
   padding: 0;
   vertical-align: top;
