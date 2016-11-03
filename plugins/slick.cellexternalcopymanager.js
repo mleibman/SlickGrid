@@ -26,6 +26,7 @@
         bodyElement: option to specify a custom DOM element which to will be added the hidden textbox. It's useful if the grid is inside a modal dialog.
         onCopyInit: optional handler to run when copy action initializes
         onCopySuccess: optional handler to run when copy action is complete
+        newRowCreator: function to add rows to table if paste overflows bottom of table
     */
     var _grid;
     var _self = this;
@@ -179,7 +180,18 @@
           d.push({});
         _grid.setData(d);
         _grid.render();
-      }  
+      }
+
+      var overflowsBottomOfGrid = activeRow + destH > _grid.getDataLength();
+
+      if (_options.newRowCreator && overflowsBottomOfGrid) {
+
+        var newRowsNeeded = activeRow + destH - _grid.getDataLength();
+
+        _options.newRowCreator(newRowsNeeded);
+
+      }
+
       var clipCommand = {
 
         isClipboardCommand: true,
