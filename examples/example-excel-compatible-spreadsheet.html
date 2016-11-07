@@ -34,7 +34,8 @@
     <ul>
       <li>Copy a range of cells to clipboard in Excel</li>
       <li>Select a cell on slickgrid</li> 
-      <li>Use Ctrl-V keyboard shortcut to paste from the clipboard</li> 
+      <li>Use Ctrl-V keyboard shortcut to paste from the clipboard</li>
+      <li>Adds rows to bottom of grid if paste overflows</li>
     </ul>
     <h2>Copy for Excel-compatible:</h2>
     <ul>
@@ -132,9 +133,26 @@
     }
   });
 
+  var newRowIds = 0;
+
   var pluginOptions = {
     clipboardCommandHandler: function(editCommand){ undoRedoBuffer.queueAndExecuteCommand.call(undoRedoBuffer,editCommand); },
-    includeHeaderWhenCopying : false
+    includeHeaderWhenCopying : false,
+    newRowCreator: function(count) {
+
+      for (var i = 0; i < count; i++) {
+
+        var item = {
+
+          id: "newRow_" + newRowIds++
+
+        }
+
+        grid.getData().addItem(item);
+
+      }
+
+    }
   };
 
   var columns = [
