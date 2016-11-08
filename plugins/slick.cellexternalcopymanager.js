@@ -364,7 +364,8 @@
                 return true;
             }
             else {
-                var $focus = $(_grid.getActiveCellNode());
+                var focusEl = document.activeElement;
+
                 var ta = _createTextBox(clipText);
 
                 ta.focus();
@@ -372,11 +373,11 @@
                 setTimeout(function(){
                      _bodyElement.removeChild(ta);
                     // restore focus
-                    if ($focus && $focus.length>0) {
-                        $focus.attr('tabIndex', '-1');
-                        $focus.focus();
-                        $focus.removeAttr('tabIndex');
-                    }
+                    if (focusEl)
+                        focusEl.focus();
+                    else
+                        console.log("Not element to restore focus to after copy?");
+
                 }, 100);
 
                 if (_onCopySuccess) {
