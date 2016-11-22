@@ -596,8 +596,10 @@
 
         if (!g.collapsed) {
           rows = g.groups ? flattenGroupedRows(g.groups, level + 1) : g.rows;
-          for (var j = 0, jj = rows.length; j < jj; j++) {
-            groupedRows[gl++] = rows[j];
+          if (!options.rollupSingleChildGroup || (rows && rows.length > 1)) {
+            for (var j = 0, jj = rows.length; j < jj; j++) {
+              groupedRows[gl++] = rows[j];
+            }
           }
         }
 
@@ -783,11 +785,7 @@
           if ((groupingInfos.length && (eitherIsNonData = (item.__nonDataRow) || (r.__nonDataRow)) &&
               item.__group !== r.__group ||
               item.__group && !item.equals(r))
-              || (eitherIsNonData &&
-              // no good way to compare totals since they are arbitrary DTOs
-              // deep object comparison is pretty expensive
-              // always considering them 'dirty' seems easier for the time being
-              (item.__groupTotals || r.__groupTotals))
+              || (eitherIsNonData && (!options.compareTotalMethod || !options.compareTotalMethod(item.totals, r.totals)))
               || item[idProperty] != r[idProperty]
               || (updated && updated[item[idProperty]])
               ) {

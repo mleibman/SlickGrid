@@ -1,3 +1,14 @@
+/**
+ * NOTES:
+ *     This is a third party plugin. We were using the version that came with slick-grid.
+ *     https://github.com/mleibman/SlickGrid/blob/master/plugins/slick.rowmovemanager.js
+ *     Origin: https://github.com/reebalazs/SlickGrid-plugin-rowmovemanager/blob/master/plugins/slick.rowmovemanager.js
+ *
+ *     NTW change log:
+ *     1) Updated "handleDragInit()" to fire "slick.rowmovemanager.mousedown" event in lieu of mousedown event because
+ *        "handleDragInit" stops the propagation of the mousedown event, this broke our widget level mousedown handling.
+ */
+ 
 (function ($) {
   // register namespace
   $.extend(true, window, {
@@ -32,8 +43,12 @@
     }
 
     function handleDragInit(e, dd) {
+      var $canvas = $(_canvas);
       // prevent the grid from cancelling drag'n'drop by default
       e.stopImmediatePropagation();
+      // since event propagation is killed, fire "slick.rowmovemanager.mousedown"
+      // event, in case someone out there is interested in handling it.
+      $canvas.trigger("slick.rowmovemanager.mousedown");
     }
 
     function handleDragStart(e, dd) {
