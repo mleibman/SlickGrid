@@ -2755,6 +2755,13 @@ if (typeof Slick === "undefined") {
       render();
     }
 
+    function scrollRowToCenter(row) {
+        var height = viewportH - (viewportHasHScroll ? scrollbarDimensions.height : 0);
+        var offset = (height - options.rowHeight) / 2;
+        scrollTo(row * options.rowHeight - offset);
+        render();
+    }
+
     function scrollPage(dir) {
       var deltaRows = dir * numVisibleRows;
       scrollTo((getRowFromPosition(scrollTop) + deltaRows) * options.rowHeight);
@@ -3371,6 +3378,7 @@ if (typeof Slick === "undefined") {
       "updateRowCount": updateRowCount,
       "scrollRowIntoView": scrollRowIntoView,
       "scrollRowToTop": scrollRowToTop,
+      "scrollRowToCenter": scrollRowToCenter,
       "scrollCellIntoView": scrollCellIntoView,
       "getCanvasNode": getCanvasNode,
       "focus": setFocus,
