@@ -20,6 +20,11 @@
 if (typeof jQuery === "undefined") {
   throw "SlickGrid requires jquery module to be loaded";
 }
+
+require('./lib/jquery.event.drag-2.3.0');
+require('./lib/jquery.event.drop-2.3.0');
+require('jquery-ui/sortable');
+
 if (!jQuery.fn.drag) {
   throw "SlickGrid requires jquery.event.drag module to be loaded";
 }
@@ -27,8 +32,12 @@ if (typeof Slick === "undefined") {
   throw "slick.core.js not loaded";
 }
 
+var Slick = require('./slick.core-npm');
 
 (function ($) {
+
+  module.exports = SlickGrid;
+
   // Slick.Grid
   $.extend(true, window, {
     Slick: {
