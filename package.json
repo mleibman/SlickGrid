@@ -1,0 +1,32 @@
+{
+  "name": "slickgrid",
+  "version": "2.3.3",
+  "description": "A lightning fast JavaScript grid/spreadsheet",
+  "main": "slick.core.js",
+  "directories": {
+    "example": "examples",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/6pac/SlickGrid.git"
+  },
+  "keywords": [
+    "slickgrid",
+    "grid"
+  ],
+  "author": "Michael Leibman <michael.leibman@gmail.com>",
+  "contributors": [ "Ben McIntyre <email.ben.mcintyre@gmail.com>" ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/6pac/SlickGrid/issues"
+  },
+  "homepage": "https://github.com/6pac/SlickGrid#readme",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "jquery": ">=1.8.0",
+    "jquery-ui": ">=1.8.0"
+  }
+}
