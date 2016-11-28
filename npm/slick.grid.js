@@ -3585,7 +3585,7 @@ var Slick = require('./slick.core-npm');
     // Public API
 
     $.extend(this, {
-      "slickGridVersion": "2.3.3",
+      "slickGridVersion": "2.3.4",
 
       // Events
       "onScroll": new Slick.Event(),

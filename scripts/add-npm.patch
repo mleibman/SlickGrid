@@ -9,10 +9,10 @@ Subject: [PATCH] Round 2: edit npm files for export and require
  slick.grid-npm.js     |  9 +++++++++
  3 files changed, 56 insertions(+)
 
-diff --git a/slick.core-npm.js b/slick.core-npm.js
+diff --git a/npm/slick.core.js b/npm/slick.core.js
 index c4f04ec..f7524d5 100644
---- a/slick.core-npm.js
-+++ b/slick.core-npm.js
+--- a/npm/slick.core.js
++++ b/npm/slick.core.js
 @@ -5,6 +5,42 @@
   */
  
@@ -56,10 +56,10 @@ index c4f04ec..f7524d5 100644
    // register namespace
    $.extend(true, window, {
      "Slick": {
-diff --git a/slick.dataview-npm.js b/slick.dataview-npm.js
+diff --git a/npm/slick.dataview.js b/npm/slick.dataview.js
 index e248889..4fe8d74 100644
---- a/slick.dataview-npm.js
-+++ b/slick.dataview-npm.js
+--- a/npm/slick.dataview.js
++++ b/npm/slick.dataview.js
 @@ -1,4 +1,15 @@
  (function ($) {
 +
@@ -76,10 +76,10 @@ index e248889..4fe8d74 100644
    $.extend(true, window, {
      Slick: {
        Data: {
-diff --git a/slick.grid-npm.js b/slick.grid-npm.js
+diff --git a/npm/slick.grid.js b/npm/slick.grid.js
 index 2ccae51..271b160 100644
---- a/slick.grid-npm.js
-+++ b/slick.grid-npm.js
+--- a/npm/slick.grid.js
++++ b/npm/slick.grid.js
 @@ -20,6 +20,11 @@
  if (typeof jQuery === "undefined") {
    throw "SlickGrid requires jquery module to be loaded";
