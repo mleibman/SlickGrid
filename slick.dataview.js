@@ -107,7 +107,7 @@
       for (var i = startingIndex, l = items.length; i < l; i++) {
         id = items[i][idProperty];
         if (id === undefined) {
-          throw "Each data element must implement a unique 'id' property";
+          throw new Error("Each data element must implement a unique 'id' property");
         }
         idxById[id] = i;
       }
@@ -118,7 +118,7 @@
       for (var i = 0, l = items.length; i < l; i++) {
         id = items[i][idProperty];
         if (id === undefined || idxById[id] !== i) {
-          throw "Each data element must implement a unique 'id' property";
+          throw new Error("Each data element must implement a unique 'id' property");
         }
       }
     }
@@ -330,7 +330,7 @@
 
     function updateItem(id, item) {
       if (idxById[id] === undefined || id !== item[idProperty]) {
-        throw "Invalid or non-matching id";
+        throw new Error("Invalid or non-matching id");
       }
       items[idxById[id]] = item;
       if (!updated) {
@@ -355,7 +355,7 @@
     function deleteItem(id) {
       var idx = idxById[id];
       if (idx === undefined) {
-        throw "Invalid id";
+        throw new Error("Invalid id");
       }
       delete idxById[id];
       items.splice(idx, 1);
