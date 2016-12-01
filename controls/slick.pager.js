@@ -1,6 +1,6 @@
 (function ($) {
-  function SlickGridPager(dataView, grid, $container) {
-    var $status;
+  function SlickGridPager(dataView, grid, $container, options) {
+    var options = options || {};
 
     function init() {
       dataView.onPagingInfoChanged.subscribe(function (e, pagingInfo) {
@@ -14,7 +14,7 @@
     function getNavState() {
       var cannotLeaveEditMode = !Slick.GlobalEditorLock.commitCurrentEdit();
       var pagingInfo = dataView.getPagingInfo();
-      var lastPage = pagingInfo.totalPages - 1;
+      var lastPage = (options.totalDisplayPages || pagingInfo.totalPages) - 1;
 
       return {
         canGotoFirst: !cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum > 0,
@@ -142,7 +142,7 @@
         }
         $status.text("Showing all " + pagingInfo.totalRows + " rows");
       } else {
-        $status.text("Showing page " + (pagingInfo.pageNum + 1) + " of " + pagingInfo.totalPages);
+        $status.text("Showing page " + (pagingInfo.pageNum + 1) + " of " + (options.totalDisplayPages || pagingInfo.totalPages));
       }
     }
 
