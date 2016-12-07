@@ -1,0 +1,9 @@
+
+
+
+- mettre un custom editor, serializer
+- faire que le ctrl+C fonctionne meme quand on n'a pas le focus sur un element
+- verifier avec windows, excel sous windows
+
+
+
