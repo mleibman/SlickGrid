@@ -2306,6 +2306,12 @@ if (typeof Slick === "undefined") {
         return;
       }
 
+      //set the active cell to update the ui - don't update ui if multiple rows are already selected
+      if(getSelectedRows().length < 2){
+        var c = getCellFromEvent(e);
+        setActiveCell(c.row, c.cell);
+      }
+
       trigger(self.onContextMenu, {}, e);
     }
 
