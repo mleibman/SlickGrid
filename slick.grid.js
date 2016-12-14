@@ -1227,6 +1227,8 @@ if (typeof Slick === "undefined") {
         applyColumnWidths();
         handleScroll();
       }
+
+      trigger(self.onColumnsSet, {})
     }
 
     function getOptions() {
@@ -3322,6 +3324,7 @@ if (typeof Slick === "undefined") {
       "onViewportChanged": new Slick.Event(),
       "onColumnsReordered": new Slick.Event(),
       "onColumnsResized": new Slick.Event(),
+      "onColumnsSet": new Slick.Event(),
       "onCellChange": new Slick.Event(),
       "onBeforeEditCell": new Slick.Event(),
       "onBeforeCellEditorDestroy": new Slick.Event(),
