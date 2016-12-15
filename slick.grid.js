@@ -1377,6 +1377,20 @@ if (typeof Slick === "undefined") {
           (options.formatterFactory && options.formatterFactory.getFormatter(column)) ||
           options.defaultFormatter;
     }
+	
+	function getEditorConfig(row, cell) {
+		var column = columns[cell], rowMetadata, columnMetadata;
+		if (column && column.editorConfig) {
+			return column.editorConfig;
+		}
+		rowMetadata = data.getItemMetadata && data.getItemMetadata(row);
+		columnMetadata = rowMetadata && rowMetadata.columns;
+		
+		if (columnMetadata && columnMetadata[column.id] && columnMetadata[column.id].editorConfig !== undefined) {
+			return columnMetadata[column.id].editorConfig;
+		}
+		return undefined;
+	}
 
     function getEditor(row, cell) {
       var column = columns[cell];
@@ -2617,7 +2631,8 @@ if (typeof Slick === "undefined") {
         column: columnDef,
         item: item || {},
         commitChanges: commitEditAndSetFocus,
-        cancelChanges: cancelEditAndSetFocus
+        cancelChanges: cancelEditAndSetFocus,
+		editorConfig: getEditorConfig(activeRow, activeCell)
       });
 
       if (item) {

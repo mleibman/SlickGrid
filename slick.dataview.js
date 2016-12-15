@@ -429,6 +429,9 @@
     }
 
     function expandCollapseGroup(level, groupingKey, collapse) {
+		if (Slick.GlobalEditorLock.isActive()) {
+			Slick.GlobalEditorLock.commitCurrentEdit();
+		}
       toggledGroupsByLevel[level][groupingKey] = groupingInfos[level].collapsed ^ collapse;
       refresh();
     }
