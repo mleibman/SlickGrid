@@ -133,12 +133,12 @@
       var columns = _grid.getColumns();
       var clipText = ta.value;
       var clipRows = clipText.split(/[\n\f\r]/);
-	  // trim trailing CR if present
-	  if (clipRows[clipRows.length - 1]=="") { clipRows.pop(); }
-	  
+      // trim trailing CR if present
+      if (clipRows[clipRows.length - 1]=="") { clipRows.pop(); }
+      
       var clippedRange = [];
       var j = 0;
-	  
+      
       _bodyElement.removeChild(ta);
       for (var i=0; i<clipRows.length; i++) {
         if (clipRows[i]!="")

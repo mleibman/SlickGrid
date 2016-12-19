@@ -48,10 +48,10 @@
             e.preventDefault();
             ranges = _grid.getSelectionModel().getSelectedRanges();
             _self.onPasteCells.notify({from: _copiedRanges, to: ranges});
-			if (!_grid.getOptions().preserveCopiedSelectionOnPaste) {
-			  clearCopySelection();
-			  _copiedRanges = null;
-		    }
+            if (!_grid.getOptions().preserveCopiedSelectionOnPaste) {
+              clearCopySelection();
+              _copiedRanges = null;
+            }
           }
         }
       }
