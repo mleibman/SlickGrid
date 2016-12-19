@@ -144,7 +144,7 @@ if (typeof Slick === "undefined") {
         cellWidthDiff = 0, cellHeightDiff = 0, jQueryNewWidthBehaviour = false;
     var absoluteColumnMinWidth;
     var sortIndicatorCssClass = "slick-sort-indicator";
-	
+    
     var tabbingDirection = 1;
     var activePosX;
     var activeRow, activeCell;
@@ -174,9 +174,9 @@ if (typeof Slick === "undefined") {
     var columnPosLeft = [];
     var columnPosRight = [];
 
-	var pagingActive = false;
-	var pagingIsLastPage = false;
-	
+    var pagingActive = false;
+    var pagingIsLastPage = false;
+    
     // async call handles
     var h_editorLoader = null;
     var h_render = null;
@@ -653,7 +653,7 @@ if (typeof Slick === "undefined") {
             }
           });
         $footerRow.empty();
-	  }
+      }
 
       for (var i = 0; i < columns.length; i++) {
         var m = columns[i];
@@ -1021,11 +1021,11 @@ if (typeof Slick === "undefined") {
       var h = ["borderLeftWidth", "borderRightWidth", "paddingLeft", "paddingRight"];
       var v = ["borderTopWidth", "borderBottomWidth", "paddingTop", "paddingBottom"];
 
-	  // jquery prior to version 1.8 handles .width setter/getter as a direct css write/read
-	  // jquery 1.8 changed .width to read the true inner element width if box-sizing is set to border-box, and introduced a setter for .outerWidth
-	  // so for equivalent functionality, prior to 1.8 use .width, and after use .outerWidth
-	  var verArray = $.fn.jquery.split('.');
-	  jQueryNewWidthBehaviour = (verArray[0]==1 && verArray[1]>=8) ||  verArray[0] >=2;
+      // jquery prior to version 1.8 handles .width setter/getter as a direct css write/read
+      // jquery 1.8 changed .width to read the true inner element width if box-sizing is set to border-box, and introduced a setter for .outerWidth
+      // so for equivalent functionality, prior to 1.8 use .width, and after use .outerWidth
+      var verArray = $.fn.jquery.split('.');
+      jQueryNewWidthBehaviour = (verArray[0]==1 && verArray[1]>=8) ||  verArray[0] >=2;
 
       el = $("<div class='ui-state-default slick-header-column' style='visibility:hidden'>-</div>").appendTo($headers);
       headerColumnWidthDiff = headerColumnHeightDiff = 0;
@@ -1251,15 +1251,15 @@ if (typeof Slick === "undefined") {
       var h;
       for (var i = 0, headers = $headers.children(), ii = headers.length; i < ii; i++) {
         h = $(headers[i]);
-		if (jQueryNewWidthBehaviour) {
-			if (h.outerWidth() !== columns[i].width) {
-			  h.outerWidth(columns[i].width);
-			}
-		} else {
-			if (h.width() !== columns[i].width - headerColumnWidthDiff) {
-			  h.width(columns[i].width - headerColumnWidthDiff);
-			}
-		}
+        if (jQueryNewWidthBehaviour) {
+            if (h.outerWidth() !== columns[i].width) {
+              h.outerWidth(columns[i].width);
+            }
+        } else {
+            if (h.width() !== columns[i].width - headerColumnWidthDiff) {
+              h.width(columns[i].width - headerColumnWidthDiff);
+            }
+        }
       }
 
       updateColumnCaches();
@@ -1428,8 +1428,8 @@ if (typeof Slick === "undefined") {
 
     function getDataLengthIncludingAddNew() {
       return getDataLength() + (!options.enableAddRow ? 0
-		: (!pagingActive || pagingIsLastPage ? 1 : 0)
-	  );
+        : (!pagingActive || pagingIsLastPage ? 1 : 0)
+      );
     }
 
     function getDataItem(i) {
@@ -1737,7 +1737,7 @@ if (typeof Slick === "undefined") {
         return;
       }
       vScrollDir = 0;
-	  rl = rows.length;
+      rl = rows.length;
       for (i = 0;  i < rl; i++) {
         if (currentEditor && activeRow === rows[i]) {
           makeActiveCellNormal();
@@ -1836,9 +1836,9 @@ if (typeof Slick === "undefined") {
     }
 
     function updatePagingStatusFromView( pagingInfo ) {
-		pagingActive = (pagingInfo.pageSize !== 0);
-		pagingIsLastPage = (pagingInfo.pageNum == pagingInfo.totalPages - 1);
-	}
+        pagingActive = (pagingInfo.pageSize !== 0);
+        pagingIsLastPage = (pagingInfo.pageNum == pagingInfo.totalPages - 1);
+    }
 
     function updateRowCount() {
       if (!initialized) { return; }
@@ -2496,7 +2496,7 @@ if (typeof Slick === "undefined") {
 
       if (!handled) {
         if (!e.shiftKey && !e.altKey && !e.ctrlKey) {
-		  // editor may specify an array of keys to bubble
+          // editor may specify an array of keys to bubble
           if (options.editable && currentEditor && currentEditor.keyCaptureList) {
             if (currentEditor.keyCaptureList.indexOf( e.which ) > -1) {
                 return;
@@ -2579,7 +2579,7 @@ if (typeof Slick === "undefined") {
         return;
       }
       
-	  // this optimisation causes trouble - MLeibman #329
+      // this optimisation causes trouble - MLeibman #329
       //if ((activeCell != cell.cell || activeRow != cell.row) && canCellBeActive(cell.row, cell.cell)) {
       if (canCellBeActive(cell.row, cell.cell)) {
         if (!getEditorLock().isActive() || getEditorLock().commitCurrentEdit()) {
@@ -2806,8 +2806,8 @@ if (typeof Slick === "undefined") {
       } else {
         activeRow = activeCell = null;
       }
-	
-	  // this optimisation causes trouble - MLeibman #329
+    
+      // this optimisation causes trouble - MLeibman #329
       //if (activeCellChanged) {
         trigger(self.onActiveCellChanged, getActiveCell());
       //}
@@ -2901,7 +2901,7 @@ if (typeof Slick === "undefined") {
       getEditorLock().activate(editController);
       $(activeCellNode).addClass("editable");
 
-	  var useEditor = editor || getEditor(activeRow, activeCell);
+      var useEditor = editor || getEditor(activeRow, activeCell);
 
       // don't clear the cell if a custom editor is passed through
       if (!editor && !useEditor.suppressClearOnEdit) {
@@ -2962,7 +2962,7 @@ if (typeof Slick === "undefined") {
       // walk up the tree
       var offsetParent = elem.offsetParent;
       while ((elem = elem.parentNode) != document.body) {
-		if (elem == null) break;
+        if (elem == null) break;
 
         if (box.visible && elem.scrollHeight != elem.offsetHeight && $(elem).css("overflowY") != "visible") {
           box.visible = box.bottom > elem.scrollTop && box.top < elem.scrollTop + elem.clientHeight;
@@ -3663,7 +3663,7 @@ if (typeof Slick === "undefined") {
       "getSelectedRows": getSelectedRows,
       "setSelectedRows": setSelectedRows,
       "getContainerNode": getContainerNode,
-	  "updatePagingStatusFromView": updatePagingStatusFromView,
+      "updatePagingStatusFromView": updatePagingStatusFromView,
 
       "render": render,
       "invalidate": invalidate,

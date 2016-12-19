@@ -11,7 +11,7 @@
       "Editors": {
         "Text": TextEditor,
         "Integer": IntegerEditor,
-		"Float": FloatEditor,
+        "Float": FloatEditor,
         "Date": DateEditor,
         "YesNoSelect": YesNoSelectEditor,
         "Checkbox": CheckboxEditor,
@@ -185,24 +185,24 @@
       $input.focus();
     };
 
-	function getDecimalPlaces() {
-		// returns the number of fixed decimal places or null
-		var rtn = args.column.editorFixedDecimalPlaces;
-		if (typeof rtn == 'undefined') {
-			rtn = FloatEditor.DefaultDecimalPlaces;
-		}
-		return (!rtn && rtn!==0 ? null : rtn);
-	}
+    function getDecimalPlaces() {
+        // returns the number of fixed decimal places or null
+        var rtn = args.column.editorFixedDecimalPlaces;
+        if (typeof rtn == 'undefined') {
+            rtn = FloatEditor.DefaultDecimalPlaces;
+        }
+        return (!rtn && rtn!==0 ? null : rtn);
+    }
 
     this.loadValue = function (item) {
       defaultValue = item[args.column.field];
 
-	  var decPlaces = getDecimalPlaces();
-	  if (decPlaces !== null
-	  && (defaultValue || defaultValue===0)
-	  && defaultValue.toFixed) {
-		defaultValue = defaultValue.toFixed(decPlaces);
-	  }
+      var decPlaces = getDecimalPlaces();
+      if (decPlaces !== null
+      && (defaultValue || defaultValue===0)
+      && defaultValue.toFixed) {
+        defaultValue = defaultValue.toFixed(decPlaces);
+      }
 
       $input.val(defaultValue);
       $input[0].defaultValue = defaultValue;
@@ -210,14 +210,14 @@
     };
 
     this.serializeValue = function () {
-	  var rtn = parseFloat($input.val()) || 0;
+      var rtn = parseFloat($input.val()) || 0;
 
-	  var decPlaces = getDecimalPlaces();
-	  if (decPlaces !== null
-	  && (rtn || rtn===0)
-	  && rtn.toFixed) {
-		rtn = parseFloat(rtn.toFixed(decPlaces));
-	  }
+      var decPlaces = getDecimalPlaces();
+      if (decPlaces !== null
+      && (rtn || rtn===0)
+      && rtn.toFixed) {
+        rtn = parseFloat(rtn.toFixed(decPlaces));
+      }
 
       return rtn;
     };
