@@ -27,6 +27,7 @@
         onCopyInit: optional handler to run when copy action initializes
         onCopySuccess: optional handler to run when copy action is complete
         newRowCreator: function to add rows to table if paste overflows bottom of table
+        readOnlyMode: suppresses paste
     */
     var _grid;
     var _self = this;
@@ -395,7 +396,10 @@
           }
         }
 
-        if ((e.which === keyCodes.V && (e.ctrlKey || e.metaKey) && !e.shiftKey || (e.which === keyCodes.INSERT && e.shiftKey && !e.ctrlKey))) {    // CTRL+V or Shift+INS
+        if (!_options.readOnlyMode && (
+         (e.which === keyCodes.V && (e.ctrlKey || e.metaKey) && !e.shiftKey)
+          || (e.which === keyCodes.INSERT && e.shiftKey && !e.ctrlKey)
+         )) {    // CTRL+V or Shift+INS
             var ta = _createTextBox('');
             
             setTimeout(function(){

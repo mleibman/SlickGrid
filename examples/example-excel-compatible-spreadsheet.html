@@ -87,8 +87,6 @@
     autoEdit: false
   };
 
-
-
   var undoRedoBuffer = {
       commandQueue : [],
       commandCtr : 0,
@@ -100,8 +98,7 @@
       },
 
       undo : function() {
-        if (this.commandCtr == 0)
-          return;
+        if (this.commandCtr == 0) { return; }
 
         this.commandCtr--;
         var command = this.commandQueue[this.commandCtr];
@@ -111,8 +108,7 @@
         }
       },
       redo : function() {
-        if (this.commandCtr >= this.commandQueue.length)
-          return;
+        if (this.commandCtr >= this.commandQueue.length) { return; }
         var command = this.commandQueue[this.commandCtr];
         this.commandCtr++;
         if (command && Slick.GlobalEditorLock.cancelCurrentEdit()) {
@@ -137,21 +133,15 @@
 
   var pluginOptions = {
     clipboardCommandHandler: function(editCommand){ undoRedoBuffer.queueAndExecuteCommand.call(undoRedoBuffer,editCommand); },
+    readOnlyMode : true,
     includeHeaderWhenCopying : false,
     newRowCreator: function(count) {
-
       for (var i = 0; i < count; i++) {
-
         var item = {
-
           id: "newRow_" + newRowIds++
-
         }
-
         grid.getData().addItem(item);
-
       }
-
     }
   };
 
@@ -198,7 +188,6 @@
     grid.getCanvasNode().focus();
 
     grid.registerPlugin(new Slick.CellExternalCopyManager(pluginOptions));
-    
 
     grid.onAddNewRow.subscribe(function (e, args) {
       var item = args.item;
