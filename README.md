@@ -8,6 +8,8 @@ Check out the [examples](https://github.com/6pac/SlickGrid/wiki/Examples) for ex
 
 Also check out my [wiki](https://github.com/6pac/SlickGrid/wiki).
 
+Npm: ```npm install slickgrid```
+
 The following are the changes (most recent first) made since forking from the main MLeibman branch, a significant number in response to issues or pull requests.
 
 **Maintenance:**
