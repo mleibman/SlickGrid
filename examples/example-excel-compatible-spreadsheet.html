@@ -133,7 +133,7 @@
 
   var pluginOptions = {
     clipboardCommandHandler: function(editCommand){ undoRedoBuffer.queueAndExecuteCommand.call(undoRedoBuffer,editCommand); },
-    readOnlyMode : true,
+    readOnlyMode : false,
     includeHeaderWhenCopying : false,
     newRowCreator: function(count) {
       for (var i = 0; i < count; i++) {
