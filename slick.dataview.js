@@ -210,6 +210,11 @@
       }
     }
 
+    function getFilteredItems(){
+      return filteredItems;
+    }
+
+
     function getFilter(){
       return filter;
     }
@@ -1005,6 +1010,7 @@
       "setItems": setItems,
       "setFilter": setFilter,
       "getFilter": getFilter,
+      "getFilteredItems": getFilteredItems,
       "sort": sort,
       "fastSort": fastSort,
       "reSort": reSort,
