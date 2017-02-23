@@ -421,6 +421,10 @@
       }
     };
 
+    this.preClick = function () {
+        $select.prop('checked', !$select.prop('checked'));
+    };
+
     this.serializeValue = function () {
       return $select.prop('checked');
     };

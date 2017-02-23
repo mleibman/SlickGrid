@@ -40,7 +40,8 @@
         RIGHT: 39,
         TAB: 9,
         UP: 38
-      }
+      },
+      "preClickClassName" : "slick-edit-preclick"
     }
   });
 
