@@ -210,6 +210,15 @@
       }
     }
 
+    function getFilteredItems(){
+      return filteredItems;
+    }
+
+
+    function getFilter(){
+      return filter;
+    }
+    
     function setFilter(filterFn) {
       filter = filterFn;
       if (options.inlineFilters) {
@@ -1000,6 +1009,8 @@
       "getItems": getItems,
       "setItems": setItems,
       "setFilter": setFilter,
+      "getFilter": getFilter,
+      "getFilteredItems": getFilteredItems,
       "sort": sort,
       "fastSort": fastSort,
       "reSort": reSort,
