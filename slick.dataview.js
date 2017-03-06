@@ -983,6 +983,10 @@
         if (key != args.key) { return; }
         if (args.hash) {
           storeCellCssStyles(args.hash);
+        } else {
+          grid.onCellCssStylesChanged.unsubscribe(styleChanged);
+          self.onRowsChanged.unsubscribe(update);
+          self.onRowCountChanged.unsubscribe(update);          
         }
       });
 
