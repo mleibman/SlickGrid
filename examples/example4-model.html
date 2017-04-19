@@ -264,6 +264,8 @@ $(function () {
   });
 
   // wire up model events to drive the grid
+  // !! both dataView.onRowCountChanged and dataView.onRowsChanged MUST be wired to correctly update the grid
+  // see Issue#91
   dataView.onRowCountChanged.subscribe(function (e, args) {
     grid.updateRowCount();
     grid.render();
