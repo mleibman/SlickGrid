@@ -1766,7 +1766,7 @@ if (typeof Slick === "undefined") {
     }
 
     function applyFormatResultToCellNode(formatterResult, cellNode, suppressRemove) {
-        if (typeof formatterResult === 'String') { 
+        if (typeof formatterResult === 'string') { 
             cellNode.innerHTML = formatterResult;
             return;
         }
