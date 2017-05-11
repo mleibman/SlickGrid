@@ -78,5 +78,40 @@
   test("getData should return data", function () {
     equal(grid.getData(), data);
   });
-  
+
+  module("scrollColumnIntoView,", {
+    setup: setupGrid,
+    teardown: teardownGrid
+  });
+
+  test("when scrolling left with a column beyond the left edge of the viewport," +
+    " the viewport scrolls one column to the left", function () {
+    var viewport = grid.getViewport;
+
+    // move viewport over to the right by three
+    var initialRightmostCell = grid.getCellFromPoint(viewport().rightPx, 0);
+    grid.scrollCellIntoView(0, initialRightmostCell.cell + 3);
+
+    // now scroll left one column
+    var leftmostCellInViewport = grid.getCellFromPoint(viewport().leftPx, 0);
+    grid.scrollColumnIntoView(leftmostCellInViewport.cell-1);
+
+    var leftmostCellAfterScroll = grid.getCellFromPoint(viewport().leftPx, 0);
+    strictEqual(leftmostCellAfterScroll.cell, 1, "left column is one further left");
+  });
+
+  test("given we started scrolled down," +
+    "when we scroll right the viewport does not scroll rows", function () {
+    var viewport = grid.getViewport;
+
+    grid.scrollRowIntoView(100);
+    var rowPositionBeforeColumnScroll = viewport().top;
+
+    // scroll right
+    var initialRightmostCell = grid.getCellFromPoint(viewport().rightPx, 0);
+    grid.scrollColumnIntoView(initialRightmostCell.cell + 3);
+
+    strictEqual(viewport().top, rowPositionBeforeColumnScroll, "we have not scrolled");
+  });
+
 })(jQuery);
