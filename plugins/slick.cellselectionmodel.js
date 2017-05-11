@@ -56,7 +56,7 @@
     }
 
     function setSelectedRanges(ranges) {
-      // simle check for: empty selection didn't change, prevent firing onSelectedRangesChanged
+      // simple check for: empty selection didn't change, prevent firing onSelectedRangesChanged
       if ((!_ranges || _ranges.length === 0) && (!ranges || ranges.length === 0)) { return; }
 
       _ranges = removeInvalidRanges(ranges);
@@ -75,6 +75,7 @@
     }
 
     function handleCellRangeSelected(e, args) {
+      _grid.setActiveCell(args.range.fromRow, args.range.fromCell, false, false, true);
       setSelectedRanges([args.range]);
     }
 

@@ -2798,7 +2798,7 @@ if (typeof Slick === "undefined") {
       }
     }
 
-    function setActiveCellInternal(newCell, opt_editMode, preClickModeOn) {
+    function setActiveCellInternal(newCell, opt_editMode, preClickModeOn, suppressActiveCellChangedEvent) {
       if (activeCellNode !== null) {
         makeActiveCellNormal();
         $(activeCellNode).removeClass("active");
@@ -2840,7 +2840,7 @@ if (typeof Slick === "undefined") {
     
       // this optimisation causes trouble - MLeibman #329
       //if (activeCellChanged) {
-        trigger(self.onActiveCellChanged, getActiveCell());
+      if (!suppressActiveCellChangedEvent) { trigger(self.onActiveCellChanged, getActiveCell()); }
       //}
     }
 
@@ -3418,7 +3418,7 @@ if (typeof Slick === "undefined") {
       return null;
     }
 
-    function setActiveCell(row, cell) {
+    function setActiveCell(row, cell, opt_editMode, preClickModeOn, suppressActiveCellChangedEvent) {
       if (!initialized) { return; }
       if (row > getDataLength() || row < 0 || cell >= columns.length || cell < 0) {
         return;
@@ -3429,7 +3429,7 @@ if (typeof Slick === "undefined") {
       }
 
       scrollCellIntoView(row, cell, false);
-      setActiveCellInternal(getCellNode(row, cell), false);
+      setActiveCellInternal(getCellNode(row, cell), opt_editMode, preClickModeOn, suppressActiveCellChangedEvent);
     }
 
     function canCellBeActive(row, cell) {
