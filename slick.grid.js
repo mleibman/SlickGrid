@@ -714,10 +714,14 @@ if (typeof Slick === "undefined") {
       setSortColumns(sortColumns);
       setupColumnResize();
       if (options.enableColumnReorder) {
-        setupColumnReorder();
+        if (typeof options.enableColumnReorder == 'function') {
+            options.enableColumnReorder(self, $headers, headerColumnWidthDiff, setColumns, setupColumnResize, columns, getColumnIndex, uid, trigger);
+        } else {
+            setupColumnReorder();
+        }
       }
     }
-
+    
     function setupColumnSort() {
       $headers.click(function (e) {
         // temporary workaround for a bug in jQuery 1.7.1 (http://bugs.jquery.com/ticket/11328)
