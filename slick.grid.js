@@ -3292,6 +3292,10 @@ if (typeof Slick === "undefined") {
 
       var firstFocusableCell = null;
       var dataLengthIncludingAddNew = getDataLengthIncludingAddNew();
+
+      // if at last row, cycle through columns rather than get stuck in the last one
+      if (row === dataLengthIncludingAddNew - 1) { row--; }
+
       while (++row < dataLengthIncludingAddNew) {
         firstFocusableCell = findFirstFocusableCell(row);
         if (firstFocusableCell !== null) {
