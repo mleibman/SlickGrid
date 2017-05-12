@@ -2798,6 +2798,22 @@ if (typeof Slick === "undefined") {
       }
     }
 
+    function scrollColumnIntoView(cell) {
+      var left = columnPosLeft[cell],
+        right = columnPosRight[cell],
+        scrollRight = scrollLeft + viewportW;
+
+      if (left < scrollLeft) {
+        $viewport.scrollLeft(left);
+        handleScroll();
+        render();
+      } else if (right > scrollRight) {
+        $viewport.scrollLeft(Math.min(left, right - $viewport[0].clientWidth));
+        handleScroll();
+        render();
+      }
+    }
+
     function setActiveCellInternal(newCell, opt_editMode, preClickModeOn, suppressActiveCellChangedEvent) {
       if (activeCellNode !== null) {
         makeActiveCellNormal();
@@ -3715,6 +3731,7 @@ if (typeof Slick === "undefined") {
       "scrollRowIntoView": scrollRowIntoView,
       "scrollRowToTop": scrollRowToTop,
       "scrollCellIntoView": scrollCellIntoView,
+      "scrollColumnIntoView": scrollColumnIntoView,
       "getCanvasNode": getCanvasNode,
       "focus": setFocus,
 
