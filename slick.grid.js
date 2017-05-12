@@ -2783,9 +2783,11 @@ if (typeof Slick === "undefined") {
       scrollRowIntoView(row, doPaging);
 
       var colspan = getColspan(row, cell);
-      var left = columnPosLeft[cell],
-        right = columnPosRight[cell + (colspan > 1 ? colspan - 1 : 0)],
-        scrollRight = scrollLeft + viewportW;
+      internalScrollColumnIntoView(columnPosLeft[cell], columnPosRight[cell + (colspan > 1 ? colspan - 1 : 0)]);
+    }
+
+    function internalScrollColumnIntoView(left, right) {
+      var scrollRight = scrollLeft + viewportW;
 
       if (left < scrollLeft) {
         $viewport.scrollLeft(left);
@@ -2799,19 +2801,7 @@ if (typeof Slick === "undefined") {
     }
 
     function scrollColumnIntoView(cell) {
-      var left = columnPosLeft[cell],
-        right = columnPosRight[cell],
-        scrollRight = scrollLeft + viewportW;
-
-      if (left < scrollLeft) {
-        $viewport.scrollLeft(left);
-        handleScroll();
-        render();
-      } else if (right > scrollRight) {
-        $viewport.scrollLeft(Math.min(left, right - $viewport[0].clientWidth));
-        handleScroll();
-        render();
-      }
+      internalScrollColumnIntoView(columnPosLeft[cell], columnPosRight[cell]);
     }
 
     function setActiveCellInternal(newCell, opt_editMode, preClickModeOn, suppressActiveCellChangedEvent) {
