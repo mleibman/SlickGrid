@@ -1,3 +1,17 @@
+<!--
+ * @license
+ * (c) 2017 Muthukumar Selvarasu
+ * muthukumar{dot}se{at}gmail{dot}com
+ * http://github.com/mleibman/slickgrid
+ *
+ * Distributed under MIT license.
+ * All rights reserved.
+ *
+ * SlickGrid v2.3
+ *
+ * NOTES:
+ *     This is draggable Grouping feature sample
+ -->
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -10,15 +24,15 @@
   <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css"/>
   <style>
 
-	.slick-groupby {
-		padding: 10px;
-	}
+  	.slick-groupby {
+  		padding: 10px;
+  	}
 
-	.slick-dropped-grouping {
-		display: inline-block;
-		margin-right: 5px;
-		vertical-align: middle;
-	}
+  	.slick-dropped-grouping {
+  		display: inline-block;
+  		margin-right: 5px;
+  		vertical-align: middle;
+  	}
 
     .slick-dropped-grouping.ui-sortable-helper {
       white-space: nowrap;
@@ -44,6 +58,14 @@
       background: url(../images/delete.png) no-repeat center right;
       padding-right: 20px;
     } 
+
+    .slick-placeholder {
+      height: 25px;
+    }
+
+    .ui-droppable {
+      padding: 5px;
+    }
   </style>
 </head>
 <body>
@@ -113,6 +135,7 @@
 
 <script>
 var dataView;
+var draggableGrouping;
 var grid;
 var data = [];
 var columns = [
@@ -299,23 +322,19 @@ var draggableEnabled = true;
 function clearGroupings() {
    dataView.setGrouping([]);
    draggableGrouping.clearDroppedGroups();
-   $(".slick-preheader-panel").empty();
+   $(".slick-dropped-grouping").remove();
    grid.invalidate();
    grid.render();  
 }
 
 
 function toggleDraggableGrouping() {
-   dataView.setGrouping([]);
-   draggableGrouping.clearDroppedGroups();
-   $(".slick-dropped-grouping").remove();
-   grid.invalidate();
-   grid.render();
+   clearGroupings();
   if ( draggableEnabled == true ) {
-     $(".slick-groupby").hide();
+     $(".slick-preheader-panel").hide();
      draggableEnabled = false;
   } else {
-    $(".slick-groupby").show();
+    $(".slick-preheader-panel").show();
     draggableEnabled = true;
   }
 }
@@ -351,7 +370,7 @@ $(".grid-header .ui-icon")
 
 $(function () {
   var groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
-  var draggableGrouping = new Slick.DraggableGrouping();
+  draggableGrouping = new Slick.DraggableGrouping();
   dataView = new Slick.Data.DataView({
     groupItemMetadataProvider: groupItemMetadataProvider,
     inlineFilters: true

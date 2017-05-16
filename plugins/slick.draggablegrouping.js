@@ -1,3 +1,18 @@
+/**
+ * @license
+ * (c) 2017 Muthukumar Selvarasu
+ * muthukumar{dot}se{at}gmail{dot}com
+ * http://github.com/mleibman/slickgrid
+ *
+ * Distributed under MIT license.
+ * All rights reserved.
+ *
+ * SlickGrid v2.3
+ *
+ * NOTES:
+ *     This plugin provide draggable Grouping feature
+ */
+
 (function ($) {
   // Register namespace
   $.extend(true, window, {
