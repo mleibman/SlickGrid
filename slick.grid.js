@@ -536,6 +536,22 @@ if (typeof Slick === "undefined") {
       return supportedHeight;
     }
 
+    function getUID() {
+      return uid;
+    }
+
+    function getHeaderElements() {
+      return headerElements;
+    }
+
+    function getHeaderColumnWidthDiff() {
+      return headerColumnWidthDiff;
+    }
+
+    function getScrollbarDimensions() {
+      return scrollbarDimensions;
+    }
+
     // TODO:  this is static.  need to handle page mutation.
     function bindAncestorScrollEvents() {
       var elem = $canvas[0];
@@ -3742,6 +3758,12 @@ if (typeof Slick === "undefined") {
       "scrollCellIntoView": scrollCellIntoView,
       "scrollColumnIntoView": scrollColumnIntoView,
       "getCanvasNode": getCanvasNode,
+      "getUID": getUID,
+      "getHeaderElements": getHeaderElements,
+      "getHeaderColumnWidthDiff": getHeaderColumnWidthDiff,
+      "getScrollbarDimensions": getScrollbarDimensions,
+      "getHeadersWidth": getHeadersWidth,
+      "getCanvasWidth": getCanvasWidth,
       "focus": setFocus,
 
       "getCellFromPoint": getCellFromPoint,
