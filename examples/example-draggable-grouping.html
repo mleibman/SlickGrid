@@ -1,16 +1,10 @@
 <!--
- * @license
- * (c) 2017 Muthukumar Selvarasu
- * muthukumar{dot}se{at}gmail{dot}com
- * http://github.com/mleibman/slickgrid
  *
- * Distributed under MIT license.
- * All rights reserved.
- *
- * SlickGrid v2.3
- *
- * NOTES:
- *     This is draggable Grouping feature sample
+ * Draggable Grouping contributed by:  Muthukumar Selvarasu
+ *  muthukumar{dot}se{at}gmail{dot}com
+ *  github.com/muthukumarse/Slickgrid
+ * * NOTES:
+ *     This is the Draggable Grouping plugin example page
  -->
 <!DOCTYPE HTML>
 <html>
@@ -261,7 +255,7 @@ function setupColumnReorder(grid, $headers, headerColumnWidthDiff, setColumns, s
         var reorderedIds = $headers.sortable("toArray");
         var reorderedColumns = [];
         for (var i = 0; i < reorderedIds.length; i++) {
-          reorderedColumns.push(columns[getColumnIndex(reorderedIds[i].replace(grid.getUID(), ""))]);
+          reorderedColumns.push(columns[getColumnIndex(reorderedIds[i].replace(uid, ""))]);
         }
         setColumns(reorderedColumns);
         trigger(grid.onColumnsReordered, {
