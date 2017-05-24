@@ -42,10 +42,10 @@
       var to = grid.getCellNodeBox(range.toRow, range.toCell);
 
       _elem.css({
-        top: from.top - 1,
+        top: from.top,
         left: from.left - 1,
-        height: to.bottom - from.top - 2,
-        width: to.right - from.left - 2
+        height: to.bottom - from.top + 2,
+        width: to.right - from.left + 1
       });
 
       return _elem;
