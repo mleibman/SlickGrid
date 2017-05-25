@@ -80,7 +80,7 @@ if (typeof Slick === "undefined") {
       footerRowHeight: 25,
       createPreHeaderPanel: false,
       showPreHeaderPanel: false,
-      preHeaderPanelRowHeight: 25,
+      preHeaderPanelHeight: 25,
       showTopPanel: false,
       topPanelHeight: 25,
       formatterFactory: null,
