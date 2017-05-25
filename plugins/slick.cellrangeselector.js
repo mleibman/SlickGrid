@@ -6,10 +6,10 @@
     }
   });
 
-  var currentlySelectedRange;
 
   function CellRangeSelector(options) {
     var _grid;
+    var _currentlySelectedRange;
     var _canvas;
     var _dragging;
     var _decorator;
@@ -62,7 +62,7 @@
           dd.startY - $(_canvas).offset().top);
 
       dd.range = {start: start, end: {}};
-      currentlySelectedRange = dd.range;
+      _currentlySelectedRange = dd.range;
       return _decorator.show(new Slick.Range(start.row, start.cell));
     }
 
@@ -81,7 +81,7 @@
       }
 
       dd.range.end = end;
-      currentlySelectedRange = dd.range;
+      _currentlySelectedRange = dd.range;
       _decorator.show(new Slick.Range(dd.range.start.row, dd.range.start.cell, end.row, end.cell));
     }
 
@@ -105,7 +105,7 @@
     }
 
     function getCurrentRange() {
-      return currentlySelectedRange;
+      return _currentlySelectedRange;
     }
 
     $.extend(this, {

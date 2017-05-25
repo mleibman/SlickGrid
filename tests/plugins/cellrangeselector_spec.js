@@ -9,7 +9,7 @@
     data = [], // The grid data
     $container = $("#container");
 
-  var $canvas, dragRangeContainer;
+  var $canvas, dragRangeContainer, cellSelector;
 
   // Create data
   for (var i = 0; i < 10; i++) {
@@ -27,7 +27,8 @@
 
     $("#container").append($testgrid);
     grid = new Slick.Grid("#grid", data, cols);
-    grid.setSelectionModel(new Slick.CellSelectionModel());
+    cellSelector = new Slick.CellRangeSelector();
+    grid.setSelectionModel(new Slick.CellSelectionModel({cellRangeSelector: cellSelector}));
     grid.render();
     $canvas = $(".grid-canvas");
   }
@@ -71,7 +72,6 @@
   }
 
   test("getCurrentRange returns the current range", function () {
-    var cellSelector = new Slick.CellRangeSelector();
     startDragging(getCell(0, 0));
     dragDown();
 
@@ -79,5 +79,27 @@
 
     var expectedRange = {"start": {"row": 0, "cell": 0}, "end": {"row": 1, "cell": 0}};
     deepEqual(selectedRange, expectedRange, "currently mouse-dragged range");
+  });
+
+  module("plugins - cellrangeselector when no options are passed");
+  test("should be created successfully", function () {
+    var $testgrid = $('<div id="grid" />');
+    $testgrid.height(600);
+
+    $("#container").append($testgrid);
+    grid = new Slick.Grid("#grid", data, cols);
+    grid.setSelectionModel(new Slick.CellSelectionModel());
+    grid.render();
+  });
+
+  module("plugins - cellrangeselector when options are passed, but not cellRangeSelector");
+  test("should be created successfully", function () {
+    var $testgrid = $('<div id="grid" />');
+    $testgrid.height(600);
+
+    $("#container").append($testgrid);
+    grid = new Slick.Grid("#grid", data, cols);
+    grid.setSelectionModel(new Slick.CellSelectionModel({}));
+    grid.render();
   });
 })(jQuery);
