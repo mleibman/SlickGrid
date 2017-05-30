@@ -355,6 +355,45 @@
       refresh();
     }
 
+    function sortedAddItem(item) {
+      // NOTE: assumes 'items' are sorted!
+      if(!sortComparer) {
+        throw new Error("sortedAddItem() requires a sort comparer, use sort()");
+      }
+	    insertItem(sortedIndex(item), item);
+    }
+
+    function sortedUpdateItem(item) {
+      // NOTE: assumes 'items' are sorted!
+      if(!sortComparer) {
+        throw new Error("sortedUpdateItem() requires a sort comparer, use sort()");
+      }
+      var old_item = getItemById(item.id);
+      if(sortComparer(old_item, item) !== 0) {
+        // item affects sorting -> must use sorted add
+        deleteItem(item.id);
+        sortedAddItem(item);
+      }
+      else { // update does not affect sorting -> regular update works fine
+        updateItem(item.id, item);
+      }
+    }
+
+    function sortedIndex(searchItem) {
+    var low = 0, high = items.length;
+
+      while (low < high) {
+        var mid = low + high >>> 1;
+        if (sortComparer(items[mid], searchItem) === -1) {
+          low = mid + 1;
+        }
+        else {
+          high = mid;
+        }
+      }
+      return low;
+    }
+      
     function addItem(item) {
       items.push(item);
       updateIdxById(items.length - 1);
@@ -1039,6 +1078,8 @@
       "updateItem": updateItem,
       "insertItem": insertItem,
       "addItem": addItem,
+      "sortedAddItem": sortedAddItem,
+      "sortedUpdateItem": sortedUpdateItem,
       "deleteItem": deleteItem,
       "syncGridSelection": syncGridSelection,
       "syncGridCellCssStyles": syncGridCellCssStyles,
