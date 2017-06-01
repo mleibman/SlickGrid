@@ -97,6 +97,28 @@
       }
     }
 
+    function selectRows(rowArray) {
+      var i, l=rowArray.length, addRows = [];
+      for(i=0; i<l; i++) { 
+        if (!_selectedRowsLookup[rowArray[i]]) {
+          addRows[addRows.length] = rowArray[i];
+        }
+      }
+      _grid.setSelectedRows(_grid.getSelectedRows().concat(addRows));
+    }
+
+    function deSelectRows(rowArray) {
+      var i, l=rowArray.length, removeRows = [];
+      for(i=0; i<l; i++) { 
+        if (_selectedRowsLookup[rowArray[i]]) {
+          removeRows[removeRows.length] = rowArray[i];
+        }
+      }
+      _grid.setSelectedRows($.grep(_grid.getSelectedRows(), function (n) {
+        return removeRows.indexOf(n)<0
+      }));
+    }
+
     function handleHeaderClick(e, args) {
       if (args.column.id == _options.columnId && $(e.target).is(":checkbox")) {
         // if editing, try to commit
@@ -146,7 +168,8 @@
     $.extend(this, {
       "init": init,
       "destroy": destroy,
-
+      "deSelectRows": deSelectRows,
+      "selectRows": selectRows,
       "getColumnDefinition": getColumnDefinition
     });
   }

@@ -306,6 +306,11 @@
       }
     }
 
+    function getRowByItem(item) {
+      ensureRowsByIdCache();
+      return rowsById[item[idProperty]];
+    }
+
     function getRowById(id) {
       ensureRowsByIdCache();
       return rowsById[id];
@@ -313,6 +318,18 @@
 
     function getItemById(id) {
       return items[idxById[id]];
+    }
+
+    function mapItemsToRows(itemArray) {
+      var rows = [];
+      ensureRowsByIdCache();
+      for (var i = 0, l = itemArray.length; i < l; i++) {
+        var row = rowsById[itemArray[i][idProperty]];
+        if (row != null) {
+          rows[rows.length] = row;
+        }
+      }
+      return rows;
     }
 
     function mapIdsToRows(idArray) {
@@ -1028,9 +1045,11 @@
       "expandGroup": expandGroup,
       "getGroups": getGroups,
       "getIdxById": getIdxById,
+      "getRowByItem": getRowByItem,
       "getRowById": getRowById,
       "getItemById": getItemById,
       "getItemByIdx": getItemByIdx,
+      "mapItemsToRows": mapItemsToRows,
       "mapRowsToIds": mapRowsToIds,
       "mapIdsToRows": mapIdsToRows,
       "setRefreshHints": setRefreshHints,

@@ -326,6 +326,13 @@
     this.collapsed = false;
 
     /***
+     * Whether a group selection checkbox is checked.
+     * @property selectChecked
+     * @type {Boolean}
+     */
+    this.selectChecked = false;
+
+    /***
      * GroupTotals, if any.
      * @property totals
      * @type {GroupTotals}

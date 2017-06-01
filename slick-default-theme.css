@@ -73,6 +73,20 @@ classes should alter those!
   background: white;
 }
 
+.slick-group-select-checkbox {
+  width: 13px;
+  height: 13px;
+  margin: 3px 10px 0 0;
+  display: inline-block;
+}
+.slick-group-select-checkbox.checked {
+  background: url(images/GrpCheckboxY.png) no-repeat center center;
+}
+
+.slick-group-select-checkbox.unchecked {
+  background: url(images/GrpCheckboxN.png) no-repeat center center;
+}
+
 .slick-cell.selected {
   background-color: beige;
 }
