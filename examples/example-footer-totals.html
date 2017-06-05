@@ -67,14 +67,14 @@
   }
 
   function UpdateAllTotals(grid) {
-    var columnIdx = columns.length;
+    var columnIdx = grid.getColumns().length;
     while (columnIdx--) {
       UpdateTotal(columnIdx, grid);
     }
   }
 
   function UpdateTotal(cell, grid) {
-    var columnId = columns[cell].id;
+    var columnId = grid.getColumns()[cell].id;
     
     var total = 0;
     var i = data.length;
@@ -100,6 +100,10 @@
     grid.onCellChange.subscribe(function(e, args) {
       UpdateTotal(args.cell, args.grid);
     });
+
+    grid.onColumnsReordered.subscribe(function(e, args) {
+      UpdateAllTotals(args.grid);
+    });    
   })
 </script>
 </body>
