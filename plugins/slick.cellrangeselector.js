@@ -22,7 +22,7 @@
 
     function init(grid) {
       options = $.extend(true, {}, _defaults, options);
-      _decorator = options.cellDecorator ? options.cellDecorator : new Slick.CellRangeDecorator(grid, options);
+      _decorator = options.cellDecorator || new Slick.CellRangeDecorator(grid, options);
       _grid = grid;
       _canvas = _grid.getCanvasNode();
       _handler
