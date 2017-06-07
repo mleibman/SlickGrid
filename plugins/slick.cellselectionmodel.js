@@ -6,14 +6,14 @@
     }
   });
 
-
   function CellSelectionModel(options) {
     var _grid;
     var _canvas;
     var _ranges = [];
     var _self = this;
     var _selector;
-    if ( typeof options === "undefined" || typeof options.cellRangeSelector === "undefined") {
+
+    if (typeof options === "undefined" || typeof options.cellRangeSelector === "undefined") {    
       _selector = new Slick.CellRangeSelector({
         "selectionCss": {
           "border": "2px solid black"
@@ -27,7 +27,6 @@
     var _defaults = {
       selectActiveCell: true
     };
-
 
     function init(grid) {
       _options = $.extend(true, {}, _defaults, options);
