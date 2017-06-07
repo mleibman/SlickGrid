@@ -13,7 +13,7 @@
     var _self = this;
     var _selector;
 
-    if (options === undefined || options.cellRangeSelector === undefined) {
+    if (typeof options === "undefined" || typeof options.cellRangeSelector === "undefined") {    
       _selector = new Slick.CellRangeSelector({
         "selectionCss": {
           "border": "2px solid black"
