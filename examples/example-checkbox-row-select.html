@@ -103,6 +103,15 @@
     grid.registerPlugin(checkboxSelector);
 
     var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
+    
+    grid.onSelectedRowsChanged.subscribe(function (e, args) {
+        // debugging to see the active row in response to questions
+        // active row has no correlation to the selected rows
+        // it will remain null until a row is clicked and made active
+        // selecting and deselecting rows via checkboxes will not change the active row
+        var rtn = args.grid.getActiveCell(); 
+        var x = args.rows;
+    });    
   })
 </script>
 </body>
