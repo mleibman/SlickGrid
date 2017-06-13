@@ -1,6 +1,5 @@
 (function ($) {
-
-module.exports = {
+  module.exports = {
    DataView: DataView,
    Aggregators: {
      Avg: AvgAggregator,
@@ -8,7 +7,7 @@ module.exports = {
      Max: MaxAggregator,
      Sum: SumAggregator
    }
- };
+  };
 
   $.extend(true, window, {
     Slick: {
@@ -118,7 +117,7 @@ module.exports = {
       for (var i = startingIndex, l = items.length; i < l; i++) {
         id = items[i][idProperty];
         if (id === undefined) {
-          throw "Each data element must implement a unique 'id' property";
+          throw new Error("Each data element must implement a unique 'id' property");
         }
         idxById[id] = i;
       }
@@ -129,7 +128,7 @@ module.exports = {
       for (var i = 0, l = items.length; i < l; i++) {
         id = items[i][idProperty];
         if (id === undefined || idxById[id] !== i) {
-          throw "Each data element must implement a unique 'id' property";
+          throw new Error("Each data element must implement a unique 'id' property");
         }
       }
     }
@@ -221,6 +220,15 @@ module.exports = {
       }
     }
 
+    function getFilteredItems(){
+      return filteredItems;
+    }
+
+
+    function getFilter(){
+      return filter;
+    }
+    
     function setFilter(filterFn) {
       filter = filterFn;
       if (options.inlineFilters) {
@@ -308,6 +316,11 @@ module.exports = {
       }
     }
 
+    function getRowByItem(item) {
+      ensureRowsByIdCache();
+      return rowsById[item[idProperty]];
+    }
+
     function getRowById(id) {
       ensureRowsByIdCache();
       return rowsById[id];
@@ -315,6 +328,18 @@ module.exports = {
 
     function getItemById(id) {
       return items[idxById[id]];
+    }
+
+    function mapItemsToRows(itemArray) {
+      var rows = [];
+      ensureRowsByIdCache();
+      for (var i = 0, l = itemArray.length; i < l; i++) {
+        var row = rowsById[itemArray[i][idProperty]];
+        if (row != null) {
+          rows[rows.length] = row;
+        }
+      }
+      return rows;
     }
 
     function mapIdsToRows(idArray) {
@@ -341,7 +366,7 @@ module.exports = {
 
     function updateItem(id, item) {
       if (idxById[id] === undefined || id !== item[idProperty]) {
-        throw "Invalid or non-matching id";
+        throw new Error("Invalid or non-matching id");
       }
       items[idxById[id]] = item;
       if (!updated) {
@@ -357,6 +382,45 @@ module.exports = {
       refresh();
     }
 
+    function sortedAddItem(item) {
+      // NOTE: assumes 'items' are sorted!
+      if(!sortComparer) {
+        throw new Error("sortedAddItem() requires a sort comparer, use sort()");
+      }
+	    insertItem(sortedIndex(item), item);
+    }
+
+    function sortedUpdateItem(item) {
+      // NOTE: assumes 'items' are sorted!
+      if(!sortComparer) {
+        throw new Error("sortedUpdateItem() requires a sort comparer, use sort()");
+      }
+      var old_item = getItemById(item.id);
+      if(sortComparer(old_item, item) !== 0) {
+        // item affects sorting -> must use sorted add
+        deleteItem(item.id);
+        sortedAddItem(item);
+      }
+      else { // update does not affect sorting -> regular update works fine
+        updateItem(item.id, item);
+      }
+    }
+
+    function sortedIndex(searchItem) {
+    var low = 0, high = items.length;
+
+      while (low < high) {
+        var mid = low + high >>> 1;
+        if (sortComparer(items[mid], searchItem) === -1) {
+          low = mid + 1;
+        }
+        else {
+          high = mid;
+        }
+      }
+      return low;
+    }
+      
     function addItem(item) {
       items.push(item);
       updateIdxById(items.length - 1);
@@ -366,7 +430,7 @@ module.exports = {
     function deleteItem(id) {
       var idx = idxById[id];
       if (idx === undefined) {
-        throw "Invalid id";
+        throw new Error("Invalid id");
       }
       delete idxById[id];
       items.splice(idx, 1);
@@ -774,11 +838,11 @@ module.exports = {
       var paged;
       if (pagesize) {
         if (filteredItems.length <= pagenum * pagesize) {
-		  if (filteredItems.length === 0) {
-			pagenum = 0;
-		  } else {
-			pagenum = Math.floor((filteredItems.length - 1) / pagesize);
-		  }
+          if (filteredItems.length === 0) {
+            pagenum = 0;
+          } else {
+            pagenum = Math.floor((filteredItems.length - 1) / pagesize);
+          }
         }
         paged = filteredItems.slice(pagesize * pagenum, pagesize * pagenum + pagesize);
       } else {
@@ -994,6 +1058,10 @@ module.exports = {
         if (key != args.key) { return; }
         if (args.hash) {
           storeCellCssStyles(args.hash);
+        } else {
+          grid.onCellCssStylesChanged.unsubscribe(styleChanged);
+          self.onRowsChanged.unsubscribe(update);
+          self.onRowCountChanged.unsubscribe(update);          
         }
       });
 
@@ -1011,6 +1079,8 @@ module.exports = {
       "getItems": getItems,
       "setItems": setItems,
       "setFilter": setFilter,
+      "getFilter": getFilter,
+      "getFilteredItems": getFilteredItems,
       "sort": sort,
       "fastSort": fastSort,
       "reSort": reSort,
@@ -1024,9 +1094,11 @@ module.exports = {
       "expandGroup": expandGroup,
       "getGroups": getGroups,
       "getIdxById": getIdxById,
+      "getRowByItem": getRowByItem,
       "getRowById": getRowById,
       "getItemById": getItemById,
       "getItemByIdx": getItemByIdx,
+      "mapItemsToRows": mapItemsToRows,
       "mapRowsToIds": mapRowsToIds,
       "mapIdsToRows": mapIdsToRows,
       "setRefreshHints": setRefreshHints,
@@ -1035,6 +1107,8 @@ module.exports = {
       "updateItem": updateItem,
       "insertItem": insertItem,
       "addItem": addItem,
+      "sortedAddItem": sortedAddItem,
+      "sortedUpdateItem": sortedUpdateItem,
       "deleteItem": deleteItem,
       "syncGridSelection": syncGridSelection,
       "syncGridCellCssStyles": syncGridCellCssStyles,
