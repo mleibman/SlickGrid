@@ -9,7 +9,7 @@
     data = [], // The grid data
     $container = $("#container");
 
-  var $canvas, dragRangeContainer, cellSelector;
+  var $canvas, cellSelector;
 
   // Create data
   for (var i = 0; i < 10; i++) {
@@ -101,5 +101,18 @@
     grid = new Slick.Grid("#grid", data, cols);
     grid.setSelectionModel(new Slick.CellSelectionModel({}));
     grid.render();
+  });
+
+  module("plugins - cellrangeselector without options", {
+    setup: function () {
+      setupGrid();
+    },
+    teardown: teardownGrid
+  });
+
+  test("constructs decorator correctly", function () {
+    cellSelector.init(grid);
+    notEqual(cellSelector.getCellDecorator(), undefined, "Grid Cell Decorator");
+    cellSelector.destroy();
   });
 })(jQuery);
