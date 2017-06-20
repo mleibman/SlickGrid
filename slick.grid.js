@@ -97,7 +97,8 @@ if (typeof Slick === "undefined") {
       defaultFormatter: defaultFormatter,
       forceSyncScrolling: false,
       addNewRowCssClass: "new-row",
-      preserveCopiedSelectionOnPaste: false
+      preserveCopiedSelectionOnPaste: false,
+      showCellSelection: true
     };
 
     var columnDefaults = {
