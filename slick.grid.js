@@ -1839,10 +1839,10 @@ if (typeof Slick === "undefined") {
         }
         cellNode.innerHTML = formatterResult.text;
         if (formatterResult.removeClasses && !suppressRemove) { 
-            cellNode.removeClass(formatterResult.removeClasses); 
+            $(cellNode).removeClass(formatterResult.removeClasses); 
         }
         if (formatterResult.addClasses) { 
-            cellNode.addClass(formatterResult.addClasses); 
+            $(cellNode).addClass(formatterResult.addClasses); 
         }
     }
 
