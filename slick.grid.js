@@ -208,7 +208,7 @@ if (typeof Slick === "undefined") {
     var cssShow = { position: 'absolute', visibility: 'hidden', display: 'block' };
     var $hiddenParents;
     var oldProps = [];
-		var columnResizeDragging = false;
+    var columnResizeDragging = false;
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Initialization
@@ -772,7 +772,7 @@ if (typeof Slick === "undefined") {
     
     function setupColumnSort() {
       $headers.click(function (e) {
-				if (columnResizeDragging) return;
+        if (columnResizeDragging) return;
         // temporary workaround for a bug in jQuery 1.7.1 (http://bugs.jquery.com/ticket/11328)
         e.metaKey = e.metaKey || e.ctrlKey;
 
@@ -980,7 +980,7 @@ if (typeof Slick === "undefined") {
               minPageX = pageX - Math.min(shrinkLeewayOnLeft, stretchLeewayOnRight);
             })
             .on("drag", function (e, dd) {
-							columnResizeDragging = true;
+              columnResizeDragging = true;
               var actualMinWidth, d = Math.min(maxPageX, Math.max(minPageX, e.pageX)) - pageX, x;
               if (d < 0) { // shrink column
                 x = d;
@@ -1064,7 +1064,7 @@ if (typeof Slick === "undefined") {
               updateCanvasWidth(true);
               render();
               trigger(self.onColumnsResized, {grid: self});
-							setTimeout(function () { columnResizeDragging = false; }, 300);
+              setTimeout(function () { columnResizeDragging = false; }, 300);
             });
       });
     }
@@ -2751,7 +2751,7 @@ if (typeof Slick === "undefined") {
     }
 
     function handleHeaderClick(e) {
-			if (columnResizeDragging) return;
+      if (columnResizeDragging) return;
       var $header = $(e.target).closest(".slick-header-column", ".slick-header-columns");
       var column = $header && $header.data("column");
       if (column) {
