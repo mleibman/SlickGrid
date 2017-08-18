@@ -26,7 +26,7 @@
   </div>
 
   <div class="options-panel">
-    <h2>Excel compatible copy/paste manager</h2>
+    <h2>Excel compatible copy/paste manager using DataView</h2>
         <div>
 		 <strong>Thanks to <a href="https://github.com/Celebio/SlickGrid">Celebio</a>! <a href="http://labs.nereo.com/slick.html">(link to site)</a></strong><br /><br />
           This is basically the same example than <a href="example-spreadsheet.html">example-spreadsheet.html</a>, 
@@ -74,6 +74,7 @@
 <script src="../slick.editors.js"></script>
 <script src="../slick.formatters.js"></script>
 <script src="../slick.grid.js"></script>
+<script src="../slick.dataview.js"></script>
 
 <script>
   var grid;
@@ -81,30 +82,24 @@
   var data = [];
   var data2 = [];
   
-  // sample of use of optional get and set functions 
-  // (otherwise the editor is used to serialise the data to a string,
-  // then as a fallback the data value is used as-is)
+  function getVal(item, columnDef) {
+    //return dataView.getItemById(item.id)[columnDef.field];
+    return item[columnDef.field];
+  }
   
-  // function getVal(item, columnDef) {
-  //   return item[columnDef.field];
-  // }
-  //
-  // function setVal(item, columnDef, value) {
-  //   item[columnDef.field] = value;
-  // }
-  //
-  // var options = {
-  // ... ,
-  //   dataItemColumnValueExtractor: getVal,
-  //   dataItemColumnValueSetter: setVal
-  // };
+  function setVal(item, columnDef, value) {
+    item[columnDef.field] = value;
+//    dataView.updateItem(item.id, item);
+  }
   
   var options = {
     editable: true,
     enableAddRow: true,
     enableCellNavigation: true,
     asyncEditorLoading: false,
-    autoEdit: false
+    autoEdit: false,
+    dataItemColumnValueExtractor: getVal,
+    dataItemColumnValueSetter: setVal
   };
 
   var undoRedoBuffer = {
@@ -179,8 +174,8 @@
       id: i,
       name: String.fromCharCode("A".charCodeAt(0) + i),
       field: i,
-      width: 60,
-      editor: Slick.Editors.Text
+      width: 60//,
+      //editor: Slick.Editors.Text
     });
   }
   
@@ -191,6 +186,7 @@
   $(function () {
     for (var i = 0; i < 100; i++) {
       var d = (data[i] = {});
+      d["id"] = i;
       d["num"] = i;
       for (var j = 0; j < 26; j++) {
         d[j] = j+i;
@@ -200,7 +196,9 @@
       d["weekCalendar"] = [true, true, true, true, true, true, true, true, true, true, false, false, false, false];
     }
     
-    grid = new Slick.Grid("#myGrid", data, columns, options);
+    dataView = new Slick.Data.DataView();
+    dataView.setItems(data);
+    grid = new Slick.Grid("#myGrid", dataView, columns, options);
     grid.setSelectionModel(new Slick.CellSelectionModel());
     grid.registerPlugin(new Slick.AutoTooltips());
 
@@ -208,6 +206,10 @@
     grid.getCanvasNode().focus();
 
     grid.registerPlugin(new Slick.CellExternalCopyManager(pluginOptions));
+
+    grid.onCellChange.subscribe(function (e, args) {
+      dataView.updateItem(args.item.id, args.item);
+    });
 
     grid.onAddNewRow.subscribe(function (e, args) {
       var item = args.item;
@@ -222,6 +224,7 @@
     grid2.setSelectionModel(new Slick.CellSelectionModel());
     
     grid2.registerPlugin(new Slick.CellExternalCopyManager(pluginOptions));
+        
   })
 </script>
 </body>

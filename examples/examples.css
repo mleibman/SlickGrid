@@ -30,7 +30,7 @@ ul {
   margin: 0;
 }
 
-#myGrid {
+#myGrid, .example-grid {
   background: white;
   outline: 0;
   border: 1px solid gray;

@@ -87,6 +87,8 @@ function requiredFieldValidator(value) {
 
 
 var TaskNameFormatter = function (row, cell, value, columnDef, dataContext) {
+  if (value == null || value == undefined || dataContext === undefined) { return ""; }
+  
   value = value.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
   var spacer = "<span style='display:inline-block;height:1px;width:" + (15 * dataContext["indent"]) + "px'></span>";
   var idx = dataView.getIdxById(dataContext.id);
