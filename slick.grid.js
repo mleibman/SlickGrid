@@ -281,17 +281,17 @@ if (typeof Slick === "undefined") {
         }
       }
 
-      $headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+      $headerScroller = $("<div class='slick-header ui-state-default' />").appendTo($container);
       $headers = $("<div class='slick-header-columns' style='left:-1000px' />").appendTo($headerScroller);
       $headers.width(getHeadersWidth());
 
-      $headerRowScroller = $("<div class='slick-headerrow ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+      $headerRowScroller = $("<div class='slick-headerrow ui-state-default' />").appendTo($container);
       $headerRow = $("<div class='slick-headerrow-columns' />").appendTo($headerRowScroller);
       $headerRowSpacer = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
           .css("width", getCanvasWidth() + scrollbarDimensions.width + "px")
           .appendTo($headerRowScroller);
 
-      $topPanelScroller = $("<div class='slick-top-panel-scroller ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+      $topPanelScroller = $("<div class='slick-top-panel-scroller ui-state-default' />").appendTo($container);
       $topPanel = $("<div class='slick-top-panel' style='width:10000px' />").appendTo($topPanelScroller);
 
       if (!options.showTopPanel) {
@@ -308,7 +308,7 @@ if (typeof Slick === "undefined") {
       $canvas = $("<div class='grid-canvas' />").appendTo($viewport);
 
       if (options.createFooterRow) {
-        $footerRowScroller = $("<div class='slick-footerrow ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+        $footerRowScroller = $("<div class='slick-footerrow ui-state-default' />").appendTo($container);
         $footerRow = $("<div class='slick-footerrow-columns' />").appendTo($footerRowScroller);
         $footerRowSpacer = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
             .css("width", getCanvasWidth() + scrollbarDimensions.width + "px")
@@ -366,6 +366,7 @@ if (typeof Slick === "undefined") {
             //.on("click", handleClick)
             .on("scroll", handleScroll);
         $headerScroller
+            .on("scroll", handleHeaderScroll)
             .on("contextmenu", handleHeaderContextMenu)
             .on("click", handleHeaderClick)
             .on("mouseenter", ".slick-header-column", handleHeaderMouseEnter)
@@ -2306,22 +2307,24 @@ if (typeof Slick === "undefined") {
       h_render = null;
     }
 
+    function handleHeaderScroll() {
+      handleElementScroll($headerScroller[0]);
+    }
+
     function handleHeaderRowScroll() {
-      var scrollLeft = $headerRowScroller[0].scrollLeft;
-      if (scrollLeft != $viewport[0].scrollLeft) {
-        $viewport[0].scrollLeft = scrollLeft;
-      }
+      handleElementScroll($headerRowScroller[0]);
     }
 
     function handleFooterRowScroll() {
-      var scrollLeft = $footerRowScroller[0].scrollLeft;
-      if (scrollLeft != $viewport[0].scrollLeft) {
-        $viewport[0].scrollLeft = scrollLeft;
-      }
+      handleElementScroll($footerRowScroller[0]);
     }
 
     function handlePreHeaderPanelScroll() {
-      var scrollLeft = $preHeaderPanelScroller[0].scrollLeft;
+      handleElementScroll($preHeaderPanelScroller[0]);
+    }
+
+    function handleElementScroll(element) {
+      var scrollLeft = element.scrollLeft;
       if (scrollLeft != $viewport[0].scrollLeft) {
         $viewport[0].scrollLeft = scrollLeft;
       }
