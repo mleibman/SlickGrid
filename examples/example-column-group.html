@@ -31,7 +31,7 @@
     </ul>
       <h2>View Source:</h2>
       <ul>
-          <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-header-row.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+          <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-column-group.html" target="_sourcewindow"> View the source for this example on Github</a></li>
       </ul>
   </div>
 </div>
@@ -47,6 +47,33 @@
 <script src="../slick.grid.js"></script>
 
 <script>
+  function CreateAddlHeaderRow() {
+    var $preHeaderPanel = $(grid.getPreHeaderPanel())
+        .empty()
+        .addClass("slick-header-columns")
+        .css('left','-1000px')
+        .width(grid.getHeadersWidth());
+    $preHeaderPanel.parent().addClass("slick-header");
+
+    var headerColumnWidthDiff = grid.getHeaderColumnWidthDiff();
+    var m, header, lastColumnGroup = '', widthTotal = 0;
+    
+    for (var i = 0; i < columns.length; i++) {
+      m = columns[i];
+      if (lastColumnGroup === m.columnGroup && i>0) {
+        widthTotal += m.width;
+        header.width(widthTotal - headerColumnWidthDiff)
+      } else {
+          widthTotal = m.width;
+          header = $("<div class='ui-state-default slick-header-column' />")
+            .html("<span class='slick-column-name'>" + (m.columnGroup || '') + "</span>")
+            .width(m.width - headerColumnWidthDiff)
+            .appendTo($preHeaderPanel);
+      }
+      lastColumnGroup = m.columnGroup;
+    }
+  }
+
   var dataView;
   var grid;
   var data = [];
@@ -97,31 +124,11 @@
 
     grid.init();
 
-    // Create additional header row
-    // ----------------------------
-    var $preHeaderPanel = $(grid.getPreHeaderPanel())
-        .addClass("slick-header-columns")
-        .css('left','-1000px')
-        .width(grid.getHeadersWidth());
-    $preHeaderPanel.parent().addClass("slick-header");
-
-    var headerColumnWidthDiff = grid.getHeaderColumnWidthDiff();
-    var m, header, lastColumnGroup = '', widthTotal = 0;
+    grid.onColumnsResized.subscribe(function (e, args) {
+      CreateAddlHeaderRow();
+    });
     
-    for (var i = 0; i < columns.length; i++) {
-      m = columns[i];
-      if (lastColumnGroup === m.columnGroup && i>0) {
-        widthTotal += m.width;
-        header.width(widthTotal - headerColumnWidthDiff)
-      } else {
-          widthTotal = m.width;
-          header = $("<div class='ui-state-default slick-header-column' />")
-            .html("<span class='slick-column-name'>" + (m.columnGroup || '') + "</span>")
-            .width(m.width - headerColumnWidthDiff)
-            .appendTo($preHeaderPanel);
-      }
-      lastColumnGroup = m.columnGroup;
-    }
+    CreateAddlHeaderRow();
     
     // Initialise data
     dataView.beginUpdate();
