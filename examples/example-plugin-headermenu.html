@@ -114,6 +114,8 @@
     };
   }
 
+  // keep a copy of all column for the array of visible columns
+  var visibleColumns = columns;
 
   var options = {
     enableColumnReorder: false,
@@ -167,8 +169,8 @@
     headerMenuPlugin.onCommand.subscribe(function(e, args) {
 			if(args.command === "hide") {
 				var columnIndex = grid.getColumnIndex(args.column.id);
-				var visibleColumns = removeColumnByIndex(columns, columnIndex);
-				grid.setColumns(visibleColumns);
+        visibleColumns = removeColumnByIndex(visibleColumns, columnIndex);
+        grid.setColumns(visibleColumns);
 			}else if(args.command === "sort-asc" || args.command === "sort-desc") {
         // get previously sorted columns
         // getSortColumns() only returns sortAsc & columnId, we want the entire column definition
