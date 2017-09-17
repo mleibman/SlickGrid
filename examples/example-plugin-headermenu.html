@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
   <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
   <link rel="stylesheet" href="../plugins/slick.headermenu.css" type="text/css"/>
+  <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
   <style>
     /**
@@ -68,13 +69,15 @@
 <script src="../slick.core.js"></script>
 <script src="../slick.grid.js"></script>
 <script src="../plugins/slick.headermenu.js"></script>
+<script src="../controls/slick.columnpicker.js"></script>
 
 <script>
+  var data = [];
   var grid;
   var columns = [
     {id: "title", name: "Title", field: "title"},
-    {id: "duration", name: "Duration", field: "duration"},
-    {id: "%", name: "% Complete", field: "percentComplete"},
+    {id: "duration", name: "Duration", field: "duration", sortable: true},
+    {id: "%", name: "% Complete", field: "percentComplete", sortable: true},
     {id: "start", name: "Start", field: "start"},
     {id: "finish", name: "Finish", field: "finish"},
     {id: "effort-driven", name: "Effort Driven", field: "effortDriven"}
@@ -87,17 +90,18 @@
           {
             iconImage: "../images/sort-asc.gif",
             title: "Sort Ascending",
+            disabled: !columns[i].sortable,
             command: "sort-asc"
           },
           {
             iconImage: "../images/sort-desc.gif",
             title: "Sort Descending",
+            disabled: !columns[i].sortable,
             command: "sort-desc"
           },
           {
             title: "Hide Column",
             command: "hide",
-            disabled: true,
             tooltip: "Can't hide this column"
           },
           {
@@ -112,15 +116,39 @@
 
 
   var options = {
-    enableColumnReorder: false
+    enableColumnReorder: false,
+    multiColumnSort: true
+  };
+
+  var executeSort = function(cols) {
+		data.sort(function (dataRow1, dataRow2) {
+        for (var i = 0, l = cols.length; i < l; i++) {
+          var field = cols[i].sortCol.field;
+          var sign = cols[i].sortAsc ? 1 : -1;
+          var value1 = dataRow1[field], value2 = dataRow2[field];
+          var result = (value1 == value2 ? 0 : (value1 > value2 ? 1 : -1)) * sign;
+          if (result != 0) {
+            return result;
+          }
+        }
+        return 0;
+      });
+      grid.invalidate();
+      grid.render();
+	};
+
+	var removeColumnByIndex = function(array, index) {
+    return array.filter(function (el, i) {
+      return index !== i;
+    });
   };
 
   $(function () {
-    var data = [];
+    data = [];
     for (var i = 0; i < 500; i++) {
       data[i] = {
         title: "Task " + i,
-        duration: "5 days",
+        duration: Math.round(Math.random() * 25) + " days",
         percentComplete: Math.round(Math.random() * 100),
         start: "01/01/2009",
         finish: "01/05/2009",
@@ -129,22 +157,42 @@
     }
 
     grid = new Slick.Grid("#myGrid", data, columns, options);
-
+    var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
     var headerMenuPlugin = new Slick.Plugins.HeaderMenu({});
 
-    headerMenuPlugin.onBeforeMenuShow.subscribe(function(e, args) {
-      var menu = args.menu;
-
-      // We can add or modify the menu here, or cancel it by returning false.
-      var i = menu.items.length;
-      menu.items.push({
-        title: "Menu item " + i,
-        command: "item" + i
-      });
-    });
+    grid.onSort.subscribe(function (e, args) {
+      executeSort(args.sortCols);
+		});
 
     headerMenuPlugin.onCommand.subscribe(function(e, args) {
-      alert("Command: " + args.command);
+			if(args.command === "hide") {
+				var columnIndex = grid.getColumnIndex(args.column.id);
+				var visibleColumns = removeColumnByIndex(columns, columnIndex);
+				grid.setColumns(visibleColumns);
+			}else if(args.command === "sort-asc" || args.command === "sort-desc") {
+        // get previously sorted columns
+        // getSortColumns() only returns sortAsc & columnId, we want the entire column definition
+        var oldSortColumns = grid.getSortColumns();
+        var cols = $.map(oldSortColumns, function(col) {
+          // get the column definition but only keep column which are not equal to our current column
+          if(col.columnId !== args.column.id) {
+            return {sortCol: columns[grid.getColumnIndex(col.columnId)], sortAsc: col.sortAsc };
+          }
+				});
+
+        // add to the column array, the column sorted by the header menu
+				var isSortedAsc = (args.command === "sort-asc");
+				cols.push({ sortAsc: isSortedAsc, sortCol: args.column });
+
+				// update the grid sortColumns array which will at the same add the visual sort icon(s) on the UI
+				newSortColumns = $.map(cols, function(col) {
+					return {columnId: col.sortCol.id, sortAsc: col.sortAsc };
+				});
+				grid.setSortColumns(newSortColumns);
+				executeSort(cols);
+			}else {
+				alert("Command: " + args.command);
+			}
     });
 
     grid.registerPlugin(headerMenuPlugin);
