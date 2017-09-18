@@ -210,8 +210,13 @@
     };
 
     this.serializeValue = function () {
-      var rtn = parseFloat($input.val()) || 0;
-
+      var rtn = parseFloat($input.val());
+      if (FloatEditor.AllowEmptyValue) {
+        if (!rtn && rtn !==0) { rtn = ''; }
+      } else {
+        rtn |= 0;
+      }
+      
       var decPlaces = getDecimalPlaces();
       if (decPlaces !== null
       && (rtn || rtn===0)
@@ -255,6 +260,7 @@
   }
 
   FloatEditor.DefaultDecimalPlaces = null;
+  FloatEditor.AllowEmptyValue = false;
 
   function DateEditor(args) {
     var $input;
