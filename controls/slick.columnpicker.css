@@ -7,6 +7,24 @@
   box-shadow: 2px 2px 2px silver;
   min-width: 100px;
   cursor: default;
+  position:absolute;
+  z-index:20;
+
+  width: 200px;
+  max-height: 300px;
+	overflow:auto;
+  resize: both;
+}
+
+.slick-columnpicker > .close {
+  float: right;
+}
+
+.slick-columnpicker .title {
+  font-size: 16px;
+  width: 60%;
+  border-bottom: solid 1px #d6d6d6;
+  margin-bottom: 10px;
 }
 
 .slick-columnpicker li {
