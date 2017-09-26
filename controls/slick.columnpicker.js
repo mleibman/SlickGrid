@@ -22,16 +22,11 @@
         $title.appendTo($menu);
       }
 
-      // hide if is not withing the picker div or if user click on the close button
-      $(document).on("click.columnpicker", function(e) {
-        var $parent = $(e.target).closest("div.slick-columnpicker");
-        if((e.target.className != "slick-columnpicker" && $parent.length === 0) || e.target.className == "close") {
-          $("div.slick-columnpicker").hide(options.fadeSpeed);
-        }
-      });
-      
       $menu.on("click", updateColumn);
       $list = $("<span class='slick-columnpicker-list' />");
+
+      // Hide the menu on outside click.
+      $(document.body).on("mousedown", handleBodyMouseDown);
 
       // destroy the picker if user leaves the page
       $(window).on("beforeunload", destroy);
@@ -40,9 +35,15 @@
     function destroy() {
       grid.onHeaderContextMenu.unsubscribe(handleHeaderContextMenu);
       grid.onColumnsReordered.unsubscribe(updateColumnOrder);
-      $(document).off("click.columnpicker");
+      $(document.body).off("mousedown", handleBodyMouseDown);
       $("div.slick-columnpicker").hide(options.fadeSpeed);
       $menu.remove();
+    }
+
+    function handleBodyMouseDown(e) {
+      if (($menu && $menu[0] != e.target && !$.contains($menu[0], e.target)) || e.target.className == "close") {
+        $menu.hide(options.fadeSpeed);
+      }
     }
 
     function handleHeaderContextMenu(e, args) {
