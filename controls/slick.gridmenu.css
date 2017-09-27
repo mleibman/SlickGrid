@@ -13,17 +13,17 @@
   resize: both;
 }
 
-.slick-gridmenu-button > input {
+.slick-gridmenu-button > button {
   position: absolute;
   cursor: pointer;
-  right: 3px;
+  right: 0;
+  padding: 0 2px;
   top: 0;
-  background-image: url(../images/drag-handle.png);
-  background-repeat: no-repeat;
   background-color: transparent;
   cursor: pointer;
   border: 0;
   margin-top: 5px;
+  width: 16px;
 }
 
 .slick-gridmenu > .close {
@@ -93,8 +93,8 @@
 
 .slick-gridmenu-icon {
   display: inline-block;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   vertical-align: middle;
   margin-right: 4px;
   background-repeat: no-repeat;

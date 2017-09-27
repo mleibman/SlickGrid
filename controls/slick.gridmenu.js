@@ -113,7 +113,7 @@
         $toppanel.width($toppanel.width() - gridMenuWidth);
       }
 
-      $button = $('<span class="slick-gridmenu-button"><input type="button"/></span>');
+      $button = $('<span class="slick-gridmenu-button"><button><img src="../images/drag-handle.png"/></button></span>');
       $button.insertBefore($header);
 
       $menu = $('<div class="slick-gridmenu" style="display: none" />').appendTo(document.body);
