@@ -13,7 +13,7 @@
   resize: both;
 }
 
-.slick-gridmenu-button > button {
+.slick-gridmenu-button {
   position: absolute;
   cursor: pointer;
   right: 0;

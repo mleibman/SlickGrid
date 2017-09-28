@@ -76,9 +76,15 @@
     showHeaderRow: true,
     headerRowHeight: 30,
     explicitInitialization: true,
+
+    // gridMenu Object is optional
+    // when not passed, it will act as a regular Column Picker (with default Grid Menu image of drag-handle.png)
     gridMenu: {
       customTitle: "Custom Menus",
       columnTitle: "Columns",
+      // iconImage: "../images/drag-handle.png", // this is the Grid Menu icon (hamburger icon)
+      // iconCssClass: "fa fa-bars",    // you can provide iconImage OR iconCssClass
+      // menuWidth: 18,                 // width that will be use to resize the column header container (18 by default)
       resizeOnShowHeaderRow: true,
       customItems: [
         {
