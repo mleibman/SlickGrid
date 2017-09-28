@@ -15,6 +15,7 @@
    *      columnTitle: "Columns",
    *      iconImage: "../images/drag-handle.png",   // this is the Grid Menu icon (hamburger icon)
    *      iconCssClass: "fa fa-bars",               // you can provide iconImage OR iconCssClass
+   *      leaveOpen: false,                         // do we want to leave the Grid Menu open after a command execution? (false by default)
    *      menuWidth: 18,                            // width that will be use to resize the column header container (18 by default)
    *      resizeOnShowHeaderRow: true,              // true by default
    *      resizeOnShowTopPanel: true,               // true by default
@@ -289,7 +290,11 @@
           return;
         }
 
-        hideMenu();
+        // does the user want to leave open the Grid Menu after executing a command?
+        var leaveOpen = (_options.gridMenu && _options.gridMenu.leaveOpen) ? true : false;
+        if(!leaveOpen) {
+          hideMenu();
+        }
 
         if (command != null && command != '') {
           _self.onCommand.notify({
