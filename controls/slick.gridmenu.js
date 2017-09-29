@@ -8,6 +8,8 @@
    * To specify a menu in a column header, extend the column definition like so:
    * var gridMenuControl = new Slick.Controls.GridMenu(columns, grid, options);
    *
+   * Available grid options, by defining a gridMenu object:
+   *
    *  var options = {
    *    enableCellNavigation: true,
    *    gridMenu: {
@@ -18,7 +20,6 @@
    *      leaveOpen: false,                         // do we want to leave the Grid Menu open after a command execution? (false by default)
    *      menuWidth: 18,                            // width that will be use to resize the column header container (18 by default)
    *      resizeOnShowHeaderRow: true,              // true by default
-   *      resizeOnShowTopPanel: true,               // true by default
    *      customItems: [
    *        {
    *          // custom menu item options
@@ -30,13 +31,6 @@
    *    }
    *  };
    *
-   *
-   * Available grid options, by defining a gridMenu object:
-   *    customTitle:            an optional title for the custom menu list
-   *    columnTitle:            an optional title for the column list
-   *    resizeOnShowHeaderRow:  do we want to resize the header row (minus the hamburger icon width)? true by default
-   *    resizeOnShowTopPanel:   do we want to resize the top panel (minus the hamburger icon width)? true by default
-   *    customItems:            list of custom menu items
    *
    * Available custom menu item options:
    *    title:        Menu item text.
@@ -98,20 +92,13 @@
       function init(grid) {
         var gridMenuWidth = (_options.gridMenu && _options.gridMenu.menuWidth) || 18;
         $header = $('.slick-header');
-        $header.width($header.width() - gridMenuWidth);
+        $header.attr('style', 'width: calc(100% - ' + gridMenuWidth +'px)');
 
         // if header row is enabled, we need to resize it's width also
-        var enableResizeHeaderRow = (_options.gridMenu && _options.gridMenu.resizeOnShowHeaderRow) ? _options.gridMenu.resizeOnShowHeaderRow : _options.showHeaderRow;
-        if(_options.showHeaderRow && enableResizeHeaderRow) {
+        var enableResizeHeaderRow = (_options.gridMenu && _options.gridMenu.resizeOnShowHeaderRow != undefined) ? _options.gridMenu.resizeOnShowHeaderRow : true;
+        if(enableResizeHeaderRow) {
           $headerrow = $('.slick-headerrow');
-          $headerrow.width($headerrow.width() - gridMenuWidth);
-        }
-
-        // if top panel is enabled, we need to resize width also
-        var enableResizeTopPanel = (_options.gridMenu && _options.gridMenu.resizeOnShowTopPanel) ? _options.gridMenu.resizeOnShowTopPanel : _options.showTopPanel;
-        if(_options.showTopPanel && enableResizeTopPanel) {
-          $toppanel = $('.slick-top-panel');
-          $toppanel.width($toppanel.width() - gridMenuWidth);
+          $headerrow.attr('style', 'width: calc(100% - ' + gridMenuWidth +'px)');
         }
 
         $button = $('<button class="slick-gridmenu-button"/>');
