@@ -84,18 +84,19 @@
       var $list;
       var $menu;
       var columnCheckboxes;
-
-      var defaults = {
-        fadeSpeed: 250
+      var _defaults = {
+        fadeSpeed: 250,
+        menuWidth: 18,
+        resizeOnShowHeaderRow: true
       };
 
       function init(grid) {
-        var gridMenuWidth = (_options.gridMenu && _options.gridMenu.menuWidth) || 18;
+        var gridMenuWidth = (_options.gridMenu && _options.gridMenu.menuWidth) || _defaults.menuWidth;
         $header = $('.slick-header');
         $header.attr('style', 'width: calc(100% - ' + gridMenuWidth +'px)');
 
         // if header row is enabled, we need to resize it's width also
-        var enableResizeHeaderRow = (_options.gridMenu && _options.gridMenu.resizeOnShowHeaderRow != undefined) ? _options.gridMenu.resizeOnShowHeaderRow : true;
+        var enableResizeHeaderRow = (_options.gridMenu && _options.gridMenu.resizeOnShowHeaderRow != undefined) ? _options.gridMenu.resizeOnShowHeaderRow : _defaults.resizeOnShowHeaderRow;
         if(enableResizeHeaderRow) {
           $headerrow = $('.slick-headerrow');
           $headerrow.attr('style', 'width: calc(100% - ' + gridMenuWidth +'px)');
@@ -185,7 +186,7 @@
       /** Build the column picker, the code comes almost untouched from the file "slick.columnpicker.js" */
       function populateColumnPicker() {
         _grid.onColumnsReordered.subscribe(updateColumnOrder);
-        _options = $.extend({}, defaults, _options);
+        _options = $.extend({}, _defaults, _options);
 
         // user could pass a title on top of the columns list
         if(_options.gridMenu && _options.gridMenu.columnTitle) {
