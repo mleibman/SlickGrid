@@ -317,6 +317,8 @@ $(function () {
   var pager = new Slick.Controls.Pager(dataView, grid, $("#pager"));
   var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
 
+  dataView.syncGridSelection(grid, true, true);
+    
   grid.onSort.subscribe(function (e, args) {
     sortdir = args.sortAsc ? 1 : -1;
     sortcol = args.sortCol.field;
@@ -350,13 +352,11 @@ $(function () {
   dataView.onRowCountChanged.subscribe(function (e, args) {
     grid.updateRowCount();
     grid.render();
-    dataView.syncGridSelection(grid, true, true);
   });
 
   dataView.onRowsChanged.subscribe(function (e, args) {
     grid.invalidateRows(args.rows);
     grid.render();
-    dataView.syncGridSelection(grid, true, true);
   });
 
 
