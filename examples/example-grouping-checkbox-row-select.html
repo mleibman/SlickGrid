@@ -350,11 +350,13 @@ $(function () {
   dataView.onRowCountChanged.subscribe(function (e, args) {
     grid.updateRowCount();
     grid.render();
+    dataView.syncGridSelection(grid, true, true);
   });
 
   dataView.onRowsChanged.subscribe(function (e, args) {
     grid.invalidateRows(args.rows);
     grid.render();
+    dataView.syncGridSelection(grid, true, true);
   });
 
 
