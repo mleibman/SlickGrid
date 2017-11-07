@@ -67,6 +67,8 @@
    * @constructor
    */
 
+  'use strict';
+
   (function ($) {
     // register namespace
     $.extend(true, window, {
@@ -87,40 +89,40 @@
       var _defaults = {
         fadeSpeed: 250,
         menuWidth: 18,
-        resizeOnShowHeaderRow: true
+        resizeOnShowHeaderRow: false
       };
 
       function init(grid) {
         var gridMenuWidth = (_options.gridMenu && _options.gridMenu.menuWidth) || _defaults.menuWidth;
-        $header = $('.slick-header');
+        var $header = $('.slick-header');
         $header.attr('style', 'width: calc(100% - ' + gridMenuWidth +'px)');
 
         // if header row is enabled, we need to resize it's width also
         var enableResizeHeaderRow = (_options.gridMenu && _options.gridMenu.resizeOnShowHeaderRow != undefined) ? _options.gridMenu.resizeOnShowHeaderRow : _defaults.resizeOnShowHeaderRow;
         if(enableResizeHeaderRow) {
-          $headerrow = $('.slick-headerrow');
+          var $headerrow = $('.slick-headerrow');
           $headerrow.attr('style', 'width: calc(100% - ' + gridMenuWidth +'px)');
         }
 
-        $button = $('<button class="slick-gridmenu-button"/>');
+        var $button = $('<button class="slick-gridmenu-button"/>');
         if (_options.gridMenu && _options.gridMenu.iconCssClass) {
           $button.addClass(_options.gridMenu.iconCssClass);
         } else {
           var iconImage = (_options.gridMenu && _options.gridMenu.iconImage) ? _options.gridMenu.iconImage :"../images/drag-handle.png";
-          $btnImage = $('<img src="' + iconImage + '"/>');
+          var $btnImage = $('<img src="' + iconImage + '"/>');
           $btnImage.appendTo($button);
         }
         $button.insertBefore($header);
 
         $menu = $('<div class="slick-gridmenu" style="display: none" />').appendTo(document.body);
-        $close = $('<button type="button" class="close" data-dismiss="slick-gridmenu" aria-label="Close"><span class="close" aria-hidden="true">&times;</span></button>').appendTo($menu);
+        var $close = $('<button type="button" class="close" data-dismiss="slick-gridmenu" aria-label="Close"><span class="close" aria-hidden="true">&times;</span></button>').appendTo($menu);
 
-        $customMenu = $('<div class="slick-gridmenu-custom" />');
+        var $customMenu = $('<div class="slick-gridmenu-custom" />');
         $customMenu.appendTo($menu);
 
         // user could pass a title on top of the custom section
         if(_options.gridMenu && _options.gridMenu.customTitle) {
-          $title = $('<div class="title"/>').append(_options.gridMenu.customTitle);
+          var $title = $('<div class="title"/>').append(_options.gridMenu.customTitle);
           $title.appendTo($customMenu);
         }
 
@@ -177,7 +179,7 @@
             $icon.css("background-image", "url(" + item.iconImage + ")");
           }
 
-          $content = $("<span class='slick-gridmenu-content'></span>")
+          var $content = $("<span class='slick-gridmenu-content'></span>")
             .text(item.title)
             .appendTo($li);
         }
@@ -190,7 +192,7 @@
 
         // user could pass a title on top of the columns list
         if(_options.gridMenu && _options.gridMenu.columnTitle) {
-          $title = $('<div class="title"/>').append(_options.gridMenu.columnTitle);
+          var $title = $('<div class="title"/>').append(_options.gridMenu.columnTitle);
           $title.appendTo($menu);
         }
 
