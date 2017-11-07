@@ -1,3 +1,5 @@
+'use strict';
+
 (function ($) {
   function SlickColumnPicker(columns, grid, options) {
     var $list;
@@ -14,11 +16,11 @@
       options = $.extend({}, defaults, options);
 
       $menu = $("<div class='slick-columnpicker' style='display:none' />").appendTo(document.body);
-      $close = $("<button type='button' class='close' data-dismiss='slick-columnpicker' aria-label='Close'><span class='close' aria-hidden='true'>&times;</span></button>").appendTo($menu);
+      var $close = $("<button type='button' class='close' data-dismiss='slick-columnpicker' aria-label='Close'><span class='close' aria-hidden='true'>&times;</span></button>").appendTo($menu);
 
       // user could pass a title on top of the columns list
       if(options.columnPickerTitle) {
-        $title = $("<div class='title'/>").append(options.columnPickerTitle);
+        var $title = $("<div class='title'/>").append(options.columnPickerTitle);
         $title.appendTo($menu);
       }
 

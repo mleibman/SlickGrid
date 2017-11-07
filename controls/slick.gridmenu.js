@@ -49,6 +49,12 @@
    *            column:   Column definition.
    *            menu:     Menu options.  Note that you can change the menu items here.
    *
+   *    onMenuClose:      Fired when the menu is closing.
+   *        Event args:
+   *            grid:     Reference to the grid.
+   *            column:   Column definition.
+   *            menu:     Menu options.  Note that you can change the menu items here.
+   *
    *    onCommand:    Fired on menu item click for buttons with 'command' specified.
    *        Event args:
    *            grid:     Reference to the grid.
@@ -67,6 +73,8 @@
    * @constructor
    */
 
+  'use strict';
+
   (function ($) {
     // register namespace
     $.extend(true, window, {
@@ -79,6 +87,7 @@
 
     function SlickGridMenu(columns, grid, options) {
       var _grid = grid;
+      var _isMenuOpen = false;
       var _options = options;
       var _self = this;
       var $list;
@@ -87,40 +96,40 @@
       var _defaults = {
         fadeSpeed: 250,
         menuWidth: 18,
-        resizeOnShowHeaderRow: true
+        resizeOnShowHeaderRow: false
       };
 
       function init(grid) {
         var gridMenuWidth = (_options.gridMenu && _options.gridMenu.menuWidth) || _defaults.menuWidth;
-        $header = $('.slick-header');
+        var $header = $('.slick-header');
         $header.attr('style', 'width: calc(100% - ' + gridMenuWidth +'px)');
 
         // if header row is enabled, we need to resize it's width also
         var enableResizeHeaderRow = (_options.gridMenu && _options.gridMenu.resizeOnShowHeaderRow != undefined) ? _options.gridMenu.resizeOnShowHeaderRow : _defaults.resizeOnShowHeaderRow;
         if(enableResizeHeaderRow) {
-          $headerrow = $('.slick-headerrow');
+          var $headerrow = $('.slick-headerrow');
           $headerrow.attr('style', 'width: calc(100% - ' + gridMenuWidth +'px)');
         }
 
-        $button = $('<button class="slick-gridmenu-button"/>');
+        var $button = $('<button class="slick-gridmenu-button"/>');
         if (_options.gridMenu && _options.gridMenu.iconCssClass) {
           $button.addClass(_options.gridMenu.iconCssClass);
         } else {
           var iconImage = (_options.gridMenu && _options.gridMenu.iconImage) ? _options.gridMenu.iconImage :"../images/drag-handle.png";
-          $btnImage = $('<img src="' + iconImage + '"/>');
+          var $btnImage = $('<img src="' + iconImage + '"/>');
           $btnImage.appendTo($button);
         }
         $button.insertBefore($header);
 
         $menu = $('<div class="slick-gridmenu" style="display: none" />').appendTo(document.body);
-        $close = $('<button type="button" class="close" data-dismiss="slick-gridmenu" aria-label="Close"><span class="close" aria-hidden="true">&times;</span></button>').appendTo($menu);
+        var $close = $('<button type="button" class="close" data-dismiss="slick-gridmenu" aria-label="Close"><span class="close" aria-hidden="true">&times;</span></button>').appendTo($menu);
 
-        $customMenu = $('<div class="slick-gridmenu-custom" />');
+        var $customMenu = $('<div class="slick-gridmenu-custom" />');
         $customMenu.appendTo($menu);
 
         // user could pass a title on top of the custom section
         if(_options.gridMenu && _options.gridMenu.customTitle) {
-          $title = $('<div class="title"/>').append(_options.gridMenu.customTitle);
+          var $title = $('<div class="title"/>').append(_options.gridMenu.customTitle);
           $title.appendTo($customMenu);
         }
 
@@ -177,7 +186,7 @@
             $icon.css("background-image", "url(" + item.iconImage + ")");
           }
 
-          $content = $("<span class='slick-gridmenu-content'></span>")
+          var $content = $("<span class='slick-gridmenu-content'></span>")
             .text(item.title)
             .appendTo($li);
         }
@@ -190,7 +199,7 @@
 
         // user could pass a title on top of the columns list
         if(_options.gridMenu && _options.gridMenu.columnTitle) {
-          $title = $('<div class="title"/>').append(_options.gridMenu.columnTitle);
+          var $title = $('<div class="title"/>').append(_options.gridMenu.columnTitle);
           $title.appendTo($menu);
         }
 
@@ -265,8 +274,10 @@
       }
 
       function handleBodyMouseDown(e) {
-        if (($menu && $menu[0] != e.target && !$.contains($menu[0], e.target)) || e.target.className == "close") {
-          hideMenu();
+        if (($menu && $menu[0] != e.target && !$.contains($menu[0], e.target) && _isMenuOpen) || e.target.className == "close") {
+          hideMenu(e);
+        } else {
+          _isMenuOpen = true;
         }
       }
 
@@ -281,7 +292,7 @@
         // does the user want to leave open the Grid Menu after executing a command?
         var leaveOpen = (_options.gridMenu && _options.gridMenu.leaveOpen) ? true : false;
         if(!leaveOpen) {
-          hideMenu();
+          hideMenu(e);
         }
 
         if (command != null && command != '') {
@@ -297,9 +308,17 @@
         e.stopPropagation();
       }
 
-      function hideMenu() {
+      function hideMenu(e) {
         if ($menu) {
           $menu.hide(_options.fadeSpeed);
+          _isMenuOpen = false;
+
+          if (_self.onMenuClose.notify({
+            "grid": _grid,
+            "menu": $menu
+          }, e, _self) == false) {
+            return;
+          }
         }
       }
 
@@ -374,6 +393,7 @@
         "destroy": destroy,
         "showGridMenu": showGridMenu,
         "onBeforeMenuShow": new Slick.Event(),
+        "onMenuClose": new Slick.Event(),
         "onCommand": new Slick.Event()
       });
     }
