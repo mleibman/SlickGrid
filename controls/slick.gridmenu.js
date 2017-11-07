@@ -49,6 +49,12 @@
    *            column:   Column definition.
    *            menu:     Menu options.  Note that you can change the menu items here.
    *
+   *    onMenuClose:      Fired when the menu is closing.
+   *        Event args:
+   *            grid:     Reference to the grid.
+   *            column:   Column definition.
+   *            menu:     Menu options.  Note that you can change the menu items here.
+   *
    *    onCommand:    Fired on menu item click for buttons with 'command' specified.
    *        Event args:
    *            grid:     Reference to the grid.
@@ -81,6 +87,7 @@
 
     function SlickGridMenu(columns, grid, options) {
       var _grid = grid;
+      var _isMenuOpen = false;
       var _options = options;
       var _self = this;
       var $list;
@@ -267,8 +274,10 @@
       }
 
       function handleBodyMouseDown(e) {
-        if (($menu && $menu[0] != e.target && !$.contains($menu[0], e.target)) || e.target.className == "close") {
-          hideMenu();
+        if (($menu && $menu[0] != e.target && !$.contains($menu[0], e.target) && _isMenuOpen) || e.target.className == "close") {
+          hideMenu(e);
+        } else {
+          _isMenuOpen = true;
         }
       }
 
@@ -283,7 +292,7 @@
         // does the user want to leave open the Grid Menu after executing a command?
         var leaveOpen = (_options.gridMenu && _options.gridMenu.leaveOpen) ? true : false;
         if(!leaveOpen) {
-          hideMenu();
+          hideMenu(e);
         }
 
         if (command != null && command != '') {
@@ -299,9 +308,17 @@
         e.stopPropagation();
       }
 
-      function hideMenu() {
+      function hideMenu(e) {
         if ($menu) {
           $menu.hide(_options.fadeSpeed);
+          _isMenuOpen = false;
+
+          if (_self.onMenuClose.notify({
+            "grid": _grid,
+            "menu": $menu
+          }, e, _self) == false) {
+            return;
+          }
         }
       }
 
@@ -376,6 +393,7 @@
         "destroy": destroy,
         "showGridMenu": showGridMenu,
         "onBeforeMenuShow": new Slick.Event(),
+        "onMenuClose": new Slick.Event(),
         "onCommand": new Slick.Event()
       });
     }

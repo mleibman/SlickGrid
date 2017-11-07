@@ -216,6 +216,11 @@
       }
     });
 
+    // subscribe to event when menu is closing
+    gridMenuControl.onMenuClose.subscribe(function(e, args) {
+      console.log('Menu is closing');
+    });
+
   })
 </script>
 </body>
