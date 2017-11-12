@@ -3827,7 +3827,8 @@ if (typeof Slick === "undefined") {
       "getHeadersWidth": getHeadersWidth,
       "getCanvasWidth": getCanvasWidth,
       "focus": setFocus,
-
+      "scrollTo": scrollTo,
+      
       "getCellFromPoint": getCellFromPoint,
       "getCellFromEvent": getCellFromEvent,
       "getActiveCell": getActiveCell,
