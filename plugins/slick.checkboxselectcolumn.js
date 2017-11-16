@@ -177,11 +177,11 @@
     }
 
     function createUID() {
-      return Math.round(1000000 * Math.random());
+      return Math.round(10000000 * Math.random());
     }
 
     function checkboxSelectionFormatter(row, cell, value, columnDef, dataContext) {
-      var UID = createUID();
+      var UID = createUID() + row;
 
       if (dataContext) {
         return _selectedRowsLookup[row]
