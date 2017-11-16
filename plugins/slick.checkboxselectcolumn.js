@@ -52,9 +52,9 @@
       _grid.render();
 
       if (selectedRows.length && selectedRows.length == _grid.getDataLength()) {
-        _grid.updateColumnHeader(_options.columnId, "<input type='checkbox' checked='checked'>", _options.toolTip);
+        _grid.updateColumnHeader(_options.columnId, "<input id='header-selector' type='checkbox' checked='checked'><label for='header-selector'></label>", _options.toolTip);
       } else {
-        _grid.updateColumnHeader(_options.columnId, "<input type='checkbox'>", _options.toolTip);
+        _grid.updateColumnHeader(_options.columnId, "<input id='header-selector' type='checkbox'><label for='header-selector'></label>", _options.toolTip);
       }
     }
 
@@ -162,7 +162,7 @@
     function getColumnDefinition() {
       return {
         id: _options.columnId,
-        name: "<input type='checkbox'>",
+        name: "<input id='header-selector' type='checkbox'><label for='header-selector'></label>",
         toolTip: _options.toolTip,
         field: "sel",
         width: _options.width,
