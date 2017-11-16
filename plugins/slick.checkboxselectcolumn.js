@@ -35,6 +35,7 @@
     }
 
     function handleSelectedRowsChanged(e, args) {
+      var UID = createUID();
       var selectedRows = _grid.getSelectedRows();
       var lookup = {}, row, i;
       for (i = 0; i < selectedRows.length; i++) {
@@ -52,9 +53,9 @@
       _grid.render();
 
       if (selectedRows.length && selectedRows.length == _grid.getDataLength()) {
-        _grid.updateColumnHeader(_options.columnId, "<input id='header-selector' type='checkbox' checked='checked'><label for='header-selector'></label>", _options.toolTip);
+        _grid.updateColumnHeader(_options.columnId, "<input id='header-selector" + UID + "' type='checkbox' checked='checked'><label for='header-selector" + UID + "'></label>", _options.toolTip);
       } else {
-        _grid.updateColumnHeader(_options.columnId, "<input id='header-selector' type='checkbox'><label for='header-selector'></label>", _options.toolTip);
+        _grid.updateColumnHeader(_options.columnId, "<input id='header-selector" + UID + "' type='checkbox'><label for='header-selector" + UID + "'></label>", _options.toolTip);
       }
     }
 
@@ -160,9 +161,11 @@
     }
 
     function getColumnDefinition() {
+      var UID = createUID();
+
       return {
         id: _options.columnId,
-        name: "<input id='header-selector' type='checkbox'><label for='header-selector'></label>",
+        name: "<input id='header-selector" + UID + "' type='checkbox'><label for='header-selector" + UID + "'></label>",
         toolTip: _options.toolTip,
         field: "sel",
         width: _options.width,
@@ -173,11 +176,17 @@
       };
     }
 
+    function createUID() {
+      return Math.round(1000000 * Math.random());
+    }
+
     function checkboxSelectionFormatter(row, cell, value, columnDef, dataContext) {
+      var UID = createUID();
+
       if (dataContext) {
         return _selectedRowsLookup[row]
-            ? "<input id='selector" + row + "' type='checkbox' checked='checked'><label for='selector" + row + "'></label>"
-            : "<input id='selector" + row + "' type='checkbox'><label for='selector" + row + "'></label>";
+            ? "<input id='selector" + UID + "' type='checkbox' checked='checked'><label for='selector" + UID + "'></label>"
+            : "<input id='selector" + UID + "' type='checkbox'><label for='selector" + UID + "'></label>";
       }
       return null;
     }
