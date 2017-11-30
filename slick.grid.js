@@ -2615,6 +2615,21 @@ if (typeof Slick === "undefined") {
       var keyCode = Slick.keyCode;
 
       if (!handled) {
+         if (!e.shiftKey && !e.altKey) {
+            if (options.editable && currentEditor && currentEditor.keyCaptureList) {
+               if (currentEditor.keyCaptureList.indexOf(e.which) > -1) {
+                  return;
+               }
+            }
+            if (e.which == keyCode.HOME) {
+               console.log("PRESSED HOME");
+               handled = (e.ctrlKey) ? navigateTop() : navigateRowStart();
+            } else if (e.which == keyCode.END) {
+               handled = (e.ctrlKey) ? navigateBottom() : navigateRowEnd();
+            }
+         }
+      }
+      if (!handled) {
         if (!e.shiftKey && !e.altKey && !e.ctrlKey) {
           // editor may specify an array of keys to bubble
           if (options.editable && currentEditor && currentEditor.keyCaptureList) {
@@ -3229,7 +3244,29 @@ if (typeof Slick === "undefined") {
     }
 
     function navigatePageUp() {
-      scrollPage(-1);
+       scrollPage(-1);
+    }
+
+    function navigateTop() {
+       navigateToRow(0);
+    }
+
+    function navigateBottom() {
+       navigateToRow(getDataLength()-1);
+    }
+
+    function navigateToRow(row) {
+       var num_rows = getDataLength();
+       if (!num_rows) return true;
+
+       if (row < 0) row = 0;
+       else if (row >= num_rows) row = num_rows - 1;
+
+       scrollCellIntoView(row, 0, true);
+       if (options.enableCellNavigation && activeRow != null) {
+          resetActiveCell();
+       }
+       return true;
     }
 
     function getColspan(row, cell) {
@@ -3440,6 +3477,28 @@ if (typeof Slick === "undefined") {
       return pos;
     }
 
+    function gotoRowStart(row, cell, posX) {
+       var newCell = findFirstFocusableCell(row);
+       if (newCell === null) return null;
+
+       return {
+          "row": row,
+          "cell": newCell,
+          "posX": posX
+       };
+    }
+
+    function gotoRowEnd(row, cell, posX) {
+       var newCell = findLastFocusableCell(row);
+       if (newCell === null) return null;
+
+       return {
+          "row": row,
+          "cell": newCell,
+          "posX": posX
+       };
+    }
+
     function navigateRight() {
       return navigate("right");
     }
@@ -3461,7 +3520,15 @@ if (typeof Slick === "undefined") {
     }
 
     function navigatePrev() {
-      return navigate("prev");
+       return navigate("prev");
+    }
+
+    function navigateRowStart() {
+       return navigate("home");
+    }
+
+    function navigateRowEnd() {
+       return navigate("end");
     }
 
     /**
@@ -3488,7 +3555,9 @@ if (typeof Slick === "undefined") {
         "left": -1,
         "right": 1,
         "prev": -1,
-        "next": 1
+        "next": 1,
+        "home": -1,
+        "end": 1
       };
       tabbingDirection = tabbingDirections[dir];
 
@@ -3498,7 +3567,9 @@ if (typeof Slick === "undefined") {
         "left": gotoLeft,
         "right": gotoRight,
         "prev": gotoPrev,
-        "next": gotoNext
+        "next": gotoNext,
+        "home": gotoRowStart,
+        "end": gotoRowEnd
       };
       var stepFn = stepFunctions[dir];
       var pos = stepFn(activeRow, activeCell, activePosX);
@@ -3850,6 +3921,10 @@ if (typeof Slick === "undefined") {
       "navigateRight": navigateRight,
       "navigatePageUp": navigatePageUp,
       "navigatePageDown": navigatePageDown,
+      "navigateTop": navigateTop,
+      "navigateBottom": navigateBottom,
+      "navigateRowStart": navigateRowStart,
+      "navigateRowEnd": navigateRowEnd,
       "gotoCell": gotoCell,
       "getTopPanel": getTopPanel,
       "setTopPanelVisibility": setTopPanelVisibility,
