@@ -1715,9 +1715,12 @@ if (typeof Slick === "undefined") {
         }
       }
 
-      var value = null;
-      if (item) { value = getDataItemValueForColumn(item, m); }
-      var formatterResult =  getFormatter(row, m)(row, cell, value, m, item);
+      var value = null, formatterResult = '';
+      if (item) { 
+        value = getDataItemValueForColumn(item, m);
+        formatterResult =  getFormatter(row, m)(row, cell, value, m, item);
+        if (formatterResult === null || formatterResult === undefined) { formatterResult = ''; }
+      }
       
       // get addl css class names from object type formatter return and from string type return of onBeforeAppendCell
       var addlCssClasses = trigger(self.onBeforeAppendCell, { row: row, cell: cell, grid: self, value: value, dataContext: item }) || '';
