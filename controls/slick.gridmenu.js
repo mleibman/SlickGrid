@@ -13,13 +13,18 @@
    *  var options = {
    *    enableCellNavigation: true,
    *    gridMenu: {
-   *      customTitle: "Custom Menus",
-   *      columnTitle: "Columns",
-   *      iconImage: "../images/drag-handle.png",   // this is the Grid Menu icon (hamburger icon)
-   *      iconCssClass: "fa fa-bars",               // you can provide iconImage OR iconCssClass
-   *      leaveOpen: false,                         // do we want to leave the Grid Menu open after a command execution? (false by default)
-   *      menuWidth: 18,                            // width that will be use to resize the column header container (18 by default)
-   *      resizeOnShowHeaderRow: true,              // true by default
+   *      customTitle: "Custom Menus",                // default to empty string
+   *      columnTitle: "Columns",                     // default to empty string
+   *      iconImage: "../images/drag-handle.png",     // this is the Grid Menu icon (hamburger icon)
+   *      iconCssClass: "fa fa-bars",                 // you can provide iconImage OR iconCssClass
+   *      leaveOpen: false,                           // do we want to leave the Grid Menu open after a command execution? (false by default)
+   *      menuWidth: 18,                              // width that will be use to resize the column header container (18 by default)
+   *      resizeOnShowHeaderRow: true,                // true by default
+   *
+   *      // the last 2 checkboxes titles
+   *      forceFitTitle: "Force fit columns",         // default to "Force fit columns"
+   *      syncResizeTitle: "Synchronous resize",      // default to "Synchronous resize"
+   *
    *      customItems: [
    *        {
    *          // custom menu item options
@@ -95,8 +100,10 @@
       var columnCheckboxes;
       var _defaults = {
         fadeSpeed: 250,
+        forceFitTitle: "Force fit columns",
         menuWidth: 18,
-        resizeOnShowHeaderRow: false
+        resizeOnShowHeaderRow: false,
+        syncResizeTitle: "Synchronous resize"
       };
 
       function init(grid) {
@@ -241,21 +248,23 @@
               .appendTo($li);
         }
 
+        var forceFitTitle = (_options.gridMenu && _options.gridMenu.forceFitTitle) || _defaults.forceFitTitle;
         $("<hr/>").appendTo($list);
         $li = $("<li />").appendTo($list);
         $input = $("<input type='checkbox' />").data("option", "autoresize");
         $("<label />")
-            .text("Force fit columns")
+            .text(forceFitTitle)
             .prepend($input)
             .appendTo($li);
         if (_grid.getOptions().forceFitColumns) {
           $input.attr("checked", "checked");
         }
 
+        var syncResizeTitle = (_options.gridMenu && _options.gridMenu.syncResizeTitle) || _defaults.syncResizeTitle;
         $li = $("<li />").appendTo($list);
         $input = $("<input type='checkbox' />").data("option", "syncresize");
         $("<label />")
-            .text("Synchronous resize")
+            .text(syncResizeTitle)
             .prepend($input)
             .appendTo($li);
         if (_grid.getOptions().syncColumnCellResize) {
