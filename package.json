@@ -1,6 +1,6 @@
 {
   "name": "slickgrid",
-  "version": "2.3.10",
+  "version": "2.3.12",
   "description": "A lightning fast JavaScript grid/spreadsheet",
   "main": "slick.core.js",
   "directories": {
@@ -16,7 +16,9 @@
     "grid"
   ],
   "author": "Michael Leibman <michael.leibman@gmail.com>",
-  "contributors": [ "Ben McIntyre <email.ben.mcintyre@gmail.com>" ],
+  "contributors": [ 
+    "Ben McIntyre <email.ben.mcintyre@gmail.com>" 
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/6pac/SlickGrid/issues"
