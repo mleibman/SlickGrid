@@ -1,3 +1,27 @@
+  /***
+   * A control to add a Column Picker (right+click on any column header to reveal the column picker)
+   *
+   * USAGE:
+   *
+   * Add the slick.columnpicker.(js|css) files and register it with the grid.
+   *
+   * Available options, by defining a columnPicker object:
+   *
+   *  var options = {
+   *    enableCellNavigation: true,
+   *    columnPicker: {
+   *      columnTitle: "Columns",                 // default to empty string
+   *
+   *      // the last 2 checkboxes titles
+   *      forceFitTitle: "Force fit columns",     // default to "Force fit columns"
+   *      syncResizeTitle: "Synchronous resize",  // default to "Synchronous resize"
+   *    }
+   *  };
+   *
+   * @class Slick.Controls.ColumnPicker
+   * @constructor
+   */
+
 'use strict';
 
 (function ($) {
@@ -7,7 +31,11 @@
     var columnCheckboxes;
 
     var defaults = {
-      fadeSpeed: 250
+      fadeSpeed: 250,
+
+      // the last 2 checkboxes titles
+      forceFitTitle: "Force fit columns",
+      syncResizeTitle: "Synchronous resize"
     };
 
     function init() {
@@ -19,8 +47,9 @@
       var $close = $("<button type='button' class='close' data-dismiss='slick-columnpicker' aria-label='Close'><span class='close' aria-hidden='true'>&times;</span></button>").appendTo($menu);
 
       // user could pass a title on top of the columns list
-      if(options.columnPickerTitle) {
-        var $title = $("<div class='title'/>").append(options.columnPickerTitle);
+      if(options.columnPickerTitle || (options.columnPicker && options.columnPicker.columnTitle)) {
+        var columnTitle = options.columnPickerTitle || options.columnPicker.columnTitle;
+        var $title = $("<div class='title'/>").append(columnTitle);
         $title.appendTo($menu);
       }
 
@@ -70,21 +99,23 @@
             .appendTo($li);
       }
 
+      var forceFitTitle = (options.columnPicker && options.columnPicker.forceFitTitle) || defaults.forceFitTitle;
       $("<hr/>").appendTo($list);
       $li = $("<li />").appendTo($list);
       $input = $("<input type='checkbox' />").data("option", "autoresize");
       $("<label />")
-          .text("Force fit columns")
+          .text(forceFitTitle)
           .prepend($input)
           .appendTo($li);
       if (grid.getOptions().forceFitColumns) {
         $input.attr("checked", "checked");
       }
 
+      var syncResizeTitle = (options.columnPicker && options.columnPicker.syncResizeTitle) || defaults.syncResizeTitle;
       $li = $("<li />").appendTo($list);
       $input = $("<input type='checkbox' />").data("option", "syncresize");
       $("<label />")
-          .text("Synchronous resize")
+          .text(syncResizeTitle)
           .prepend($input)
           .appendTo($li);
       if (grid.getOptions().syncColumnCellResize) {
