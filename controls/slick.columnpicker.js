@@ -188,7 +188,7 @@
         }
 
         grid.setColumns(visibleColumns);
-        onColumnsChanged.notify({"columns": visibleColumns});
+        onColumnsChanged.notify({columns: visibleColumns, grid: grid});
       }
     }
 
