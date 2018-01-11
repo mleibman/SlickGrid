@@ -197,6 +197,11 @@
 			}
     });
 
+    // subscribe to event when column visibility is changed via the menu
+    columnpicker.onColumnsChanged.subscribe(function(e, args) {
+      console.log('Columns changed via the menu');
+    });
+
     grid.registerPlugin(headerMenuPlugin);
 
   })
