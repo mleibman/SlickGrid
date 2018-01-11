@@ -387,6 +387,10 @@
           }
 
           _grid.setColumns(visibleColumns);
+          _self.onColumnsChanged.notify({
+              "grid": _grid,
+              "columns": visibleColumns
+            }, e, _self);
         }
       }
 
@@ -403,7 +407,8 @@
         "showGridMenu": showGridMenu,
         "onBeforeMenuShow": new Slick.Event(),
         "onMenuClose": new Slick.Event(),
-        "onCommand": new Slick.Event()
+        "onCommand": new Slick.Event(),
+        "onColumnsChanged": new Slick.Event()
       });
     }
   })(jQuery);
