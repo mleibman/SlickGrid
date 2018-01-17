@@ -142,7 +142,7 @@
       if (pagingInfo.pageSize == 0) {
         $status.text(_options.showAllText.replace('{rowCount}', pagingInfo.totalRows + "").replace('{pageCount}', pagingInfo.totalPages + ""));
       } else {
-        $status.text(_options.showPageText.replace('{pageNum}', pagingInfo.pageNum + "").replace('{pageCount}', pagingInfo.totalPages + ""));
+        $status.text(_options.showPageText.replace('{pageNum}', pagingInfo.pageNum + 1 + "").replace('{pageCount}', pagingInfo.totalPages + ""));
       }
     }
 
