@@ -1600,7 +1600,7 @@ if (typeof Slick === "undefined") {
       }
     }
 
-    function defaultFormatter(row, cell, value, columnDef, dataContext) {
+    function defaultFormatter(row, cell, value, columnDef, dataContext, grid) {
       if (value == null) {
         return "";
       } else {
@@ -1718,7 +1718,7 @@ if (typeof Slick === "undefined") {
       var value = null, formatterResult = '';
       if (item) { 
         value = getDataItemValueForColumn(item, m);
-        formatterResult =  getFormatter(row, m)(row, cell, value, m, item);
+        formatterResult =  getFormatter(row, m)(row, cell, value, m, item, self);
         if (formatterResult === null || formatterResult === undefined) { formatterResult = ''; }
       }
       
@@ -1872,7 +1872,7 @@ if (typeof Slick === "undefined") {
       if (currentEditor && activeRow === row && activeCell === cell) {
         currentEditor.loadValue(d);
       } else {
-        var formatterResult =  d ? getFormatter(row, m)(row, cell, getDataItemValueForColumn(d, m), m, d) : "";
+        var formatterResult =  d ? getFormatter(row, m)(row, cell, getDataItemValueForColumn(d, m), m, d, self) : "";
         applyFormatResultToCellNode(formatterResult, cellNode);
         invalidatePostProcessingResults(row);
       }
@@ -1900,7 +1900,7 @@ if (typeof Slick === "undefined") {
         if (row === activeRow && columnIdx === activeCell && currentEditor) {
           currentEditor.loadValue(d);
         } else if (d) {
-          formatterResult =  getFormatter(row, m)(row, columnIdx, getDataItemValueForColumn(d, m), m, d);
+          formatterResult =  getFormatter(row, m)(row, columnIdx, getDataItemValueForColumn(d, m), m, d, self);
           applyFormatResultToCellNode(formatterResult, node);
         } else {
           node.innerHTML = "";
