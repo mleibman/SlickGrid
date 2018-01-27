@@ -88,6 +88,10 @@
       if (_options.selectActiveCell && args.row != null && args.cell != null) {
         setSelectedRanges([new Slick.Range(args.row, args.cell)]);
       }
+      else if (!_options.selectActiveCell) {
+        // clear the previous selection once the cell changes
+        setSelectedRanges([]);
+      }
     }
 
     function handleKeyDown(e) {
