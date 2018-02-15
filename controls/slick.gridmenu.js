@@ -158,6 +158,10 @@
       }
 
       function destroy() {
+        _self.onBeforeMenuShow.unsubscribe();
+        _self.onMenuClose.unsubscribe();
+        _self.onCommand.unsubscribe();
+        _self.onColumnsChanged.unsubscribe();
         _grid.onColumnsReordered.unsubscribe(updateColumnOrder);
         $(document.body).off("mousedown", handleBodyMouseDown);
         $("div.slick-gridmenu").hide(_options.fadeSpeed);
