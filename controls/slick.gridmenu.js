@@ -22,6 +22,8 @@
    *      resizeOnShowHeaderRow: true,                // true by default
    *
    *      // the last 2 checkboxes titles
+   *      hideForceFitButton: false,                  // show/hide checkbox near the end "Force Fit Columns"
+   *      hideSyncResizeButton: false,                // show/hide checkbox near the end "Synchronous Resize"
    *      forceFitTitle: "Force fit columns",         // default to "Force fit columns"
    *      syncResizeTitle: "Synchronous resize",      // default to "Synchronous resize"
    *
@@ -99,6 +101,8 @@
       var $menu;
       var columnCheckboxes;
       var _defaults = {
+        hideForceFitButton: false,
+        hideSyncResizeButton: false, 
         fadeSpeed: 250,
         forceFitTitle: "Force fit columns",
         menuWidth: 18,
@@ -248,27 +252,34 @@
               .appendTo($li);
         }
 
-        var forceFitTitle = (_options.gridMenu && _options.gridMenu.forceFitTitle) || _defaults.forceFitTitle;
-        $("<hr/>").appendTo($list);
-        $li = $("<li />").appendTo($list);
-        $input = $("<input type='checkbox' />").data("option", "autoresize");
-        $("<label />")
-            .text(forceFitTitle)
-            .prepend($input)
-            .appendTo($li);
-        if (_grid.getOptions().forceFitColumns) {
-          $input.attr("checked", "checked");
+        if (_options.gridMenu && (!_options.gridMenu.hideForceFitButton || !_options.gridMenu.hideSyncResizeButton)) {
+          $("<hr/>").appendTo($list);
         }
 
-        var syncResizeTitle = (_options.gridMenu && _options.gridMenu.syncResizeTitle) || _defaults.syncResizeTitle;
-        $li = $("<li />").appendTo($list);
-        $input = $("<input type='checkbox' />").data("option", "syncresize");
-        $("<label />")
-            .text(syncResizeTitle)
-            .prepend($input)
-            .appendTo($li);
-        if (_grid.getOptions().syncColumnCellResize) {
-          $input.attr("checked", "checked");
+        if (!(_options.gridMenu && _options.gridMenu.hideForceFitButton)) {
+          var forceFitTitle = (_options.gridMenu && _options.gridMenu.forceFitTitle) || _defaults.forceFitTitle;
+          $li = $("<li />").appendTo($list);
+          $input = $("<input type='checkbox' />").data("option", "autoresize");
+          $("<label />")
+              .text(forceFitTitle)
+              .prepend($input)
+              .appendTo($li);
+          if (_grid.getOptions().forceFitColumns) {
+            $input.attr("checked", "checked");
+          }
+        }
+
+        if (!(_options.gridMenu && _options.gridMenu.hideSyncResizeButton)) {
+          var syncResizeTitle = (_options.gridMenu && _options.gridMenu.syncResizeTitle) || _defaults.syncResizeTitle;
+          $li = $("<li />").appendTo($list);
+          $input = $("<input type='checkbox' />").data("option", "syncresize");
+          $("<label />")
+              .text(syncResizeTitle)
+              .prepend($input)
+              .appendTo($li);
+          if (_grid.getOptions().syncColumnCellResize) {
+            $input.attr("checked", "checked");
+          }
         }
 
         var gridMenuWidth = $menu.width();
