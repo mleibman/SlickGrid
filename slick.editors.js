@@ -214,7 +214,7 @@
       if (FloatEditor.AllowEmptyValue) {
         if (!rtn && rtn !==0) { rtn = ''; }
       } else {
-        rtn |= 0;
+        rtn = rtn || 0;
       }
       
       var decPlaces = getDecimalPlaces();
