@@ -90,10 +90,11 @@ classes should alter those!
   font-size: 0.1px;
   display: block;
   cursor: col-resize;
-  width: 4px;
-  right: 0px;
+  width: 9px;
+  right: -5px;
   top: 0;
   height: 100%;
+  z-index: 1;
 }
 
 .slick-sortable-placeholder {
