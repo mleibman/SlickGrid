@@ -1,0 +1,241 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <link rel="stylesheet" href="../plugins/slick.rowdetailview.css" type="text/css"/>
+  <style>
+    .detail {
+        padding: 5px
+    }
+    .preload {
+      font-size: 18px;
+    }
+	
+	.dynamic-cell-detail > :first-child
+    {
+    vertical-align:     middle;
+    line-height:        13px;
+	padding:            10px;
+	margin-left:		20px;
+    }
+  </style>
+</head>
+<body>
+  <div style="position:relative">
+    <td valign="top" width="50%">
+      <div id="myGrid" style="width:600px;height:500px;"></div>
+    </td>
+    <br/>
+
+    <div class="options-panel">
+      <h2>Demonstrates:</h2>
+      <ul>
+        <li>RowDetailView Plugin</li>
+        <li>See more detail of an item by toggling a row detail panel.<li></li>
+        <li>"useRowClick: True" to toggle from any column</li>
+        <li>"useRowClick: False" to toggle from the toggle icon only</li>
+        <li>"panelRows: 4" DetailView is RowHeight * 4</li>
+        <li>"loadOnce: True" Try shrink and reopen same row</li>
+        <li>"loadOnce: False DEFAULT" Will call load every time row is expanded</li>
+        <li>&nbsp;</li>
+        <li>Example of using non templated view e.g. check any row multiple of 5<li>
+      </ul>
+
+      <h2>Options:</h2>
+      <button onclick="detailView.setOptions({ loadOnce: true, useRowClick: detailView.useRowClick })">Load Once ON</button>
+      &nbsp;
+      <button onclick="detailView.setOptions({ loadOnce: false, useRowClick: detailView.useRowClick})">Load Once OFF</button>
+      <p>
+        <button onclick="detailView.setOptions({ loadOnce: detailView.loadOnce, useRowClick: true })">Row Click ON</button>
+        &nbsp;
+        <button onclick="detailView.setOptions({ loadOnce: detailView.loadOnce, useRowClick: false })">Row Click OFF</button>
+        <h2>View Source:</h2>
+        <ul>
+          <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example16-row-detail.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+        </ul>
+      </p>
+    </div>
+  </div>
+
+  <script src="../lib/firebugx.js"></script>
+
+  <script src="../lib/jquery-1.11.2.min.js"></script>
+  <script src="../lib/jquery-ui-1.11.3.min.js"></script>
+  <script src="../lib/jquery.event.drag-2.3.0.js"></script>
+
+  <script src="../slick.core.js"></script>
+  <script src="../plugins/slick.rowdetailview.js"></script>
+  <script src="../slick.formatters.js"></script>
+  <script src="../plugins/slick.rowselectionmodel.js"></script>
+  <script src="../slick.grid.js"></script>
+  <script src="../slick.dataview.js"></script>
+
+  <script>
+    var dataView;
+    var grid;
+    var data = [];
+    var sortcol = "title";
+    var sortdir = 1;
+
+    var fakeNames = ['John Doe', 'Jane Doe', 'Chuck Norris', 'Bumblebee', 'Jackie Chan', 'Elvis Presley', 'Bob Marley', 'Mohammed Ali', 'Bruce Lee', 'Rocky Balboa'];
+
+    var columns = [      
+      {id: "sel", name: "#", field: "num", behavior: "select", cssClass: "cell-selection", width: 40, resizable: false, selectable: false },
+      {id: "title", name: "Title", field: "title", width: 110, minWidth: 110, cssClass: "cell-title", sortable: true},
+      {id: "duration", name: "Duration", field: "duration", sortable: true},
+      {id: "%", name: "% Complete", field: "percentComplete", width: 80, resizable: false, formatter: Slick.Formatters.PercentCompleteBar, sortable: true},
+      {id: "start", name: "Start", field: "start", minWidth: 60},
+      {id: "finish", name: "Finish", field: "finish", minWidth: 60},
+      {id: "effort-driven", name: "Effort Driven", width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark}
+    ];
+    var options = {
+      editable: false,
+      enableAddRow: false,
+      enableCellNavigation: true,
+      enableColumnReorder: true
+    };
+    var detailView;
+
+    function DataItem(i) {
+      this.num = i;
+      this.id = "id_" + i;
+      this.percentComplete = Math.round(Math.random() * 100);
+      this.effortDriven = (i % 5 == 0);
+      this.start = "01/01/2009";
+      this.finish = "01/05/2009";
+      this.title = "Task " + i;
+      this.duration = "5 days";
+    }
+
+    function loadingTemplate() {
+      return '<div class="preload">Loading...</div>';
+    }
+
+    function loadView(itemDetail) {
+      return [
+        '<div>',
+        '<h4>' + itemDetail.title + '</h4>',
+        '<div class="detail"><label>Assignee:</label> <span>' + itemDetail.assignee + '</span></div>',
+        '<div class="detail"><label>Reporter:</label> <span>' + itemDetail.reporter + '</span></div>',
+        '<div class="detail"><label>Duration:</label> <span>' + itemDetail.duration + '</span></div>',
+        '<div class="detail"><label>% Complete:</label> <span>' + itemDetail.percentComplete + '</span></div>',
+        '<div class="detail"><label>Start:</label> <span>' + itemDetail.start + '</span></div>',
+        '<div class="detail"><label>Finish:</label> <span>' + itemDetail.finish + '</span></div>',
+        '<div class="detail"><label>Effort Driven:</label> <span>' + itemDetail.effortDriven + '</span></div>',
+        '<div class="detail"><label>Effort Driven:</label> <span>' + itemDetail.effortDriven + '</span></div>',
+        '</div>'
+      ].join('');
+    }
+    
+    function simulateServerCall(item) {
+      // fill the template on delay
+      setTimeout(function() {
+      
+        // let's add some property to our item for a better simulation
+        var itemDetail = item;		
+        itemDetail.assignee = fakeNames[randomNumber(0, 10)];
+        itemDetail.reporter = fakeNames[randomNumber(0, 10)];
+
+        if(itemDetail.num % 5 == 0) {
+          notifyNonTemplatedView(itemDetail)
+        } else {
+          notifyTemplate(itemDetail)
+        }
+      }, 1000);      
+    }
+    
+    function notifyTemplate(itemDetail) {
+      // notify the onAsyncResponse with the "args.itemDetail" (required property)
+      // the plugin will then use itemDetail to populate the detail panel with "postTemplate"
+      detailView.onAsyncResponse.notify({
+        "itemDetail": itemDetail		
+      }, undefined, this);
+    }
+    
+    function notifyNonTemplatedView(itemDetail) {
+      // notify the onAsyncResponse with the "args.itemDetail" (required property)
+      // the plugin will then use itemDetail to populate the detail panel with "postTemplate"
+      detailView.onAsyncResponse.notify({
+        "itemDetail": itemDetail,	
+
+        // detailView Ignores any template and use whats passed though instead
+        "detailView": "<div><h4>Direct view inserting without template</h4><span>This is not using the template</span></div>"
+      }, undefined, this);
+    }
+
+    function randomNumber(min, max) {
+      return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+    
+    function percentCompleteSort(a, b) {
+      return a["percentComplete"] - b["percentComplete"];
+    }
+    function comparer(a, b) {
+      var x = a[sortcol], y = b[sortcol];
+      return (x == y ? 0 : (x > y ? 1 : -1));
+    }
+    function toggleFilterRow() {
+      grid.setTopPanelVisibility(!grid.getOptions().showTopPanel);
+    }
+
+    $(function () {
+      // prepare the data
+      for (var i = 0; i < 5000; i++) {
+        data[i] = new DataItem(i);
+      }
+      dataView = new Slick.Data.DataView({ inlineFilters: true });
+
+      // create the row detail plugin
+      detailView = new Slick.Plugins.RowDetailView({
+        cssClass: "detailView-toggle",
+        preTemplate: loadingTemplate,
+        postTemplate: loadView,
+        process: simulateServerCall,
+        useRowClick: true,
+
+        // how many grid rows do we want to use for the detail panel
+        // also note that the detail view adds an extra 1 row for padding purposes
+        // so if you choose 4 panelRows, the display will in fact use 5 rows
+        panelRows: 4 
+      });
+
+      // push the plugin as the first column
+      columns.unshift(detailView.getColumnDefinition());
+
+      grid = new Slick.Grid("#myGrid", dataView, columns, options);
+      
+      // register the column
+      grid.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow: false}));
+      grid.registerPlugin(detailView);
+
+      detailView.onBeforeRowDetailToggle.subscribe(function(e, args) {
+        console.log('before toggling row detail', args.item);
+      });
+      detailView.onAfterRowDetailToggle.subscribe(function(e, args) {
+        console.log('after toggling row detail', args.item);
+      });
+      detailView.onAsyncEndUpdate.subscribe(function(e, args) {
+        console.log('finished updating the post async template', args.itemDetail);
+      });
+
+      grid.onSort.subscribe(function (e, args) {
+        sortdir = args.sortAsc ? 1 : -1;
+        sortcol = args.sortCol.field;
+
+        // using native sort with comparer
+        // preferred method but can be very slow in IE with huge datasets
+        dataView.sort(comparer, args.sortAsc);        
+      });
+      
+      // initialize the model after all the events have been hooked up
+      dataView.beginUpdate();
+      dataView.setItems(data);
+      dataView.endUpdate();
+    });
+  </script>
+</body>
+</html>

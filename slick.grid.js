@@ -99,7 +99,8 @@ if (typeof Slick === "undefined") {
       addNewRowCssClass: "new-row",
       preserveCopiedSelectionOnPaste: false,
       showCellSelection: true,
-      viewportClass: null
+      viewportClass: null,
+	  minRowBuffer: 3
     };
 
     var columnDefaults = {
@@ -2045,7 +2046,7 @@ if (typeof Slick === "undefined") {
     function getRenderedRange(viewportTop, viewportLeft) {
       var range = getVisibleRange(viewportTop, viewportLeft);
       var buffer = Math.round(viewportH / options.rowHeight);
-      var minBuffer = 3;
+      var minBuffer = options.minRowBuffer;
 
       if (vScrollDir == -1) {
         range.top -= buffer;
