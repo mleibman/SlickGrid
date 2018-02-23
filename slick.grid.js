@@ -1806,20 +1806,22 @@ if (typeof Slick === "undefined") {
         return;
       }
 
-      if (rowNodeFromLastMouseWheelEvent === cacheEntry.rowNode) {
-        cacheEntry.rowNode.style.display = 'none';
-        zombieRowNodeFromLastMouseWheelEvent = rowNodeFromLastMouseWheelEvent;
-        zombieRowCacheFromLastMouseWheelEvent = cacheEntry;
-        zombieRowPostProcessedFromLastMouseWheelEvent = postProcessedRows[row];
-        // ignore post processing cleanup in this case - it will be dealt with later
-      } else {
-        if (options.enableAsyncPostRenderCleanup && postProcessedRows[row]) {
-          queuePostProcessedRowForCleanup(cacheEntry, postProcessedRows[row], row);
+      if (cacheEntry.rowNode) {
+        if (rowNodeFromLastMouseWheelEvent === cacheEntry.rowNode) {
+          cacheEntry.rowNode.style.display = 'none';
+          zombieRowNodeFromLastMouseWheelEvent = rowNodeFromLastMouseWheelEvent;
+          zombieRowCacheFromLastMouseWheelEvent = cacheEntry;
+          zombieRowPostProcessedFromLastMouseWheelEvent = postProcessedRows[row];
+          // ignore post processing cleanup in this case - it will be dealt with later
         } else {
-          $canvas[0].removeChild(cacheEntry.rowNode);
+          if (options.enableAsyncPostRenderCleanup && postProcessedRows[row]) {
+            queuePostProcessedRowForCleanup(cacheEntry, postProcessedRows[row], row);
+          } else {
+            $canvas[0].removeChild(cacheEntry.rowNode);
+          }
         }
       }
-
+      
       delete rowsCache[row];
       delete postProcessedRows[row];
       renderedRows--;
