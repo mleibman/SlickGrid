@@ -52,10 +52,18 @@
   </div>
 
   <div class="options-panel">
-    <p>
-      This example demonstrates using the <b>Slick.Plugins.HeaderMenu</b> plugin to add drop-down menus to column
-      headers.  (Hover over the headers.)
-    </p>
+      <h2>Demonstrates:</h2>
+      <p>
+        This example demonstrates using the <b>Slick.Plugins.HeaderMenu</b> plugin to add drop-down menus to column
+        headers.  (Hover over the headers.)
+      </p>
+      <p>
+        Auto-align will divide into 2 groups (columns on the left &amp; right).
+        The left side columns will have their drop menu align on right while the right side columns will align on the left
+      </p>
+      <h3>Auto-Align Header Drop Menu</h3>
+      <button onclick="autoAlignMenu(true)">ON</button>
+      <button onclick="autoAlignMenu(false)">OFF</button>
       <h2>View Source:</h2>
       <ul>
           <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-plugin-headermenu.html" target="_sourcewindow"> View the source for this example on Github</a></li>
@@ -74,6 +82,7 @@
 <script>
   var data = [];
   var grid;
+  var headerMenuPlugin;
   var columns = [
     {id: "title", name: "Title", field: "title"},
     {id: "duration", name: "Duration", field: "duration", sortable: true},
@@ -145,6 +154,12 @@
     });
   };
 
+  function autoAlignMenu(auto) {
+    // for the autoAlign to work properly, you need to provide the width of the drop menu.
+    // this width is the one showing in the CSS max-width, by default 100px
+    headerMenuPlugin.setOptions({ autoAlign: auto, width: 100 });
+  }
+
   $(function () {
     data = [];
     for (var i = 0; i < 500; i++) {
@@ -160,7 +175,7 @@
 
     grid = new Slick.Grid("#myGrid", data, columns, options);
     var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
-    var headerMenuPlugin = new Slick.Plugins.HeaderMenu({});
+    headerMenuPlugin = new Slick.Plugins.HeaderMenu({});
 
     grid.onSort.subscribe(function (e, args) {
       executeSort(args.sortCols);
