@@ -51,7 +51,7 @@
    *    command:      A command identifier to be passed to the onCommand event handlers.
    *    iconCssClass: A CSS class to be added to the menu item icon.
    *    iconImage:    A url to the icon image.
-   *    autoAlign:    Auto-align will divide into 2 groups and make the left columns have drop menu align on right and vice versa
+   *    autoAlign:    Auto-align drop menu to the left when not enough viewport space to show on the right
    *
    *
    * The plugin exposes the following events:
@@ -230,11 +230,13 @@
       }
 
       var leftPos = $(this).offset().left;
-      
-      // when auto-align is set, it will make the left columns have drop menu align on right and vice versa
+
+      // when auto-align is set, it will calculate whether it has enough space in the viewport to show the drop menu on the right (default)
+      // if there isn't enough space on the right, it will automatically align the drop menu to the left
+      // to simulate an align left, we actually need to know the width of the drop menu
       if (options.autoAlign) {
-        var columnCount = _grid.getColumns().length;
-        if (_grid.getColumnIndex(columnDef.id) >= (columnCount / 2)) {
+        var gridPos = _grid.getGridPosition();
+        if ((leftPos + options.width) >= gridPos.width) {
           leftPos = leftPos - options.width;
         }  
       }

@@ -47,7 +47,7 @@
 </head>
 <body>
 <div style="position:relative">
-  <div style="width:600px;">
+  <div style="width:500px;">
     <div id="myGrid" style="width:100%;height:500px;"></div>
   </div>
 
@@ -57,11 +57,16 @@
         This example demonstrates using the <b>Slick.Plugins.HeaderMenu</b> plugin to add drop-down menus to column
         headers.  (Hover over the headers.)
       </p>
+      <hr>
+      <h3>Auto-align option</h3>
       <p>
-        Auto-align will divide into 2 groups (columns on the left &amp; right).
-        The left side columns will have their drop menu align on right while the right side columns will align on the left
+        Auto-align (defaults to False), will calculate whether it has enough space to show the drop menu to the right. 
+        If it calculates that the drop menu is to fall outside of the viewport, it will automatically align the drop menu to the left.
+        However please note that to simulate a left alignement, we actually need to know the width of the drop menu.
+        The width of the drop menu is easy to find, it is the <i><b>"max-width"</b></i> set in the <i><b>".slick-header-menu"</b></i> CSS class.
       </p>
-      <h3>Auto-Align Header Drop Menu</h3>
+      <hr>
+      <h3>Auto-Align Header Menu Drop</h3>
       <button onclick="autoAlignMenu(true)">ON</button>
       <button onclick="autoAlignMenu(false)">OFF</button>
       <h2>View Source:</h2>
@@ -84,12 +89,13 @@
   var grid;
   var headerMenuPlugin;
   var columns = [
-    {id: "title", name: "Title", field: "title"},
-    {id: "duration", name: "Duration", field: "duration", sortable: true},
-    {id: "%", name: "% Complete", field: "percentComplete", sortable: true},
+    {id: "title", name: "Title", field: "title", width: 90},
+    {id: "duration", name: "Duration", field: "duration", sortable: true, width: 90},
+    {id: "%", name: "% Complete", field: "percentComplete", sortable: true, width: 90},
     {id: "start", name: "Start", field: "start"},
     {id: "finish", name: "Finish", field: "finish"},
     {id: "effort-driven", name: "Effort Driven", field: "effortDriven"}
+
   ];
 
   for (var i = 0; i < columns.length; i++) {
