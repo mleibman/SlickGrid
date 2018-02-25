@@ -45,13 +45,15 @@
    *
    *
    * Available menu item options:
-   *    title:        Menu item text.
-   *    disabled:     Whether the item is disabled.
-   *    tooltip:      Item tooltip.
-   *    command:      A command identifier to be passed to the onCommand event handlers.
-   *    iconCssClass: A CSS class to be added to the menu item icon.
-   *    iconImage:    A url to the icon image.
-   *    autoAlign:    Auto-align drop menu to the left when not enough viewport space to show on the right
+   *    title:            Menu item text.
+   *    disabled:         Whether the item is disabled.
+   *    tooltip:          Item tooltip.
+   *    command:          A command identifier to be passed to the onCommand event handlers.
+   *    iconCssClass:     A CSS class to be added to the menu item icon.
+   *    iconImage:        A url to the icon image.
+   *    minWidth:         Minimum width that the drop menu will have
+   *    autoAlign:        Auto-align drop menu to the left when not enough viewport space to show on the right
+   *    autoAlignOffset:  When drop menu is aligned to the left, it might not be perfectly aligned with the header menu icon, if that is the case you can add an offset (positive/negative number to move right/left)
    *
    *
    * The plugin exposes the following events:
@@ -85,8 +87,9 @@
     var _defaults = {
       buttonCssClass: null,
       buttonImage: null,
-      autoAlign: false,
-      width: 100
+      minWidth: 100,
+      autoAlign: true,
+      autoAlignOffset: 0
     };
     var $menu;
     var $activeHeaderColumn;
@@ -188,7 +191,7 @@
 
 
       if (!$menu) {
-        $menu = $("<div class='slick-header-menu'></div>")
+        $menu = $("<div class='slick-header-menu' style='min-width: " + options.minWidth + "px'></div>")
           .appendTo(_grid.getContainerNode());
       }
       $menu.empty();
@@ -236,8 +239,8 @@
       // to simulate an align left, we actually need to know the width of the drop menu
       if (options.autoAlign) {
         var gridPos = _grid.getGridPosition();
-        if ((leftPos + options.width) >= gridPos.width) {
-          leftPos = leftPos - options.width;
+        if ((leftPos + options.minWidth) >= gridPos.width) {
+          leftPos = leftPos - options.minWidth + options.autoAlignOffset;
         }  
       }
       
