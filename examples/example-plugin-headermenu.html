@@ -19,7 +19,6 @@
       padding: 2px;
       -moz-box-shadow: 2px 2px 2px silver;
       -webkit-box-shadow: 2px 2px 2px silver;
-      min-width: 100px;
       z-index: 20;
     }
 
@@ -60,10 +59,8 @@
       <hr>
       <h3>Auto-align option</h3>
       <p>
-        Auto-align (defaults to False), will calculate whether it has enough space to show the drop menu to the right. 
-        If it calculates that the drop menu is to fall outside of the viewport, it will automatically align the drop menu to the left.
-        However please note that to simulate a left alignement, we actually need to know the width of the drop menu.
-        The width of the drop menu is easy to find, it is the <i><b>"max-width"</b></i> set in the <i><b>".slick-header-menu"</b></i> CSS class.
+        Auto-align (defaults to True), will calculate whether it has enough space to show the drop menu to the right. 
+        If it calculates that the drop menu is to fall outside of the viewport, it will automatically align the drop menu to the left.        
       </p>
       <hr>
       <h3>Auto-Align Header Menu Drop</h3>
@@ -133,6 +130,9 @@
   var visibleColumns = columns;
 
   var options = {
+    columnPicker: {
+      columnTitle: "Columns"
+    },
     enableColumnReorder: false,
     multiColumnSort: true
   };
@@ -160,10 +160,8 @@
     });
   };
 
-  function autoAlignMenu(auto) {
-    // for the autoAlign to work properly, you need to provide the width of the drop menu.
-    // this width is the one showing in the CSS max-width, by default 100px
-    headerMenuPlugin.setOptions({ autoAlign: auto, width: 100 });
+  function autoAlignMenu(isEnabled) {
+    headerMenuPlugin.setOptions({ autoAlign: isEnabled });
   }
 
   $(function () {
@@ -220,7 +218,7 @@
 
     // subscribe to event when column visibility is changed via the menu
     columnpicker.onColumnsChanged.subscribe(function(e, args) {
-      console.log('Columns changed via the menu');
+      console.log('Columns changed via the menu', args.columns);
     });
 
     grid.registerPlugin(headerMenuPlugin);
