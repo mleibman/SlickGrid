@@ -738,7 +738,7 @@ if (typeof Slick === "undefined") {
 
         if (m.sortable) {
           header.addClass("slick-header-sortable");
-          header.append("<span class='" + sortIndicatorCssClass + "' />");
+          header.children().prepend("<span class='" + sortIndicatorCssClass + "' />");
         }
 
         trigger(self.onHeaderCellRendered, {
@@ -849,21 +849,19 @@ if (typeof Slick === "undefined") {
           
           setSortColumns(sortColumns);
 
-          if (sortColumns.length > 0) { 
-              if (!options.multiColumnSort) {
-                trigger(self.onSort, {
-                  multiColumnSort: false,
-                  sortCol: column,
-                  sortAsc: sortColumns[0].sortAsc,
-                  grid: self}, e);
-              } else {
-                trigger(self.onSort, {
-                  multiColumnSort: true,
-                  sortCols: $.map(sortColumns, function(col) {
-                    return {sortCol: columns[getColumnIndex(col.columnId)], sortAsc: col.sortAsc };
-                  }),
-                  grid: self}, e);
-              }
+          if (!options.multiColumnSort) {
+            trigger(self.onSort, {
+              multiColumnSort: false,
+              sortCol: (sortColumns.length > 0 ? column : null),
+              sortAsc: (sortColumns.length > 0 ? sortColumns[0].sortAsc : true),
+              grid: self}, e);
+          } else {
+            trigger(self.onSort, {
+              multiColumnSort: true,
+              sortCols: $.map(sortColumns, function(col) {
+                return {sortCol: columns[getColumnIndex(col.columnId)], sortAsc: col.sortAsc };
+              }),
+              grid: self}, e);
           }
         }
       });
@@ -1365,7 +1363,7 @@ if (typeof Slick === "undefined") {
           .removeClass("slick-header-column-sorted")
           .find("." + sortIndicatorCssClass)
               .removeClass("slick-sort-indicator-asc slick-sort-indicator-desc");
-      if (numberCols) { sortIndicatorEl.text(''); }
+      sortIndicatorEl.text('');
 
       $.each(sortColumns, function(i, col) {
         if (col.sortAsc == null) {

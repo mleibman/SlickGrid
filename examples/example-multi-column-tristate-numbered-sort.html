@@ -17,7 +17,9 @@
     <td valign="top">
       <h2>Demonstrates:</h2>
       <ul>
-        <li>basic grid with multi-column sort option</li>
+        <li>basic grid with multi-column tri-state sort option</li>
+        <li>numbers indication column sort precedence are displayed in the columns when multiple columns selected</li>
+        <li>first column click sorts ASC, second click DESC, third click removes sort from column</li>
       </ul>
         <h2>View Source:</h2>
         <ul>
@@ -57,7 +59,7 @@
     enableColumnReorder: false,
     multiColumnSort: true,
     numberedMultiColumnSort: true,
-    tristateMultiColumnSort: false
+    tristateMultiColumnSort: true
   };
 
   $(function () {
