@@ -82,7 +82,8 @@
 
       _handler
         .subscribe(_grid.onClick, handleClick)
-        .subscribe(_grid.onSort, handleSort);
+        .subscribe(_grid.onSort, handleSort)
+		.subscribe(_grid.onScroll, handleScroll);
 
       _grid.getData().onRowCountChanged.subscribe(function () { _grid.updateRowCount(); _grid.render(); });
       _grid.getData().onRowsChanged.subscribe(function (e, a) { _grid.invalidateRows(a.rows); _grid.render(); });
@@ -143,6 +144,44 @@
       collapseAll();
     }
 
+	// If we scroll save detail views that go out of cache range
+    function handleScroll(e, args) {
+        
+        var range = _grid.getRenderedRange();
+
+        var start = (range.top > 0 ? range.top : 0);
+        var end = (range.bottom > _dataView.getLength() ? range.bottom : _dataView.getLength());
+        
+        // Get the item at the top of the view
+        var topMostItem = _dataView.getItemByIdx(start);
+
+        // Check it is a parent item
+        if (topMostItem._parent == undefined)
+        {
+            // This is a standard row as we have no parent.
+            var nextItem = _dataView.getItemByIdx(start + 1);
+            if(nextItem !== undefined && nextItem._parent !== undefined)
+            {
+                // This is likely the expanded Detail Row View
+                // Check for safety
+                if(nextItem._parent == topMostItem)
+                {
+                    saveDetailView(topMostItem);
+                }
+            }
+        }
+
+        // Find the bottom most item that is likely to go off screen
+        var bottomMostItem = _dataView.getItemByIdx(end - 1);
+
+        // If we are a detailView and we are about to go out of cache view
+        if(bottomMostItem._parent !== undefined)
+        {
+            saveDetailView(bottomMostItem._parent);
+            
+        }
+    }
+	
     // Toggle between showing and hiding a row
     function toggleRowSelection(row) {
       _grid.getData().beginUpdate();
@@ -156,13 +195,28 @@
         collapseItem(_expandedRows[i]);
       }
     }
-
+	
+    // Saves the current state of the detail view
+    function saveDetailView(item)
+    {
+        var view = $("#innerDetailView_" + item.id);
+        if (view)
+        {
+            var html = $("#innerDetailView_" + item.id).html();
+            if(html !== undefined)
+            {
+                item._detailContent = html;
+            }
+        }   
+    }
+	
     // Colapse an Item so it is notlonger seen
     function collapseItem(item) {
 	  
-	  // If we are loading once then lets save view when we collapse it incase it's changed
-	  if (_options.loadOnce)
-      item._detailContent = $("#innerDeatilView_" + item.id).html();
+      // Save the details on the collapse assuming onetime loading
+      if (_options.loadOnce) {
+          saveDetailView(item);
+      }
 		
       item._collapsed = true;
       for (var idx = 1; idx <= item._sizePadding; idx++) {
@@ -182,6 +236,9 @@
       item._collapsed = false;
       _expandedRows.push(item);
       
+      // In the case something went wrong loading it the first time such a scroll of screen before loaded
+      if (!item._detailContent) item._detailViewLoaded = false;	  
+	   
       // display pre-loading template
       if (!item._detailViewLoaded || _options.loadOnce !== true) {
         item._detailContent = _options.preTemplate(item);
@@ -331,7 +388,7 @@
         html.push("style='height:", dataContext._height, "px;"); //set total height of padding
         html.push("top:", rowHeight, "px'>");             //shift detail below 1st row
         html.push("<div id='detailViewContainer_", dataContext.id, "'  class='detail-container' style='max-height:" + (dataContext._height - rowHeight + bottomMargin) + "px'>"); //sub ctr for custom styling
-        html.push("<div id='innerDeatilView_" , dataContext.id , "'>" , dataContext._detailContent, "</div></div>"); 
+        html.push("<div id='innerDetailView_" , dataContext.id , "'>" , dataContext._detailContent, "</div></div>"); 
         //&omit a final closing detail container </div> that would come next
 
         return html.join("");
@@ -345,7 +402,7 @@
       // Grad each of the dom items
       var mainContainer = document.getElementById('detailViewContainer_' + item.id);
       var cellItem = document.getElementById('cellDetailView_' + item.id);
-      var inner = document.getElementById('innerDeatilView_' + item.id);
+      var inner = document.getElementById('innerDetailView_' + item.id);
       
       if (!mainContainer || !cellItem || !inner) return;
       
@@ -364,6 +421,13 @@
       
       item._sizePadding = Math.ceil(((rowCount * 2) * lineHeight) / rowHeight);
       item._height = (item._sizePadding * rowHeight);
+	  
+	  // If the padding is now more than the original minRowBuff we need to increase it
+      if (_grid.getOptions().minRowBuffer < item._sizePadding)
+      {
+          // Update the minRowBuffer so that the view doesn't disappear when it's at top of screen + the original default 3
+          _grid.getOptions().minRowBuffer =item._sizePadding + 3;
+      }
       
       mainContainer.setAttribute("style", "max-height: " + item._height + "px");
       if (cellItem) cellItem.setAttribute("style", "height: " + item._height + "px;top:" + rowHeight + "px");
