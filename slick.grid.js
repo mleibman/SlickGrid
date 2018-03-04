@@ -644,6 +644,16 @@ if (typeof Slick === "undefined") {
       }
     }
 
+    function getHeader() {
+      return $header[0];
+    }
+
+    function getHeaderColumn(columnIdOrIdx) {
+      var idx = (typeof columnIdOrIdx === "number" ? columnIdOrIdx : getColumnIndex[columnIdOrIdx]);
+      var $rtn = $header.children().eq(idx);
+      return $rtn && $rtn[0];
+    }
+
     function getHeaderRow() {
       return $headerRow[0];
     }
@@ -656,16 +666,16 @@ if (typeof Slick === "undefined") {
       return $preHeaderPanel[0];
     }
 
-    function getHeaderRowColumn(columnId) {
-      var idx = getColumnIndex(columnId);
-      var $header = $headerRow.children().eq(idx);
-      return $header && $header[0];
+    function getHeaderRowColumn(columnIdOrIdx) {
+      var idx = (typeof columnIdOrIdx === "number" ? columnIdOrIdx : getColumnIndex[columnIdOrIdx]);
+      var $rtn = $headerRow.children().eq(idx);
+      return $rtn && $rtn[0];
     }
 
-    function getFooterRowColumn(columnId) {
-      var idx = getColumnIndex(columnId);
-      var $footer = $footerRow.children().eq(idx);
-      return $footer && $footer[0];
+    function getFooterRowColumn(columnIdOrIdx) {
+      var idx = (typeof columnIdOrIdx === "number" ? columnIdOrIdx : getColumnIndex[columnIdOrIdx]);
+      var $rtn = $footerRow.children().eq(idx);
+      return $rtn && $rtn[0];
     }
 
     function createColumnHeaders() {
@@ -3952,6 +3962,8 @@ if (typeof Slick === "undefined") {
       "setTopPanelVisibility": setTopPanelVisibility,
       "getPreHeaderPanel": getPreHeaderPanel,
       "setPreHeaderPanelVisibility": setPreHeaderPanelVisibility,
+      "getHeader": getHeader,
+      "getHeaderColumn": getHeaderColumn,
       "setHeaderRowVisibility": setHeaderRowVisibility,
       "getHeaderRow": getHeaderRow,
       "getHeaderRowColumn": getHeaderRowColumn,
