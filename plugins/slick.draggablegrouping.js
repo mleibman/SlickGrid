@@ -224,6 +224,7 @@
               var groupRemoveIcon = $("<div class='slick-groupby-remove'>&nbsp;</div>")
               if(options.iconCssClass) groupRemoveIcon.addClass(options.iconCssClass);
               if(options.iconImage) groupRemoveIcon.css("background", "url(" + options.iconImage + ") no-repeat center right");
+              if(!options.iconCssClass && !options.iconImage) groupRemoveIcon.addClass('slick-groupby-remove-image');
               groupRemoveIcon.appendTo(entry);
 
               $("</div>").appendTo(entry);
