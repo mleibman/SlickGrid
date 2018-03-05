@@ -1,0 +1,25 @@
+.slick-group-toggle-all.expanded {
+    background: url('../images/collapse.gif') no-repeat center center;
+    width: 9px;
+    height: 9px;
+    position: absolute;
+    display: inline-block;
+    right: 10px;
+}
+
+.slick-group-toggle-all.collapsed {
+    background: url('../images/expand.gif') no-repeat center center;
+    width: 9px;
+    height: 9px;
+    position: absolute;
+    display: inline-block;
+    right: 10px;
+}
+
+.slick-column-groupable {
+  background: url('../images/column-grouping.png') no-repeat center center;
+  width: 9px;
+  height: 9px;
+  display: inline-block;
+  margin-left: 4px;
+}

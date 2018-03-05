@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
   <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css"/>
+  <link rel="stylesheet" href="../controls/slick.draggablegrouping.css" type="text/css"/>
   <style>
 
   	.slick-groupby {
@@ -89,11 +90,13 @@
       <hr/>
       <button onclick="toggleDraggableGrouping()">Toggle Draggable Grouping</button>
       <br />
+      <button onclick="groupByTitle()">Group by Title</button>
+      <br/>
       <button onclick="clearGroupings()">Clear grouping</button>
       <br/>
-      <button onclick="dataView.collapseAllGroups()">Collapse all groups</button>
+      <button onclick="toggleGrouping(false)">Collapse all groups</button>
       <br/>
-      <button onclick="dataView.expandAllGroups()">Expand all groups</button>
+      <button onclick="toggleGrouping(true)">Expand all groups</button>
       <br/>
     </div>
     <hr/>
@@ -134,18 +137,8 @@ var draggableGrouping;
 var grid;
 var data = [];
 var columns = [
-  {id: "sel", name: "#", field: "num", cssClass: "cell-selection", width: 40, resizable: false, selectable: false, focusable: false,
-    grouping: {
-      getter: "num",
-      formatter: function (g) {
-        return "#:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
-      },
-      aggregators: [
-        new Slick.Data.Aggregators.Sum("cost")
-      ],
-      aggregateCollapsed: false,
-      collapsed: false
-    }
+  {id: "sel", name: "#", field: "sel", cssClass: "cell-selection", width: 40, resizable: false, selectable: false, focusable: false,
+    grouping: {}
   },
   {id: "title", name: "Title", field: "title", width: 70, minWidth: 50, cssClass: "cell-title", sortable: true, editor: Slick.Editors.Text,
     grouping: {
@@ -213,7 +206,7 @@ var columns = [
       collapsed: false
     }
   },
-  {id: "effort-driven", name: "Effort Driven", width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark, sortable: true,
+  {id: "effortDriven", name: "Effort Driven",  width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark, sortable: true,
     grouping: {
       getter: "effortDriven",
       formatter :function (g) {
@@ -226,56 +219,6 @@ var columns = [
     }
   }
 ];
-
-function setupColumnReorder(grid, $headers, headerColumnWidthDiff, setColumns, setupColumnResize, columns, getColumnIndex, uid, trigger) {
-  $headers.filter(":ui-sortable").sortable("destroy");
-  var $headerDraggableGroupBy = $(grid.getPreHeaderPanel());
-    $headers.sortable({
-      distance: 3,
-      cursor: "default",
-      tolerance: "intersection",
-      helper: "clone",
-      placeholder: "slick-sortable-placeholder ui-state-default slick-header-column",
-      forcePlaceholderSize: true,
-      appendTo: "body",
-      start: function(e, ui) {
-        $(ui.helper).addClass("slick-header-column-active");
-        $headerDraggableGroupBy.find(".slick-placeholder").show();
-        $headerDraggableGroupBy.find(".slick-dropped-grouping").hide();
-      },
-      beforeStop: function(e, ui) {
-        $(ui.helper).removeClass("slick-header-column-active");
-        $headerDraggableGroupBy.find(".slick-placeholder").hide();
-        $headerDraggableGroupBy.find(".slick-dropped-grouping").show();
-      },
-      stop: function(e) {
-        if (!grid.getEditorLock().commitCurrentEdit()) {
-          $(this).sortable("cancel");
-          return;
-        }
-        var reorderedIds = $headers.sortable("toArray");
-        var reorderedColumns = [];
-        for (var i = 0; i < reorderedIds.length; i++) {
-          reorderedColumns.push(columns[getColumnIndex(reorderedIds[i].replace(uid, ""))]);
-        }
-        setColumns(reorderedColumns);
-        trigger(grid.onColumnsReordered, {
-          grid: grid
-        });
-        e.stopPropagation();
-        setupColumnResize();
-      }
-    });
-}
-
-var options = {
-  enableCellNavigation: true,
-  editable: true,
-  enableColumnReorder: setupColumnReorder,
-  createPreHeaderPanel: true,
-  showPreHeaderPanel: true,
-  preHeaderPanelHeight: 25
-};
 
 var sortcol = "title";
 var sortdir = 1;
@@ -313,13 +256,14 @@ function comparer(a, b) {
 
 var draggableEnabled = true;
 
+function groupByTitle() {
+  draggableGrouping.setDroppedGroups('title');
+  grid.invalidate();
+  grid.render();  
+}
 
 function clearGroupings() {
-   dataView.setGrouping([]);
    draggableGrouping.clearDroppedGroups();
-   $(".slick-dropped-grouping").remove();
-   grid.invalidate();
-   grid.render();  
 }
 
 
@@ -331,6 +275,16 @@ function toggleDraggableGrouping() {
   } else {
     $(".slick-preheader-panel").show();
     draggableEnabled = true;
+  }
+}
+
+function toggleGrouping(expand) {
+  if(expand) {
+    dataView.expandAllGroups();
+    $(".slick-group-toggle-all").removeClass('collapsed').addClass('expanded');
+  } else {
+    dataView.collapseAllGroups();
+    $(".slick-group-toggle-all").removeClass('expanded').addClass('collapsed');
   }
 }
 
@@ -364,16 +318,21 @@ $(".grid-header .ui-icon")
     });
 
 $(function () {
-  var groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
   draggableGrouping = new Slick.DraggableGrouping();
-  dataView = new Slick.Data.DataView({
-    groupItemMetadataProvider: groupItemMetadataProvider,
-    inlineFilters: true
-  });
+
+  var options = {
+    enableCellNavigation: true,
+    editable: true,
+    enableColumnReorder: draggableGrouping.getSetupColumnReorder,
+    createPreHeaderPanel: true,
+    showPreHeaderPanel: true,
+    preHeaderPanelHeight: 25
+  };
+
+  dataView = new Slick.Data.DataView();
   grid = new Slick.Grid("#myGrid", dataView, columns, options);
 
   // register the group item metadata provider to add expand/collapse group handlers
-  grid.registerPlugin(groupItemMetadataProvider);
   grid.registerPlugin(draggableGrouping);
   grid.setSelectionModel(new Slick.CellSelectionModel());
 
