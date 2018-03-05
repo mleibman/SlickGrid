@@ -23,3 +23,24 @@
   display: inline-block;
   margin-left: 4px;
 }
+
+.slick-dropped-grouping {
+  display: inline-block;
+  margin-right: 5px;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.slick-groupby-remove {
+  background: url(../images/delete.png) no-repeat center right;
+  padding-right: 20px;
+  display: inline-flex;
+} 
+
+.slick-placeholder {
+  height: 25px;
+}
+
+.ui-droppable {
+  padding: 5px;
+}

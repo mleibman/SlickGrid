@@ -59,7 +59,7 @@
         var node = args.node;
         if (!$.isEmptyObject(column.grouping)) {
           var groupableIcon = "<span class='slick-column-groupable' />";
-          $(node).append(groupableIcon);
+          $(node).css('cursor', 'pointer').append(groupableIcon);
         }
       })
 
@@ -203,7 +203,7 @@
           if (e.id == columnid) {
             if (e.grouping != null && !$.isEmptyObject(e.grouping)) {
               var entry = $("<div id='" + _gridUid + e.id + "_entry' data-id='" + e.id + "' class='slick-dropped-grouping'>");
-              var span = $("<span class='slick-groupby-remove'></span>").text(column.text() + " ")
+              var span = $("<div style='display: inline-flex'>" + column.text() + "</div><div class='slick-groupby-remove'>&nbsp;</div>")
               span.appendTo(entry);
               $("</div>").appendTo(entry);
               entry.appendTo(container);
@@ -223,7 +223,7 @@
 
     function addGroupByRemoveClickHandler(id, container, column, entry) {
       var text = entry;
-      $("#" + _gridUid + id + "_entry").on('click', function() {
+      $("#" + _gridUid + id + "_entry >.slick-groupby-remove").on('click', function() {
         $(this).off('click');
         removeGroupBy(id, column, text);
       });
