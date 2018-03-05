@@ -118,6 +118,7 @@
      * Destroy plugin.
      */
     function destroy() {
+      onGroupChanged.unsubscribe();
     }
     
 
