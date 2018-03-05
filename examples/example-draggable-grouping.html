@@ -295,9 +295,9 @@ $(".grid-header .ui-icon")
     });
 
 $(function () {
-  // draggableGrouping = new Slick.DraggableGrouping({iconImage :'../images/delete.png'});
-  // draggableGrouping = new Slick.DraggableGrouping({iconCssClass :'slick-groupby-remove-image'});  
-  draggableGrouping = new Slick.DraggableGrouping();
+  draggableGrouping = new Slick.DraggableGrouping({iconImage :'../images/delete.png', groupIconImage: '../images/column-grouping.png', dropPlaceHolderText: 'Drop a column header here to group by the column :)'});
+  // draggableGrouping = new Slick.DraggableGrouping({iconCssClass :'slick-groupby-remove-image', groupIconCssClass: 'slick-column-groupable-image', dropPlaceHolderText: 'Drop a column header here to group by the column :)'});  
+  // draggableGrouping = new Slick.DraggableGrouping();
   var options = {
     enableCellNavigation: true,
     editable: true,

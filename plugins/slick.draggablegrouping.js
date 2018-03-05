@@ -35,8 +35,13 @@
    *    onGroupChanged: pass the grouped columns to who subscribed.
    *
    * @param options {Object} Options:
-   *    buttonCssClass:   an extra CSS class to add to the menu button
-   *    buttonImage:      a url to the menu button image (default '../images/down.gif')
+   *    deleteIconCssClass:  an extra CSS class to add to the delete button (default undefined), if deleteIconCssClass && deleteIconImage undefined then slick-groupby-remove-image class will be added
+   *    deleteIconImage:     a url to the delete button image (default undefined)
+   *    groupIconCssClass:   an extra CSS class to add to the grouping field hint  (default undefined)
+   *    groupIconImage:      a url to the grouping field hint image (default undefined)
+   *    dropPlaceHolderText:      option to specify set own placeholder note text
+   *
+   
    */
 
   function DraggableGrouping(options) {
@@ -63,7 +68,8 @@
       _dataView = _grid.getData();
       
       dropbox = $(_grid.getPreHeaderPanel());
-      dropbox.html("<div class='slick-placeholder'>Drop a column header here to group by the column</div><div class='slick-group-toggle-all expanded' style='display:none'></div>");
+      var dropPlaceHolderText = options.dropPlaceHolderText || 'Drop a column header here to group by the column';
+      dropbox.html("<div class='slick-placeholder'>" + dropPlaceHolderText + "</div><div class='slick-group-toggle-all expanded' style='display:none'></div>");
 
       dropboxPlaceholder = dropbox.find(".slick-placeholder");
       groupToggler = dropbox.find(".slick-group-toggle-all");
@@ -74,7 +80,9 @@
         var column = args.column;
         var node = args.node;
         if (!$.isEmptyObject(column.grouping)) {
-          var groupableIcon = "<span class='slick-column-groupable' />";
+          var groupableIcon = $("<span class='slick-column-groupable' />");
+          if(options.groupIconCssClass) groupableIcon.addClass(options.groupIconCssClass)
+          if(options.groupIconImage) groupableIcon.css("background", "url(" + options.groupIconImage + ") no-repeat center center");
           $(node).css('cursor', 'pointer').append(groupableIcon);
         }
       })
@@ -222,9 +230,9 @@
               var groupText = $("<div style='display: inline-flex'>" + column.text() + "</div>")
               groupText.appendTo(entry);
               var groupRemoveIcon = $("<div class='slick-groupby-remove'>&nbsp;</div>")
-              if(options.iconCssClass) groupRemoveIcon.addClass(options.iconCssClass);
-              if(options.iconImage) groupRemoveIcon.css("background", "url(" + options.iconImage + ") no-repeat center right");
-              if(!options.iconCssClass && !options.iconImage) groupRemoveIcon.addClass('slick-groupby-remove-image');
+              if(options.deleteIconCssClass) groupRemoveIcon.addClass(options.deleteIconCssClass);
+              if(options.deleteIconImage) groupRemoveIcon.css("background", "url(" + options.deleteIconImage + ") no-repeat center right");
+              if(!options.deleteIconCssClass && !options.deleteIconImage) groupRemoveIcon.addClass('slick-groupby-remove-image');
               groupRemoveIcon.appendTo(entry);
 
               $("</div>").appendTo(entry);
