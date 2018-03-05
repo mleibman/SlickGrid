@@ -16,13 +16,29 @@
     }
   });
 
-  /**
-   * DraggableGrouping plugin to show/hide tooltips when columns are too narrow to fit content.
-   * @constructor
-   * @param {boolean} [options.enableForCells=true]        - Enable tooltip for grid cells
-   * @param {boolean} [options.enableForHeaderCells=false] - Enable tooltip for header cells
-   * @param {number}  [options.maxToolTipLength=null]      - The maximum length for a tooltip
+  /***
+   * A plugin to add Draggable Grouping feature.
+   *
+   * USAGE:
+   *
+   * Add the plugin .js & .css files and register it with the grid.
+   *
+   *
+   * The plugin expose the following methods:
+   *    destroy: used to destroy the plugin
+   *    setDroppedGroups: provide option to set default grouping on loading
+   *    clearDroppedGroups: provide option to clear grouping
+   *    getSetupColumnReorder: its function to setup draggable feature agains Header Column, should be passed on grid option. Also possible to pass custom function
+   *
+   *
+   * The plugin expose the following event(s):
+   *    onGroupChanged: pass the grouped columns to who subscribed.
+   *
+   * @param options {Object} Options:
+   *    buttonCssClass:   an extra CSS class to add to the menu button
+   *    buttonImage:      a url to the menu button image (default '../images/down.gif')
    */
+
   function DraggableGrouping(options) {
     var _grid;
     var _gridUid;
@@ -203,8 +219,13 @@
           if (e.id == columnid) {
             if (e.grouping != null && !$.isEmptyObject(e.grouping)) {
               var entry = $("<div id='" + _gridUid + e.id + "_entry' data-id='" + e.id + "' class='slick-dropped-grouping'>");
-              var span = $("<div style='display: inline-flex'>" + column.text() + "</div><div class='slick-groupby-remove'>&nbsp;</div>")
-              span.appendTo(entry);
+              var groupText = $("<div style='display: inline-flex'>" + column.text() + "</div>")
+              groupText.appendTo(entry);
+              var groupRemoveIcon = $("<div class='slick-groupby-remove'>&nbsp;</div>")
+              if(options.iconCssClass) groupRemoveIcon.addClass(options.iconCssClass);
+              if(options.iconImage) groupRemoveIcon.css("background", "url(" + options.iconImage + ") no-repeat center right");
+              groupRemoveIcon.appendTo(entry);
+
               $("</div>").appendTo(entry);
               entry.appendTo(container);
               addColumnGroupBy(e, column, container, entry);

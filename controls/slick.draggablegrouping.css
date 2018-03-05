@@ -32,10 +32,13 @@
 }
 
 .slick-groupby-remove {
-  background: url(../images/delete.png) no-repeat center right;
   padding-right: 20px;
   display: inline-flex;
 } 
+
+.slick-groupby-remove-image {
+  background: url(../images/delete.png) no-repeat center right;
+}
 
 .slick-placeholder {
   height: 25px;

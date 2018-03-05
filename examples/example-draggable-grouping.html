@@ -81,6 +81,10 @@
         Personally, this is just the coolest slickest thing I've ever seen done with DHTML grids!
       </li>
     </ul>
+    <h2>View Source:</h2>
+    <ul>
+        <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-draggable-grouping.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+    </ul>
   </div>
 </div>
 
@@ -291,8 +295,8 @@ $(".grid-header .ui-icon")
     });
 
 $(function () {
-  draggableGrouping = new Slick.DraggableGrouping();
-
+  // draggableGrouping = new Slick.DraggableGrouping({iconImage :'../images/delete.png'});
+  draggableGrouping = new Slick.DraggableGrouping({iconCssClass :'slick-groupby-remove-image'});  
   var options = {
     enableCellNavigation: true,
     editable: true,
