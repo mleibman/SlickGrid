@@ -21,6 +21,19 @@
     }
   });
 
+  /*
+   * Navigate to the cell on the left if the cursor is at the beginning of the input string
+   * and to the right cell if it's at the end. Otherwise, move the cursor within the text
+   */
+  function handleKeydownNav(e) {
+    var cursorPosition = this.selectionStart;
+    var textLength = this.value.length;
+    if ((e.keyCode === $.ui.keyCode.LEFT && cursorPosition > 0) ||
+         e.keyCode === $.ui.keyCode.RIGHT && cursorPosition < textLength-1) {
+      e.stopImmediatePropagation();
+    }
+  }
+
   function TextEditor(args) {
     var $input;
     var defaultValue;
@@ -29,11 +42,7 @@
     this.init = function () {
       $input = $("<INPUT type=text class='editor-text' />")
           .appendTo(args.container)
-          .on("keydown.nav", function (e) {
-            if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
-              e.stopImmediatePropagation();
-            }
-          })
+          .on("keydown.nav", handleKeydownNav)
           .focus()
           .select();
     };
@@ -98,11 +107,7 @@
     this.init = function () {
       $input = $("<INPUT type=text class='editor-text' />");
 
-      $input.on("keydown.nav", function (e) {
-        if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
-          e.stopImmediatePropagation();
-        }
-      });
+      $input.on("keydown.nav", handleKeydownNav);
 
       $input.appendTo(args.container);
       $input.focus().select();
@@ -167,11 +172,7 @@
     this.init = function () {
       $input = $("<INPUT type=text class='editor-text' />");
 
-      $input.on("keydown.nav", function (e) {
-        if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
-          e.stopImmediatePropagation();
-        }
-      });
+      $input.on("keydown.nav", handleKeydownNav);
 
       $input.appendTo(args.container);
       $input.focus().select();
@@ -216,7 +217,7 @@
       } else {
         rtn = rtn || 0;
       }
-      
+
       var decPlaces = getDecimalPlaces();
       if (decPlaces !== null
       && (rtn || rtn===0)
