@@ -44,7 +44,7 @@
     options = $.extend(true, {}, _defaults, options);
 
 
-    function defaultGroupCellFormatter(row, cell, value, columnDef, item) {
+    function defaultGroupCellFormatter(row, cell, value, columnDef, item, grid) {
       if (!options.enableExpandCollapse) {
         return item.title;
       }
@@ -62,8 +62,8 @@
           "</span>";
     }
 
-    function defaultTotalsCellFormatter(row, cell, value, columnDef, item) {
-      return (columnDef.groupTotalsFormatter && columnDef.groupTotalsFormatter(item, columnDef)) || "";
+    function defaultTotalsCellFormatter(row, cell, value, columnDef, item, grid) {
+      return (columnDef.groupTotalsFormatter && columnDef.groupTotalsFormatter(item, columnDef, grid)) || "";
     }
 
 
