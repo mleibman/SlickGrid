@@ -134,7 +134,7 @@ var sortdir = 1;
 var percentCompleteThreshold = 0;
 var prevPercentCompleteThreshold = 0;
 
-function avgTotalsFormatter(totals, columnDef) {
+function avgTotalsFormatter(totals, columnDef, grid) {
   var val = totals.avg && totals.avg[columnDef.field];
   if (val != null) {
     return "avg: " + Math.round(val) + "%";
@@ -142,7 +142,7 @@ function avgTotalsFormatter(totals, columnDef) {
   return "";
 }
 
-function sumTotalsFormatter(totals, columnDef) {
+function sumTotalsFormatter(totals, columnDef, grid) {
   var val = totals.sum && totals.sum[columnDef.field];
   if (val != null) {
     return "total: " + ((Math.round(parseFloat(val)*100)/100));
