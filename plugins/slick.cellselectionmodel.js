@@ -60,12 +60,33 @@
       return result;
     }
 
+    function rangesAreEqual(range1, range2) {
+      var areDifferent = (range1.length !== range2.length);
+      if (!areDifferent) {
+        for (var i = 0; i < range1.length; i++) {
+          if (
+            range1[i].fromCell !== range2[i].fromCell
+            || range1[i].fromRow !== range2[i].fromRow
+            || range1[i].toCell !== range2[i].toCell
+            || range1[i].toRow !== range2[i].toRow
+          ) {
+            areDifferent = true;
+            break;
+          }
+        }
+      }
+      return !areDifferent;
+    }
+
     function setSelectedRanges(ranges) {
       // simple check for: empty selection didn't change, prevent firing onSelectedRangesChanged
       if ((!_ranges || _ranges.length === 0) && (!ranges || ranges.length === 0)) { return; }
 
+      // if range has not changed, don't fire onSelectedRangesChanged
+      var rangeHasChanged = !rangesAreEqual(_ranges, ranges);
+      
       _ranges = removeInvalidRanges(ranges);
-      _self.onSelectedRangesChanged.notify(_ranges);
+      if (rangeHasChanged) { _self.onSelectedRangesChanged.notify(_ranges); }
     }
 
     function getSelectedRanges() {
