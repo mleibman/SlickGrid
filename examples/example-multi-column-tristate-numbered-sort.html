@@ -18,8 +18,12 @@
       <h2>Demonstrates:</h2>
       <ul>
         <li>basic grid with multi-column tri-state sort option</li>
-        <li>numbers indication column sort precedence are displayed in the columns when multiple columns selected</li>
+        <li>numbers indicating column sort precedence are displayed in the columns when multiple columns selected</li>
         <li>first column click sorts ASC, second click DESC, third click removes sort from column</li>
+        <li>no shift-click is necessary to use multiple columns</li>
+        <li>span holding the up/down arrow is styled with css class <i>slick-sort-indicator</i></li>
+        <li>if option <i>sortColNumberInSeparateSpan</i> is false, the above span is also styled with css class <i>slick-sort-indicator-numbered</i></li>
+        <li>if option <i>sortColNumberInSeparateSpan</i> is true, renders a separate span for the number and styles it with css class <i>slick-sort-indicator-numbered</i></li>
       </ul>
         <h2>View Source:</h2>
         <ul>
@@ -59,7 +63,8 @@
     enableColumnReorder: false,
     multiColumnSort: true,
     numberedMultiColumnSort: true,
-    tristateMultiColumnSort: true
+    tristateMultiColumnSort: true,
+    sortColNumberInSeparateSpan: false
   };
 
   $(function () {
