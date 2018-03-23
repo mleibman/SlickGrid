@@ -1740,7 +1740,7 @@ if (typeof Slick === "undefined") {
       
       // get addl css class names from object type formatter return and from string type return of onBeforeAppendCell
       var addlCssClasses = trigger(self.onBeforeAppendCell, { row: row, cell: cell, grid: self, value: value, dataContext: item }) || '';
-      addlCssClasses += (formatterResult.addClasses ? (addlCssClasses ? ' ' : '') + formatterResult.addClasses : '');
+      addlCssClasses += (formatterResult && formatterResult.addClasses ? (addlCssClasses ? ' ' : '') + formatterResult.addClasses : '');
       
       stringArray.push("<div class='" + cellCss + (addlCssClasses ? ' ' + addlCssClasses : '') + "'>");
 
@@ -1867,6 +1867,7 @@ if (typeof Slick === "undefined") {
     }
 
     function applyFormatResultToCellNode(formatterResult, cellNode, suppressRemove) {
+        if (formatterResult === null || formatterResult === undefined) { formatterResult = ''; }
         if (Object.prototype.toString.call(formatterResult)  !== '[object Object]') { 
             cellNode.innerHTML = formatterResult;
             return;
