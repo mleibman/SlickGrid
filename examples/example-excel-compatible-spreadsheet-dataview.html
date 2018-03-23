@@ -39,6 +39,11 @@
       <li>Use Ctrl-V keyboard shortcut to paste from the clipboard</li>
       <li>Adds rows to bottom of grid if paste overflows</li>
     </ul>
+    <div>
+      Each column to be pasted to must either have an editor, or there must be an overall getter/setter for the whole grid.<br/>
+      The issue is that to copy and paste a block from anywhere to anywhere, the data copied/pasted must be in text format. If data was copied direct, and if the columns of the copy/paste area were not aligned, we might end up copying say a date value into a column that has text data.<br/>
+      Enforcing the requirement for the editor is the way CellExternalCopyManager makes sure that pasted text data can be converter to and from the native data type of the column.
+    </div>
     <h2>Copy for Excel-compatible:</h2>
     <ul>
         <li>Select a range of cells with a mouse</li>
