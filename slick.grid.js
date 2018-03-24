@@ -1859,10 +1859,10 @@ if (typeof Slick === "undefined") {
         }
       }
       if (options.enableAsyncPostRenderCleanup) { startPostProcessingCleanup(); }
-
     }
 
     function invalidateRow(row) {
+      if (!row && row !== 0) { return; }
       invalidateRows([row]);
     }
 
