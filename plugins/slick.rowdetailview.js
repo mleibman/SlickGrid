@@ -156,7 +156,7 @@
         var topMostItem = _dataView.getItemByIdx(start);
 
         // Check it is a parent item
-        if (topMostItem._parent == undefined)
+        if (topMostItem && topMostItem._parent == undefined)
         {
             // This is a standard row as we have no parent.
             var nextItem = _dataView.getItemByIdx(start + 1);
@@ -175,7 +175,7 @@
         var bottomMostItem = _dataView.getItemByIdx(end - 1);
 
         // If we are a detailView and we are about to go out of cache view
-        if(bottomMostItem._parent !== undefined)
+        if (bottomMostItem && bottomMostItem._parent !== undefined)
         {
             saveDetailView(bottomMostItem._parent);
             
