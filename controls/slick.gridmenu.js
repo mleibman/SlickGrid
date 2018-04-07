@@ -102,7 +102,7 @@
       var columnCheckboxes;
       var _defaults = {
         hideForceFitButton: false,
-        hideSyncResizeButton: false, 
+        hideSyncResizeButton: false,
         fadeSpeed: 250,
         forceFitTitle: "Force fit columns",
         menuWidth: 18,
@@ -117,7 +117,7 @@
 
         // if header row is enabled, we need to resize it's width also
         var enableResizeHeaderRow = (_options.gridMenu && _options.gridMenu.resizeOnShowHeaderRow != undefined) ? _options.gridMenu.resizeOnShowHeaderRow : _defaults.resizeOnShowHeaderRow;
-        if(enableResizeHeaderRow) {
+        if(enableResizeHeaderRow && _options.showHeaderRow) {
           var $headerrow = $('.slick-headerrow');
           $headerrow.attr('style', 'width: calc(100% - ' + gridMenuWidth +'px)');
         }
