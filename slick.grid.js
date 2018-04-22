@@ -55,6 +55,7 @@ if (typeof Slick === "undefined") {
   function SlickGrid(container, data, columns, options) {
     // settings
     var defaults = {
+      alwaysShowVerticalScroll: false,
       explicitInitialization: false,
       rowHeight: 25,
       defaultColumnWidth: 80,
@@ -303,7 +304,7 @@ if (typeof Slick === "undefined") {
       }
 
       $viewport = $("<div class='slick-viewport' style='width:100%;overflow:auto;outline:0;position:relative;;'>").appendTo($container);
-      $viewport.css("overflow-y", options.autoHeight ? "hidden" : "auto");
+      $viewport.css("overflow-y", options.alwaysShowVerticalScroll ? "scroll" : (options.autoHeight ? "hidden" : "auto"));
       $viewport.css("overflow-x", options.forceFitColumns ? "hidden" : "auto");
       if (options.viewportClass) $viewport.toggleClass(options.viewportClass, true);
 
