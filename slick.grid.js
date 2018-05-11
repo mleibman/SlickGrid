@@ -2749,7 +2749,7 @@ if (typeof Slick === "undefined") {
           scrollRowIntoView(cell.row, false);
 
           var preClickModeOn = (e.target && e.target.className === Slick.preClickClassName);
-          setActiveCellInternal(getCellNode(cell.row, cell.cell), null, preClickModeOn);
+          setActiveCellInternal(getCellNode(cell.row, cell.cell), null, preClickModeOn, true);
         }
       }
     }
