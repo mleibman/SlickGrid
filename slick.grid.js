@@ -2749,7 +2749,7 @@ if (typeof Slick === "undefined") {
           scrollRowIntoView(cell.row, false);
 
           var preClickModeOn = (e.target && e.target.className === Slick.preClickClassName);
-          setActiveCellInternal(getCellNode(cell.row, cell.cell), null, preClickModeOn, true);
+          setActiveCellInternal(getCellNode(cell.row, cell.cell), null, preClickModeOn, options.editable);
         }
       }
     }
@@ -3704,7 +3704,7 @@ if (typeof Slick === "undefined") {
       var newCell = getCellNode(row, cell);
 
       // if selecting the 'add new' row, start editing right away
-      setActiveCellInternal(newCell, (forceEdit || (row === getDataLength()) || options.autoEdit), null, true);
+      setActiveCellInternal(newCell, (forceEdit || (row === getDataLength()) || options.autoEdit), null, options.editable);
 
       // if no editor was created, set the focus back on the grid
       if (!currentEditor) {
