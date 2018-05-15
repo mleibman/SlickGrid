@@ -5,7 +5,7 @@ No built-in (selected, editable, highlight, flashing, invalid, loading, :focus) 
 classes should alter those!
 */
 
-.slick-header.ui-state-default, .slick-headerrow.ui-state-default, .slick-footerrow.ui-state-default, .slick-top-panel-scroller.ui-state-default {
+.slick-header.ui-state-default, .slick-headerrow.ui-state-default, .slick-footerrow.ui-state-default, .slick-top-panel-scroller.ui-state-default, .slick-group-header.ui-state-default {
   width: 100%;
   overflow: auto;
   position: relative;
@@ -20,17 +20,17 @@ classes should alter those!
   display: none
 }
 
-.slick-header-columns, .slick-headerrow-columns, .slick-footerrow-columns {
+.slick-header-columns, .slick-headerrow-columns, .slick-footerrow-columns, .slick-group-header-columns {
   position: relative;
   white-space: nowrap;
   cursor: default;
   overflow: hidden;
 }
 
-.slick-header-column.ui-state-default {
+.slick-header-column.ui-state-default, .slick-group-header-column.ui-state-default {
   position: relative;
   display: inline-block;
- /*box-sizing: content-box !important; use this for Firefox! */ 
+  /*box-sizing: content-box !important; use this for Firefox! */ 
   overflow: hidden;
   -o-text-overflow: ellipsis;
   text-overflow: ellipsis;
@@ -43,6 +43,20 @@ classes should alter those!
   border-top: 0px !important;
   border-bottom: 0px !important;
   float: left;
+}
+
+.slick-footerrow-column.ui-state-default {
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  margin: 0;
+  padding: 4px;
+  border-right: 1px solid silver;
+  border-left: 0px;
+  border-top: 0px;
+  border-bottom: 0px;
+  float: left;
+  line-height: 20px;
+  vertical-align: middle;
 }
 
 .slick-headerrow-column.ui-state-default, .slick-footerrow-column.ui-state-default {
@@ -132,7 +146,7 @@ classes should alter those!
 .slick-footerrow-column {
   border-top-color: silver;
 }
- 
+
 .slick-group {
 }
 
@@ -185,4 +199,40 @@ classes should alter those!
   z-index: 10;
   position: absolute;
   border: 2px dashed black;
+}
+
+.slick-pane {
+  position: absolute;
+  outline: 0;
+  overflow: hidden;
+  width: 100%;
+}
+
+.slick-pane-header {
+  display: block;
+}
+
+.slick-header {
+  overflow: hidden;
+  position: relative;
+}
+
+.slick-headerrow {
+  overflow: hidden;
+  position: relative;
+}
+
+.slick-top-panel-scroller {
+  overflow: hidden;
+  position: relative;
+}
+
+.slick-top-panel {
+  width: 10000px
+}
+
+.slick-viewport {
+  position: relative;
+  outline: 0;
+  width: 100%;
 }
