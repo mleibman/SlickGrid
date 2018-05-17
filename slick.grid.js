@@ -171,7 +171,7 @@ if (typeof Slick === "undefined") {
     var topPanelH = 0;
     var headerRowH = 0;
     var footerRowH = 0;
-
+    
     var tabbingDirection = 1;
     var $activeCanvasNode;
     var $activeViewportNode;
@@ -859,7 +859,7 @@ if (typeof Slick === "undefined") {
         viewportHasHScroll = (canvasWidth > viewportW - scrollbarDimensions.width);
       }
 
-      $headerRowSpacerL.width(canvasWidth + (viewportHasVScroll ? scrollbarDimensions.width : 0));
+       $headerRowSpacerL.width(canvasWidth + (viewportHasVScroll ? scrollbarDimensions.width : 0));
       $headerRowSpacerR.width(canvasWidth + (viewportHasVScroll ? scrollbarDimensions.width : 0));
 
       if (options.createFooterRow) {
@@ -1135,7 +1135,7 @@ if (typeof Slick === "undefined") {
             });
           }
         });
-
+      
       $headerL.empty();
       $headerR.empty();
 
@@ -1155,7 +1155,7 @@ if (typeof Slick === "undefined") {
             });
           }
         });
-
+      
       $headerRowL.empty();
       $headerRowR.empty();
 
@@ -1403,7 +1403,7 @@ if (typeof Slick === "undefined") {
           ui.placeholder.width(ui.helper.outerWidth() - headerColumnWidthDiff);
           canDragScroll = !hasFrozenColumns() ||
             (ui.placeholder.offset().left + ui.placeholder.width()) > $viewportScrollContainerX.offset().left;
-	      $(ui.helper).addClass("slick-header-column-active");
+          $(ui.helper).addClass("slick-header-column-active");
         },
         beforeStop: function (e, ui) {
           $(ui.helper).removeClass("slick-header-column-active");
@@ -1461,7 +1461,7 @@ if (typeof Slick === "undefined") {
       });
     }
 
-	function getImpactedColumns( limit ) {
+    function getImpactedColumns( limit ) {
     	var impactedColumns = [];
 
     	if( limit != undefined ) {
@@ -1627,9 +1627,7 @@ if (typeof Slick === "undefined") {
                 }
               } else { // stretch column
                 x = d;
-
                 var newCanvasWidthL = 0, newCanvasWidthR = 0;
-
                 for (j = i; j >= 0; j--) {
                   c = columns[j];
                   if (c.resizable) {
@@ -1652,7 +1650,7 @@ if (typeof Slick === "undefined") {
                     newCanvasWidthL += c.width;
                   }
                 }
-
+                
                 if (options.forceFitColumns) {
                   x = -d;
                   for (j = i + 1; j < columns.length; j++) {
@@ -2256,7 +2254,6 @@ if (typeof Slick === "undefined") {
       if (initialized) {
         setPaneVisibility();
         setOverflow();
-
         invalidateAllRows();
         createColumnHeaders();
         createColumnGroupHeaders();
@@ -2714,7 +2711,7 @@ if (typeof Slick === "undefined") {
         });
 
       }
-
+      
       delete rowsCache[row];
       delete postProcessedRows[row];
       renderedRows--;
@@ -2946,7 +2943,7 @@ if (typeof Slick === "undefined") {
       } else {
         $viewportTopR.height(viewportTopH);
       }
-
+      
       if (options.forceFitColumns) {
         autosizeColumns();
       }
@@ -2980,7 +2977,7 @@ if (typeof Slick === "undefined") {
       var oldViewportHasVScroll = viewportHasVScroll;
       // with autoHeight, we do not need to accommodate the vertical scroll bar
       viewportHasVScroll = options.alwaysShowVerticalScroll || !options.autoHeight && (numberOfRows * options.rowHeight > tempViewportH);
-      
+
       makeActiveCellNormal();
 
       // remove the rows that are now outside of the data range
@@ -3254,10 +3251,10 @@ if (typeof Slick === "undefined") {
 
     function renderRows(range) {
       var stringArrayL = [],
-        stringArrayR = [],
-        rows = [],
-        needToReselectCell = false,
-        dataLength = getDataLength();
+          stringArrayR = [],
+          rows = [],
+          needToReselectCell = false,
+          dataLength = getDataLength();
 
       for (var i = range.top, ii = range.bottom; i <= ii; i++) {
         if (rowsCache[i] || ( hasFrozenRows && options.frozenBottom && i == getDataLength() )) {
@@ -3368,8 +3365,7 @@ if (typeof Slick === "undefined") {
 
       // add new rows & missing cells in existing rows
       if (lastRenderedScrollLeft != scrollLeft) {
-
-    	  if ( hasFrozenRows ) {
+        if ( hasFrozenRows ) {
 
     		  var renderedFrozenRows = jQuery.extend(true, {}, rendered);
 
@@ -3386,8 +3382,7 @@ if (typeof Slick === "undefined") {
 
     		  cleanUpAndRenderCells(renderedFrozenRows);
     	  }
-
-          cleanUpAndRenderCells(rendered);
+        cleanUpAndRenderCells(rendered);
       }
 
       // render missing rows
@@ -3462,7 +3457,6 @@ if (typeof Slick === "undefined") {
 
       if (hScrollDist) {
         prevScrollLeft = scrollLeft;
-
         if($viewportScrollContainerX) {
           $viewportScrollContainerX[0].scrollLeft = scrollLeft;
         }
@@ -3981,7 +3975,7 @@ if (typeof Slick === "undefined") {
       for (var row in rowsCache) {
         for (var i in rowsCache[row].rowNode) {
           if (rowsCache[row].rowNode[i] === rowNode)
-            return row | 0;
+          return row | 0;
         }
       }
       return null;
@@ -4012,7 +4006,7 @@ if (typeof Slick === "undefined") {
       }
 
       row = getRowFromNode($cell[0].parentNode);
-
+      
       if (hasFrozenRows) {
 
         var c = $cell.parents('.grid-canvas').offset();
@@ -4082,7 +4076,6 @@ if (typeof Slick === "undefined") {
     }
 
     function scrollCellIntoView(row, cell, doPaging) {
-
       scrollRowIntoView(row, doPaging);
 
       if (cell <= options.frozenColumn) {
@@ -4145,8 +4138,8 @@ if (typeof Slick === "undefined") {
         }
 
         if (options.showCellSelection) {
-          $(activeCellNode).addClass("active");
-          $(rowsCache[activeRow].rowNode).addClass("active");
+        $(activeCellNode).addClass("active");
+        $(rowsCache[activeRow].rowNode).addClass("active");
         }
 
         if (opt_editMode == null) {
