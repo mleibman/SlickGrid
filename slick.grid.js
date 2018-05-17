@@ -2789,7 +2789,7 @@ if (typeof Slick === "undefined") {
 
         columnIdx = columnIdx | 0;
         var m = columns[columnIdx],
-            node = cacheEntry.cellNodesByColumnIdx[columnIdx][0];
+            node = cacheEntry.cellNodesByColumnIdx[columnIdx];
 
         if (row === activeRow && columnIdx === activeCell && currentEditor) {
           currentEditor.loadValue(d);
@@ -2833,6 +2833,7 @@ if (typeof Slick === "undefined") {
       }
 
       numVisibleRows = Math.ceil(viewportH / options.rowHeight);
+      return viewportH;
     }
 
     function getViewportWidth() {
@@ -4216,7 +4217,7 @@ if (typeof Slick === "undefined") {
           var column = columns[activeCell];
           var formatter = getFormatter(activeRow, column);
           var formatterResult =  formatter(activeRow, activeCell, getDataItemValueForColumn(d, column), column, d, self);
-          applyFormatResultToCellNode(formatterResult, activeCellNode);
+          applyFormatResultToCellNode(formatterResult, activeCellNode[0]);
           invalidatePostProcessingResults(activeRow);
         }
       }
@@ -4260,7 +4261,7 @@ if (typeof Slick === "undefined") {
 
       // don't clear the cell if a custom editor is passed through
       if (!editor && !useEditor.suppressClearOnEdit) {
-        activeCellNode.innerHTML = "";
+        activeCellNode[0].innerHTML = "";
       }
 
       var metadata = data.getItemMetadata && data.getItemMetadata(activeRow);
@@ -4270,7 +4271,7 @@ if (typeof Slick === "undefined") {
       currentEditor = new useEditor({
         grid: self,
         gridPosition: absBox($container[0]),
-        position: absBox(activeCellNode),
+        position: absBox(activeCellNode[0]),
         container: activeCellNode,
         column: columnDef,
         columnMetaData: columnMetaData,
@@ -4352,7 +4353,7 @@ if (typeof Slick === "undefined") {
     }
 
     function getActiveCellPosition() {
-      return absBox(activeCellNode);
+      return absBox(activeCellNode[0]);
     }
 
     function getGridPosition() {
@@ -4521,7 +4522,7 @@ if (typeof Slick === "undefined") {
         return 1;
       }
 
-      var columnData = columns[cell] && ( metadata.columns[columns[cell].id] || metadata.columns[cell] );
+      var columnData = metadata.columns[columns[cell].id] || metadata.columns[cell];
       var colspan = (columnData && columnData.colspan);
       if (colspan === "*") {
         colspan = columns.length - cell;
@@ -4529,7 +4530,7 @@ if (typeof Slick === "undefined") {
         colspan = colspan || 1;
       }
 
-      return parseInt( colspan );
+      return colspan;
     }
 
     function findFirstFocusableCell(row) {
