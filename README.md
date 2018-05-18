@@ -1,5 +1,7 @@
 ## This is the 6pac SlickGrid repo
 
+Check out the NEW SlickGrid Website! http://slickgrid.net/
+
 This is the acknowledged most active non-customised fork of SlickGrid.
 
 It aims to be a viable alternative master repo, building on the legacy of the mleibman/SlickGrid master branch, keeping libraries up to date and applying small, safe core patches and enhancements without turning into a personalised build.
