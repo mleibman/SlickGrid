@@ -94,10 +94,12 @@
 
     function SlickGridMenu(columns, grid, options) {
       var _grid = grid;
+      var _gridUid = (grid && grid.getUID) ? grid.getUID() : '';
       var _isMenuOpen = false;
       var _options = options;
       var _self = this;
       var $list;
+      var $button;
       var $menu;
       var columnCheckboxes;
       var _defaults = {
@@ -112,8 +114,11 @@
 
       function init(grid) {
         var gridMenuWidth = (_options.gridMenu && _options.gridMenu.menuWidth) || _defaults.menuWidth;
-        var $header = $('.slick-header');
+        var $header = $('.' + _gridUid + ' .slick-header');
         $header.attr('style', 'width: calc(100% - ' + gridMenuWidth +'px)');
+		
+        // subscribe to the grid, when it's destroyed, we should also destroy the Grid Menu
+        grid.onBeforeDestroy.subscribe(destroy);
 
         // if header row is enabled, we need to resize it's width also
         var enableResizeHeaderRow = (_options.gridMenu && _options.gridMenu.resizeOnShowHeaderRow != undefined) ? _options.gridMenu.resizeOnShowHeaderRow : _defaults.resizeOnShowHeaderRow;
@@ -122,7 +127,7 @@
           $headerrow.attr('style', 'width: calc(100% - ' + gridMenuWidth +'px)');
         }
 
-        var $button = $('<button class="slick-gridmenu-button"/>');
+        $button = $('<button class="slick-gridmenu-button"/>');
         if (_options.gridMenu && _options.gridMenu.iconCssClass) {
           $button.addClass(_options.gridMenu.iconCssClass);
         } else {
@@ -148,13 +153,13 @@
         populateColumnPicker();
 
         // Hide the menu on outside click.
-        $(document.body).on("mousedown", handleBodyMouseDown);
+        $(document.body).on("mousedown." + _gridUid, handleBodyMouseDown);
 
         // destroy the picker if user leaves the page
         $(window).on("beforeunload", destroy);
 
         // add on click handler for the Grid Menu itself
-        $button.on("click", showGridMenu);
+        $button.on("click." + _gridUid, showGridMenu);
       }
 
       function destroy() {
@@ -163,9 +168,11 @@
         _self.onCommand.unsubscribe();
         _self.onColumnsChanged.unsubscribe();
         _grid.onColumnsReordered.unsubscribe(updateColumnOrder);
-        $(document.body).off("mousedown", handleBodyMouseDown);
+        _grid.onBeforeDestroy.unsubscribe();
+        $(document.body).off("mousedown." + _gridUid, handleBodyMouseDown);
         $("div.slick-gridmenu").hide(_options.fadeSpeed);
         $menu.remove();
+        $button.remove();
       }
 
       function populateCustomMenus(options, $customMenu) {
@@ -295,13 +302,12 @@
             .fadeIn(_options.fadeSpeed);
 
         $list.appendTo($menu);
+        _isMenuOpen = true;
       }
 
       function handleBodyMouseDown(e) {
         if (($menu && $menu[0] != e.target && !$.contains($menu[0], e.target) && _isMenuOpen) || e.target.className == "close") {
           hideMenu(e);
-        } else {
-          _isMenuOpen = true;
         }
       }
 
