@@ -56,6 +56,9 @@
     <h2>Demonstrates:</h2>
     <ul>
       <li>Checkbox row select column</li>
+      <p>
+        <button onclick="toggleHideSelectAllCheckbox()">Toggle show/hide "Select All" checkbox</button>
+      </p>
     </ul>
       <h2>View Source:</h2>
       <ul>
@@ -94,8 +97,18 @@
     asyncEditorLoading: false,
     autoEdit: false
   };
+  var checkboxSelector1, checkboxSelector2;
   var columns = [];
   var columns2 = [];
+  var isSelectAllCheckbox1Hidden = false;
+  var isSelectAllCheckbox2Hidden = false;
+
+  function toggleHideSelectAllCheckbox() {
+    isSelectAllCheckbox1Hidden = !isSelectAllCheckbox1Hidden;
+    isSelectAllCheckbox2Hidden = !isSelectAllCheckbox2Hidden;
+    checkboxSelector1.setOptions({ hideSelectAllCheckbox: isSelectAllCheckbox1Hidden });
+    checkboxSelector2.setOptions({ hideSelectAllCheckbox: isSelectAllCheckbox2Hidden });
+  }
 
   $(function () {
     for (var i = 0; i < 100; i++) {
@@ -103,14 +116,14 @@
       d[0] = "Row " + i;
     }
 
-    var checkboxSelector = new Slick.CheckboxSelectColumn({
+    checkboxSelector1 = new Slick.CheckboxSelectColumn({
       cssClass: "slick-cell-checkboxsel"
     });
-    var checkboxSelector2 = new Slick.CheckboxSelectColumn({
+    checkboxSelector2 = new Slick.CheckboxSelectColumn({
       cssClass: "slick-cell-checkboxsel"
     });
 
-    columns.push(checkboxSelector.getColumnDefinition());
+    columns.push(checkboxSelector1.getColumnDefinition());
     columns2.push(checkboxSelector2.getColumnDefinition());
 
     for (var i = 0; i < 5; i++) {
@@ -127,7 +140,7 @@
 
     grid = new Slick.Grid("#myGrid", data, columns, options);
     grid.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow: false}));
-    grid.registerPlugin(checkboxSelector);
+    grid.registerPlugin(checkboxSelector1);
 
     grid2 = new Slick.Grid("#myGrid2", data, columns2, options);
     grid2.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow: false}));
