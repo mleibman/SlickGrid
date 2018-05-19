@@ -71,13 +71,12 @@
       }
       _selectedRowsLookup = lookup;
       _grid.render();
+      _isSelectAllChecked = selectedRows.length && selectedRows.length == _grid.getDataLength();
 
       if (!_options.hideSelectAllCheckbox) {
-        if (selectedRows.length && selectedRows.length == _grid.getDataLength()) {
-          _isSelectAllChecked = true;
+        if (_isSelectAllChecked) {
           _grid.updateColumnHeader(_options.columnId, "<input id='header-selector" + UID + "' type='checkbox' checked='checked'><label for='header-selector" + UID + "'></label>", _options.toolTip);
         } else {
-          _isSelectAllChecked = true;
           _grid.updateColumnHeader(_options.columnId, "<input id='header-selector" + UID + "' type='checkbox'><label for='header-selector" + UID + "'></label>", _options.toolTip);
         }
       }
