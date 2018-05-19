@@ -15,9 +15,11 @@
     var _defaults = {
       columnId: "_checkbox_selector",
       cssClass: null,
+      hideSelectAllCheckbox: false,
       toolTip: "Select/Deselect All",
       width: 30
     };
+    var _isSelectAllChecked = false;
 
     var _options = $.extend(true, {}, _defaults, options);
 
@@ -32,6 +34,24 @@
 
     function destroy() {
       _handler.unsubscribeAll();
+    }
+
+    function getOptions(options) {
+      return _options;
+    }
+
+    function setOptions(options) {
+      _options = $.extend(true, {}, _options, options);
+      if (_options.hideSelectAllCheckbox) {
+        _grid.updateColumnHeader(_options.columnId, "", "");
+      } else {
+        var UID = createUID();
+        if (_isSelectAllChecked) {
+          _grid.updateColumnHeader(_options.columnId, "<input id='header-selector" + UID + "' type='checkbox' checked='checked'><label for='header-selector" + UID + "'></label>", _options.toolTip);
+        } else {
+          _grid.updateColumnHeader(_options.columnId, "<input id='header-selector" + UID + "' type='checkbox'><label for='header-selector" + UID + "'></label>", _options.toolTip);
+        }
+      }
     }
 
     function handleSelectedRowsChanged(e, args) {
@@ -52,10 +72,14 @@
       _selectedRowsLookup = lookup;
       _grid.render();
 
-      if (selectedRows.length && selectedRows.length == _grid.getDataLength()) {
-        _grid.updateColumnHeader(_options.columnId, "<input id='header-selector" + UID + "' type='checkbox' checked='checked'><label for='header-selector" + UID + "'></label>", _options.toolTip);
-      } else {
-        _grid.updateColumnHeader(_options.columnId, "<input id='header-selector" + UID + "' type='checkbox'><label for='header-selector" + UID + "'></label>", _options.toolTip);
+      if (!_options.hideSelectAllCheckbox) {
+        if (selectedRows.length && selectedRows.length == _grid.getDataLength()) {
+          _isSelectAllChecked = true;
+          _grid.updateColumnHeader(_options.columnId, "<input id='header-selector" + UID + "' type='checkbox' checked='checked'><label for='header-selector" + UID + "'></label>", _options.toolTip);
+        } else {
+          _isSelectAllChecked = true;
+          _grid.updateColumnHeader(_options.columnId, "<input id='header-selector" + UID + "' type='checkbox'><label for='header-selector" + UID + "'></label>", _options.toolTip);
+        }
       }
     }
 
@@ -165,13 +189,14 @@
 
       return {
         id: _options.columnId,
-        name: "<input id='header-selector" + UID + "' type='checkbox'><label for='header-selector" + UID + "'></label>",
+        name: _options.hideSelectAllCheckbox ? "" : "<input id='header-selector" + UID + "' type='checkbox'><label for='header-selector" + UID + "'></label>",
         toolTip: _options.toolTip,
         field: "sel",
         width: _options.width,
         resizable: false,
         sortable: false,
         cssClass: _options.cssClass,
+        hideSelectAllCheckbox: _options.hideSelectAllCheckbox,
         formatter: checkboxSelectionFormatter
       };
     }
@@ -196,7 +221,9 @@
       "destroy": destroy,
       "deSelectRows": deSelectRows,
       "selectRows": selectRows,
-      "getColumnDefinition": getColumnDefinition
+      "getColumnDefinition": getColumnDefinition,
+      "getOptions": getOptions,
+      "setOptions": setOptions,
     });
   }
 })(jQuery);
