@@ -44,6 +44,7 @@
       <li>Optional title for the columns list (bottom section)</li>
       <li>To dismiss the Grid Menu, user can click on the "x" on top right corner or anywhere outside of the Grid Menu</li>
       <li>Possibility to attach the Grid Menu to an external button (try clicking on the button below).</li>
+      <li>You can also use some events like "onMenuClose()" and to trigger a resize of the columns with "autosizeColumns()" when "forceFitColumns: false"</li>
       <p>
         <button onclick="toggleGridMenu(event)"><img src="../images/drag-handle.png"/> Grid Menu</button>
       </p>
@@ -84,7 +85,7 @@
     showHeaderRow: true,
     headerRowHeight: 30,
     explicitInitialization: true,
-    forceFitColumns: true,
+    forceFitColumns: false,
     alwaysShowVerticalScroll: true, // this is necessary when using Grid Menu with a small dataset
     
     // gridMenu Object is optional
@@ -240,6 +241,7 @@
     // subscribe to event when menu is closing
     gridMenuControl.onMenuClose.subscribe(function(e, args) {
       console.log('Menu is closing');
+      grid.autosizeColumns();
     });
 
   })
