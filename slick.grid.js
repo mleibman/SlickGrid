@@ -3287,7 +3287,10 @@ if (typeof Slick === "undefined") {
 
     function scrollPage(dir) {
       var deltaRows = dir * numVisibleRows;
-      scrollTo((getRowFromPosition(scrollTop) + deltaRows) * options.rowHeight);
+        /// First fully visible row crosses the line with  
+        /// y == bottomOfTopmostFullyVisibleRow
+      var bottomOfTopmostFullyVisibleRow = scrollTop + options.rowHeight - 1;
+      scrollTo((getRowFromPosition(bottomOfTopmostFullyVisibleRow) + deltaRows) * options.rowHeight);
       render();
 
       if (options.enableCellNavigation && activeRow != null) {
