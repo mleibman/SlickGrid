@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous">
   <style>
     .slick-headerrow-column {
-      background: #87ceeb;
+      background: #87b6c9;
       text-overflow: clip;
       -moz-box-sizing: border-box;
       box-sizing: border-box;
@@ -39,7 +39,7 @@
       content: "\f00c";
       font-size: 13px;
     }
-    #myGrid input[type=checkbox] + label:before { opacity: 0.1; } /* unchecked icon */
+    #myGrid input[type=checkbox] + label:before { opacity: 0.2; } /* unchecked icon */
     #myGrid input[type=checkbox]:checked + label:before { opacity: 1; } /* checked icon */
   </style>
 </head>
@@ -92,16 +92,16 @@
   };
   var columns = [];
   var columnFilters = {};
-  var checkboxSelector3;
-  var isSelectAllCheckbox3Hidden = false;
+  var checkboxSelector;
+  var isSelectAllCheckboxHidden = false;
 
-  checkboxSelector3 = new Slick.CheckboxSelectColumn({
+  checkboxSelector = new Slick.CheckboxSelectColumn({
     cssClass: "slick-cell-checkboxsel",
     showInColumnTitleRow: false,
     showInFilterHeaderRow: true
   });
 
-  columns.push(checkboxSelector3.getColumnDefinition());
+  columns.push(checkboxSelector.getColumnDefinition());
 
   for (var i = 0; i < 10; i++) {
     columns.push({
@@ -125,8 +125,8 @@
   }
 
   function toggleHideSelectAllCheckbox() {
-    isSelectAllCheckbox3Hidden = !isSelectAllCheckbox3Hidden;
-    checkboxSelector3.setOptions({ hideSelectAllCheckbox: isSelectAllCheckbox3Hidden });
+    isSelectAllCheckboxHidden = !isSelectAllCheckboxHidden;
+    checkboxSelector.setOptions({ hideSelectAllCheckbox: isSelectAllCheckboxHidden });
   }
 
   $(function () {
@@ -138,12 +138,10 @@
       }
     }
 
-    
-
     dataView = new Slick.Data.DataView();
     grid = new Slick.Grid("#myGrid", dataView, columns, options);
     grid.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow: false}));
-    grid.registerPlugin(checkboxSelector3);
+    grid.registerPlugin(checkboxSelector);
 
     var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
 
