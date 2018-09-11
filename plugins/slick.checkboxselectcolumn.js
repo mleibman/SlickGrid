@@ -220,7 +220,7 @@
       grid.onHeaderRowCellRendered.subscribe(function(e, args) {
         if (args.column.field === "sel") {
           $(args.node).empty();
-          $("<input id='header-filter-selector" + _selectAll_UID + "' type='checkbox'><label for='header-selector" + _selectAll_UID + "'></label>")
+          $("<input id='header-filter-selector" + _selectAll_UID + "' type='checkbox'><label for='header-filter-selector" + _selectAll_UID + "'></label>")
             .appendTo(args.node)
             .on('click', function(evnt) { 
               handleHeaderClick(evnt, args) 
