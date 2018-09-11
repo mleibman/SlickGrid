@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous">
   <style>
     .slick-headerrow-column {
       background: #87ceeb;
@@ -22,6 +23,24 @@
       -moz-box-sizing: border-box;
       box-sizing: border-box;
     }
+    
+    .slick-cell-checkboxsel {
+      background: #f0f0f0;
+      border-right-color: silver;
+      border-right-style: solid;
+    }
+
+    #myGrid input[type=checkbox] { display:none; } /* to hide the checkbox itself */
+    #myGrid input[type=checkbox] + label:before {
+      font-family: FontAwesome;
+      color: rgb(143, 14, 106);
+      font-weight: bold;
+      display: inline-block;
+      content: "\f00c";
+      font-size: 13px;
+    }
+    #myGrid input[type=checkbox] + label:before { opacity: 0.1; } /* unchecked icon */
+    #myGrid input[type=checkbox]:checked + label:before { opacity: 1; } /* checked icon */
   </style>
 </head>
 <body>
