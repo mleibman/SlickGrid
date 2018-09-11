@@ -58,6 +58,9 @@
       <p>
         <button onclick="toggleHideSelectAllCheckbox()">Toggle show/hide "Select All" checkbox</button>
       </p>
+      <p>
+        <button onclick="toggleWhichRowToShowSelectAll()">Toggle which row to show "Select All" checkbox</button>
+      </p>
     </ul>
       <h2>View Source:</h2>
       <ul>
@@ -94,11 +97,12 @@
   var columnFilters = {};
   var checkboxSelector;
   var isSelectAllCheckboxHidden = false;
+  var isSelectAllShownAsColumnTitle = false;
 
   checkboxSelector = new Slick.CheckboxSelectColumn({
     cssClass: "slick-cell-checkboxsel",
-    showInColumnTitleRow: false,
-    showInFilterHeaderRow: true
+    showInColumnTitleRow: isSelectAllShownAsColumnTitle,
+    showInFilterHeaderRow: !isSelectAllShownAsColumnTitle
   });
 
   columns.push(checkboxSelector.getColumnDefinition());
@@ -127,6 +131,14 @@
   function toggleHideSelectAllCheckbox() {
     isSelectAllCheckboxHidden = !isSelectAllCheckboxHidden;
     checkboxSelector.setOptions({ hideSelectAllCheckbox: isSelectAllCheckboxHidden });
+  }
+
+  function toggleWhichRowToShowSelectAll() {
+    isSelectAllShownAsColumnTitle = !isSelectAllShownAsColumnTitle;
+    checkboxSelector.setOptions({ 
+      showInColumnTitleRow: isSelectAllShownAsColumnTitle,
+      showInFilterHeaderRow: !isSelectAllShownAsColumnTitle,
+    });
   }
 
   $(function () {

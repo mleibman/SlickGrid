@@ -52,8 +52,8 @@
       _options = $.extend(true, {}, _options, options);
       
       if (_options.hideSelectAllCheckbox) {
-        _grid.updateColumnHeader(_options.columnId, "", "");
-        $("#filter-checkbox-selectall-container").hide();
+        hideSelectAllFromColumnHeaderTitleRow();
+        hideSelectAllFromColumnHeaderFilterRow();
       } else {
         if (_options.showInColumnTitleRow) {
           if (_isSelectAllChecked) {
@@ -61,13 +61,26 @@
           } else {
             _grid.updateColumnHeader(_options.columnId, "<input id='header-selector" + _selectAll_UID + "' type='checkbox'><label for='header-selector" + _selectAll_UID + "'></label>", _options.toolTip);
           }
+        } else {
+          hideSelectAllFromColumnHeaderTitleRow();
         }
+
         if (_options.showInFilterHeaderRow) {
           $("#filter-checkbox-selectall-container").show();
           var selectAllElm = $("#header-filter-selector");
           selectAllElm.prop("checked", _isSelectAllChecked);
+        } else {
+          hideSelectAllFromColumnHeaderFilterRow();
         }
       } 
+    }
+
+    function hideSelectAllFromColumnHeaderTitleRow() {
+      _grid.updateColumnHeader(_options.columnId, "", "");
+    }
+
+    function hideSelectAllFromColumnHeaderFilterRow() {
+      $("#filter-checkbox-selectall-container").hide();
     }
 
     function handleSelectedRowsChanged(e, args) {
