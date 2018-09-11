@@ -32,6 +32,7 @@
 
     #myGrid input[type=checkbox] { display:none; } /* to hide the checkbox itself */
     #myGrid input[type=checkbox] + label:before {
+      cursor: pointer;
       font-family: FontAwesome;
       color: rgb(143, 14, 106);
       font-weight: bold;
@@ -101,8 +102,8 @@
 
   checkboxSelector = new Slick.CheckboxSelectColumn({
     cssClass: "slick-cell-checkboxsel",
-    showInColumnTitleRow: isSelectAllShownAsColumnTitle,
-    showInFilterHeaderRow: !isSelectAllShownAsColumnTitle
+    hideInColumnTitleRow: !isSelectAllShownAsColumnTitle,
+    hideInFilterHeaderRow: isSelectAllShownAsColumnTitle
   });
 
   columns.push(checkboxSelector.getColumnDefinition());
@@ -136,8 +137,8 @@
   function toggleWhichRowToShowSelectAll() {
     isSelectAllShownAsColumnTitle = !isSelectAllShownAsColumnTitle;
     checkboxSelector.setOptions({ 
-      showInColumnTitleRow: isSelectAllShownAsColumnTitle,
-      showInFilterHeaderRow: !isSelectAllShownAsColumnTitle,
+      hideInColumnTitleRow: !isSelectAllShownAsColumnTitle,
+      hideInFilterHeaderRow: isSelectAllShownAsColumnTitle,
     });
   }
 
