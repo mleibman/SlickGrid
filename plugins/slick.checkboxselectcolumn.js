@@ -66,9 +66,9 @@
         }
 
         if (_options.showInFilterHeaderRow) {
-          $("#filter-checkbox-selectall-container").show();
-          var selectAllElm = $("#header-filter-selector");
-          selectAllElm.prop("checked", _isSelectAllChecked);
+          var selectAllContainer = $("#filter-checkbox-selectall-container");
+          selectAllContainer.show();
+          selectAllContainer.find('input[type="checkbox"]').prop("checked", _isSelectAllChecked);
         } else {
           hideSelectAllFromColumnHeaderFilterRow();
         }
