@@ -26,6 +26,7 @@
       "GlobalEditorLock": new EditorLock(),
 
       "keyCode": {
+        SPACE: 8,
         BACKSPACE: 8,
         DELETE: 46,
         DOWN: 40,
