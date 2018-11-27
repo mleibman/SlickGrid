@@ -190,6 +190,11 @@
 				var columnIndex = grid.getColumnIndex(args.column.id);
         visibleColumns = removeColumnByIndex(visibleColumns, columnIndex);
         grid.setColumns(visibleColumns);
+	// Fix hidden sort column when multiColumnSort = true
+          grid.setSortColumns(grid.getSortColumns().filter(function (el, i) {
+            return el.columnId !== args.column.id;
+          }));
+
 			}else if(args.command === "sort-asc" || args.command === "sort-desc") {
         // get previously sorted columns
         // getSortColumns() only returns sortAsc & columnId, we want the entire column definition
@@ -218,6 +223,12 @@
 
     // subscribe to event when column visibility is changed via the menu
     columnpicker.onColumnsChanged.subscribe(function(e, args) {
+	// Fix hidden sort column when multiColumnSort = true
+	grid.setSortColumns(grid.getSortColumns().filter(function (el, i) {
+          return args.columns.reduce(function(inc, c) {
+            return inc + (el.columnId === c.id ? 1 : 0);
+            }, 0) !== 0;
+        }));	    
       console.log('Columns changed via the menu', args.columns);
     });
 
