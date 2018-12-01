@@ -326,7 +326,7 @@ var countryIsoAndNameList = {
 
         this.init = function () {
             $input = $('<select></select>');
-            $input.width(args.container[0].clientWidth + 3);
+            $input.width(args.container.clientWidth + 3);
             PopulateSelect($input[0], args.column.dataSource, true);
 
             $input.appendTo(args.container);

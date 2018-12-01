@@ -4191,7 +4191,7 @@ if (typeof Slick === "undefined") {
         cell = getCellFromPoint($activeCellOffset.left, Math.ceil($activeCellOffset.top) - rowOffset);
 
         activeRow = cell.row;
-        activeCell = activePosX = activeCell = activePosX = getCellFromNode(activeCellNode[0]);
+        activeCell = activePosX = activeCell = activePosX = getCellFromNode(activeCellNode);
 
         $activeCellNode.addClass("active");
         if (rowsCache[activeRow]) {
@@ -4278,7 +4278,7 @@ if (typeof Slick === "undefined") {
           var column = columns[activeCell];
           var formatter = getFormatter(activeRow, column);
           var formatterResult =  formatter(activeRow, activeCell, getDataItemValueForColumn(d, column), column, d, self);
-          applyFormatResultToCellNode(formatterResult, activeCellNode[0]);
+          applyFormatResultToCellNode(formatterResult, activeCellNode);
           invalidatePostProcessingResults(activeRow);
         }
       }
@@ -4322,7 +4322,7 @@ if (typeof Slick === "undefined") {
 
       // don't clear the cell if a custom editor is passed through
       if (!editor && !useEditor.suppressClearOnEdit) {
-        activeCellNode[0].innerHTML = "";
+        activeCellNode.innerHTML = "";
       }
 
       var metadata = data.getItemMetadata && data.getItemMetadata(activeRow);
@@ -4332,7 +4332,7 @@ if (typeof Slick === "undefined") {
       currentEditor = new useEditor({
         grid: self,
         gridPosition: absBox($container[0]),
-        position: absBox(activeCellNode[0]),
+        position: absBox(activeCellNode),
         container: activeCellNode,
         column: columnDef,
         columnMetaData: columnMetaData,
@@ -4899,7 +4899,11 @@ if (typeof Slick === "undefined") {
     function getCellNode(row, cell) {
       if (rowsCache[row]) {
         ensureCellNodesInRowsCache(row);
-        return rowsCache[row].cellNodesByColumnIdx[cell];
+        try {
+          return rowsCache[row].cellNodesByColumnIdx[cell][0];
+        } catch {
+          return rowsCache[row].cellNodesByColumnIdx[cell];
+        }
       }
       return null;
     }
