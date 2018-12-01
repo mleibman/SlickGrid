@@ -108,11 +108,11 @@ var countryIsoAndNameList = {
   CC: 'Cocos (Keeling) Islands',
   CO: 'Colombia',
   KM: 'Comoros',
-  CG: 'Congo (Brazzaville)',
+  CG: 'Congoï¿½(Brazzaville)',
   CD: 'Congo, Democratic Republic of the',
   CK: 'Cook Islands',
   CR: 'Costa Rica',
-  CI: 'Côte d\'Ivoire',
+  CI: 'Cï¿½te d\'Ivoire',
   HR: 'Croatia',
   CU: 'Cuba',
   CY: 'Cyprus',
@@ -154,7 +154,7 @@ var countryIsoAndNameList = {
   GY: 'Guyana',
   HT: 'Haiti',
   HM: 'Heard Island and Mcdonald Islands',
-  VA: 'Holy See (Vatican City State)',
+  VA: 'Holy Seeï¿½(Vatican City State)',
   HN: 'Honduras',
   HK: 'Hong Kong, Special Administrative Region of China',
   HU: 'Hungary',
@@ -238,7 +238,7 @@ var countryIsoAndNameList = {
   PT: 'Portugal',
   PR: 'Puerto Rico',
   QA: 'Qatar',
-  RE: 'Réunion',
+  RE: 'Rï¿½union',
   RO: 'Romania',
   RU: 'Russian Federation',
   RW: 'Rwanda',
@@ -247,7 +247,7 @@ var countryIsoAndNameList = {
   LC: 'Saint Lucia',
   PM: 'Saint Pierre and Miquelon',
   VC: 'Saint Vincent and Grenadines',
-  BL: 'Saint-Barthélemy',
+  BL: 'Saint-Barthï¿½lemy',
   MF: 'Saint-Martin (French part)',
   WS: 'Samoa',
   SM: 'San Marino',
@@ -268,15 +268,15 @@ var countryIsoAndNameList = {
   ES: 'Spain',
   LK: 'Sri Lanka',
   SD: 'Sudan',
-  SR: 'Suriname *',
+  SR: 'Surinameï¿½*',
   SJ: 'Svalbard and Jan Mayen Islands',
   SZ: 'Swaziland',
   SE: 'Sweden',
   CH: 'Switzerland',
-  SY: 'Syrian Arab Republic (Syria)',
+  SY: 'Syrian Arab Republicï¿½(Syria)',
   TW: 'Taiwan, Republic of China',
   TJ: 'Tajikistan',
-  TZ: 'Tanzania *, United Republic of',
+  TZ: 'Tanzaniaï¿½*, United Republic of',
   TH: 'Thailand',
   TL: 'Timor-Leste',
   TG: 'Togo',
@@ -297,7 +297,7 @@ var countryIsoAndNameList = {
   UY: 'Uruguay',
   UZ: 'Uzbekistan',
   VU: 'Vanuatu',
-  VE: 'Venezuela (Bolivarian Republic of)',
+  VE: 'Venezuelaï¿½(Bolivarian Republic of)',
   VN: 'Viet Nam',
   VI: 'Virgin Islands, US',
   WF: 'Wallis and Futuna Islands',
@@ -326,7 +326,7 @@ var countryIsoAndNameList = {
 
         this.init = function () {
             $input = $('<select></select>');
-            $input.width(args.container.clientWidth + 3);
+            $input.width(args.container[0].clientWidth + 3);
             PopulateSelect($input[0], args.column.dataSource, true);
 
             $input.appendTo(args.container);

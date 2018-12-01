@@ -2847,7 +2847,7 @@ if (typeof Slick === "undefined") {
 
         columnIdx = columnIdx | 0;
         var m = columns[columnIdx],
-            node = cacheEntry.cellNodesByColumnIdx[columnIdx];
+            node = cacheEntry.cellNodesByColumnIdx[columnIdx][0];
 
         if (row === activeRow && columnIdx === activeCell && currentEditor) {
           currentEditor.loadValue(d);
