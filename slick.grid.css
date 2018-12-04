@@ -30,7 +30,7 @@ classes should alter those!
 .slick-header-column.ui-state-default {
   position: relative;
   display: inline-block;
- /*box-sizing: content-box !important; use this for Firefox! */ 
+  box-sizing: content-box !important; /* this here only for Firefox! */ 
   overflow: hidden;
   -o-text-overflow: ellipsis;
   text-overflow: ellipsis;
