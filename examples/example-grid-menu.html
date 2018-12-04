@@ -244,6 +244,9 @@
       grid.autosizeColumns();
     });
 
+    grid.onAutosizeColumns.subscribe(function(e, args) {
+      console.log('onAutosize called')
+    });
   })
 </script>
 </body>
