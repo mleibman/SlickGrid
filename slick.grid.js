@@ -3577,7 +3577,7 @@ if (typeof Slick === "undefined") {
        return {
           "row": row,
           "cell": newCell,
-          "posX": posX
+          "posX": newCell
        };
     }
 
@@ -3588,7 +3588,7 @@ if (typeof Slick === "undefined") {
        return {
           "row": row,
           "cell": newCell,
-          "posX": posX
+          "posX": newCell
        };
     }
 
