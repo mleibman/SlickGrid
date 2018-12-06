@@ -16,6 +16,7 @@
    *      hideForceFitButton: false,              // show/hide checkbox near the end "Force Fit Columns" (default:false) 
    *      hideSyncResizeButton: false,            // show/hide checkbox near the end "Synchronous Resize" (default:false) 
    *      forceFitTitle: "Force fit columns",     // default to "Force fit columns"
+   *      headerColumnValueExtractor: "Extract the column label" // default to column.name
    *      syncResizeTitle: "Synchronous resize",  // default to "Synchronous resize"
    *    }
    *  };
@@ -41,7 +42,11 @@
       hideForceFitButton: false,
       hideSyncResizeButton: false, 
       forceFitTitle: "Force fit columns",
-      syncResizeTitle: "Synchronous resize"
+      syncResizeTitle: "Synchronous resize",
+      headerColumnValueExtractor: 
+        function (columnDef) {
+          return columnDef.name;
+        }
     };
 
     function init(grid) {
@@ -88,8 +93,9 @@
       $list.empty();
       updateColumnOrder();
       columnCheckboxes = [];
-
+      
       var $li, $input;
+      var columnLabel;
       for (var i = 0; i < columns.length; i++) {
         $li = $("<li />").appendTo($list);
         $input = $("<input type='checkbox' />").data("column-id", columns[i].id);
@@ -99,10 +105,16 @@
           $input.attr("checked", "checked");
         }
 
+        if (options.columnPicker.headerColumnValueExtractor) {
+          columnLabel = options.columnPicker.headerColumnValueExtractor(columns[i]);
+        } else {
+          columnLabel = defaults.headerColumnValueExtractor(columns[i]);
+        }
+        
         $("<label />")
-            .html(columns[i].name)
-            .prepend($input)
-            .appendTo($li);
+          .html(columnLabel)
+          .prepend($input)
+          .appendTo($li);
       }
 
       if (options.columnPicker && (!options.columnPicker.hideForceFitButton || !options.columnPicker.hideSyncResizeButton)) {
