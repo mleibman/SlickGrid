@@ -305,6 +305,7 @@
     function updateGroupBy() {
       if (columnsGroupBy.length == 0) {
         _dataView.setGrouping([]);
+        onGroupChanged.notify({ groupColumns: [] });
         return;
       }
       var groupingArray = [];
