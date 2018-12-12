@@ -4901,7 +4901,7 @@ if (typeof Slick === "undefined") {
         ensureCellNodesInRowsCache(row);
         try {
           return rowsCache[row].cellNodesByColumnIdx[cell][0];
-        } catch {
+        } catch (e) {
           return rowsCache[row].cellNodesByColumnIdx[cell];
         }
       }
