@@ -2351,6 +2351,7 @@ if (typeof Slick === "undefined") {
       lastRenderedScrollTop = scrollTop;
       lastRenderedScrollLeft = scrollLeft;
       h_render = null;
+      trigger(self.onRendered, { startRow: visible.top, endRow: visible.bottom, grid: self });
     }
 
     function handleHeaderScroll() {
@@ -3945,6 +3946,7 @@ if (typeof Slick === "undefined") {
       "onSelectedRowsChanged": new Slick.Event(),
       "onCellCssStylesChanged": new Slick.Event(),
       "onAutosizeColumns": new Slick.Event(),
+      "onRendered": new Slick.Event(),
 
       // Methods
       "registerPlugin": registerPlugin,
