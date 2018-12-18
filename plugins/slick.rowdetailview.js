@@ -145,12 +145,12 @@
         _rowIdsOutOfViewport = [];
       }
 
-      _grid.getData().onRowCountChanged.subscribe(function () {
+      _handler.subscribe(_grid.getData().onRowCountChanged, function () {
         _grid.updateRowCount();
         _grid.render();
       });
 
-      _grid.getData().onRowsChanged.subscribe(function (e, a) {
+      _handler.subscribe(_grid.getData().onRowsChanged, function (e, a) {
         _grid.invalidateRows(a.rows);
         _grid.render();
       });
@@ -162,8 +162,11 @@
       // we will need to know how many rows are rendered on the screen and we need to wait for grid to be rendered
       // unfortunately there is no triggered event for knowing when grid is finished, so we use 250ms delay and it's typically more than enough
       if (_options.useSimpleViewportCalc) {
-        setTimeout(calculateViewportRenderedCount, 250);
-        $(window).on('resize', calculateViewportRenderedCount);
+        _handler.subscribe(_grid.onRendered, function(e, args) {
+          if (args && args.endRow) {
+            _visibleRenderedCellCount = args.endRow - args.startRow;
+          }
+        });
       }
     }
 
@@ -176,7 +179,6 @@
       _self.onBeforeRowDetailToggle.unsubscribe();
       _self.onRowOutOfViewportRange.unsubscribe();
       _self.onRowBackToViewportRange.unsubscribe();
-      $(window).off('resize');
     }
 
     /** Get current plugin options */
@@ -241,11 +243,6 @@
       } else {
         calculateOutOfRangeViews();
       }
-    }
-	
-	  function calculateViewportRenderedCount() {
-      var renderedRange = _grid.getRenderedRange() || {};
-      _visibleRenderedCellCount = renderedRange.bottom - renderedRange.top - _gridRowBuffer;
     }
 
     /** Calculate when expanded rows become out of view range */
