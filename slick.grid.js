@@ -206,6 +206,8 @@ if (typeof Slick === "undefined") {
 
     var pagingActive = false;
     var pagingIsLastPage = false;
+
+    var scrollThrottle = ActionThrottle(render, 50);
     
     // async call handles
     var h_editorLoader = null;
@@ -1342,15 +1344,15 @@ if (typeof Slick === "undefined") {
             trigger(self.onSort, {
               multiColumnSort: false,
               sortCol: (sortColumns.length > 0 ? column : null),
-              sortAsc: (sortColumns.length > 0 ? sortColumns[0].sortAsc : true),
-              grid: self}, e);
+              sortAsc: (sortColumns.length > 0 ? sortColumns[0].sortAsc : true)
+            }, e);
           } else {
             trigger(self.onSort, {
               multiColumnSort: true,
               sortCols: $.map(sortColumns, function(col) {
                 return {sortCol: columns[getColumnIndex(col.columnId)], sortAsc: col.sortAsc };
-              }),
-              grid: self}, e);
+              })
+            }, e);
           }
         }
       });
@@ -1495,7 +1497,7 @@ if (typeof Slick === "undefined") {
           }
           setColumns(reorderedColumns);
 
-          trigger(self.onColumnsReordered, { impactedColumns : getImpactedColumns( limit ), grid: self });
+          trigger(self.onColumnsReordered, { impactedColumns : getImpactedColumns( limit ) });
           e.stopPropagation();
           setupColumnResize();
         }
@@ -1768,7 +1770,7 @@ if (typeof Slick === "undefined") {
               }
               updateCanvasWidth(true);
               render();
-              trigger(self.onColumnsResized, {grid: self});
+              trigger(self.onColumnsResized, {});
               setTimeout(function () { columnResizeDragging = false; }, 300);
             });
       });
@@ -2009,7 +2011,7 @@ if (typeof Slick === "undefined") {
     function destroy() {
       getEditorLock().cancelCurrentEdit();
 
-      trigger(self.onBeforeDestroy, {grid: self});
+      trigger(self.onBeforeDestroy, {});
 
       var i = plugins.length;
       while(i--) {
@@ -2126,7 +2128,7 @@ if (typeof Slick === "undefined") {
       applyColumnGroupHeaderWidths();
       updateCanvasWidth(true);
 
-      trigger(self.onAutosizeColumns, { grid: self}, e);      
+      trigger(self.onAutosizeColumns, { "columns": columns});
       
       if (reRender) {
         invalidateAllRows();
@@ -2266,7 +2268,7 @@ if (typeof Slick === "undefined") {
 
       setCellCssStyles(options.selectedCellCssClass, hash);
 
-      trigger(self.onSelectedRowsChanged, {rows: getSelectedRows(), grid: self}, e);
+      trigger(self.onSelectedRowsChanged, {rows: getSelectedRows()}, e);
     }
 
     function getColumns() {
@@ -2492,7 +2494,7 @@ if (typeof Slick === "undefined") {
 
         $viewportScrollContainerY[0].scrollTop = newScrollTop;
 
-        trigger(self.onViewportChanged, {grid: self});
+        trigger(self.onViewportChanged, {});
       }
     }
 
@@ -2664,7 +2666,7 @@ if (typeof Slick === "undefined") {
       }
       
       // get addl css class names from object type formatter return and from string type return of onBeforeAppendCell
-      var addlCssClasses = trigger(self.onBeforeAppendCell, { row: row, cell: cell, grid: self, value: value, dataContext: item }) || '';
+      var addlCssClasses = trigger(self.onBeforeAppendCell, { row: row, cell: cell, value: value, dataContext: item }) || '';
       addlCssClasses += (formatterResult && formatterResult.addClasses ? (addlCssClasses ? ' ' : '') + formatterResult.addClasses : '');
       
       stringArray.push("<div class='" + cellCss + (addlCssClasses ? ' ' + addlCssClasses : '') + "'>");
@@ -3416,6 +3418,9 @@ if (typeof Slick === "undefined") {
 
     function render() {
       if (!initialized) { return; }
+
+      scrollThrottle.dequeue();
+
       var visible = getVisibleRange();
       var rendered = getRenderedRange();
 
@@ -3581,29 +3586,69 @@ if (typeof Slick === "undefined") {
       }
 
       if (hScrollDist || vScrollDist) {
-        if (h_render) {
-          clearTimeout(h_render);
-        }
-
-        if (Math.abs(lastRenderedScrollTop - scrollTop) > 20 ||
-            Math.abs(lastRenderedScrollLeft - scrollLeft) > 20) {
-          if (options.forceSyncScrolling || (
-              Math.abs(lastRenderedScrollTop - scrollTop) < viewportH &&
-              Math.abs(lastRenderedScrollLeft - scrollLeft) < viewportW)) {
+        var dx = Math.abs(lastRenderedScrollLeft - scrollLeft);
+        var dy = Math.abs(lastRenderedScrollTop - scrollTop);
+        if (dx > 20 || dy > 20) {
+          // if rendering is forced or scrolling is small enough to be "easy", just render
+          if (options.forceSyncScrolling || (dy < viewportH && dx < viewportW)) {
             render();
           } else {
-            h_render = setTimeout(render, 50);
+            // otherwise, perform "difficult" renders at a capped frequency
+            scrollThrottle.enqueue();
           }
 
-          trigger(self.onViewportChanged, {grid: self});
+          trigger(self.onViewportChanged, {});
         }
       }
 
-      trigger(self.onScroll, {scrollLeft: scrollLeft, scrollTop: scrollTop, grid: self});
+      trigger(self.onScroll, {scrollLeft: scrollLeft, scrollTop: scrollTop});
 
       if (hScrollDist || vScrollDist) return true;
       return false;
     }
+
+    /*
+    limits the frequency at which the provided action is executed.
+    call enqueue to execute the action - it will execute either immediately or, if it was executed less than minPeriod_ms in the past, as soon as minPeriod_ms has expired.
+    call dequeue to cancel any pending action.
+    */
+    function ActionThrottle(action, minPeriod_ms) {
+
+      var blocked = false;
+      var queued = false;
+
+      function enqueue() {
+        if (!blocked) {
+          blockAndExecute();
+        } else {
+          queued = true;
+        }
+      }
+
+      function dequeue() {
+        queued = false;
+      }
+
+      function blockAndExecute() {
+        blocked = true;
+        setTimeout(unblock, minPeriod_ms);
+        action();
+      }
+
+      function unblock() {
+        if (queued) {
+          dequeue();
+          blockAndExecute();
+        } else {
+          blocked = false;
+        }
+      }
+
+      return {
+        enqueue: enqueue,
+        dequeue: dequeue
+      }
+    }    
 
     function asyncPostProcessRows() {
       var dataLength = getDataLength();
@@ -3819,7 +3864,7 @@ if (typeof Slick === "undefined") {
     }
 
     function handleKeyDown(e) {
-      trigger(self.onKeyDown, {row: activeRow, cell: activeCell, grid: self}, e);
+      trigger(self.onKeyDown, {row: activeRow, cell: activeCell}, e);
       var handled = e.isImmediatePropagationStopped();
       var keyCode = Slick.keyCode;
 
@@ -3917,7 +3962,7 @@ if (typeof Slick === "undefined") {
         return;
       }
 
-      trigger(self.onClick, {row: cell.row, cell: cell.cell, grid: self}, e);
+      trigger(self.onClick, {row: cell.row, cell: cell.cell}, e);
       if (e.isImmediatePropagationStopped()) {
         return;
       }
@@ -3947,7 +3992,7 @@ if (typeof Slick === "undefined") {
         return;
       }
 
-      trigger(self.onContextMenu, {grid: self}, e);
+      trigger(self.onContextMenu, {}, e);
     }
 
     function handleDblClick(e) {
@@ -3956,7 +4001,7 @@ if (typeof Slick === "undefined") {
         return;
       }
 
-      trigger(self.onDblClick, {row: cell.row, cell: cell.cell, grid: self}, e);
+      trigger(self.onDblClick, {row: cell.row, cell: cell.cell}, e);
       if (e.isImmediatePropagationStopped()) {
         return;
       }
@@ -3983,7 +4028,7 @@ if (typeof Slick === "undefined") {
     function handleHeaderContextMenu(e) {
       var $header = $(e.target).closest(".slick-header-column", ".slick-header-columns");
       var column = $header && $header.data("column");
-      trigger(self.onHeaderContextMenu, {column: column, grid: self}, e);
+      trigger(self.onHeaderContextMenu, {column: column}, e);
     }
 
     function handleHeaderClick(e) {
@@ -3991,16 +4036,16 @@ if (typeof Slick === "undefined") {
       var $header = $(e.target).closest(".slick-header-column", ".slick-header-columns");
       var column = $header && $header.data("column");
       if (column) {
-        trigger(self.onHeaderClick, {column: column, grid: self}, e);
+        trigger(self.onHeaderClick, {column: column}, e);
       }
     }
 
     function handleMouseEnter(e) {
-      trigger(self.onMouseEnter, {grid: self}, e);
+      trigger(self.onMouseEnter, {}, e);
     }
 
     function handleMouseLeave(e) {
-      trigger(self.onMouseLeave, {grid: self}, e);
+      trigger(self.onMouseLeave, {}, e);
     }
 
     function cellExists(row, cell) {
@@ -4270,7 +4315,7 @@ if (typeof Slick === "undefined") {
       if (!currentEditor) {
         return;
       }
-      trigger(self.onBeforeCellEditorDestroy, {editor: currentEditor, grid: self});
+      trigger(self.onBeforeCellEditorDestroy, {editor: currentEditor});
       currentEditor.destroy();
       currentEditor = null;
 
@@ -4313,7 +4358,7 @@ if (typeof Slick === "undefined") {
       var columnDef = columns[activeCell];
       var item = getDataItem(activeRow);
 
-      if (trigger(self.onBeforeEditCell, {row: activeRow, cell: activeCell, item: item, column: columnDef, grid: self}) === false) {
+      if (trigger(self.onBeforeEditCell, {row: activeRow, cell: activeCell, item: item, column: columnDef}) === false) {
         setFocus();
         return;
       }
@@ -4429,7 +4474,7 @@ if (typeof Slick === "undefined") {
         return;
       }
 
-      trigger(self.onActiveCellPositionChanged, {grid: self});
+      trigger(self.onActiveCellPositionChanged, {});
 
       if (currentEditor) {
         var cellBox = getActiveCellPosition();
@@ -4455,7 +4500,7 @@ if (typeof Slick === "undefined") {
       if (!activeCellNode) {
         return null;
       } else {
-        return {row: activeRow, cell: activeCell, grid: self};
+        return {row: activeRow, cell: activeCell};
       }
     }
 
@@ -5014,8 +5059,7 @@ if (typeof Slick === "undefined") {
                   trigger(self.onCellChange, {
                     row: this.row,
                     cell: this.cell,
-                    item: item,
-                    grid: self
+                    item: item
                   });
                 },
                 undo: function () {
@@ -5024,8 +5068,7 @@ if (typeof Slick === "undefined") {
                   trigger(self.onCellChange, {
                     row: this.row,
                     cell: this.cell,
-                    item: item,
-                    grid: self
+                    item: item
                   });
                 }
               };
@@ -5042,7 +5085,7 @@ if (typeof Slick === "undefined") {
               var newItem = {};
               currentEditor.applyValue(newItem, currentEditor.serializeValue());
               makeActiveCellNormal();
-              trigger(self.onAddNewRow, {item: newItem, column: column, grid: self});
+              trigger(self.onAddNewRow, {item: newItem, column: column});
             }
 
             // check whether the lock has been re-acquired by event handlers
@@ -5059,8 +5102,7 @@ if (typeof Slick === "undefined") {
               validationResults: validationResults,
               row: activeRow,
               cell: activeCell,
-              column: column,
-              grid: self
+              column: column
             });
 
             currentEditor.focus();
