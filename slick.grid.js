@@ -4340,7 +4340,7 @@ if (typeof Slick === "undefined") {
       getEditorLock().deactivate(editController);
     }
 
-    function makeActiveCellEditable(editor, preClickModeOn) {
+    function makeActiveCellEditable(editor, preClickModeOn, e) {
       if (!activeCellNode) {
         return;
       }
