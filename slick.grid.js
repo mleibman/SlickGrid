@@ -56,6 +56,7 @@ if (typeof Slick === "undefined") {
     // settings
     var defaults = {
       alwaysShowVerticalScroll: false,
+      alwaysShowHorizontalScroll: false,
       explicitInitialization: false,
       rowHeight: 25,
       defaultColumnWidth: 80,
@@ -1840,22 +1841,22 @@ if (typeof Slick === "undefined") {
 
     function setOverflow() {
       $viewportTopL.css({
-        'overflow-x': ( hasFrozenColumns() ) ? ( hasFrozenRows ? 'hidden' : 'scroll' ) : ( hasFrozenRows ? 'hidden' : 'auto' ),
+        'overflow-x': ( hasFrozenColumns() ) ? ( hasFrozenRows && !options.alwaysShowHorizontalScroll ? 'hidden' : 'scroll' ) : ( hasFrozenRows && !options.alwaysShowHorizontalScroll ? 'hidden' : 'auto' ),
         'overflow-y': options.alwaysShowVerticalScroll ? "scroll" : (( hasFrozenColumns() ) ? ( hasFrozenRows ? 'hidden' : 'hidden' ) : ( hasFrozenRows ? 'scroll' : 'auto' ))
       });
 
       $viewportTopR.css({
-        'overflow-x': ( hasFrozenColumns() ) ? ( hasFrozenRows ? 'hidden' : 'scroll' ) : ( hasFrozenRows ? 'hidden' : 'auto' ),
+        'overflow-x': ( hasFrozenColumns() ) ? ( hasFrozenRows && !options.alwaysShowHorizontalScroll ? 'hidden' : 'scroll' ) : ( hasFrozenRows && !options.alwaysShowHorizontalScroll ? 'hidden' : 'auto' ),
         'overflow-y': options.alwaysShowVerticalScroll ? "scroll" : (( hasFrozenColumns() ) ? ( hasFrozenRows ? 'scroll' : 'auto'   ) : ( hasFrozenRows ? 'scroll' : 'auto' ))
       });
 
       $viewportBottomL.css({
-        'overflow-x': ( hasFrozenColumns() ) ? ( hasFrozenRows ? 'scroll' : 'auto'   ): ( hasFrozenRows ? 'auto' : 'auto'   ),
+        'overflow-x': ( hasFrozenColumns() ) ? ( hasFrozenRows && !options.alwaysShowHorizontalScroll ? 'scroll' : 'auto'   ): ( hasFrozenRows && !options.alwaysShowHorizontalScroll ? 'auto' : 'auto'   ),
         'overflow-y': options.alwaysShowVerticalScroll ? "scroll" : (( hasFrozenColumns() ) ? ( hasFrozenRows ? 'hidden' : 'hidden' ): ( hasFrozenRows ? 'scroll' : 'auto' ))
       });
 
       $viewportBottomR.css({
-        'overflow-x': ( hasFrozenColumns() ) ? ( hasFrozenRows ? 'scroll' : 'auto' ) : ( hasFrozenRows ? 'auto' : 'auto' ),
+        'overflow-x': ( hasFrozenColumns() ) ? ( hasFrozenRows && !options.alwaysShowHorizontalScroll ? 'scroll' : 'auto' ) : ( hasFrozenRows && !options.alwaysShowHorizontalScroll ? 'auto' : 'auto' ),
         'overflow-y': options.alwaysShowVerticalScroll ? "scroll" : (( hasFrozenColumns() ) ? ( hasFrozenRows ? 'auto' : 'auto'   ) : ( hasFrozenRows ? 'auto' : 'auto' ))
       });
       if (options.viewportClass) {
