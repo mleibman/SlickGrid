@@ -3922,7 +3922,7 @@ if (typeof Slick === "undefined") {
                 }
               } else {
                 if (getEditorLock().commitCurrentEdit()) {
-                  makeActiveCellEditable();
+                  makeActiveCellEditable(undefined, undefined, e);
                 }
               }
             }
@@ -3976,7 +3976,7 @@ if (typeof Slick === "undefined") {
           var preClickModeOn = (e.target && e.target.className === Slick.preClickClassName);
           var column = columns[cell.cell];
           var suppressActiveCellChangedEvent = (options.editable && column && column.editor && options.suppressActiveCellChangeOnEdit) ? true : false;
-          setActiveCellInternal(getCellNode(cell.row, cell.cell), null, preClickModeOn, suppressActiveCellChangedEvent);
+          setActiveCellInternal(getCellNode(cell.row, cell.cell), null, preClickModeOn, suppressActiveCellChangedEvent, e);
         }
       }
     }
@@ -4007,7 +4007,7 @@ if (typeof Slick === "undefined") {
       }
 
       if (options.editable) {
-        gotoCell(cell.row, cell.cell, true);
+        gotoCell(cell.row, cell.cell, true, e);
       }
     }
 
@@ -4211,7 +4211,7 @@ if (typeof Slick === "undefined") {
       internalScrollColumnIntoView(columnPosLeft[cell], columnPosRight[cell]);
     }
 
-    function setActiveCellInternal(newCell, opt_editMode, preClickModeOn, suppressActiveCellChangedEvent) {
+    function setActiveCellInternal(newCell, opt_editMode, preClickModeOn, suppressActiveCellChangedEvent, e) {
       if (activeCellNode !== null) {
         makeActiveCellNormal();
         $(activeCellNode).removeClass("active");
@@ -4261,10 +4261,10 @@ if (typeof Slick === "undefined") {
 
           if (options.asyncEditorLoading) {
             h_editorLoader = setTimeout(function () {
-              makeActiveCellEditable(undefined, preClickModeOn);
+              makeActiveCellEditable(undefined, preClickModeOn, e);
             }, options.asyncEditorLoadDelay);
           } else {
-            makeActiveCellEditable(undefined, preClickModeOn);
+            makeActiveCellEditable(undefined, preClickModeOn, e);
           }
         }
       } else {
@@ -4385,6 +4385,7 @@ if (typeof Slick === "undefined") {
         column: columnDef,
         columnMetaData: columnMetaData,
         item: item || {},
+        event: e,
         commitChanges: commitEditAndSetFocus,
         cancelChanges: cancelEditAndSetFocus
       });
@@ -5010,7 +5011,7 @@ if (typeof Slick === "undefined") {
       return !!columns[cell].selectable;
     }
 
-    function gotoCell(row, cell, forceEdit) {
+    function gotoCell(row, cell, forceEdit, e) {
       if (!initialized) { return; }
       if (!canCellBeActive(row, cell)) {
         return;
@@ -5025,7 +5026,7 @@ if (typeof Slick === "undefined") {
       var newCell = getCellNode(row, cell);
 
       // if selecting the 'add new' row, start editing right away
-      setActiveCellInternal(newCell, (forceEdit || (row === getDataLength()) || options.autoEdit), null, options.editable);
+      setActiveCellInternal(newCell, (forceEdit || (row === getDataLength()) || options.autoEdit), null, options.editable, e);
 
       // if no editor was created, set the focus back on the grid
       if (!currentEditor) {
