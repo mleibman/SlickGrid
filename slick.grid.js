@@ -398,10 +398,8 @@ if (typeof Slick === "undefined") {
       $headerRowScroller = $().add($headerRowScrollerL).add($headerRowScrollerR);
 
       $headerRowSpacerL = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
-        //.css("width", getCanvasWidth() + scrollbarDimensions.width + "px") // TODO: no width in original, so why is it in X-Slickgrid?
         .appendTo($headerRowScrollerL);
       $headerRowSpacerR = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
-        //.css("width", getCanvasWidth() + scrollbarDimensions.width + "px") // TODO: no width in original, so why is it in X-Slickgrid?
         .appendTo($headerRowScrollerR);
 
 
@@ -500,9 +498,8 @@ if (typeof Slick === "undefined") {
       if (!initialized) {
         initialized = true;
 
-        getViewportWidth(); // TODO why is this is X-slick
-        getViewportHeight(); // TODO why is this is X-slick
-        // viewportW = parseFloat($.css($container[0], "width", true)); // TODO why is this not in X-slick
+        getViewportWidth();
+        getViewportHeight();
 
         // header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
         // calculate the diff so we can set consistent sizes
@@ -540,10 +537,8 @@ if (typeof Slick === "undefined") {
         $container
             .on("resize.slickgrid", resizeCanvas);
         $viewport
-            //.on("click", handleClick)
             .on("scroll", handleScroll);
 
-        // TODO why is this in X-slick
         if (jQuery.fn.mousewheel && ( options.frozenColumn > -1 || hasFrozenRows )) {
           $viewport
             .on("mousewheel", handleMouseWheel);
@@ -736,7 +731,7 @@ if (typeof Slick === "undefined") {
       }
 
       headersWidth = headersWidthL + headersWidthR;
-      return Math.max(headersWidth, viewportW) + 1000; // TODO not in X-slick
+      return Math.max(headersWidth, viewportW) + 1000;
     }
 
     function getHeadersWidthL() {
