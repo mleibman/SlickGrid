@@ -1866,7 +1866,7 @@ if (typeof Slick === "undefined") {
       if (hasFrozenColumns()) {
         $headerScrollContainer = $headerScrollerR;
         $headerRowScrollContainer = $headerRowScrollerR;
-        $footerRowScrollContainer = $footerRowScrollerR
+        $footerRowScrollContainer = $footerRowScrollerR;
 
         if (hasFrozenRows) {
           if (options.frozenBottom) {
@@ -3049,7 +3049,6 @@ if (typeof Slick === "undefined") {
         resetActiveCell();
       }
 
-      var oldH = h;
       th = Math.max(options.rowHeight * numberOfRows, tempViewportH - scrollbarDimensions.height);
       if (th < maxSupportedCssHeight) {
         // just one page
