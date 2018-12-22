@@ -1236,6 +1236,7 @@ if (typeof Slick === "undefined") {
         if (options.showHeaderRow) {
           var headerRowCell = $("<div class='ui-state-default slick-headerrow-column l" + i + " r" + i + "'></div>")
               .data("column", m)
+              .addClass(hasFrozenColumns() && i <= options.frozenColumn? 'frozen': '')
               .appendTo($headerRowTarget);
 
           trigger(self.onHeaderRowCellRendered, {
