@@ -690,8 +690,8 @@ if (typeof Slick === "undefined") {
       var $outerdiv = $('<div class="' + $viewport.className + '" style="position:absolute; top:-10000px; left:-10000px; overflow:auto; width:100px; height:100px;"></div>').appendTo($viewport);
       var $innerdiv = $('<div style="width:200px; height:200px; overflow:auto;"></div>').appendTo($outerdiv);
       var dim = {
-	width: $outerdiv[0].offsetWidth - $outerdiv[0].clientWidth,
-	height: $outerdiv[0].offsetHeight - $outerdiv[0].clientHeight
+        width: $outerdiv[0].offsetWidth - $outerdiv[0].clientWidth,
+        height: $outerdiv[0].offsetHeight - $outerdiv[0].clientHeight
       };
       $innerdiv.remove();
       $outerdiv.remove();
@@ -2907,7 +2907,6 @@ if (typeof Slick === "undefined") {
       if (hasFrozenRows) {
         if (options.frozenBottom) {
           paneTopH = viewportH - frozenRowsHeight - scrollbarDimensions.height;
-
           paneBottomH = frozenRowsHeight + scrollbarDimensions.height;
         } else {
           paneTopH = frozenRowsHeight;

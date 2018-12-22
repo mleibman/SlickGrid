@@ -202,6 +202,7 @@ classes should alter those!
 }
 
 .slick-pane {
+  position: absolute;
   outline: 0;
   overflow: hidden;
   width: 100%;
