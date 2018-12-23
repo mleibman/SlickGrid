@@ -1799,7 +1799,7 @@ if (typeof Slick === "undefined") {
         hasFrozenRows = true;
         frozenRowsHeight = ( options.frozenRow ) * options.rowHeight;
 
-        var dataLength = getDataLength() || this.data.length;
+        var dataLength = getDataLength();
 
         actualFrozenRow = ( options.frozenBottom )
           ? ( dataLength - options.frozenRow )
@@ -2380,7 +2380,7 @@ if (typeof Slick === "undefined") {
       if (data.getLength) {
         return data.getLength();
       } else {
-        return data.length;
+        return data && data.length || 0;
       }
     }
 
