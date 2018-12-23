@@ -93,7 +93,7 @@
       $list.empty();
       updateColumnOrder();
       columnCheckboxes = [];
-      
+
       var $li, $input;
       var columnLabel;
       for (var i = 0; i < columns.length; i++) {

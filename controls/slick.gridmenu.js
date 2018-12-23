@@ -94,6 +94,7 @@
 
     function SlickGridMenu(columns, grid, options) {
       var _grid = grid;
+      var _gridOptions;
       var _gridUid = (grid && grid.getUID) ? grid.getUID() : '';
       var _isMenuOpen = false;
       var _options = options;
@@ -113,8 +114,14 @@
       };
 
       function init(grid) {
+        _gridOptions = grid.getOptions();
         var gridMenuWidth = (_options.gridMenu && _options.gridMenu.menuWidth) || _defaults.menuWidth;
-        var $header = $('.' + _gridUid + ' .slick-header');
+        var $header;
+        if (_gridOptions && _gridOptions.frozenColumn && _gridOptions.frozenColumn > 0 ) {
+          $header = $('.' + _gridUid + ' .slick-header-right');
+        } else {
+          $header = $('.' + _gridUid + ' .slick-header-left');
+        }
         $header.attr('style', 'width: calc(100% - ' + gridMenuWidth +'px)');
 		
         // subscribe to the grid, when it's destroyed, we should also destroy the Grid Menu
