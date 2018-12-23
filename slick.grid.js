@@ -273,7 +273,7 @@ if (typeof Slick === "undefined") {
       if (!initialized) {
         initialized = true;
 
-        viewportW = parseFloat($.css($container[0], "width", true));
+        viewportW = parseFloat($container.width());
 
         // header columns and cells may have different padding/border skewing width calculations (box-sizing, hello?)
         // calculate the diff so we can set consistent sizes
@@ -1606,7 +1606,7 @@ if (typeof Slick === "undefined") {
       }
 
       numVisibleRows = Math.ceil(viewportH / options.rowHeight);
-      viewportW = parseFloat($.css($container[0], "width", true));
+      viewportW = parseFloat($container.width());
       if (!options.autoHeight) {
         $viewport.height(viewportH);
       }
