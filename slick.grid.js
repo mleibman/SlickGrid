@@ -2891,7 +2891,7 @@ if (typeof Slick === "undefined") {
     }
 
     function getViewportWidth() {
-      viewportW = parseFloat($.css($container[0], "width", true));
+      viewportW = parseFloat($container.width());
     }
 
     function resizeCanvas() {
