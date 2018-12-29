@@ -1783,16 +1783,8 @@ if (typeof Slick === "undefined") {
     }
 
     function setFrozenOptions() {
-      options.frozenColumn = ( options.frozenColumn >= 0
-        && options.frozenColumn < columns.length
-        )
+      options.frozenColumn = (options.frozenColumn >= 0 && options.frozenColumn < columns.length)
         ? parseInt(options.frozenColumn)
-        : -1;
-
-      options.frozenRow = ( options.frozenRow >= 0
-        && options.frozenRow < numVisibleRows
-        )
-        ? parseInt(options.frozenRow)
         : -1;
 
       if (options.frozenRow > -1) {
