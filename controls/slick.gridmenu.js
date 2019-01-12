@@ -203,6 +203,7 @@
 
           if (item.divider) {
             $li.addClass("slick-gridmenu-item-divider");
+            continue;
           }
 
           if (item.tooltip) {
