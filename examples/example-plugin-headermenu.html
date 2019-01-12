@@ -59,8 +59,8 @@
       <hr>
       <h3>Auto-align option</h3>
       <p>
-        Auto-align (defaults to True), will calculate whether it has enough space to show the drop menu to the right. 
-        If it calculates that the drop menu is to fall outside of the viewport, it will automatically align the drop menu to the left.        
+        Auto-align (defaults to True), will calculate whether it has enough space to show the drop menu to the right.
+        If it calculates that the drop menu is to fall outside of the viewport, it will automatically align the drop menu to the left.
       </p>
       <hr>
       <h3>Auto-Align Header Menu Drop</h3>
@@ -115,6 +115,10 @@
             title: "Hide Column",
             command: "hide",
             tooltip: "Can't hide this column"
+          },
+          {
+            divider: true,
+            command: ""
           },
           {
             iconCssClass: "icon-help",
@@ -228,7 +232,7 @@
           return args.columns.reduce(function(inc, c) {
             return inc + (el.columnId === c.id ? 1 : 0);
             }, 0) !== 0;
-        }));	    
+        }));
       console.log('Columns changed via the menu', args.columns);
     });
 
