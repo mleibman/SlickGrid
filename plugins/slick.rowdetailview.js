@@ -107,6 +107,7 @@
       collapseAllOnSort: true,
       saveDetailViewOnScroll: true,
       useSimpleViewportCalc: false,
+      alwaysRenderColumn: true,
       toolTip: '',
       width: 30,
       maxRows: null
@@ -572,6 +573,7 @@
         width: _options.width,
         resizable: false,
         sortable: false,
+        alwaysRenderColumn: _options.alwaysRenderColumn,
         cssClass: _options.cssClass,
         formatter: detailSelectionFormatter
       };
