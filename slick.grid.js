@@ -3187,7 +3187,7 @@ if (typeof Slick === "undefined") {
         }
         
         // Ignore alwaysRenderedColumns
-        if (columns[i].alwaysRenderColumn){
+        if (Array.isArray(columns) && columns[i] && columns[i].alwaysRenderColumn){
           continue;
         }
 
