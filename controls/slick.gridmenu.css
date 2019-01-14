@@ -93,8 +93,8 @@
 
 .slick-gridmenu-icon {
   display: inline-block;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   vertical-align: middle;
   margin-right: 4px;
   background-repeat: no-repeat;
@@ -110,4 +110,18 @@
 /* Disabled */
 .slick-gridmenu-item-disabled {
   color: silver;
+}
+
+/* Divider */
+.slick-gridmenu-item.slick-gridmenu-item-divider {
+  cursor: default;
+  border: none;
+  overflow: hidden;
+  padding: 0;
+  height: 1px;
+  margin: 8px 2px;
+  background-color: #cecece;
+}
+.slick-gridmenu-item-divider.slick-gridmenu-item:hover {
+  background-color: #cecece;
 }
