@@ -2606,7 +2606,7 @@ if (typeof Slick === "undefined") {
           } else {
             appendCellHtml(stringArrayL, row, i, colspan, d);
           }
-        } else if (m.alwaysRenderColumn || hasFrozenColumns() && ( i <= options.frozenColumn )) {
+        } else if (m.alwaysRenderColumn || (hasFrozenColumns() && i <= options.frozenColumn)) {
           appendCellHtml(stringArrayL, row, i, colspan, d);
         }
 
