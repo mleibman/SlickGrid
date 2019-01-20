@@ -2593,10 +2593,10 @@ if (typeof Slick === "undefined") {
             colspan = ii - i;
           }
         }
-
+        
         // Do not render cells outside of the viewport.
         if (columnPosRight[Math.min(ii - 1, i + colspan - 1)] > range.leftPx) {
-          if (columnPosLeft[i] > range.rightPx) {
+          if (!m.alwaysRenderColumn && columnPosLeft[i] > range.rightPx) {
             // All columns to the right are outside the range.
             break;
           }
@@ -2606,7 +2606,7 @@ if (typeof Slick === "undefined") {
           } else {
             appendCellHtml(stringArrayL, row, i, colspan, d);
           }
-        } else if (hasFrozenColumns() && ( i <= options.frozenColumn )) {
+        } else if (m.alwaysRenderColumn || hasFrozenColumns() && ( i <= options.frozenColumn )) {
           appendCellHtml(stringArrayL, row, i, colspan, d);
         }
 
@@ -3183,6 +3183,11 @@ if (typeof Slick === "undefined") {
 
         // Ignore frozen columns
         if (i <= options.frozenColumn) {
+          continue;
+        }
+        
+        // Ignore alwaysRenderedColumns
+        if (Array.isArray(columns) && columns[i] && columns[i].alwaysRenderColumn){
           continue;
         }
 
