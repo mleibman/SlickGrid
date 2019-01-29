@@ -539,9 +539,8 @@ if (typeof Slick === "undefined") {
         $viewport
             .on("scroll", handleScroll);
 
-        if (jQuery.fn.mousewheel && ( options.frozenColumn > -1 || hasFrozenRows )) {
-          $viewport
-            .on("mousewheel", handleMouseWheel);
+        if (jQuery.fn.mousewheel) {
+          $viewport.on("mousewheel", handleMouseWheel);
         }
 
         $headerScroller
