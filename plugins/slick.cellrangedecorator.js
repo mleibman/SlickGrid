@@ -41,7 +41,7 @@
         _elem = $("<div></div>", {css: options.selectionCss})
           .addClass(options.selectionCssClass)
           .css("position", "absolute")
-          .appendTo(grid.getCanvasNode());
+          .appendTo(grid.getActiveCanvasNode());
       }
 
       var from = grid.getCellNodeBox(range.fromRow, range.fromCell);

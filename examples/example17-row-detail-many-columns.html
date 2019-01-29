@@ -86,34 +86,34 @@
       <h2>Demonstrates:</h2>
       <ul>
         <li>RowDetailView Plugin</li>
-        <li>See more detail of an item by toggling a row detail panel.<li></li>
-        <li>"useRowClick: True" to toggle from any column</li>
-        <li>"useRowClick: False" to toggle from the toggle icon only</li>
-        <li>"panelRows: 4" DetailView is RowHeight * 4</li>
-        <li>"loadOnce: True" Try shrink and reopen same row</li>
-        <li>"loadOnce: False DEFAULT" Will call load every time row is expanded</li>
-        <li>&nbsp;</li>
-        <li>Example of using non templated view e.g. check any row multiple of 5<li>
+        <li>RowDetailView Plugin going out of horizontal scroll.<li>
+        <li>"Always Render Column" is used here to always show the cell even when it's out of horizontal view</li>
       </ul>
 
       <h2>Options:</h2>
-      <button onclick="detailView.setOptions({ loadOnce: true, useRowClick: detailView.useRowClick })">Load Once ON</button>
+      <button onclick="setLoadOnce(true)">Load Once ON</button>
       &nbsp;
-      <button onclick="detailView.setOptions({ loadOnce: false, useRowClick: detailView.useRowClick})">Load Once OFF</button>
-	    <p>
-	      <input type="number" id="panelRowInput"/> <button onclick="setPanelRows()">Set Panel Rows Option</button>
-	    </p>
+      <button onclick="setLoadOnce(false)">Load Once OFF</button>
+    <p>
+        <input type="number" id="panelRowInput"/> <button onclick="setPanelRows()">Set Panel Rows Option</button>
+        </p>
       <p>
         <input type="number" id="maxRowInput"/> <button onclick="setMaxRows()">Set Max Panel Rows Option</button>
       </p>
-	    <p>
-        <button onclick="detailView.setOptions({ loadOnce: detailView.loadOnce, useRowClick: true })">Row Click ON</button>
+        <p>
+        <button onclick="setRowClick(true)">Row Click ON</button>
         &nbsp;
-        <button onclick="detailView.setOptions({ loadOnce: detailView.loadOnce, useRowClick: false })">Row Click OFF</button>
+        <button onclick="setRowClick(false)">Row Click OFF</button>
+        <p>
+        <span>Tell column 0 always to render if outside or horizontal scroll</span>
+        <p>
+        <button onclick="setAlwaysRenderRowClick(true)">Always Render Column ON</button>
+        &nbsp;
+        <button onclick="setAlwaysRenderRowClick(false)">Always Render Column OFF</button>
 
         <h2>View Source:</h2>
         <ul>
-          <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example16-row-detail.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+          <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example17-row-detail-many-columns.html" target="_sourcewindow"> View the source for this example on Github</a></li>
         </ul>
       </p>
     </div>
@@ -150,8 +150,16 @@
       {id: "%", name: "% Complete", field: "percentComplete", width: 80, resizable: false, formatter: Slick.Formatters.PercentCompleteBar, sortable: true},
       {id: "start", name: "Start", field: "start", minWidth: 60},
       {id: "finish", name: "Finish", field: "finish", minWidth: 60},
-      {id: "effort-driven", name: "Effort Driven", width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark}
+      {id: "effort-driven", name: "Effort Driven", width: 80, minWidth: 20, axWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark}	  
     ];
+    
+    for(var i = 0; i < 10; i++){
+    
+    columns.push({id: "extra" + i, name: "Extra " + i, field: "extra" + i, minWidth: 60});
+    
+    }
+    
+    
     var options = {
       editable: false,
       enableAddRow: false,
@@ -171,6 +179,23 @@
       this.finish = "01/05/2009";
       this.title = "Task " + i;
       this.duration = "5 days";
+    }
+    
+    function setAlwaysRenderRowClick(val){
+      var detailColumn = grid.getColumns()[0];
+      detailColumn.alwaysRenderColumn = val;
+    }
+    
+    function setLoadOnce(val){
+      var options = detailView.getOptions();
+      options.loadOnce = val;
+      detailView.setOptions(options);
+    }
+    
+    function setRowClick(val) {
+      var options = detailView.getOptions();
+    options.useRowClick = val;
+      detailView.setOptions(options);
     }
 
     function setMaxRows(amount) {
@@ -277,8 +302,8 @@
     // notify the onAsyncResponse with the "args.item" (required property)
     // the plugin will then use itemDetail to populate the detail panel with "postTemplate"
     function notifyNonTemplatedView(itemDetail) {
-	    var rowIdx = grid.getData().getIdxById(itemDetail.id);
-	    var temp =
+        var rowIdx = grid.getData().getIdxById(itemDetail.id);
+        var temp =
         "<div class=\"tab\">"+
         "<button class=\"tablinks\" onclick=\"openCity(event, 'London'," + rowIdx +")\">London</button>" +
         "<button class=\"tablinks\" onclick=\"openCity(event, 'Paris'," + rowIdx +")\">Paris</button>" +

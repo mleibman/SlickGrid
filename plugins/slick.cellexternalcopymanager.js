@@ -28,6 +28,7 @@
         onCopySuccess: optional handler to run when copy action is complete
         newRowCreator: function to add rows to table if paste overflows bottom of table, if this function is not provided new rows will be ignored.
         readOnlyMode: suppresses paste
+        headerColumnValueExtractor : option to specify a custom column header value extractor function
     */
     var _grid;
     var _self = this;
@@ -67,12 +68,21 @@
       _grid.onKeyDown.unsubscribe(handleKeyDown);
     }
     
-    function getDataItemValueForColumn(item, columnDef) {
-      if (_options.dataItemColumnValueExtractor) {
-        var dataItemColumnValueExtractorValue = _options.dataItemColumnValueExtractor(item, columnDef);
+    function getHeaderValueForColumn(columnDef) {
+      if (_options.headerColumnValueExtractor) {
+        var val = _options.headerColumnValueExtractor(columnDef);
 
-        if (dataItemColumnValueExtractorValue)
-          return dataItemColumnValueExtractorValue;
+        if (val) { return val; }
+      }
+      
+      return columnDef.name;
+    }
+
+    function getDataItemValueForColumn(item, columnDef, e) {
+      if (_options.dataItemColumnValueExtractor) {
+        var val = _options.dataItemColumnValueExtractor(item, columnDef);
+
+        if (val) { return val; }
       }
 
       var retVal = '';
@@ -83,7 +93,8 @@
           'container':$("<p>"),  // a dummy container
           'column':columnDef,
           'position':{'top':0, 'left':0},  // a dummy position required by some editors
-          'grid':_grid
+          'grid':_grid,
+          'event':e
         };
         var editor = new columnDef.editor(editorArgs);
         editor.loadValue(item);
@@ -348,13 +359,13 @@
                         var clipTextHeaders = [];
                         for (var j = range.fromCell; j < range.toCell + 1 ; j++) {
                             if (columns[j].name.length > 0)
-                                clipTextHeaders.push(columns[j].name);
+                                clipTextHeaders.push(getHeaderValueForColumn(columns[j]));
                         }
                         clipTextRows.push(clipTextHeaders.join("\t"));
                     }
 
                     for (var j=range.fromCell; j< range.toCell+1 ; j++){
-                        clipTextCells.push(getDataItemValueForColumn(dt, columns[j]));
+                        clipTextCells.push(getDataItemValueForColumn(dt, columns[j], e));
                     }
                     clipTextRows.push(clipTextCells.join("\t"));
                 }
@@ -438,6 +449,10 @@
       _grid.removeCellCssStyles(_copiedCellStyleLayerKey);
     }
 
+    function setIncludeHeaderWhenCopying(includeHeaderWhenCopying) {
+      _options.includeHeaderWhenCopying = includeHeaderWhenCopying;
+    }
+    
     $.extend(this, {
       "init": init,
       "destroy": destroy,
@@ -446,7 +461,8 @@
       
       "onCopyCells": new Slick.Event(),
       "onCopyCancelled": new Slick.Event(),
-      "onPasteCells": new Slick.Event()
+      "onPasteCells": new Slick.Event(),
+      "setIncludeHeaderWhenCopying" : setIncludeHeaderWhenCopying
     });
   }
 })(jQuery);

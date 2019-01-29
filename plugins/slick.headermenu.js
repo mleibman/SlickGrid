@@ -46,6 +46,7 @@
    *
    * Available menu item options:
    *    title:            Menu item text.
+   *    divider:          Whether the current item is a divider, not an actual command.
    *    disabled:         Whether the item is disabled.
    *    tooltip:          Item tooltip.
    *    command:          A command identifier to be passed to the onCommand event handlers.
@@ -212,6 +213,11 @@
           $li.addClass("slick-header-menuitem-disabled");
         }
 
+        if (item.divider) {
+          $li.addClass("slick-header-menuitem-divider");
+          continue;
+        }
+
         if (item.tooltip) {
           $li.attr("title", item.tooltip);
         }
@@ -241,9 +247,9 @@
         var gridPos = _grid.getGridPosition();
         if ((leftPos + options.minWidth) >= gridPos.width) {
           leftPos = leftPos - options.minWidth + options.autoAlignOffset;
-        }  
+        }
       }
-      
+
       $menu
         .offset({ top: $(this).offset().top + $(this).height(), left: leftPos });
 
@@ -264,7 +270,7 @@
       var columnDef = $(this).data("column");
       var item = $(this).data("item");
 
-      if (item.disabled) {
+      if (item.disabled || item.divider) {
         return;
       }
 

@@ -247,10 +247,10 @@ function clearGroupings() {
 function toggleDraggableGrouping() {
    clearGroupings();
   if ( draggableEnabled == true ) {
-     $(".slick-preheader-panel").hide();
-     draggableEnabled = false;
+    grid.setPreHeaderPanelVisibility(false);
+    draggableEnabled = false;
   } else {
-    $(".slick-preheader-panel").show();
+    grid.setPreHeaderPanelVisibility(true);
     draggableEnabled = true;
   }
 }

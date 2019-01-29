@@ -108,11 +108,11 @@ var countryIsoAndNameList = {
   CC: 'Cocos (Keeling) Islands',
   CO: 'Colombia',
   KM: 'Comoros',
-  CG: 'Congo (Brazzaville)',
+  CG: 'Congo (Brazzaville)',
   CD: 'Congo, Democratic Republic of the',
   CK: 'Cook Islands',
   CR: 'Costa Rica',
-  CI: 'Côte d\'Ivoire',
+  CI: 'CÃ´te d\'Ivoire',
   HR: 'Croatia',
   CU: 'Cuba',
   CY: 'Cyprus',
@@ -154,7 +154,7 @@ var countryIsoAndNameList = {
   GY: 'Guyana',
   HT: 'Haiti',
   HM: 'Heard Island and Mcdonald Islands',
-  VA: 'Holy See (Vatican City State)',
+  VA: 'Holy See (Vatican City State)',
   HN: 'Honduras',
   HK: 'Hong Kong, Special Administrative Region of China',
   HU: 'Hungary',
@@ -238,7 +238,7 @@ var countryIsoAndNameList = {
   PT: 'Portugal',
   PR: 'Puerto Rico',
   QA: 'Qatar',
-  RE: 'Réunion',
+  RE: 'RÃ©union',
   RO: 'Romania',
   RU: 'Russian Federation',
   RW: 'Rwanda',
@@ -247,7 +247,7 @@ var countryIsoAndNameList = {
   LC: 'Saint Lucia',
   PM: 'Saint Pierre and Miquelon',
   VC: 'Saint Vincent and Grenadines',
-  BL: 'Saint-Barthélemy',
+  BL: 'Saint-BarthÃ©lemy',
   MF: 'Saint-Martin (French part)',
   WS: 'Samoa',
   SM: 'San Marino',
@@ -268,15 +268,15 @@ var countryIsoAndNameList = {
   ES: 'Spain',
   LK: 'Sri Lanka',
   SD: 'Sudan',
-  SR: 'Suriname *',
+  SR: 'Suriname *',
   SJ: 'Svalbard and Jan Mayen Islands',
   SZ: 'Swaziland',
   SE: 'Sweden',
   CH: 'Switzerland',
-  SY: 'Syrian Arab Republic (Syria)',
+  SY: 'Syrian Arab Republic (Syria)',
   TW: 'Taiwan, Republic of China',
   TJ: 'Tajikistan',
-  TZ: 'Tanzania *, United Republic of',
+  TZ: 'Tanzania *, United Republic of',
   TH: 'Thailand',
   TL: 'Timor-Leste',
   TG: 'Togo',
@@ -297,7 +297,7 @@ var countryIsoAndNameList = {
   UY: 'Uruguay',
   UZ: 'Uzbekistan',
   VU: 'Vanuatu',
-  VE: 'Venezuela (Bolivarian Republic of)',
+  VE: 'Venezuela (Bolivarian Republic of)',
   VN: 'Viet Nam',
   VI: 'Virgin Islands, US',
   WF: 'Wallis and Futuna Islands',
@@ -306,7 +306,6 @@ var countryIsoAndNameList = {
   ZM: 'Zambia',
   ZW: 'Zimbabwe',
 };
-
    function PopulateSelect(select, dataSource, addBlank) {
         var index, len, newOption;
         if (addBlank) { select.appendChild(new Option('', '')); }
@@ -315,20 +314,16 @@ var countryIsoAndNameList = {
             select.appendChild(newOption);
        });
     };
-
     function Select2Editor(args) {
         var $input;
         var defaultValue;
         var scope = this;
         var calendarOpen = false;
-
         this.keyCaptureList = [ Slick.keyCode.UP, Slick.keyCode.DOWN, Slick.keyCode.ENTER ];
-
         this.init = function () {
             $input = $('<select></select>');
             $input.width(args.container.clientWidth + 3);
             PopulateSelect($input[0], args.column.dataSource, true);
-
             $input.appendTo(args.container);
             $input.focus().select();
 			
@@ -337,52 +332,41 @@ var countryIsoAndNameList = {
 				allowClear: true
             });
         };
-
         this.destroy = function () {
             $input.select2('destroy');
             $input.remove();
         };
-
         this.show = function () {
         };
-
         this.hide = function () {
             $input.select2('results_hide');
         };
-
         this.position = function (position) {
         };
-
         this.focus = function () {
             $input.select2('input_focus');
         };
-
         this.loadValue = function (item) {
             defaultValue = item[args.column.field];
             $input.val(defaultValue);
             $input[0].defaultValue = defaultValue;
             $input.trigger("change.select2");
         };
-
         this.serializeValue = function () {
             return $input.val();
         };
-
         this.applyValue = function (item, state) {
             item[args.column.field] = state;
         };
-
         this.isValueChanged = function () {
             return (!($input.val() == "" && defaultValue == null)) && ($input.val() != defaultValue);
         };
-
         this.validate = function () {
             return {
                 valid: true,
                 msg: null
             };
         };
-
         this.init();
     }
 	
@@ -408,7 +392,6 @@ var countryIsoAndNameList = {
       return {valid: true, msg: null};
     }
   }
-
   var grid;
   var data = [];
   var columns = [
@@ -426,22 +409,17 @@ var countryIsoAndNameList = {
     asyncEditorLoading: false,
     autoEdit: false
   };
-
   $(function () {
     for (var i = 0; i < 500; i++) {
       var d = (data[i] = {});
-
       d["title"] = "Task " + i;
       d["duration"] = "5 days";
       d["start"] = "01/01/2009";
       d["finish"] = "01/05/2009";
       d["country"] = pickRandomProperty(countryIsoAndNameList);
     }
-
     grid = new Slick.Grid("#myGrid", data, columns, options);
-
     grid.setSelectionModel(new Slick.CellSelectionModel());
-
     grid.onAddNewRow.subscribe(function (e, args) {
       var item = args.item;
       grid.invalidateRow(data.length);
