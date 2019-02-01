@@ -108,6 +108,8 @@
     }
     
     function setDataItemValueForColumn(item, columnDef, value) {
+      if (columnDef.denyPaste) { return null; }
+      
       if (_options.dataItemColumnValueSetter) {
         return _options.dataItemColumnValueSetter(item, columnDef, value);
       }

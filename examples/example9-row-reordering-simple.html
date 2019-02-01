@@ -103,7 +103,8 @@ $(function () {
     { name: "Find out who's naughty", complete: false},
     { name: "Find out who's nice", complete: false}
   ];
-
+  console.log(data);
+  
   grid = new Slick.Grid("#myGrid", data, columns, options);
 
   grid.setSelectionModel(new Slick.RowSelectionModel());
@@ -117,12 +118,23 @@ $(function () {
       // no point in moving before or after itself
       if (data.rows[i] == data.insertBefore || data.rows[i] == data.insertBefore - 1) {
         e.stopPropagation();
+        console.log('false   ' + getEventDataAsString(data));
         return false;
       }
     }
+    console.log('true    ' + getEventDataAsString(data));
     return true;
   });
 
+  function getEventDataAsString(data) {
+    var s = "";
+    s += "insertBefore: " + data.insertBefore;
+    s += ", rows: ["
+    for (var i=0; i<data.rows.length; i++) { s += (i===0?"":",") + data.rows[i]; }
+    s += "]"
+    return s;
+  }
+  
   moveRowsPlugin.onMoveRows.subscribe(function (e, args) {
     var extractedRows = [], left, right;
     var rows = args.rows;
