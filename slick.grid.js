@@ -2593,7 +2593,7 @@ if (typeof Slick === "undefined") {
             colspan = ii - i;
           }
         }
-        
+
         // Do not render cells outside of the viewport.
         if (columnPosRight[Math.min(ii - 1, i + colspan - 1)] > range.leftPx) {
           if (!m.alwaysRenderColumn && columnPosLeft[i] > range.rightPx) {
@@ -2657,8 +2657,9 @@ if (typeof Slick === "undefined") {
       // get addl css class names from object type formatter return and from string type return of onBeforeAppendCell
       var addlCssClasses = trigger(self.onBeforeAppendCell, { row: row, cell: cell, value: value, dataContext: item }) || '';
       addlCssClasses += (formatterResult && formatterResult.addClasses ? (addlCssClasses ? ' ' : '') + formatterResult.addClasses : '');
+      var toolTip = formatterResult && formatterResult.toolTip ? "title='" + formatterResult.toolTip + "'" : '';
 
-      stringArray.push("<div class='" + cellCss + (addlCssClasses ? ' ' + addlCssClasses : '') + "'>");
+      stringArray.push("<div class='" + cellCss + (addlCssClasses ? ' ' + addlCssClasses : '') + "' " + toolTip + ">");
 
       // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
       if (item) {
@@ -2796,15 +2797,18 @@ if (typeof Slick === "undefined") {
     function applyFormatResultToCellNode(formatterResult, cellNode, suppressRemove) {
         if (formatterResult === null || formatterResult === undefined) { formatterResult = ''; }
         if (Object.prototype.toString.call(formatterResult)  !== '[object Object]') {
-            cellNode.innerHTML = formatterResult;
-            return;
+          cellNode.innerHTML = formatterResult;
+          return;
         }
         cellNode.innerHTML = formatterResult.text;
         if (formatterResult.removeClasses && !suppressRemove) {
-            $(cellNode).removeClass(formatterResult.removeClasses);
+          $(cellNode).removeClass(formatterResult.removeClasses);
         }
         if (formatterResult.addClasses) {
-            $(cellNode).addClass(formatterResult.addClasses);
+          $(cellNode).addClass(formatterResult.addClasses);
+        }
+        if (formatterResult.toolTip) {
+          $(cellNode).attr("title", formatterResult.toolTip);
         }
     }
 
@@ -3185,7 +3189,7 @@ if (typeof Slick === "undefined") {
         if (i <= options.frozenColumn) {
           continue;
         }
-        
+
         // Ignore alwaysRenderedColumns
         if (Array.isArray(columns) && columns[i] && columns[i].alwaysRenderColumn){
           continue;
