@@ -18,13 +18,13 @@
 
     .green {
       background-color: #aaffaa;
-    }      
+    }
     .red {
       background-color: #ff7777;
-    }      
+    }
     .orange {
       background-color: #ffbb66;
-    }      
+    }
   </style>
 </head>
 <body>
@@ -38,7 +38,7 @@
       <ul>
         <li>width, minWidth, maxWidth, resizable, cssClass column attributes</li>
         <li>custom column formatters</li>
-        <li>an extended formatter returning an object { text , removeClasses, addClasses } rather than a string, allowing adding and removing css classes from the cell</li>
+        <li>an extended formatter returning an object { text, removeClasses, addClasses, toolTip } rather than a string, allowing adding and removing css classes from the cell. You can also optionally use toolTip to fill the "title" attribute</li>
       </ul>
         <h2>View Source:</h2>
         <ul>
@@ -48,8 +48,6 @@
   </tr>
 </table>
 
-<input type=text>
-
 <script src="../lib/firebugx.js"></script>
 
 <script src="../lib/jquery-1.11.2.min.js"></script>
@@ -57,26 +55,30 @@
 <script src="../lib/jquery.event.drag-2.3.0.js"></script>
 
 <script src="../slick.core.js"></script>
+<script src="../slick.editors.js"></script>
 <script src="../slick.formatters.js"></script>
 <script src="../slick.grid.js"></script>
 
 <script>
-   // a standard formatter returns a string 
+   // a standard formatter returns a string
   function formatter(row, cell, value, columnDef, dataContext) {
       return value;
   }
 
-  // an extended formatter returns an object { text , removeClasses, addClasses }
+  // an extended formatter returns an object { text, removeClasses, addClasses, toolTip }
   // the classes are removed and then added during an update, or just added on cell creation
   function statusFormatter(row, cell, value, columnDef, dataContext) {
       var rtn = { text: value, removeClasses: 'red orange green' };
       if (value !== null || value !== "") {
         if (value < 33) {
           rtn.addClasses = "red";
+          rtn.toolTip = "danger zone";
         } else if (value < 66) {
           rtn.addClasses =  "orange";
+          rtn.toolTip = "might want to look at it";
         } else {
           rtn.addClasses =  "green";
+          rtn.toolTip = "all good";
         }
       }
       return rtn;
@@ -88,15 +90,15 @@
     {id: "title", name: "Title", field: "title", width: 120, cssClass: "cell-title", formatter: formatter},
     {id: "duration", name: "Duration", field: "duration"},
     {id: "%", name: "% Complete", field: "percentComplete", width: 80, resizable: false, formatter: Slick.Formatters.PercentCompleteBar},
-    {id: "status", name: "Status", field: "percentComplete", width: 50, resizable: false, formatter: statusFormatter},
+    {id: "status", name: "Status", field: "percentComplete", width: 50, resizable: false, formatter: statusFormatter, editor: Slick.Editors.Text },
     {id: "start", name: "Start", field: "start", minWidth: 60},
     {id: "finish", name: "Finish", field: "finish", minWidth: 60},
     {id: "effort-driven", name: "Effort Driven", sortable: false, width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark}
   ];
 
-  
+
   var options = {
-    editable: false,
+    editable: true,
     enableAddRow: false,
     enableCellNavigation: true
   };
