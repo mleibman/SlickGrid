@@ -28,6 +28,10 @@
     var _isRightCanvas;
     var _isBottomCanvas;
 
+    // Scrollings
+    var _scrollTop;
+    var _scrollLeft;
+
     function init(grid) {
       options = $.extend(true, {}, _defaults, options);
       _decorator = options.cellDecorator || new Slick.CellRangeDecorator(grid, options);
@@ -35,6 +39,7 @@
       _canvas = _grid.getCanvasNode();
       _gridOptions = _grid.getOptions();
       _handler
+        .subscribe(_grid.onScroll, handleScroll)
         .subscribe(_grid.onDragInit, handleDragInit)
         .subscribe(_grid.onDragStart, handleDragStart)
         .subscribe(_grid.onDrag, handleDrag)
@@ -49,27 +54,32 @@
       return _decorator;
     }
 
+    function handleScroll(e, args) {
+      _scrollTop = args.scrollTop;
+      _scrollLeft = args.scrollLeft;
+    }
+
     function handleDragInit(e, dd) {
       // Set the active canvas node because the decorator needs to append its
       // box to the correct canvas
-      _$activeCanvas = $( _grid.getActiveCanvasNode( e ) );
+      _$activeCanvas = $(_grid.getActiveCanvasNode(e));
 
       var c = _$activeCanvas.offset();
 
       _rowOffset = 0;
       _columnOffset = 0;
-      _isBottomCanvas = _$activeCanvas.hasClass( 'grid-canvas-bottom' );
+      _isBottomCanvas = _$activeCanvas.hasClass('grid-canvas-bottom');
 
-      if ( _gridOptions.frozenRow > -1 && _isBottomCanvas ) {
-          _rowOffset = ( _gridOptions.frozenBottom ) ? $('.grid-canvas-bottom').height() : $('.grid-canvas-top').height();
+      if (_gridOptions.frozenRow > -1 && _isBottomCanvas) {
+        _rowOffset = (_gridOptions.frozenBottom) ? $('.grid-canvas-bottom').height() : $('.grid-canvas-top').height();
       }
-      
-      _isRightCanvas = _$activeCanvas.hasClass( 'grid-canvas-right' );
-      
-      if ( _gridOptions.frozenColumn > -1 && _isRightCanvas ) {
-          _columnOffset = $('.grid-canvas-left').width();
+
+      _isRightCanvas = _$activeCanvas.hasClass('grid-canvas-right');
+
+      if (_gridOptions.frozenColumn > -1 && _isRightCanvas) {
+        _columnOffset = $('.grid-canvas-left').width();
       }
-            
+
       // prevent the grid from cancelling drag'n'drop by default
       e.stopImmediatePropagation();
     }
@@ -88,11 +98,19 @@
 
       _grid.focus();
 
-      var start = _grid.getCellFromPoint(
-        dd.startX - $(_canvas).offset().left,
-        dd.startY - $(_canvas).offset().top);
+      var startX = dd.startX - $(_canvas).offset().left;
+      if (_gridOptions.frozenColumn >= 0) {
+        startX += _scrollLeft;
+      }
 
-      dd.range = {start: start, end: {}};
+      var startY = dd.startY - $(_canvas).offset().top;
+      if (_gridOptions.frozenRow >= 0) {
+        startY += _scrollTop;
+      }
+
+      var start = _grid.getCellFromPoint(startX, startY);
+
+      dd.range = { start: start, end: {} };
       _currentlySelectedRange = dd.range;
       return _decorator.show(new Slick.Range(start.row, start.cell));
     }
@@ -108,24 +126,23 @@
         e.pageY - _$activeCanvas.offset().top + _rowOffset
       );
 
-      if (_gridOptions.frozenColumn < 0) {
-        if (!_grid.canCellBeSelected(end.row, end.cell)) {
-          return;
-        }
-      } else {
-        // when having frozen column(s), we need to do extra checks
-        if ( (!_grid.canCellBeSelected( end.row, end.cell ) ) 
-          || ( !_isRightCanvas && ( end.cell > _gridOptions.frozenColumn ) )
-          || ( _isRightCanvas && ( end.cell <= _gridOptions.frozenColumn ) )
-          || ( !_isBottomCanvas && ( end.row >= _gridOptions.frozenRow ) )
-          || ( _isBottomCanvas && ( end.row < _gridOptions.frozenRow ) )
-        ) {
-         return;
-        }
+      // ... frozen column(s), 
+      if ( _gridOptions.frozenColumn >= 0 && (!_isRightCanvas && (end.cell > _gridOptions.frozenColumn)) || (_isRightCanvas && (end.cell <= _gridOptions.frozenColumn)) ) {
+        return;
+      }
+
+      // ... or frozen row(s)
+      if ( _gridOptions.frozenRow >= 0 && (!_isBottomCanvas && (end.row >= _gridOptions.frozenRow)) || (_isBottomCanvas && (end.row < _gridOptions.frozenRow)) ) {
+        return;
+      }
+
+      // ... or regular grid (without any frozen options)
+      if (!_grid.canCellBeSelected(end.row, end.cell)) {
+        return;
       }
 
       dd.range.end = end;
-      
+
       _decorator.show(new Slick.Range(dd.range.start.row, dd.range.start.cell, end.row, end.cell));
     }
 
@@ -147,7 +164,7 @@
         )
       });
     }
-
+    
     function getCurrentRange() {
       return _currentlySelectedRange;
     }
