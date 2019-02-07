@@ -29,8 +29,8 @@
     var _isBottomCanvas;
 
     // Scrollings
-    var _scrollTop;
-    var _scrollLeft;
+    var _scrollTop = 0;
+    var _scrollLeft = 0;
 
     function init(grid) {
       options = $.extend(true, {}, _defaults, options);
