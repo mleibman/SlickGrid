@@ -2238,6 +2238,7 @@ if (typeof Slick === "undefined") {
     }
 
     function handleSelectedRangesChanged(e, ranges) {
+      var previousSelectedRows = selectedRows.slice(0); // shallow copy previously selected rows for later comparison
       selectedRows = [];
       var hash = {};
       for (var i = 0; i < ranges.length; i++) {
@@ -2256,7 +2257,14 @@ if (typeof Slick === "undefined") {
 
       setCellCssStyles(options.selectedCellCssClass, hash);
 
-      trigger(self.onSelectedRowsChanged, {rows: getSelectedRows()}, e);
+      if (simpleArrayEquals(previousSelectedRows, selectedRows)) {
+        trigger(self.onSelectedRowsChanged, {rows: getSelectedRows()}, e);
+      }
+    }
+
+    // compare 2 simple arrays (integers or strings only, do not use to compare object arrays)
+    function simpleArrayEquals(arr1, arr2) {
+      return Array.isArray(arr1) && Array.isArray(arr2) && arr2.sort().toString() !== arr1.sort().toString();
     }
 
     function getColumns() {
