@@ -99,12 +99,12 @@
       _grid.focus();
 
       var startX = dd.startX - $(_canvas).offset().left;
-      if (_gridOptions.frozenColumn >= 0) {
+      if (_gridOptions.frozenColumn >= 0 && _isRightCanvas) {
         startX += _scrollLeft;
       }
 
       var startY = dd.startY - $(_canvas).offset().top;
-      if (_gridOptions.frozenRow >= 0) {
+      if (_gridOptions.frozenRow >= 0 && _isBottomCanvas) {
         startY += _scrollTop;
       }
 
