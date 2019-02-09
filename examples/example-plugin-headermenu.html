@@ -142,7 +142,7 @@
   };
 
   var executeSort = function(cols) {
-		data.sort(function (dataRow1, dataRow2) {
+    data.sort(function (dataRow1, dataRow2) {
         for (var i = 0, l = cols.length; i < l; i++) {
           var field = cols[i].sortCol.field;
           var sign = cols[i].sortAsc ? 1 : -1;
@@ -156,9 +156,9 @@
       });
       grid.invalidate();
       grid.render();
-	};
+  };
 
-	var removeColumnByIndex = function(array, index) {
+  var removeColumnByIndex = function(array, index) {
     return array.filter(function (el, i) {
       return index !== i;
     });
@@ -187,19 +187,19 @@
 
     grid.onSort.subscribe(function (e, args) {
       executeSort(args.sortCols);
-		});
+    });
 
     headerMenuPlugin.onCommand.subscribe(function(e, args) {
-			if(args.command === "hide") {
-				var columnIndex = grid.getColumnIndex(args.column.id);
+      if(args.command === "hide") {
+        var columnIndex = grid.getColumnIndex(args.column.id);
         visibleColumns = removeColumnByIndex(visibleColumns, columnIndex);
         grid.setColumns(visibleColumns);
-	// Fix hidden sort column when multiColumnSort = true
+  // Fix hidden sort column when multiColumnSort = true
           grid.setSortColumns(grid.getSortColumns().filter(function (el, i) {
             return el.columnId !== args.column.id;
           }));
 
-			}else if(args.command === "sort-asc" || args.command === "sort-desc") {
+      }else if(args.command === "sort-asc" || args.command === "sort-desc") {
         // get previously sorted columns
         // getSortColumns() only returns sortAsc & columnId, we want the entire column definition
         var oldSortColumns = grid.getSortColumns();
@@ -208,27 +208,27 @@
           if(col.columnId !== args.column.id) {
             return {sortCol: columns[grid.getColumnIndex(col.columnId)], sortAsc: col.sortAsc };
           }
-				});
+        });
 
         // add to the column array, the column sorted by the header menu
-				var isSortedAsc = (args.command === "sort-asc");
-				cols.push({ sortAsc: isSortedAsc, sortCol: args.column });
+        var isSortedAsc = (args.command === "sort-asc");
+        cols.push({ sortAsc: isSortedAsc, sortCol: args.column });
 
-				// update the grid sortColumns array which will at the same add the visual sort icon(s) on the UI
-				newSortColumns = $.map(cols, function(col) {
-					return {columnId: col.sortCol.id, sortAsc: col.sortAsc };
-				});
-				grid.setSortColumns(newSortColumns);
-				executeSort(cols);
-			}else {
-				alert("Command: " + args.command);
-			}
+        // update the grid sortColumns array which will at the same add the visual sort icon(s) on the UI
+        newSortColumns = $.map(cols, function(col) {
+          return {columnId: col.sortCol.id, sortAsc: col.sortAsc };
+        });
+        grid.setSortColumns(newSortColumns);
+        executeSort(cols);
+      }else {
+        alert("Command: " + args.command);
+      }
     });
 
     // subscribe to event when column visibility is changed via the menu
     columnpicker.onColumnsChanged.subscribe(function(e, args) {
-	// Fix hidden sort column when multiColumnSort = true
-	grid.setSortColumns(grid.getSortColumns().filter(function (el, i) {
+  // Fix hidden sort column when multiColumnSort = true
+  grid.setSortColumns(grid.getSortColumns().filter(function (el, i) {
           return args.columns.reduce(function(inc, c) {
             return inc + (el.columnId === c.id ? 1 : 0);
             }, 0) !== 0;
