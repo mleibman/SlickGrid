@@ -576,11 +576,6 @@ if (typeof Slick === "undefined") {
             .on("mouseenter", ".slick-cell", handleMouseEnter)
             .on("mouseleave", ".slick-cell", handleMouseLeave);
 
-        // Work around http://crbug.com/312427.
-        if (navigator.userAgent.toLowerCase().match(/webkit/) &&
-            navigator.userAgent.toLowerCase().match(/macintosh/)) {
-          $canvas.on("mousewheel", handleMouseWheel);
-        }
         restoreCssFromHiddenInit();
       }
     }
@@ -4549,7 +4544,7 @@ if (typeof Slick === "undefined") {
 
     function scrollPage(dir) {
       var deltaRows = dir * numVisibleRows;
-        /// First fully visible row crosses the line with  
+        /// First fully visible row crosses the line with
         /// y == bottomOfTopmostFullyVisibleRow
       var bottomOfTopmostFullyVisibleRow = scrollTop + options.rowHeight - 1;
       scrollTo((getRowFromPosition(bottomOfTopmostFullyVisibleRow) + deltaRows) * options.rowHeight);
