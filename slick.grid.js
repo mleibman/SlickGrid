@@ -1334,6 +1334,7 @@ if (typeof Slick === "undefined") {
           if (!options.multiColumnSort) {
             trigger(self.onSort, {
               multiColumnSort: false,
+              columnId: (sortColumns.length > 0 ? column.id : null),
               sortCol: (sortColumns.length > 0 ? column : null),
               sortAsc: (sortColumns.length > 0 ? sortColumns[0].sortAsc : true)
             }, e);
@@ -1341,7 +1342,7 @@ if (typeof Slick === "undefined") {
             trigger(self.onSort, {
               multiColumnSort: true,
               sortCols: $.map(sortColumns, function(col) {
-                return {sortCol: columns[getColumnIndex(col.columnId)], sortAsc: col.sortAsc };
+                return {columnId: columns[getColumnIndex(col.columnId)].id, sortCol: columns[getColumnIndex(col.columnId)], sortAsc: col.sortAsc };
               })
             }, e);
           }
