@@ -79,6 +79,7 @@
     // events
     var onRowCountChanged = new Slick.Event();
     var onRowsChanged = new Slick.Event();
+    var onRowsOrCountChanged = new Slick.Event();   
     var onPagingInfoChanged = new Slick.Event();
 
     options = $.extend(true, {}, defaults, options);
@@ -934,10 +935,13 @@
         onPagingInfoChanged.notify(getPagingInfo(), null, self);
       }
       if (countBefore !== rows.length) {
-        onRowCountChanged.notify({previous: countBefore, current: rows.length, dataView: self}, null, self);
+        onRowCountChanged.notify({previous: countBefore, current: rows.length, dataView: self, callingOnRowsChanged: (diff.length > 0)}, null, self);
       }
       if (diff.length > 0) {
-        onRowsChanged.notify({rows: diff, dataView: self}, null, self);
+        onRowsChanged.notify({rows: diff, dataView: self, calledOnRowCountChanged: (countBefore !== rows.length)}, null, self);
+      }
+      if (countBefore !== rows.length || diff.length > 0) {
+        onRowsOrCountChanged.notify({rowsDiff: diff, previousRowCount: countBefore, currentRowCount: rows.length, dataView: self}, null, self);
       }
     }
 
@@ -1005,9 +1009,7 @@
         }
       });
 
-      this.onRowsChanged.subscribe(update);
-
-      this.onRowCountChanged.subscribe(update);
+      this.onRowsOrCountChanged.subscribe(update);
 
       return onSelectedRowIdsChanged;
     }
@@ -1051,14 +1053,11 @@
           storeCellCssStyles(args.hash);
         } else {
           grid.onCellCssStylesChanged.unsubscribe(styleChanged);
-          self.onRowsChanged.unsubscribe(update);
-          self.onRowCountChanged.unsubscribe(update);          
+          self.onRowsOrCountChanged.unsubscribe(update);
         }
       });
 
-      this.onRowsChanged.subscribe(update);
-
-      this.onRowCountChanged.subscribe(update);
+      this.onRowsOrCountChanged.subscribe(update);
     }
 
     $.extend(this, {
@@ -1112,6 +1111,7 @@
       // events
       "onRowCountChanged": onRowCountChanged,
       "onRowsChanged": onRowsChanged,
+      "onRowsOrCountChanged": onRowsOrCountChanged,
       "onPagingInfoChanged": onPagingInfoChanged
     });
   }
