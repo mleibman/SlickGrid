@@ -24,7 +24,7 @@
       -moz-box-sizing: border-box;
       box-sizing: border-box;
     }
-    
+
     .slick-cell-checkboxsel {
       background: #f0f0f0;
       border-right-color: silver;
@@ -57,6 +57,7 @@
       <li>Using a fixed header row to implement column-level filters with Checkbox Selector</li>
       <li>Type numbers in textboxes to filter grid data</li>
       <li>Checkbox row select column</li>
+      <li>Override the "canRowBeSelected" with user's custom logic. e.g. every 2nd rows is selectable</li>
       <p>
         <button onclick="toggleHideSelectAllCheckbox()">Toggle show/hide "Select All" checkbox</button>
       </p>
@@ -107,6 +108,11 @@
     hideInFilterHeaderRow: isSelectAllShownAsColumnTitle
   });
 
+  // make only Odd Rows selectable by using the override function
+  checkboxSelector.canRowBeSelected(function(row, dataContext, grid) {
+    return (dataContext.id % 2 === 1);
+  });
+
   columns.push(checkboxSelector.getColumnDefinition());
 
   for (var i = 0; i < 10; i++) {
@@ -137,7 +143,7 @@
 
   function toggleWhichRowToShowSelectAll() {
     isSelectAllShownAsColumnTitle = !isSelectAllShownAsColumnTitle;
-    checkboxSelector.setOptions({ 
+    checkboxSelector.setOptions({
       hideInColumnTitleRow: !isSelectAllShownAsColumnTitle,
       hideInFilterHeaderRow: isSelectAllShownAsColumnTitle,
     });
@@ -170,6 +176,9 @@
       grid.render();
     });
 
+    grid.onSelectedRowsChanged.subscribe(function (e, args) {
+      console.log("Selected Rows: " + args.rows.toString());
+    });
 
     $(grid.getHeaderRow()).on("change keyup", ":input", function (e) {
       var columnId = $(this).data("columnId");
