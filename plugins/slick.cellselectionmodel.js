@@ -13,7 +13,7 @@
     var _self = this;
     var _selector;
 
-    if (typeof options === "undefined" || typeof options.cellRangeSelector === "undefined") {    
+    if (typeof options === "undefined" || typeof options.cellRangeSelector === "undefined") {
       _selector = new Slick.CellRangeSelector({
         "selectionCss": {
           "border": "2px solid black"
@@ -84,7 +84,7 @@
 
       // if range has not changed, don't fire onSelectedRangesChanged
       var rangeHasChanged = !rangesAreEqual(_ranges, ranges);
-      
+
       _ranges = removeInvalidRanges(ranges);
       if (rangeHasChanged) { _self.onSelectedRangesChanged.notify(_ranges); }
     }
@@ -130,11 +130,11 @@
       if (active && e.shiftKey && !metaKey && !e.altKey &&
         (e.which == 37 || e.which == 39 || e.which == 38 || e.which == 40)) {
 
-        ranges = getSelectedRanges();
+        ranges = getSelectedRanges().slice();
         if (!ranges.length)
           ranges.push(new Slick.Range(active.row, active.cell));
 
-        // keyboard can work with last range only          
+        // keyboard can work with last range only
         last = ranges.pop();
 
         // can't handle selection out of active cell
@@ -157,7 +157,7 @@
           dRow += dirRow;
         }
 
-        // define new selection range 
+        // define new selection range
         var new_last = new Slick.Range(active.row, active.cell, active.row + dirRow * dRow, active.cell + dirCell * dCell);
         if (removeInvalidRanges([new_last]).length) {
           ranges.push(new_last);
