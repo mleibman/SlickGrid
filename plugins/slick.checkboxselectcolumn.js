@@ -9,7 +9,7 @@
 
   function CheckboxSelectColumn(options) {
     var _grid;
-    var _canRowBeSelected = null;
+    var _selectableOverride = null;
     var _selectAll_UID = createUID();
     var _handler = new Slick.EventHandler();
     var _selectedRowsLookup = {};
@@ -29,9 +29,9 @@
     function init(grid) {
       _grid = grid;
       _handler
-      .subscribe(_grid.onSelectedRowsChanged, handleSelectedRowsChanged)
-      .subscribe(_grid.onClick, handleClick)
-      .subscribe(_grid.onKeyDown, handleKeyDown);
+        .subscribe(_grid.onSelectedRowsChanged, handleSelectedRowsChanged)
+        .subscribe(_grid.onClick, handleClick)
+        .subscribe(_grid.onKeyDown, handleKeyDown);
 
       if (!_options.hideInFilterHeaderRow) {
         addCheckboxToFilterHeaderRow(grid);
@@ -85,14 +85,14 @@
       var selectedRows = _grid.getSelectedRows();
       var lookup = {}, row, i;
       var disabledCount = 0;
-      if (typeof _canRowBeSelected === 'function') {
-          for (k = 0; k < _grid.getDataLength(); k++) {
-              // If we are allowed to select the row
-              var dataItem = _grid.getDataItem(k);
-              if (!checkcanRowBeSelected(i, dataItem, _grid)) {
-                  disabledCount++;
-              }
+      if (typeof _selectableOverride === 'function') {
+        for (k = 0; k < _grid.getDataLength(); k++) {
+          // If we are allowed to select the row
+          var dataItem = _grid.getDataItem(k);
+          if (!checkSelectableOverride(i, dataItem, _grid)) {
+            disabledCount++;
           }
+        }
       }
 
       var removeList = [];
@@ -101,7 +101,7 @@
 
         // If we are allowed to select the row
         var rowItem = _grid.getDataItem(row);
-        if (checkcanRowBeSelected(i, rowItem, _grid)) {
+        if (checkSelectableOverride(i, rowItem, _grid)) {
           lookup[row] = true;
           if (lookup[row] !== _selectedRowsLookup[row]) {
             _grid.invalidateRow(row);
@@ -128,7 +128,7 @@
       }
       // Remove items that shouln't of been selected in the first place (Got here Ctrl + click)
       if (removeList.length > 0) {
-        for (i = 0; i < removeList.length; i++)  {
+        for (i = 0; i < removeList.length; i++) {
           var remIdx = selectedRows.indexOf(removeList[i]);
           selectedRows.splice(remIdx, 1);
         }
@@ -167,7 +167,7 @@
 
     function toggleRowSelection(row) {
       var dataContext = _grid.getDataItem(row);
-      if (!checkcanRowBeSelected(row, dataContext, _grid)) {
+      if (!checkSelectableOverride(row, dataContext, _grid)) {
         return;
       }
 
@@ -182,8 +182,8 @@
     }
 
     function selectRows(rowArray) {
-      var i, l=rowArray.length, addRows = [];
-      for(i=0; i<l; i++) {
+      var i, l = rowArray.length, addRows = [];
+      for (i = 0; i < l; i++) {
         if (!_selectedRowsLookup[rowArray[i]]) {
           addRows[addRows.length] = rowArray[i];
         }
@@ -192,14 +192,14 @@
     }
 
     function deSelectRows(rowArray) {
-      var i, l=rowArray.length, removeRows = [];
-      for(i=0; i<l; i++) {
+      var i, l = rowArray.length, removeRows = [];
+      for (i = 0; i < l; i++) {
         if (_selectedRowsLookup[rowArray[i]]) {
           removeRows[removeRows.length] = rowArray[i];
         }
       }
       _grid.setSelectedRows($.grep(_grid.getSelectedRows(), function (n) {
-        return removeRows.indexOf(n)<0
+        return removeRows.indexOf(n) < 0
       }));
     }
 
@@ -236,7 +236,7 @@
       if (_checkboxColumnCellIndex === null) {
         _checkboxColumnCellIndex = 0;
         var colArr = _grid.getColumns();
-        for (var i=0; i < colArr.length; i++) {
+        for (var i = 0; i < colArr.length; i++) {
           if (colArr[i].id == _options.columnId) {
             _checkboxColumnCellIndex = i;
           }
@@ -261,12 +261,12 @@
     }
 
     function addCheckboxToFilterHeaderRow(grid) {
-      grid.onHeaderRowCellRendered.subscribe(function(e, args) {
+      grid.onHeaderRowCellRendered.subscribe(function (e, args) {
         if (args.column.field === "sel") {
           $(args.node).empty();
           $("<span id='filter-checkbox-selectall-container'><input id='header-filter-selector" + _selectAll_UID + "' type='checkbox'><label for='header-filter-selector" + _selectAll_UID + "'></label></span>")
             .appendTo(args.node)
-            .on('click', function(evnt) {
+            .on('click', function (evnt) {
               handleHeaderClick(evnt, args)
             });
         }
@@ -281,20 +281,20 @@
       var UID = createUID() + row;
 
       if (dataContext) {
-        if (!checkcanRowBeSelected(row, dataContext, grid)) {
+        if (!checkSelectableOverride(row, dataContext, grid)) {
           return null;
         } else {
           return _selectedRowsLookup[row]
-              ? "<input id='selector" + UID + "' type='checkbox' checked='checked'><label for='selector" + UID + "'></label>"
-              : "<input id='selector" + UID + "' type='checkbox'><label for='selector" + UID + "'></label>";
+            ? "<input id='selector" + UID + "' type='checkbox' checked='checked'><label for='selector" + UID + "'></label>"
+            : "<input id='selector" + UID + "' type='checkbox'><label for='selector" + UID + "'></label>";
         }
       }
       return null;
     }
 
-    function checkcanRowBeSelected(row, dataContext, grid) {
-      if (typeof _canRowBeSelected === 'function') {
-        return _canRowBeSelected(row, dataContext, grid);
+    function checkSelectableOverride(row, dataContext, grid) {
+      if (typeof _selectableOverride === 'function') {
+        return _selectableOverride(row, dataContext, grid);
       }
       return true;
     }
@@ -312,8 +312,8 @@
      * In order word, user can choose which rows to be selectable or not by providing his own logic.
      * @param overrideFn: override function callback
      */
-    function canRowBeSelected(overrideFn) {
-      _canRowBeSelected = overrideFn;
+    function selectableOverride(overrideFn) {
+      _selectableOverride = overrideFn;
     }
 
 
@@ -324,7 +324,7 @@
       "selectRows": selectRows,
       "getColumnDefinition": getColumnDefinition,
       "getOptions": getOptions,
-      "canRowBeSelected": canRowBeSelected,
+      "selectableOverride": selectableOverride,
       "setOptions": setOptions,
     });
   }
