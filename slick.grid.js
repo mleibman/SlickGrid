@@ -2873,10 +2873,14 @@ if (typeof Slick === "undefined") {
     }
 
     function getViewportHeight() {
+      var fullHeight = $paneHeaderL.outerHeight();
+      fullHeight += ( options.showHeaderRow ) ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0;
+      fullHeight += ( options.showFooterRow ) ? options.footerRowHeight + getVBoxDelta($footerRowScroller) : 0;
+
       if (options.autoHeight) {
         viewportH = options.rowHeight
           * getDataLengthIncludingAddNew()
-          + ( ( options.frozenColumn == -1 ) ? $headers.outerHeight() : 0 );
+          + ( ( options.frozenColumn == -1 ) ? fullHeight : 0 );
       } else {
         topPanelH = ( options.showTopPanel ) ? options.topPanelHeight + getVBoxDelta($topPanelScroller) : 0;
         headerRowH = ( options.showHeaderRow ) ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0;
