@@ -941,7 +941,8 @@
         onRowsChanged.notify({rows: diff, dataView: self, calledOnRowCountChanged: (countBefore !== rows.length)}, null, self);
       }
       if (countBefore !== rows.length || diff.length > 0) {
-        onRowsOrCountChanged.notify({rowsDiff: diff, previousRowCount: countBefore, currentRowCount: rows.length, dataView: self}, null, self);
+        onRowsOrCountChanged.notify({rowsDiff: diff, previousRowCount: countBefore, currentRowCount: rows.length, 
+          rowCountChanged: countBefore !== rows.length, rowsChanged: diff.length > 0, dataView: self}, null, self);
       }
     }
 
