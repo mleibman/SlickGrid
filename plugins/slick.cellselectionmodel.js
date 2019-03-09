@@ -182,6 +182,7 @@
 
       "init": init,
       "destroy": destroy,
+      "pluginName": "CellSelectionModel",
 
       "onSelectedRangesChanged": new Slick.Event()
     });

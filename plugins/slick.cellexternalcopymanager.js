@@ -458,6 +458,8 @@
     $.extend(this, {
       "init": init,
       "destroy": destroy,
+      "pluginName": "CellExternalCopyManager",
+
       "clearCopySelection": clearCopySelection,
       "handleKeyDown":handleKeyDown,
       

@@ -8,7 +8,6 @@
     }
   });
 
-
   /***
    * A plugin to add drop-down menus to column headers.
    *
@@ -293,6 +292,7 @@
     $.extend(this, {
       "init": init,
       "destroy": destroy,
+      "pluginName": "HeaderMenu",
       "setOptions": setOptions,
 
       "onBeforeMenuShow": new Slick.Event(),

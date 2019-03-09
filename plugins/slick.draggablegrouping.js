@@ -322,6 +322,8 @@
     $.extend(this, {
       "init": init,
       "destroy": destroy,
+      "pluginName": "DraggableGrouping",
+
       "onGroupChanged": onGroupChanged,
       "setDroppedGroups": setDroppedGroups,
       "clearDroppedGroups": clearDroppedGroups,

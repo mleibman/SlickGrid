@@ -172,6 +172,8 @@
     $.extend(this, {
       "init": init,
       "destroy": destroy,
+      "pluginName": "CellRangeSelector",
+
       "getCellDecorator": getCellDecorator,
       "getCurrentRange": getCurrentRange,
 

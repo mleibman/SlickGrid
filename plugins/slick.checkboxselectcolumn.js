@@ -320,6 +320,8 @@
     $.extend(this, {
       "init": init,
       "destroy": destroy,
+      "pluginName": "CheckboxSelectColumn",
+
       "deSelectRows": deSelectRows,
       "selectRows": selectRows,
       "getColumnDefinition": getColumnDefinition,

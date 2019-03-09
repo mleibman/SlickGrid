@@ -709,6 +709,8 @@
     $.extend(this, {
       "init": init,
       "destroy": destroy,
+      "pluginName": "RowDetailView",
+
       "collapseAll": collapseAll,
       "collapseDetailView": collapseDetailView,
       "expandDetailView": expandDetailView,

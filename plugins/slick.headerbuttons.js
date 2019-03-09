@@ -170,6 +170,7 @@
     $.extend(this, {
       "init": init,
       "destroy": destroy,
+      "pluginName": "HeaderButtons",
 
       "onCommand": new Slick.Event()
     });

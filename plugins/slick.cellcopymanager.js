@@ -78,6 +78,8 @@
     $.extend(this, {
       "init": init,
       "destroy": destroy,
+      "pluginName": "CellCopyManager",
+
       "clearCopySelection": clearCopySelection,
 
       "onCopyCells": new Slick.Event(),

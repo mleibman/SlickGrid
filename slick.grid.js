@@ -625,6 +625,15 @@ if (typeof Slick === "undefined") {
       }
     }
 
+    function getPluginByName(name) {
+      for (var i = plugins.length; i >= 0; i--) {
+        if (plugins[i].pluginName === name) {
+          return plugins[i];
+        }
+      }
+      return undefined;
+    }
+
     function setSelectionModel(model) {
       if (selectionModel) {
         selectionModel.onSelectedRangesChanged.unsubscribe(handleSelectedRangesChanged);
@@ -5223,6 +5232,7 @@ if (typeof Slick === "undefined") {
       // Methods
       "registerPlugin": registerPlugin,
       "unregisterPlugin": unregisterPlugin,
+      "getPluginByName": getPluginByName,
       "getColumns": getColumns,
       "setColumns": setColumns,
       "getColumnIndex": getColumnIndex,

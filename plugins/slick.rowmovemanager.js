@@ -132,7 +132,8 @@
       "onMoveRows": new Slick.Event(),
 
       "init": init,
-      "destroy": destroy
+      "destroy": destroy,
+      "pluginName": "RowMoveManager"
     });
   }
 })(jQuery);

@@ -65,6 +65,7 @@
     }
 
     $.extend(this, {
+      "pluginName": "CellRangeDecorator",
       "show": show,
       "hide": hide
     });

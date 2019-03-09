@@ -184,6 +184,7 @@
 
       "init": init,
       "destroy": destroy,
+      "pluginName": "RowSelectionModel",
 
       "onSelectedRangesChanged": new Slick.Event()
     });

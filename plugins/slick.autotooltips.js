@@ -77,7 +77,8 @@
     // Public API
     $.extend(this, {
       "init": init,
-      "destroy": destroy
+      "destroy": destroy,
+      "pluginName": "AutoTooltips"
     });
   }
 })(jQuery);
