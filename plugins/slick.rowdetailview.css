@@ -1,15 +1,16 @@
 .detailView-toggle {
     display:          inline-block;
-    cursor:            pointer;
 }
 
 .detailView-toggle.expand {
+    cursor:           pointer;
     height:           20px;
     width:            20px;
     background: url(../images/arrow-right.gif) no-repeat center center;
 }
 
 .detailView-toggle.collapse {
+    cursor:           pointer;
     height:           20px;
     width:            20px;
     background: url(../images/sort-desc.gif) no-repeat center center;

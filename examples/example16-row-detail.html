@@ -87,6 +87,7 @@
       <ul>
         <li>RowDetailView Plugin</li>
         <li>See more detail of an item by toggling a row detail panel.<li></li>
+        <li>User can override the logic to display the expandable icon with "expandableOverride". e.g. every 2nd rows is selectable</li>
         <li>"useRowClick: True" to toggle from any column</li>
         <li>"useRowClick: False" to toggle from the toggle icon only</li>
         <li>"panelRows: 4" DetailView is RowHeight * 4</li>
@@ -364,6 +365,12 @@
         // also note that the detail view adds an extra 1 row for padding purposes
         // example, if you choosed 6 panelRows, the display will in fact use 5 rows
         panelRows: 6
+      });
+
+      // make only every 2nd row an expandable row,
+      // by using the override function to provide custom logic of which row is expandale
+      detailView.expandableOverride(function(row, dataContext, grid) {
+        return (dataContext.id % 2 === 1);
       });
 
       // push the plugin as the first column

@@ -24,6 +24,7 @@
  *
  * AVAILABLE PUBLIC OPTIONS:
  *    init:                 initiliaze the plugin
+ *    expandableOverride:   callback method that user can override the default behavior of making every row an expandable row (the logic to show or not the expandable icon).
  *    destroy:              destroy the plugin and it's events
  *    collapseAll:          collapse all opened row detail panel
  *    collapseDetailView:   collapse a row by passing the item object (row detail)
@@ -91,12 +92,13 @@
     var _grid;
     var _gridOptions;
     var _gridUid;
+    var _expandableOverride = null;
     var _self = this;
     var _lastRange = null;
     var _expandedRows = [];
     var _handler = new Slick.EventHandler();
     var _outsideRange = 5;
-	  var _visibleRenderedCellCount = 0;
+    var _visibleRenderedCellCount = 0;
     var _defaults = {
       columnId: '_detail_selector',
       cssClass: 'detailView-toggle',
@@ -158,12 +160,12 @@
 
       // subscribe to the onAsyncResponse so that the plugin knows when the user server side calls finished
       subscribeToOnAsyncResponse();
-    
+
       // if we use the alternative & simpler calculation of the out of viewport range
       // we will need to know how many rows are rendered on the screen and we need to wait for grid to be rendered
       // unfortunately there is no triggered event for knowing when grid is finished, so we use 250ms delay and it's typically more than enough
       if (_options.useSimpleViewportCalc) {
-        _handler.subscribe(_grid.onRendered, function(e, args) {
+        _handler.subscribe(_grid.onRendered, function (e, args) {
           if (args && args.endRow) {
             _visibleRenderedCellCount = args.endRow - args.startRow;
           }
@@ -206,6 +208,11 @@
 
     /** Handle mouse click event */
     function handleClick(e, args) {
+      var dataContext = _grid.getDataItem(args.row);
+      if (!checkExpandableOverride(args.row, dataContext, _grid)) {
+        return;
+      }
+
       // clicking on a row select checkbox
       if (_options.useRowClick || _grid.getColumns()[args.cell].id === _options.columnId && $(e.target).hasClass(_options.cssClass)) {
         // if editing, try to commit
@@ -223,7 +230,7 @@
           'item': item
         }, e, _self);
 
-        toggleRowSelection(item);
+        toggleRowSelection(args.row, item);
 
         // trigger an event after toggling
         _self.onAfterRowDetailToggle.notify({
@@ -334,14 +341,14 @@
         });
       }
     }
-	
+
 	  /**
      * Check if the row became out of visible range (when user can't see it anymore)
      * @param rowIndex
      * @param renderedRange from SlickGrid
      */
     function checkIsRowOutOfViewportRange(rowIndex, renderedRange) {
-  	  if (Math.abs(renderedRange.bottom - _gridRowBuffer - rowIndex) > _visibleRenderedCellCount * 2) {
+      if (Math.abs(renderedRange.bottom - _gridRowBuffer - rowIndex) > _visibleRenderedCellCount * 2) {
         return true;
       }
       return false;
@@ -365,7 +372,7 @@
     function notifyBackToViewportWhenDomExist(item, rowId) {
       var rowIndex = item.rowIndex || _dataView.getRowById(item.id);
 
-      setTimeout(function() {
+      setTimeout(function () {
         // make sure View Row DOM Element really exist before notifying that it's a row that is visible again
         if ($('.cellDetailView_' + item.id).length) {
           _self.onRowBackToViewportRange.notify({
@@ -398,9 +405,13 @@
     }
 
     // Toggle between showing and hiding a row
-    function toggleRowSelection(row) {
+    function toggleRowSelection(rowNumber, dataContext) {
+      if (!checkExpandableOverride(rowNumber, dataContext, _grid)) {
+        return;
+      }
+
       _dataView.beginUpdate();
-      handleAccordionShowHide(row);
+      handleAccordionShowHide(dataContext);
       _dataView.endUpdate();
     }
 
@@ -586,56 +597,60 @@
 
     /** The Formatter of the toggling icon of the Row Detail */
     function detailSelectionFormatter(row, cell, value, columnDef, dataContext) {
-      if (dataContext[_keyPrefix + 'collapsed'] == undefined) {
-        dataContext[_keyPrefix + 'collapsed'] = true,
-          dataContext[_keyPrefix + 'sizePadding'] = 0,     //the required number of pading rows
-          dataContext[_keyPrefix + 'height'] = 0,     //the actual height in pixels of the detail field
-          dataContext[_keyPrefix + 'isPadding'] = false,
-          dataContext[_keyPrefix + 'parent'] = undefined,
-          dataContext[_keyPrefix + 'offset'] = 0
-      }
-
-      if (dataContext[_keyPrefix + 'isPadding'] == true) {
-        // render nothing
-      }
-      else if (dataContext[_keyPrefix + 'collapsed']) {
-        var collapsedClasses = _options.cssClass + ' expand ';
-        if (_options.collapsedClass) {
-          collapsedClasses += _options.collapsedClass;
-        }
-        return '<div class="' + collapsedClasses + '"></div>';
-      }
-      else {
-        var html = [];
-        var rowHeight = _gridOptions.rowHeight;
-
-        var outterHeight = dataContext[_keyPrefix + 'sizePadding'] * _gridOptions.rowHeight;
-        if (_options.maxRows !== null && dataContext[_keyPrefix + 'sizePadding'] > _options.maxRows) {
-          outterHeight = _options.maxRows * rowHeight;
-          dataContext[_keyPrefix + 'sizePadding'] = _options.maxRows;
+      if (!checkExpandableOverride(row, dataContext, grid)) {
+        return null;
+      } else {
+        if (dataContext[_keyPrefix + 'collapsed'] == undefined) {
+          dataContext[_keyPrefix + 'collapsed'] = true,
+            dataContext[_keyPrefix + 'sizePadding'] = 0,     //the required number of pading rows
+            dataContext[_keyPrefix + 'height'] = 0,     //the actual height in pixels of the detail field
+            dataContext[_keyPrefix + 'isPadding'] = false,
+            dataContext[_keyPrefix + 'parent'] = undefined,
+            dataContext[_keyPrefix + 'offset'] = 0
         }
 
-        //V313HAX:
-        //putting in an extra closing div after the closing toggle div and ommiting a
-        //final closing div for the detail ctr div causes the slickgrid renderer to
-        //insert our detail div as a new column ;) ~since it wraps whatever we provide
-        //in a generic div column container. so our detail becomes a child directly of
-        //the row not the cell. nice =)  ~no need to apply a css change to the parent
-        //slick-cell to escape the cell overflow clipping.
+        if (dataContext[_keyPrefix + 'isPadding'] == true) {
+          // render nothing
+        }
+        else if (dataContext[_keyPrefix + 'collapsed']) {
+          var collapsedClasses = _options.cssClass + ' expand ';
+          if (_options.collapsedClass) {
+            collapsedClasses += _options.collapsedClass;
+          }
+          return '<div class="' + collapsedClasses + '"></div>';
+        }
+        else {
+          var html = [];
+          var rowHeight = _gridOptions.rowHeight;
 
-        //sneaky extra </div> inserted here-----------------v
-        var expandedClasses = _options.cssClass + ' collapse ';
-        if (_options.expandedClass) expandedClasses += _options.expandedClass;
-        html.push('<div class="' + expandedClasses + '"></div></div>');
+          var outterHeight = dataContext[_keyPrefix + 'sizePadding'] * _gridOptions.rowHeight;
+          if (_options.maxRows !== null && dataContext[_keyPrefix + 'sizePadding'] > _options.maxRows) {
+            outterHeight = _options.maxRows * rowHeight;
+            dataContext[_keyPrefix + 'sizePadding'] = _options.maxRows;
+          }
 
-        html.push('<div class="dynamic-cell-detail cellDetailView_', dataContext.id, '" ');   //apply custom css to detail
-        html.push('style="height:', outterHeight, 'px;'); //set total height of padding
-        html.push('top:', rowHeight, 'px">');             //shift detail below 1st row
-        html.push('<div class="detail-container detailViewContainer_', dataContext.id, '" style="min-height:' + dataContext[_keyPrefix + 'height'] + 'px">'); //sub ctr for custom styling
-        html.push('<div class="innerDetailView_', dataContext.id, '">', dataContext[_keyPrefix + 'detailContent'], '</div></div>');
-        // &omit a final closing detail container </div> that would come next
+          //V313HAX:
+          //putting in an extra closing div after the closing toggle div and ommiting a
+          //final closing div for the detail ctr div causes the slickgrid renderer to
+          //insert our detail div as a new column ;) ~since it wraps whatever we provide
+          //in a generic div column container. so our detail becomes a child directly of
+          //the row not the cell. nice =)  ~no need to apply a css change to the parent
+          //slick-cell to escape the cell overflow clipping.
 
-        return html.join('');
+          //sneaky extra </div> inserted here-----------------v
+          var expandedClasses = _options.cssClass + ' collapse ';
+          if (_options.expandedClass) expandedClasses += _options.expandedClass;
+          html.push('<div class="' + expandedClasses + '"></div></div>');
+
+          html.push('<div class="dynamic-cell-detail cellDetailView_', dataContext.id, '" ');   //apply custom css to detail
+          html.push('style="height:', outterHeight, 'px;'); //set total height of padding
+          html.push('top:', rowHeight, 'px">');             //shift detail below 1st row
+          html.push('<div class="detail-container detailViewContainer_', dataContext.id, '" style="min-height:' + dataContext[_keyPrefix + 'height'] + 'px">'); //sub ctr for custom styling
+          html.push('<div class="innerDetailView_', dataContext.id, '">', dataContext[_keyPrefix + 'detailContent'], '</div></div>');
+          // &omit a final closing detail container </div> that would come next
+
+          return html.join('');
+        }
       }
       return null;
     }
@@ -706,6 +721,22 @@
       return item;
     }
 
+    function checkExpandableOverride(row, dataContext, grid) {
+      if (typeof _expandableOverride === 'function') {
+        return _expandableOverride(row, dataContext, grid);
+      }
+      return true;
+    }
+
+    /**
+     * Method that user can pass to override the default behavior or making every row an expandable row.
+     * In order word, user can choose which rows to be an available row detail (or not) by providing his own logic.
+     * @param overrideFn: override function callback
+     */
+    function expandableOverride(overrideFn) {
+      _expandableOverride = overrideFn;
+    }
+
     $.extend(this, {
       "init": init,
       "destroy": destroy,
@@ -714,6 +745,7 @@
       "collapseAll": collapseAll,
       "collapseDetailView": collapseDetailView,
       "expandDetailView": expandDetailView,
+      "expandableOverride": expandableOverride,
       "getColumnDefinition": getColumnDefinition,
       "getExpandedRows": getExpandedRows,
       "getFilterItem": getFilterItem,
