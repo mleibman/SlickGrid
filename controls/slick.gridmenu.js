@@ -145,7 +145,7 @@
         }
         $button.insertBefore($header);
 
-        $menu = $('<div class="slick-gridmenu" style="display: none" />').appendTo(document.body);
+        $menu = $('<div class="slick-gridmenu ' + _gridUid + '" style="display: none" />').appendTo(document.body);
         var $close = $('<button type="button" class="close" data-dismiss="slick-gridmenu" aria-label="Close"><span class="close" aria-hidden="true">&times;</span></button>').appendTo($menu);
 
         var $customMenu = $('<div class="slick-gridmenu-custom" />');
@@ -178,7 +178,7 @@
         _grid.onColumnsReordered.unsubscribe(updateColumnOrder);
         _grid.onBeforeDestroy.unsubscribe();
         $(document.body).off("mousedown." + _gridUid, handleBodyMouseDown);
-        $("div.slick-gridmenu").hide(_options.fadeSpeed);
+        $("div.slick-gridmenu." + _gridUid).hide(_options.fadeSpeed);
         $menu.remove();
         $button.remove();
       }
