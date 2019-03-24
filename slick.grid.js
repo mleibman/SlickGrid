@@ -643,8 +643,16 @@ if (typeof Slick === "undefined") {
       return selectionModel;
     }
 
-    function getCanvasNode() {
-      return $canvas[0];
+    function getCanvasNode(columnIdOrIdx, rowIndex) {
+      if (!columnIdOrIdx) { columnIdOrIdx = 0; }
+      if (!rowIndex) { rowIndex = 0; }
+      
+      var idx = (typeof columnIdOrIdx === "number" ? columnIdOrIdx : getColumnIndex(columnIdOrIdx));
+      
+      return (hasFrozenRows && rowIndex >= actualFrozenRow + (options.frozenBottom ? 0 : 1) )   
+          ?  ((hasFrozenColumns() && idx > options.frozenColumn) ? $canvasBottomR[0] : $canvasBottomL[0])
+          :  ((hasFrozenColumns() && idx > options.frozenColumn) ? $canvasTopR[0] : $canvasTopL[0])
+          ;
     }
 
     function getActiveCanvasNode(element) {
@@ -5192,7 +5200,7 @@ if (typeof Slick === "undefined") {
     // Public API
 
     $.extend(this, {
-      "slickGridVersion": "2.4.4",
+      "slickGridVersion": "2.4.5",
 
       // Events
       "onScroll": new Slick.Event(),
@@ -5258,7 +5266,8 @@ if (typeof Slick === "undefined") {
       "setSelectedRows": setSelectedRows,
       "getContainerNode": getContainerNode,
       "updatePagingStatusFromView": updatePagingStatusFromView,
-
+      "applyFormatResultToCellNode": applyFormatResultToCellNode,
+      
       "render": render,
       "invalidate": invalidate,
       "invalidateRow": invalidateRow,
