@@ -26,6 +26,11 @@
 
     var _options = $.extend(true, {}, _defaults, options);
 
+    // user could override the checkbox icon logic from within the options or after instantiating the plugin
+    if(typeof _options.selectableOverride === 'function') {
+      selectableOverride(_options.selectableOverride);
+    }
+
     function init(grid) {
       _grid = grid;
       _handler
