@@ -105,12 +105,12 @@
   checkboxSelector = new Slick.CheckboxSelectColumn({
     cssClass: "slick-cell-checkboxsel",
     hideInColumnTitleRow: !isSelectAllShownAsColumnTitle,
-    hideInFilterHeaderRow: isSelectAllShownAsColumnTitle
-  });
+    hideInFilterHeaderRow: isSelectAllShownAsColumnTitle,
 
-  // make only Odd Rows selectable by using the override function
-  checkboxSelector.selectableOverride(function(row, dataContext, grid) {
-    return (dataContext.id % 2 === 1);
+    // make only 2nd rows as selectable by using the override function
+    selectableOverride: function(row, dataContext, grid) {
+      return (dataContext.id % 2 === 1);
+    }
   });
 
   columns.push(checkboxSelector.getColumnDefinition());
