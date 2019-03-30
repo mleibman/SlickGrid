@@ -10,6 +10,7 @@
  * AVAILABLE ROW DETAIL OPTIONS:
  *    cssClass:               A CSS class to be added to the row detail
  *    expandedClass:          Extra classes to be added to the expanded Toggle
+ *    expandableOverride:     callback method that user can override the default behavior of making every row an expandable row (the logic to show or not the expandable icon).
  *    collapsedClass:         Extra classes to be added to the collapse Toggle
  *    loadOnce:               Defaults to false, when set to True it will load the data once and then reuse it.
  *    preTemplate:            Template that will be used before the async process (typically used to show a spinner/loading)
@@ -22,7 +23,7 @@
  *    saveDetailViewOnScroll: Defaults to true, which will save the row detail view in a cache when it detects that it will become out of the viewport buffer
  *    useSimpleViewportCalc:  Defaults to false, which will use simplified calculation of out or back of viewport visibility
  *
- * AVAILABLE PUBLIC OPTIONS:
+ * AVAILABLE PUBLIC METHODS:
  *    init:                 initiliaze the plugin
  *    expandableOverride:   callback method that user can override the default behavior of making every row an expandable row (the logic to show or not the expandable icon).
  *    destroy:              destroy the plugin and it's events
@@ -118,6 +119,11 @@
     var _gridRowBuffer = 0;
     var _rowIdsOutOfViewport = [];
     var _options = $.extend(true, {}, _defaults, options);
+
+    // user could override the expandable icon logic from within the options or after instantiating the plugin
+    if(typeof _options.expandableOverride === 'function') {
+      expandableOverride(_options.expandableOverride);
+    }
 
     /**
      * Initialize the plugin, which requires user to pass the SlickGrid Grid object
@@ -596,7 +602,7 @@
     }
 
     /** The Formatter of the toggling icon of the Row Detail */
-    function detailSelectionFormatter(row, cell, value, columnDef, dataContext) {
+    function detailSelectionFormatter(row, cell, value, columnDef, dataContext, grid) {
       if (!checkExpandableOverride(row, dataContext, grid)) {
         return null;
       } else {
