@@ -364,13 +364,14 @@
         // how many grid rows do we want to use for the detail panel
         // also note that the detail view adds an extra 1 row for padding purposes
         // example, if you choosed 6 panelRows, the display will in fact use 5 rows
-        panelRows: 6
-      });
+        panelRows: 6,
 
-      // make only every 2nd row an expandable row,
-      // by using the override function to provide custom logic of which row is expandale
-      detailView.expandableOverride(function(row, dataContext, grid) {
-        return (dataContext.id % 2 === 1);
+        // make only every 2nd row an expandable row,
+        // by using the override function to provide custom logic of which row is expandable
+        // you can override it here in the options or externally by calling the method on the plugin instance
+        expandableOverride: function(row, dataContext, grid) {
+          return (dataContext.id % 2 === 1);
+        }
       });
 
       // push the plugin as the first column
