@@ -333,13 +333,13 @@ var countryIsoAndNameList = {
             });
         };
         this.destroy = function () {
+            $input.select2('close');
             $input.select2('destroy');
             $input.remove();
         };
         this.show = function () {
         };
         this.hide = function () {
-            $input.select2('results_hide');
         };
         this.position = function (position) {
         };
