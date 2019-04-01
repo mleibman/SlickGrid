@@ -314,7 +314,7 @@ if (typeof Slick === "undefined") {
       columns = treeColumns.extractColumns();
 
       updateColumnProps();
-      
+
       // validate loaded JavaScript modules against requested options
       if (options.enableColumnReorder && !$.fn.sortable) {
         throw new Error("SlickGrid's 'enableColumnReorder = true' option requires jquery-ui.sortable module to be loaded");
@@ -646,10 +646,10 @@ if (typeof Slick === "undefined") {
     function getCanvasNode(columnIdOrIdx, rowIndex) {
       if (!columnIdOrIdx) { columnIdOrIdx = 0; }
       if (!rowIndex) { rowIndex = 0; }
-      
+
       var idx = (typeof columnIdOrIdx === "number" ? columnIdOrIdx : getColumnIndex(columnIdOrIdx));
-      
-      return (hasFrozenRows && rowIndex >= actualFrozenRow + (options.frozenBottom ? 0 : 1) )   
+
+      return (hasFrozenRows && rowIndex >= actualFrozenRow + (options.frozenBottom ? 0 : 1) )
           ?  ((hasFrozenColumns() && idx > options.frozenColumn) ? $canvasBottomR[0] : $canvasBottomL[0])
           :  ((hasFrozenColumns() && idx > options.frozenColumn) ? $canvasTopR[0] : $canvasTopL[0])
           ;
@@ -2301,7 +2301,7 @@ if (typeof Slick === "undefined") {
       columnsById = {};
       for (var i = 0; i < columns.length; i++) {
         if (columns[i].width) { columns[i].widthRequest = columns[i].width; }
-        
+
         var m = columns[i] = $.extend({}, columnDefaults, columns[i]);
         columnsById[m.id] = i;
         if (m.minWidth && m.width < m.minWidth) {
@@ -2310,9 +2310,9 @@ if (typeof Slick === "undefined") {
         if (m.maxWidth && m.width > m.maxWidth) {
           m.width = m.maxWidth;
         }
-      }      
+      }
     }
-    
+
     function setColumns(columnDefinitions) {
       var _treeColumns = new Slick.TreeColumns(columnDefinitions);
       if (_treeColumns.hasDepth()) {
@@ -2882,11 +2882,12 @@ if (typeof Slick === "undefined") {
     }
 
     function getViewportHeight() {
-      var fullHeight = $paneHeaderL.outerHeight();
-      fullHeight += ( options.showHeaderRow ) ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0;
-      fullHeight += ( options.showFooterRow ) ? options.footerRowHeight + getVBoxDelta($footerRowScroller) : 0;
-
       if (options.autoHeight) {
+        var fullHeight = $paneHeaderL.outerHeight();
+        fullHeight += ( options.showHeaderRow ) ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0;
+        fullHeight += ( options.showFooterRow ) ? options.footerRowHeight + getVBoxDelta($footerRowScroller) : 0;
+        fullHeight += (getCanvasWidth() > viewportW) ? scrollbarDimensions.height : 0;
+
         viewportH = options.rowHeight
           * getDataLengthIncludingAddNew()
           + ( ( options.frozenColumn == -1 ) ? fullHeight : 0 );
@@ -2966,7 +2967,9 @@ if (typeof Slick === "undefined") {
       var paneBottomTop = $paneTopL.position().top
         + paneTopH;
 
-      $viewportTopL.height(viewportTopH);
+      if (!options.autoHeight) {
+        $viewportTopL.height(viewportTopH);
+      }
 
       if (hasFrozenColumns()) {
         $paneTopR.css({
@@ -5267,7 +5270,7 @@ if (typeof Slick === "undefined") {
       "getContainerNode": getContainerNode,
       "updatePagingStatusFromView": updatePagingStatusFromView,
       "applyFormatResultToCellNode": applyFormatResultToCellNode,
-      
+
       "render": render,
       "invalidate": invalidate,
       "invalidateRow": invalidateRow,
