@@ -3074,18 +3074,23 @@ if (typeof Slick === "undefined") {
         resetActiveCell();
       }
 
-      th = Math.max(options.rowHeight * numberOfRows, tempViewportH - scrollbarDimensions.height);
-      if (th < maxSupportedCssHeight) {
-        // just one page
-        h = ph = th;
-        n = 1;
-        cj = 0;
+      var oldH = h;
+      if (options.autoHeight) {
+        h =  options.rowHeight * numberOfRows;
       } else {
-        // break into pages
-        h = maxSupportedCssHeight;
-        ph = h / 100;
-        n = Math.floor(th / ph);
-        cj = (th - h) / (n - 1);
+        th = Math.max(options.rowHeight * numberOfRows, tempViewportH - scrollbarDimensions.height);
+        if (th < maxSupportedCssHeight) {
+          // just one page
+          h = ph = th;
+          n = 1;
+          cj = 0;
+        } else {
+          // break into pages
+          h = maxSupportedCssHeight;
+          ph = h / 100;
+          n = Math.floor(th / ph);
+          cj = (th - h) / (n - 1);
+        }
       }
 
       if (h !== oldH) {
