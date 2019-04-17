@@ -5059,7 +5059,9 @@ if (typeof Slick === "undefined") {
       var newCell = getCellNode(row, cell);
 
       // if selecting the 'add new' row, start editing right away
-      setActiveCellInternal(newCell, (forceEdit || (row === getDataLength()) || options.autoEdit), null, options.editable, e);
+      var column = columns[cell];
+      var suppressActiveCellChangedEvent = !!(options.editable && column && column.editor && options.suppressActiveCellChangeOnEdit);
+      setActiveCellInternal(newCell, (forceEdit || (row === getDataLength()) || options.autoEdit), null, suppressActiveCellChangedEvent, e);
 
       // if no editor was created, set the focus back on the grid
       if (!currentEditor) {
