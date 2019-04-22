@@ -616,7 +616,7 @@ if (typeof Slick === "undefined") {
     }
 
     function getPluginByName(name) {
-      for (var i = plugins.length; i >= 0; i--) {
+      for (var i = plugins.length-1; i >= 0; i--) {
         if (plugins[i].pluginName === name) {
           return plugins[i];
         }
