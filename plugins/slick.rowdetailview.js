@@ -651,7 +651,7 @@
           html.push('<div class="dynamic-cell-detail cellDetailView_', dataContext.id, '" ');   //apply custom css to detail
           html.push('style="height:', outterHeight, 'px;'); //set total height of padding
           html.push('top:', rowHeight, 'px">');             //shift detail below 1st row
-          html.push('<div class="detail-container detailViewContainer_', dataContext.id, '" style="min-height:' + dataContext[_keyPrefix + 'height'] + 'px">'); //sub ctr for custom styling
+          html.push('<div class="detail-container detailViewContainer_', dataContext.id, '">'); //sub ctr for custom styling
           html.push('<div class="innerDetailView_', dataContext.id, '">', dataContext[_keyPrefix + 'detailContent'], '</div></div>');
           // &omit a final closing detail container </div> that would come next
 
