@@ -1,3 +1,10 @@
+## Apply the Fix to your project
+
+To apply this fix to your current project you just need to add slickgrid as a dependency on package.json:
+
+`"slickgrid": "git+https://github.com:loonix/SlickGrid.git",`
+
+
 ## This is the 6pac SlickGrid repo
 
 Check out the NEW SlickGrid Website! http://slickgrid.net/
