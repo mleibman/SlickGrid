@@ -1,3 +1,7 @@
+## What is the fix for?
+
+This fix is to avoid conflicts with Slickgrid and Froala, if you use both on the same project, the jquery.event.drag will disable the clicks on froala so you will be unable to click/select or focus into the editor. 
+
 ## Apply the Fix to your project
 
 To apply this fix to your current project you just need to add slickgrid as a dependency on package.json:
