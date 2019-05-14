@@ -4112,7 +4112,7 @@ if (typeof Slick === "undefined") {
       for (var row in rowsCache) {
         for (var i in rowsCache[row].rowNode) {
           if (rowsCache[row].rowNode[i] === rowNode)
-          return (row ? row : 0);
+          return (row ? parseInt(row) : 0);
         }
       }
       return null;
