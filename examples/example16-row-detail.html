@@ -73,6 +73,9 @@
       border: 1px solid #ccc;
       border-top: none;
     }
+    .options-panel {
+      width: 375px;
+    }
   </style>
 </head>
 <body>
@@ -87,20 +90,24 @@
       <ul>
         <li>RowDetailView Plugin</li>
         <li>See more detail of an item by toggling a row detail panel.<li></li>
-        <li>User can override the logic to display the expandable icon with "expandableOverride". e.g. every 2nd rows is selectable</li>
-        <li>"useRowClick: True" to toggle from any column</li>
-        <li>"useRowClick: False" to toggle from the toggle icon only</li>
-        <li>"panelRows: 4" DetailView is RowHeight * 4</li>
-        <li>"loadOnce: True" Try shrink and reopen same row</li>
-        <li>"loadOnce: False DEFAULT" Will call load every time row is expanded</li>
+        <li>User can override the logic to display the expandable icon with "expandableOverride". e.g. every 2nd rows is selectable.</li>
+        <li>"useRowClick: True" to toggle from any column.</li>
+        <li>"useRowClick: False" to toggle from the toggle icon only.</li>
+        <li>"panelRows: 4" DetailView is (RowHeight * 4).</li>
+        <li>"loadOnce: True" Try to shrink and reopen the same row.</li>
+        <li>"loadOnce: False DEFAULT" Will call load every time row is expanded.</li>
+        <li>"singleRowExpand: True" Multiple rows can be expanded at any time.</li>
+        <li>"singleRowExpand: False DEFAULT" Will only expand 1 row at a time.</li>
         <li>&nbsp;</li>
-        <li>Example of using non templated view e.g. check any row multiple of 5<li>
+        <li>Example of using non templated view e.g. check any row multiple of 5.<li>
       </ul>
 
       <h2>Options:</h2>
-      <button onclick="detailView.setOptions({ loadOnce: true, useRowClick: detailView.useRowClick })">Load Once ON</button>
-      &nbsp;
-      <button onclick="detailView.setOptions({ loadOnce: false, useRowClick: detailView.useRowClick})">Load Once OFF</button>
+      <p>
+        <button onclick="detailView.setOptions({ loadOnce: true, useRowClick: detailView.useRowClick })">Load Once ON</button>
+        &nbsp;
+        <button onclick="detailView.setOptions({ loadOnce: false, useRowClick: detailView.useRowClick})">Load Once OFF</button>
+      </p>
 	    <p>
 	      <input type="number" id="panelRowInput"/> <button onclick="setPanelRows()">Set Panel Rows Option</button>
 	    </p>
@@ -108,10 +115,18 @@
         <input type="number" id="maxRowInput"/> <button onclick="setMaxRows()">Set Max Panel Rows Option</button>
       </p>
 	    <p>
-        <button onclick="detailView.setOptions({ loadOnce: detailView.loadOnce, useRowClick: true })">Row Click ON</button>
-        &nbsp;
-        <button onclick="detailView.setOptions({ loadOnce: detailView.loadOnce, useRowClick: false })">Row Click OFF</button>
-
+        Click anywhere on the row to expand:
+        <p>
+          <button onclick="detailView.setOptions({ loadOnce: detailView.loadOnce, useRowClick: true })">Row Click ON</button>
+          &nbsp;
+          <button onclick="detailView.setOptions({ loadOnce: detailView.loadOnce, useRowClick: false })">Row Click OFF</button>
+        </p>
+        How many rows cab be opened at a time (defaults to multiple):
+        <p>
+          <button onclick="detailView.setOptions({ singleRowExpand: true })">Single Row Expand ON</button>
+          &nbsp;
+          <button onclick="detailView.setOptions({ singleRowExpand: false })">Single Row Expand OFF (multiple)</button>
+        </p>
         <h2>View Source:</h2>
         <ul>
           <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example16-row-detail.html" target="_sourcewindow"> View the source for this example on Github</a></li>

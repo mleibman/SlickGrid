@@ -17,6 +17,7 @@
  *    postTemplate:           Template that will be loaded once the async function finishes
  *    process:                Async server function call
  *    panelRows:              Row count to use for the template panel
+ *    singleRowExpand:        Defaults to false, limit expanded row to 1 at a time.
  *    useRowClick:            Boolean flag, when True will open the row detail on a row click (from any column), default to False
  *    keyPrefix:              Defaults to '_', prefix used for all the plugin metadata added to the item object (meta e.g.: padding, collapsed, parent)
  *    collapseAllOnSort:      Defaults to true, which will collapse all row detail views when user calls a sort. Unless user implements a sort to deal with padding
@@ -109,6 +110,7 @@
       loadOnce: false,
       collapseAllOnSort: true,
       saveDetailViewOnScroll: true,
+      singleRowExpand: false,
       useSimpleViewportCalc: false,
       alwaysRenderColumn: true,
       toolTip: '',
@@ -198,6 +200,9 @@
     /** set or change some of the plugin options */
     function setOptions(options) {
       _options = $.extend(true, {}, _options, options);
+      if (_options && _options.singleRowExpand) {
+        collapseAll();
+      }
     }
 
     /** Find a value in an array and return the index when (or -1 when not found) */
@@ -459,6 +464,10 @@
 
     /** Expand a row given the dataview item that is to be expanded */
     function expandDetailView(item) {
+      if (_options && _options.singleRowExpand) {
+        collapseAll();
+      }
+
       item[_keyPrefix + 'collapsed'] = false;
       _expandedRows.push(item);
 
