@@ -384,7 +384,16 @@
             ordered[i] = current.shift();
           }
         }
-        columns = ordered;
+
+        // filter out excluded column header when necessary
+        // (works with IE9+, older browser requires a polyfill for the filter to work, visit MDN for more info)
+        if (Array.isArray(ordered) && typeof ordered.filter === 'function') {
+          columns = ordered.filter(function(columnDef) {
+            return !columnDef.excludeFromGridMenu;
+          });
+        } else {
+          columns = ordered;
+        }
       }
 
       function updateColumn(e) {
