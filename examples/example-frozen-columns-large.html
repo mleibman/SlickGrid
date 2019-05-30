@@ -1,0 +1,825 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+  <title>SlickGrid example: Frozen Columns</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css" media="screen" charset="utf-8"/>
+  <link rel="stylesheet" href="../controls/slick.pager.css" type="text/css" media="screen" charset="utf-8"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css" media="screen" charset="utf-8"/>
+  <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css" media="screen" charset="utf-8"/>
+  <style>
+    .cell-title {
+      font-weight: bold;
+    }
+
+    .cell-effort-driven {
+      text-align: center;
+    }
+
+    .cell-selection {
+      border-right-color: silver;
+      border-right-style: solid;
+      background: #f5f5f5;
+      color: gray;
+      text-align: right;
+      font-size: 10px;
+    }
+
+    .slick-row.selected .cell-selection {
+      background-color: transparent; /* show default selected row background */
+    }
+
+    .slick-cell.frozen:last-child, .slick-header-column.frozen:last-child {
+      border-right: 1.5px dotted darkblue !important;
+    }
+    .options-panel {
+		  left: 2050px;
+	  }
+  </style>
+</head>
+<body>
+<div style="position:relative">
+<div style="width:2048px;">
+  <div class="grid-header" style="width:100%">
+    <label>SlickGrid</label>
+    <span style="float:right" class="ui-icon ui-icon-search" title="Toggle search panel"
+          onclick="toggleFilterRow()"></span>
+  </div>
+  <div id="myGrid" style="width:100%;height:1024px;"></div>
+  <div id="pager" style="width:100%;height:20px;"></div>
+</div>
+
+<div class="options-panel">
+  <b>Search:</b>
+  <hr/>
+  <div style="padding:6px;">
+    <label style="width:200px;float:left">Show tasks with % at least: </label>
+
+    <div style="padding:2px;">
+      <div style="width:100px;display:inline-block;" id="pcSlider"></div>
+    </div>
+    <br/>
+    <label style="width:200px;float:left">And title including:</label>
+    <input type=text id="txtSearch" style="width:100px;">
+    <br/><br/>
+    <label style="width:200px;float:left">Frozen Column:</label>
+    <input type=text id="frozenColumn" style="width:60px;" value="-1">
+    <button id="setFrozenColumn">Set</button>
+    <br/><br/>
+    <button id="btnSelectRows">Select first 10 rows</button>
+
+    <br/>
+
+    <h2>Demonstrates:</h2>
+    <ul>
+      <li>a filtered Model (DataView) as a data source instead of a simple array</li>
+      <li>grid reacting to model events (onRowCountChanged, onRowsChanged)</li>
+      <li>
+        <b>FAST</b> DataView recalculation and <b>real-time</b> grid updating in response to data changes.<br/>
+        The grid holds <b>50'000</b> rows, yet you are able to sort, filter, scroll, navigate and edit as if it had 50
+        rows.
+      </li>
+      <li>adding new rows, bidirectional sorting</li>
+      <li>column options: cannotTriggerInsert</li>
+      <li>events: onCellChange, onAddNewRow, onKeyDown, onSelectedRowsChanged, onSort</li>
+      <li><font color=red>NOTE:</font> all filters are immediately applied to new/edited rows</li>
+      <li>Handling row selection against model changes.</li>
+      <li>Paging.</li>
+      <li>inline filter panel</li>
+    </ul>
+  </div>
+</div>
+
+<div id="inlineFilterPanelL" style="display:none;background:#dddddd;padding:3px;color:black;">
+  Show tasks with title including <input type="text" id="txtSearch2">
+</div>
+
+<div id="inlineFilterPanelR" style="display:none;background:#dddddd;padding:6px;color:black;">
+  and % at least &nbsp;
+  <div style="width:100px;display:inline-block;" id="pcSlider2"></div>
+</div>
+
+<script language="JavaScript" src="../lib/firebugx.js"></script>
+
+<script src="../lib/jquery-1.11.2.min.js"></script>
+<script src="../lib/jquery-ui-1.11.3.min.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
+<script src="../lib/jquery.mousewheel.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../slick.editors.js"></script>
+<script src="../slick.formatters.js"></script>
+<script src="../plugins/slick.rowselectionmodel.js"></script>
+<script src="../slick.grid.js"></script>
+<script src="../slick.dataview.js"></script>
+<script src="../controls/slick.pager.js"></script>
+<script src="../controls/slick.columnpicker.js"></script>
+
+<script>
+$(function () {
+  $('#frozenColumn').val(options.frozenColumn);
+});
+function isIEPreVer9() { var v = navigator.appVersion.match(/MSIE ([\d.]+)/i); return (v ? v[1] < 9 : false); }
+
+var dataView;
+var grid;
+var data = [];
+var selectedRowIds = [];
+
+var columns = [
+  {id: "sel", name: "#", field: "num", behavior: "select", cssClass: "cell-selection", width: 40, cannotTriggerInsert: true, resizable: false, unselectable: true }
+  ,
+  {id: "title", name: "Title", field: "title", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true}
+  ,
+  {id: "duration", name: "Duration", field: "duration", editor: Slick.Editors.Text, sortable: true}
+  ,
+  {id: "%", name: "% Complete", field: "percentComplete", width: 80, resizable: false, formatter: Slick.Formatters.PercentComplete, editor: Slick.Editors.PercentComplete, sortable: true}
+  ,
+  {id: "start", name: "Start", field: "start", minWidth: 60, editor: Slick.Editors.Date, sortable: true}
+  ,
+  {id: "finish", name: "Finish", field: "finish", minWidth: 60, editor: Slick.Editors.Date, sortable: true}
+  ,
+  {id: "effort-driven", name: "Effort Driven", width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.YesNo, editor: Slick.Editors.YesNoSelect, cannotTriggerInsert: true, sortable: true}
+  ,
+  {id: "title1", name: "Title1", field: "title1", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true}
+  ,
+  {id: "title2", name: "Title2", field: "title2", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true}
+  ,
+  {id: "title3", name: "Title3", field: "title3", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true}
+  ,
+  {id: "title4", name: "Title4", field: "title4", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true}
+  ,
+  {id: "title1", name: "Title1", field: "title1", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title2", name: "Title2", field: "title2", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title3", name: "Title3", field: "title3", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title4", name: "Title4", field: "title4", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title5", name: "Title5", field: "title5", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title6", name: "Title6", field: "title6", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title7", name: "Title7", field: "title7", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title8", name: "Title8", field: "title8", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title9", name: "Title9", field: "title9", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title10", name: "Title10", field: "title10", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title11", name: "Title11", field: "title11", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title12", name: "Title12", field: "title12", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title13", name: "Title13", field: "title13", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title14", name: "Title14", field: "title14", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title15", name: "Title15", field: "title15", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title16", name: "Title16", field: "title16", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title17", name: "Title17", field: "title17", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title18", name: "Title18", field: "title18", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title19", name: "Title19", field: "title19", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title20", name: "Title20", field: "title20", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title21", name: "Title21", field: "title21", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title22", name: "Title22", field: "title22", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title23", name: "Title23", field: "title23", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title24", name: "Title24", field: "title24", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title25", name: "Title25", field: "title25", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title26", name: "Title26", field: "title26", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title27", name: "Title27", field: "title27", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title28", name: "Title28", field: "title28", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title29", name: "Title29", field: "title29", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title30", name: "Title30", field: "title30", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title31", name: "Title31", field: "title31", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title32", name: "Title32", field: "title32", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title33", name: "Title33", field: "title33", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title34", name: "Title34", field: "title34", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title35", name: "Title35", field: "title35", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title36", name: "Title36", field: "title36", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title37", name: "Title37", field: "title37", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title38", name: "Title38", field: "title38", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title39", name: "Title39", field: "title39", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title40", name: "Title40", field: "title40", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title41", name: "Title41", field: "title41", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title42", name: "Title42", field: "title42", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title43", name: "Title43", field: "title43", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title44", name: "Title44", field: "title44", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title45", name: "Title45", field: "title45", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title46", name: "Title46", field: "title46", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title47", name: "Title47", field: "title47", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title48", name: "Title48", field: "title48", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title49", name: "Title49", field: "title49", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title50", name: "Title50", field: "title50", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title51", name: "Title51", field: "title51", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title52", name: "Title52", field: "title52", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title53", name: "Title53", field: "title53", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title54", name: "Title54", field: "title54", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title55", name: "Title55", field: "title55", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title56", name: "Title56", field: "title56", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title57", name: "Title57", field: "title57", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title58", name: "Title58", field: "title58", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title59", name: "Title59", field: "title59", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title60", name: "Title60", field: "title60", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title61", name: "Title61", field: "title61", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title62", name: "Title62", field: "title62", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title63", name: "Title63", field: "title63", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title64", name: "Title64", field: "title64", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title65", name: "Title65", field: "title65", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title66", name: "Title66", field: "title66", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title67", name: "Title67", field: "title67", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title68", name: "Title68", field: "title68", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title69", name: "Title69", field: "title69", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title70", name: "Title70", field: "title70", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title71", name: "Title71", field: "title71", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title72", name: "Title72", field: "title72", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title73", name: "Title73", field: "title73", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title74", name: "Title74", field: "title74", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title75", name: "Title75", field: "title75", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title76", name: "Title76", field: "title76", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title77", name: "Title77", field: "title77", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title78", name: "Title78", field: "title78", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title79", name: "Title79", field: "title79", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title80", name: "Title80", field: "title80", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title81", name: "Title81", field: "title81", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title82", name: "Title82", field: "title82", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title83", name: "Title83", field: "title83", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title84", name: "Title84", field: "title84", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title85", name: "Title85", field: "title85", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title86", name: "Title86", field: "title86", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title87", name: "Title87", field: "title87", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title88", name: "Title88", field: "title88", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title89", name: "Title89", field: "title89", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title90", name: "Title90", field: "title90", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title91", name: "Title91", field: "title91", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title92", name: "Title92", field: "title92", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title93", name: "Title93", field: "title93", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title94", name: "Title94", field: "title94", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title95", name: "Title95", field: "title95", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title96", name: "Title96", field: "title96", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title97", name: "Title97", field: "title97", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title98", name: "Title98", field: "title98", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title99", name: "Title99", field: "title99", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title100", name: "Title100", field: "title100", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title101", name: "Title101", field: "title101", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title102", name: "Title102", field: "title102", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title103", name: "Title103", field: "title103", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title104", name: "Title104", field: "title104", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title105", name: "Title105", field: "title105", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title106", name: "Title106", field: "title106", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title107", name: "Title107", field: "title107", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title108", name: "Title108", field: "title108", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title109", name: "Title109", field: "title109", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title110", name: "Title110", field: "title110", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title111", name: "Title111", field: "title111", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title112", name: "Title112", field: "title112", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title113", name: "Title113", field: "title113", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title114", name: "Title114", field: "title114", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title115", name: "Title115", field: "title115", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title116", name: "Title116", field: "title116", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title117", name: "Title117", field: "title117", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title118", name: "Title118", field: "title118", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title119", name: "Title119", field: "title119", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title120", name: "Title120", field: "title120", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title121", name: "Title121", field: "title121", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title122", name: "Title122", field: "title122", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title123", name: "Title123", field: "title123", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title124", name: "Title124", field: "title124", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title125", name: "Title125", field: "title125", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title126", name: "Title126", field: "title126", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title127", name: "Title127", field: "title127", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title128", name: "Title128", field: "title128", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title129", name: "Title129", field: "title129", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title130", name: "Title130", field: "title130", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title131", name: "Title131", field: "title131", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title132", name: "Title132", field: "title132", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title133", name: "Title133", field: "title133", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title134", name: "Title134", field: "title134", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title135", name: "Title135", field: "title135", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title136", name: "Title136", field: "title136", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title137", name: "Title137", field: "title137", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title138", name: "Title138", field: "title138", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title139", name: "Title139", field: "title139", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title140", name: "Title140", field: "title140", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title141", name: "Title141", field: "title141", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title142", name: "Title142", field: "title142", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title143", name: "Title143", field: "title143", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title144", name: "Title144", field: "title144", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title145", name: "Title145", field: "title145", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title146", name: "Title146", field: "title146", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title147", name: "Title147", field: "title147", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title148", name: "Title148", field: "title148", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title149", name: "Title149", field: "title149", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title150", name: "Title150", field: "title150", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title151", name: "Title151", field: "title151", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title152", name: "Title152", field: "title152", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title153", name: "Title153", field: "title153", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title154", name: "Title154", field: "title154", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title155", name: "Title155", field: "title155", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title156", name: "Title156", field: "title156", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title157", name: "Title157", field: "title157", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title158", name: "Title158", field: "title158", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title159", name: "Title159", field: "title159", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title160", name: "Title160", field: "title160", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title161", name: "Title161", field: "title161", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title162", name: "Title162", field: "title162", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title163", name: "Title163", field: "title163", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title164", name: "Title164", field: "title164", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title165", name: "Title165", field: "title165", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title166", name: "Title166", field: "title166", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title167", name: "Title167", field: "title167", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title168", name: "Title168", field: "title168", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title169", name: "Title169", field: "title169", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title170", name: "Title170", field: "title170", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title171", name: "Title171", field: "title171", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title172", name: "Title172", field: "title172", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title173", name: "Title173", field: "title173", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title174", name: "Title174", field: "title174", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title175", name: "Title175", field: "title175", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title176", name: "Title176", field: "title176", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title177", name: "Title177", field: "title177", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title178", name: "Title178", field: "title178", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title179", name: "Title179", field: "title179", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title180", name: "Title180", field: "title180", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title181", name: "Title181", field: "title181", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title182", name: "Title182", field: "title182", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title183", name: "Title183", field: "title183", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title184", name: "Title184", field: "title184", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title185", name: "Title185", field: "title185", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title186", name: "Title186", field: "title186", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title187", name: "Title187", field: "title187", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title188", name: "Title188", field: "title188", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title189", name: "Title189", field: "title189", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title190", name: "Title190", field: "title190", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title191", name: "Title191", field: "title191", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title192", name: "Title192", field: "title192", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title193", name: "Title193", field: "title193", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title194", name: "Title194", field: "title194", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title195", name: "Title195", field: "title195", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title196", name: "Title196", field: "title196", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title197", name: "Title197", field: "title197", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title198", name: "Title198", field: "title198", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title199", name: "Title199", field: "title199", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+ {id: "title200", name: "Title200", field: "title200", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true}
+];
+
+var options = {
+  editable: true, enableAddRow: true, enableCellNavigation: true, asyncEditorLoading: true, forceFitColumns: false, autoEdit: false, topPanelHeight: 25, frozenColumn: 2
+};
+
+var sortcol = "title";
+var sortdir = 1;
+var percentCompleteThreshold = 0;
+var searchString = "";
+
+function requiredFieldValidator(value) {
+  if (value == null || value == undefined || !value.length)
+    return {valid: false, msg: "This is a required field"};
+  else
+    return {valid: true, msg: null};
+}
+
+function myFilter(item) {
+  if (item["percentComplete"] < percentCompleteThreshold)
+    return false;
+
+  if (searchString != "" && item["title"].indexOf(searchString) == -1)
+    return false;
+
+  return true;
+}
+
+function percentCompleteSort(a, b) {
+  return a["percentComplete"] - b["percentComplete"];
+}
+
+function comparer(a, b) {
+  var x = a[sortcol], y = b[sortcol];
+  return (x == y ? 0 : (x > y ? 1 : -1));
+}
+
+function addItem(newItem, columnDef) {
+  var item = {"num": data.length, "id": "new_" + (Math.round(Math.random() * 10000)), "title": "New task", "duration": "1 day", "percentComplete": 0, "start": "01/01/2009", "finish": "01/01/2009", "effortDriven": false};
+  $.extend(item, newItem);
+  dataView.addItem(item);
+}
+
+
+function toggleFilterRow() {
+  grid.setTopPanelVisibility(!grid.getOptions().showTopPanel);
+}
+
+
+$(".grid-header .ui-icon")
+  .addClass("ui-state-default ui-corner-all")
+  .mouseover(function (e) {
+    $(e.target).addClass("ui-state-hover")
+  })
+  .mouseout(function (e) {
+    $(e.target).removeClass("ui-state-hover")
+  });
+
+$(function () {
+  // prepare the data
+  for (var i = 0; i < 50000; i++) {
+    var d = (data[i] = {});
+
+    d["id"] = "id_" + i;
+    d["num"] = i;
+    d["title"] = "Task " + i;
+    d["duration"] = "5 days";
+    d["percentComplete"] = Math.round(Math.random() * 100);
+    d["start"] = "01/01/2009";
+    d["finish"] = "01/05/2009";
+    d["effortDriven"] = (i % 5 == 0);
+    d["title1"] = i;
+    d["title2"] = i;
+    d["title3"] = i;
+    d["title4"] = i;
+    d["title5"] = i;
+    d["title6"] = i;
+    d["title7"] = i;
+    d["title8"] = i;
+    d["title9"] = i;
+    d["title10"] = i;
+    d["title11"] = i;
+    d["title12"] = i;
+    d["title13"] = i;
+    d["title14"] = i;
+    d["title15"] = i;
+    d["title16"] = i;
+    d["title17"] = i;
+    d["title18"] = i;
+    d["title19"] = i;
+    d["title20"] = i;
+    d["title21"] = i;
+    d["title22"] = i;
+    d["title23"] = i;
+    d["title24"] = i;
+    d["title25"] = i;
+    d["title26"] = i;
+    d["title27"] = i;
+    d["title28"] = i;
+    d["title29"] = i;
+    d["title30"] = i;
+    d["title31"] = i;
+    d["title32"] = i;
+    d["title33"] = i;
+    d["title34"] = i;
+    d["title35"] = i;
+    d["title36"] = i;
+    d["title37"] = i;
+    d["title38"] = i;
+    d["title39"] = i;
+    d["title40"] = i;
+    d["title41"] = i;
+    d["title42"] = i;
+    d["title43"] = i;
+    d["title44"] = i;
+    d["title45"] = i;
+    d["title46"] = i;
+    d["title47"] = i;
+    d["title48"] = i;
+    d["title49"] = i;
+    d["title50"] = i;
+    d["title51"] = i;
+    d["title52"] = i;
+    d["title53"] = i;
+    d["title54"] = i;
+    d["title55"] = i;
+    d["title56"] = i;
+    d["title57"] = i;
+    d["title58"] = i;
+    d["title59"] = i;
+    d["title60"] = i;
+    d["title61"] = i;
+    d["title62"] = i;
+    d["title63"] = i;
+    d["title64"] = i;
+    d["title65"] = i;
+    d["title66"] = i;
+    d["title67"] = i;
+    d["title68"] = i;
+    d["title69"] = i;
+    d["title70"] = i;
+    d["title71"] = i;
+    d["title72"] = i;
+    d["title73"] = i;
+    d["title74"] = i;
+    d["title75"] = i;
+    d["title76"] = i;
+    d["title77"] = i;
+    d["title78"] = i;
+    d["title79"] = i;
+    d["title80"] = i;
+    d["title81"] = i;
+    d["title82"] = i;
+    d["title83"] = i;
+    d["title84"] = i;
+    d["title85"] = i;
+    d["title86"] = i;
+    d["title87"] = i;
+    d["title88"] = i;
+    d["title89"] = i;
+    d["title90"] = i;
+    d["title91"] = i;
+    d["title92"] = i;
+    d["title93"] = i;
+    d["title94"] = i;
+    d["title95"] = i;
+    d["title96"] = i;
+    d["title97"] = i;
+    d["title98"] = i;
+    d["title99"] = i;
+    d["title100"] = i;
+    d["title101"] = i;
+    d["title102"] = i;
+    d["title103"] = i;
+    d["title104"] = i;
+    d["title105"] = i;
+    d["title106"] = i;
+    d["title107"] = i;
+    d["title108"] = i;
+    d["title109"] = i;
+    d["title110"] = i;
+    d["title111"] = i;
+    d["title112"] = i;
+    d["title113"] = i;
+    d["title114"] = i;
+    d["title115"] = i;
+    d["title116"] = i;
+    d["title117"] = i;
+    d["title118"] = i;
+    d["title119"] = i;
+    d["title120"] = i;
+    d["title121"] = i;
+    d["title122"] = i;
+    d["title123"] = i;
+    d["title124"] = i;
+    d["title125"] = i;
+    d["title126"] = i;
+    d["title127"] = i;
+    d["title128"] = i;
+    d["title129"] = i;
+    d["title130"] = i;
+    d["title131"] = i;
+    d["title132"] = i;
+    d["title133"] = i;
+    d["title134"] = i;
+    d["title135"] = i;
+    d["title136"] = i;
+    d["title137"] = i;
+    d["title138"] = i;
+    d["title139"] = i;
+    d["title140"] = i;
+    d["title141"] = i;
+    d["title142"] = i;
+    d["title143"] = i;
+    d["title144"] = i;
+    d["title145"] = i;
+    d["title146"] = i;
+    d["title147"] = i;
+    d["title148"] = i;
+    d["title149"] = i;
+    d["title150"] = i;
+    d["title151"] = i;
+    d["title152"] = i;
+    d["title153"] = i;
+    d["title154"] = i;
+    d["title155"] = i;
+    d["title156"] = i;
+    d["title157"] = i;
+    d["title158"] = i;
+    d["title159"] = i;
+    d["title160"] = i;
+    d["title161"] = i;
+    d["title162"] = i;
+    d["title163"] = i;
+    d["title164"] = i;
+    d["title165"] = i;
+    d["title166"] = i;
+    d["title167"] = i;
+    d["title168"] = i;
+    d["title169"] = i;
+    d["title170"] = i;
+    d["title171"] = i;
+    d["title172"] = i;
+    d["title173"] = i;
+    d["title174"] = i;
+    d["title175"] = i;
+    d["title176"] = i;
+    d["title177"] = i;
+    d["title178"] = i;
+    d["title179"] = i;
+    d["title180"] = i;
+    d["title181"] = i;
+    d["title182"] = i;
+    d["title183"] = i;
+    d["title184"] = i;
+    d["title185"] = i;
+    d["title186"] = i;
+    d["title187"] = i;
+    d["title188"] = i;
+    d["title189"] = i;
+    d["title190"] = i;
+    d["title191"] = i;
+    d["title192"] = i;
+    d["title193"] = i;
+    d["title194"] = i;
+    d["title195"] = i;
+    d["title196"] = i;
+    d["title197"] = i;
+    d["title198"] = i;
+    d["title199"] = i;
+    d["title200"] = i;
+  }
+
+
+  dataView = new Slick.Data.DataView();
+  grid = new Slick.Grid("#myGrid", dataView, columns, options);
+  grid.setSelectionModel(new Slick.RowSelectionModel());
+
+  var pager = new Slick.Controls.Pager(dataView, grid, $("#pager"));
+  var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
+
+
+  // move the filter panel defined in a hidden div into an inline secondary grid header row
+  var $secondaryRow = grid.getTopPanel();
+
+  $("#inlineFilterPanelL")
+    .appendTo($secondaryRow[0])
+    .show();
+
+  $("#inlineFilterPanelR")
+    .appendTo($secondaryRow[1])
+    .show();
+
+  grid.onCellChange.subscribe(function (e, args) {
+    dataView.updateItem(args.item.id, args.item);
+  });
+
+  grid.onAddNewRow.subscribe(function (e, args) {
+    var item = {"num": data.length, "id": "new_" + (Math.round(Math.random() * 10000)), "title": "New task", "duration": "1 day", "percentComplete": 0, "start": "01/01/2009", "finish": "01/01/2009", "effortDriven": false};
+    $.extend(item, args.item);
+    dataView.addItem(item);
+  });
+
+  grid.onKeyDown.subscribe(function (e) {
+    // select all rows on ctrl-a
+    if (e.which != 65 || !e.ctrlKey)
+      return false;
+
+    var rows = [];
+    selectedRowIds = [];
+
+    for (var i = 0; i < dataView.getLength(); i++) {
+      rows.push(i);
+      selectedRowIds.push(dataView.getItem(i).id);
+    }
+
+    grid.setSelectedRows(rows);
+    e.preventDefault();
+  });
+
+  grid.onMouseEnter.subscribe(function (e) {
+    var cell = this.getCellFromEvent(e);
+
+    this.setSelectedRows([cell.row]);
+    e.preventDefault();
+  });
+
+  grid.onMouseLeave.subscribe(function (e) {
+    this.setSelectedRows([]);
+    e.preventDefault();
+  });
+
+  grid.onSelectedRowsChanged.subscribe(function (e) {
+    selectedRowIds = [];
+    var rows = grid.getSelectedRows();
+    for (var i = 0, l = rows.length; i < l; i++) {
+      var item = dataView.getItem(rows[i]);
+      if (item) selectedRowIds.push(item.id);
+    }
+  });
+
+  grid.onSort.subscribe(function (e, args) {
+    sortdir = args.sortAsc ? 1 : -1;
+    sortcol = args.sortCol.field;
+
+    if (isIEPreVer9()) {
+      // using temporary Object.prototype.toString override
+      // more limited and does lexicographic sort only by default, but can be much faster
+
+      var percentCompleteValueFn = function () {
+        var val = this["percentComplete"];
+        if (val < 10) {
+          return "00" + val;
+        } else if (val < 100) {
+          return "0" + val;
+        } else {
+          return val;
+        }
+      };
+
+      // use numeric sort of % and lexicographic for everything else
+      dataView.fastSort((sortcol == "percentComplete") ? percentCompleteValueFn : sortcol, args.sortAsc);
+    } else {
+      // using native sort with comparer
+      // preferred method but can be very slow in IE with huge datasets
+      dataView.sort(comparer, args.sortAsc);
+    }
+  });
+
+  // wire up model events to drive the grid
+  dataView.onRowCountChanged.subscribe(function (e, args) {
+    grid.updateRowCount();
+    grid.render();
+  });
+
+  dataView.onRowsChanged.subscribe(function (e, args) {
+    grid.invalidateRows(args.rows);
+    grid.render();
+
+    if (selectedRowIds.length > 0) {
+      // since how the original data maps onto rows has changed,
+      // the selected rows in the grid need to be updated
+      var selRows = [];
+      for (var i = 0; i < selectedRowIds.length; i++) {
+        var idx = dataView.getRowById(selectedRowIds[i]);
+        if (idx != undefined)
+          selRows.push(idx);
+      }
+
+      grid.setSelectedRows(selRows);
+    }
+  });
+
+  dataView.onPagingInfoChanged.subscribe(function (e, pagingInfo) {
+    var isLastPage = pagingInfo.pageSize * (pagingInfo.pageNum + 1) - 1 >= pagingInfo.totalRows;
+    var enableAddRow = isLastPage || pagingInfo.pageSize == 0;
+    var options = grid.getOptions();
+
+    if (options.enableAddRow != enableAddRow)
+      grid.setOptions({enableAddRow: enableAddRow});
+  });
+
+
+  var h_runfilters = null;
+
+  // wire up the slider to apply the filter to the model
+  $("#pcSlider,#pcSlider2").slider({
+    "range": "min",
+    "slide": function (event, ui) {
+      Slick.GlobalEditorLock.cancelCurrentEdit();
+
+      if (percentCompleteThreshold != ui.value) {
+        window.clearTimeout(h_runfilters);
+        h_runfilters = window.setTimeout(dataView.refresh, 10);
+        percentCompleteThreshold = ui.value;
+      }
+    }
+  });
+
+
+  // wire up the search textbox to apply the filter to the model
+  $("#txtSearch,#txtSearch2").keyup(function (e) {
+    Slick.GlobalEditorLock.cancelCurrentEdit();
+
+    // clear on Esc
+    if (e.which == 27)
+      this.value = "";
+
+    searchString = this.value;
+    dataView.refresh();
+  });
+
+  $("#btnSelectRows").click(function () {
+    if (!Slick.GlobalEditorLock.commitCurrentEdit()) {
+      return;
+    }
+
+    var rows = [];
+    selectedRowIds = [];
+
+    for (var i = 0; i < 10 && i < dataView.getLength(); i++) {
+      rows.push(i);
+      selectedRowIds.push(dataView.getItem(i).id);
+    }
+
+    grid.setSelectedRows(rows);
+  });
+
+
+  // initialize the model after all the events have been hooked up
+  dataView.beginUpdate();
+  dataView.setItems(data);
+  dataView.setFilter(myFilter);
+  dataView.endUpdate();
+
+  $("#gridContainer").resizable();
+
+  $('#setFrozenColumn').click(function () {
+    var val = -1;
+
+    if ($('#frozenColumn').val() != '') {
+      val = parseInt($('#frozenColumn').val());
+    }
+
+    grid.setOptions({ 'frozenColumn': val });
+  });
+})
+
+</script>
+
+</body>
+</html>

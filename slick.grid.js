@@ -3321,20 +3321,19 @@ if (typeof Slick === "undefined") {
       x.innerHTML = stringArray.join("");
 
       var processedRow;
-      var $node;
+      var node;
       while ((processedRow = processedRows.pop()) != null) {
         cacheEntry = rowsCache[processedRow];
         var columnIdx;
         while ((columnIdx = cacheEntry.cellRenderQueue.pop()) != null) {
-          $node = $(x).children().last();
+          node = x.lastChild;
 
-          if (hasFrozenColumns() && ( columnIdx > options.frozenColumn )) {
-            $(cacheEntry.rowNode[1]).append($node);
+          if (hasFrozenColumns() && (columnIdx > options.frozenColumn)) {
+            cacheEntry.rowNode[1].appendChild(node);
           } else {
-            $(cacheEntry.rowNode[0]).append($node);
+            cacheEntry.rowNode[0].appendChild(node);
           }
-
-          cacheEntry.cellNodesByColumnIdx[columnIdx] = $node;
+          cacheEntry.cellNodesByColumnIdx[columnIdx] = $(node);
         }
       }
     }
@@ -4982,7 +4981,12 @@ if (typeof Slick === "undefined") {
       if (rowsCache[row]) {
         ensureCellNodesInRowsCache(row);
         try {
-          return rowsCache[row].cellNodesByColumnIdx[cell][0];
+          if (rowsCache[row].cellNodesByColumnIdx.length > cell) {
+            return rowsCache[row].cellNodesByColumnIdx[cell][0];
+          }
+          else {
+            return null;
+          }
         } catch (e) {
           return rowsCache[row].cellNodesByColumnIdx[cell];
         }
