@@ -3441,7 +3441,8 @@ if (typeof Slick === "undefined") {
 
     function updateRowPositions() {
       for (var row in rowsCache) {
-        rowsCache[parseRowToNumber(row)].rowNode[0].style.top = getRowTop(parseRowToNumber(row)) + "px";
+        var rowNumber = row ? parseInt(row) : 0;
+        rowsCache[rowNumber].rowNode[0].style.top = getRowTop(rowNumber) + "px";
       }
     }
 
@@ -4112,14 +4113,10 @@ if (typeof Slick === "undefined") {
       for (var row in rowsCache) {
         for (var i in rowsCache[row].rowNode) {
           if (rowsCache[row].rowNode[i] === rowNode)
-          return parseRowToNumber(row);
+          return (row ? parseInt(row) : 0);
         }
       }
       return null;
-    }
-
-    function parseRowToNumber(row) {
-      return (row ? parseInt(row) : 0);
     }
 
     function getFrozenRowOffset(row) {
