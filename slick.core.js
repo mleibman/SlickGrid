@@ -16,7 +16,7 @@
       "Group": Group,
       "GroupTotals": GroupTotals,
       "EditorLock": EditorLock,
-
+  
       /***
        * A global singleton editor lock.
        * @class GlobalEditorLock
@@ -44,10 +44,27 @@
         UP: 38,
         A: 65
       },
-      "preClickClassName" : "slick-edit-preclick"
+      "preClickClassName" : "slick-edit-preclick",
+      
+      "ViewportMode": {
+        IgnoreViewport: 'IGV',
+        FitColsToViewport: 'FCV',
+        FitViewportToCols: 'FVC'
+      },
+      
+      "AutoWidthStrategy": {
+          Locked: 'LK',
+          Guide: 'GU',
+          Top1Row: 'TOP1',
+          TopNRows: 'TOPN',
+          AllRows: 'ALL'
+      }      
     }
   });
 
+  if (Object.freeze) { Object.freeze(Slick.ViewportMode); }
+  if (Object.freeze) { Object.freeze(Slick.AutoWidthStrategy); }
+    
   /***
    * An event object for passing data to event handlers and letting them control propagation.
    * <p>This is pretty much identical to how W3C and jQuery implement events.</p>

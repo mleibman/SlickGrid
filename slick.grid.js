@@ -110,7 +110,11 @@ if (typeof Slick === "undefined") {
       minRowBuffer: 3,
       emulatePagingWhenScrolling: true, // when scrolling off bottom of viewport, place new row at top of viewport
       editorCellNavOnLRKeys: false,
-      doPaging: true
+      doPaging: true,
+      viewportMode: Slick.ViewportMode.IgnoreViewport,
+      viewportSwitchToScrollModeWidthPercent: undefined,
+      viewportMinWidthPx: undefined,
+      viewportMaxWidthPx: undefined,
     };
 
     var columnDefaults = {
@@ -118,11 +122,22 @@ if (typeof Slick === "undefined") {
       resizable: true,
       sortable: false,
       minWidth: 30,
+      maxWidth: undefined,
       rerenderOnResize: false,
       headerCssClass: null,
       defaultSortAsc: true,
       focusable: true,
-      selectable: true
+      selectable: true,
+      autoSize: {
+            autoWidthStrategy: Slick.AutoWidthStrategy.ContentIntelligent,
+            ignoreHeaderText: false,
+            colValueArray: undefined,
+            formatterOverride: undefined,
+            widthPx: undefined,
+            sizeToRemaining: false,
+            checkRowCount: 100,
+            deDuplicate: true,
+        }
     };
 
     // scroller
@@ -2378,6 +2393,10 @@ if (typeof Slick === "undefined") {
     function validateAndEnforceOptions() {
       if (options.autoHeight) {
         options.leaveSpaceForNewRows = false;
+      }
+      if (options.forceFitColumns) {
+        options.viewportMode = Slick.ViewportMode.Legacy;
+        console.log("forceFitColumns option is deprecated - use viewportMode");
       }
     }
 
