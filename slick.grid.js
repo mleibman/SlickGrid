@@ -2027,30 +2027,11 @@ if (typeof Slick === "undefined") {
       $container.empty().removeClass(uid);
     }
 
-
     //////////////////////////////////////////////////////////////////////////////////////////////
-    // General
-
-    function trigger(evt, args, e) {
-      e = e || new Slick.EventData();
-      args = args || {};
-      args.grid = self;
-      return evt.notify(args, e, self);
-    }
-
-    function getEditorLock() {
-      return options.editorLock;
-    }
-
-    function getEditController() {
-      return editController;
-    }
-
-    function getColumnIndex(id) {
-      return columnsById[id];
-    }
-
-    function autosizeColumns() {
+    // Column Autosizing
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    
+    function legacyAutosizeColumns() {
       var i, c,
           widths = [],
           shrinkLeeway = 0,
@@ -2131,6 +2112,30 @@ if (typeof Slick === "undefined") {
         invalidateAllRows();
         render();
       }
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // General
+    //////////////////////////////////////////////////////////////////////////////////////////////
+
+    function trigger(evt, args, e) {
+      e = e || new Slick.EventData();
+      args = args || {};
+      args.grid = self;
+      return evt.notify(args, e, self);
+    }
+
+    function getEditorLock() {
+      return options.editorLock;
+    }
+
+    function getEditController() {
+      return editController;
+    }
+
+    function getColumnIndex(id) {
+      return columnsById[id];
     }
 
     function applyColumnGroupHeaderWidths() {
@@ -3024,7 +3029,7 @@ if (typeof Slick === "undefined") {
       }
 
       if (options.forceFitColumns) {
-        autosizeColumns();
+        legacyAutosizeColumns();
       }
 
       updateRowCount();
@@ -3125,7 +3130,7 @@ if (typeof Slick === "undefined") {
       }
 
       if (options.forceFitColumns && oldViewportHasVScroll != viewportHasVScroll) {
-        autosizeColumns();
+        legacyAutosizeColumns();
       }
       updateCanvasWidth(false);
     }
@@ -5263,7 +5268,7 @@ if (typeof Slick === "undefined") {
       "setSortColumn": setSortColumn,
       "setSortColumns": setSortColumns,
       "getSortColumns": getSortColumns,
-      "autosizeColumns": autosizeColumns,
+      "autosizeColumns": legacyAutosizeColumns,
       "getOptions": getOptions,
       "setOptions": setOptions,
       "getData": getData,
