@@ -76,6 +76,7 @@ if (typeof Slick === "undefined") {
       asyncPostRenderCleanupDelay: 40,
       autoHeight: false,
       editorLock: Slick.GlobalEditorLock,
+      showColumnNames: true,
       showHeaderRow: false,
       headerRowHeight: 25,
       createFooterRow: false,
@@ -431,6 +432,10 @@ if (typeof Slick === "undefined") {
       $topPanelR = $("<div class='slick-top-panel' style='width:10000px' />").appendTo($topPanelScrollerR);
 
       $topPanel = $().add($topPanelL).add($topPanelR);
+
+      if (!options.showColumnNames) {
+        $headerScroller.hide();
+      }
 
       if (!options.showTopPanel) {
         $topPanelScroller.hide();
@@ -2727,6 +2732,10 @@ if (typeof Slick === "undefined") {
 
       makeActiveCellNormal();
 
+      if (args.showColumnNames !== undefined) {
+        setColumnHeaderVisibility(args.showColumnNames);
+      };
+
       if (options.enableAddRow !== args.enableAddRow) {
         invalidateRow(getDataLength());
       }
@@ -2811,6 +2820,27 @@ if (typeof Slick === "undefined") {
           $headerRowScroller.slideDown("fast", resizeCanvas);
         } else {
           $headerRowScroller.slideUp("fast", resizeCanvas);
+        }
+      }
+    }
+
+    function setColumnHeaderVisibility(visible, animate) {
+      if (options.showColumnLabels != visible) {
+        options.showColumnLabels = visible;
+        if (visible) {
+          if (animate) {
+            $headerScroller.slideDown("fast", resizeCanvas);
+          } else {
+            $headerScroller.show();
+            resizeCanvas();
+          }
+        } else {
+          if (animate) {
+            $headerScroller.slideUp("fast", resizeCanvas);
+          } else {
+            $headerScroller.hide();
+            resizeCanvas();
+          }
         }
       }
     }
@@ -3270,6 +3300,8 @@ if (typeof Slick === "undefined") {
           * getDataLengthIncludingAddNew()
           + ( ( options.frozenColumn == -1 ) ? fullHeight : 0 );
       } else {
+        columnNamesH = ( options.showColumnLabels ) ? parseFloat($.css($headerScroller[0], "height"))
+          + getVBoxDelta($headerScroller) : 0;
         topPanelH = ( options.showTopPanel ) ? options.topPanelHeight + getVBoxDelta($topPanelScroller) : 0;
         headerRowH = ( options.showHeaderRow ) ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0;
         footerRowH = ( options.showFooterRow ) ? options.footerRowHeight + getVBoxDelta($footerRowScroller) : 0;
@@ -3278,8 +3310,7 @@ if (typeof Slick === "undefined") {
         viewportH = parseFloat($.css($container[0], "height", true))
           - parseFloat($.css($container[0], "paddingTop", true))
           - parseFloat($.css($container[0], "paddingBottom", true))
-          - parseFloat($.css($headerScroller[0], "height"))
-          - getVBoxDelta($headerScroller)
+          - columnNamesH
           - topPanelH
           - headerRowH
           - footerRowH
@@ -5736,6 +5767,7 @@ if (typeof Slick === "undefined") {
       "removeCellCssStyles": removeCellCssStyles,
       "getCellCssStyles": getCellCssStyles,
       "getFrozenRowOffset": getFrozenRowOffset,
+      "setColumnHeaderVisibility": setColumnHeaderVisibility,
 
       "init": finishInitialization,
       "destroy": destroy,

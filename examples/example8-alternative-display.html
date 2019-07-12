@@ -73,6 +73,9 @@
                                                            target=_blank>micro-templates</a> while still using
           SlickGrid's virtual rendering technology.
         </li>
+        <li>
+          Hiding column names
+        </li>
       </ul>
         <h2>View Source:</h2>
         <ul>
@@ -151,7 +154,8 @@
     editable: false,
     enableAddRow: false,
     enableCellNavigation: false,
-    enableColumnReorder: false
+    enableColumnReorder: false,
+    showColumnNames: false
   };
 
   var compiled_template = tmpl("cell_template");
