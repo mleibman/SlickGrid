@@ -76,7 +76,7 @@ if (typeof Slick === "undefined") {
       asyncPostRenderCleanupDelay: 40,
       autoHeight: false,
       editorLock: Slick.GlobalEditorLock,
-      showColumnNames: true,
+      showColumnHeader: true,
       showHeaderRow: false,
       headerRowHeight: 25,
       createFooterRow: false,
@@ -433,7 +433,7 @@ if (typeof Slick === "undefined") {
 
       $topPanel = $().add($topPanelL).add($topPanelR);
 
-      if (!options.showColumnNames) {
+      if (!options.showColumnHeader) {
         $headerScroller.hide();
       }
 
@@ -2732,8 +2732,8 @@ if (typeof Slick === "undefined") {
 
       makeActiveCellNormal();
 
-      if (args.showColumnNames !== undefined) {
-        setColumnHeaderVisibility(args.showColumnNames);
+      if (args.showColumnHeader !== undefined) {
+        setColumnHeaderVisibility(args.showColumnHeader);
       };
 
       if (options.enableAddRow !== args.enableAddRow) {
