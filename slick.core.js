@@ -46,24 +46,48 @@
       },
       "preClickClassName" : "slick-edit-preclick",
       
-      "ViewportMode": {
+      "GridAutosizeColsMode": {
+        None: 'NOA',
+        Legacy: 'LEG',
         IgnoreViewport: 'IGV',
         FitColsToViewport: 'FCV',
         FitViewportToCols: 'FVC'
       },
       
-      "AutoWidthStrategy": {
-          Locked: 'LK',
-          Guide: 'GU',
-          Top1Row: 'TOP1',
-          TopNRows: 'TOPN',
-          AllRows: 'ALL'
+      "ColAutosizeMode": {
+          Locked: 'LCK',
+          Guide: 'GUI',
+          Content: 'CON',
+          ContentIntelligent: 'CTI'
+      },
+      
+      "RowSelectionMode": {
+          FirstRow: 'FS1',
+          FirstNRows: 'FSN',
+          AllRows: 'ALL',
+          LastRow: 'LS1'
+      },
+      
+      "ValueFilterMode": {
+          None: 'NONE',
+          DeDuplicate: 'DEDP',
+          GetGreatestAndSub: 'GR8T',
+          GetLongestTextAndSub: 'LNSB',
+          GetLongestText: 'LNSC'
+      },
+      
+      "WidthEvalMode": {
+          CanvasTextSize: 'CANV',
+          HTML: 'HTML'
       }      
     }
   });
 
-  if (Object.freeze) { Object.freeze(Slick.ViewportMode); }
-  if (Object.freeze) { Object.freeze(Slick.AutoWidthStrategy); }
+
+  if (Object.freeze) { 
+    Object.freeze(Slick.ColAutosizeMode); 
+    Object.freeze(Slick.AutoWidthStrategy); 
+  }
     
   /***
    * An event object for passing data to event handlers and letting them control propagation.
