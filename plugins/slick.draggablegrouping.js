@@ -260,7 +260,7 @@
     }
 
     function setDroppedGroups(groupingInfo) {
-      groupingInfos = (groupingInfo instanceof Array) ? groupingInfo : [groupingInfo];
+      var groupingInfos = (groupingInfo instanceof Array) ? groupingInfo : [groupingInfo];
       dropboxPlaceholder.hide()
       for (var i = 0; i < groupingInfos.length; i++) {
         var column = $(_grid.getHeaderColumn(groupingInfos[i]));

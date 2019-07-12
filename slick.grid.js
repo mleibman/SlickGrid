@@ -3273,7 +3273,7 @@ if (typeof Slick === "undefined") {
         topPanelH = ( options.showTopPanel ) ? options.topPanelHeight + getVBoxDelta($topPanelScroller) : 0;
         headerRowH = ( options.showHeaderRow ) ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0;
         footerRowH = ( options.showFooterRow ) ? options.footerRowHeight + getVBoxDelta($footerRowScroller) : 0;
-        preHeaderH = (options.createPreHeaderPanel && options.showPreHeaderPanel) ? options.preHeaderPanelHeight + getVBoxDelta($preHeaderPanelScroller) : 0;
+        var preHeaderH = (options.createPreHeaderPanel && options.showPreHeaderPanel) ? options.preHeaderPanelHeight + getVBoxDelta($preHeaderPanelScroller) : 0;
 
         viewportH = parseFloat($.css($container[0], "height", true))
           - parseFloat($.css($container[0], "paddingTop", true))
@@ -4644,7 +4644,7 @@ if (typeof Slick === "undefined") {
             : frozenRowsHeight;
         }
 
-        cell = getCellFromPoint($activeCellOffset.left, Math.ceil($activeCellOffset.top) - rowOffset);
+        var cell = getCellFromPoint($activeCellOffset.left, Math.ceil($activeCellOffset.top) - rowOffset);
 
         activeRow = cell.row;
         activeCell = activePosX = activeCell = activePosX = getCellFromNode(activeCellNode);

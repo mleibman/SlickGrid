@@ -94,6 +94,7 @@
     var _grid;
     var _gridOptions;
     var _gridUid;
+    var _dataView;
     var _expandableOverride = null;
     var _self = this;
     var _lastRange = null;

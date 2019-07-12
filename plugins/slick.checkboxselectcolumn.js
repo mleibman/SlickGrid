@@ -88,7 +88,7 @@
 
     function handleSelectedRowsChanged(e, args) {
       var selectedRows = _grid.getSelectedRows();
-      var lookup = {}, row, i;
+      var lookup = {}, row, i, k;
       var disabledCount = 0;
       if (typeof _selectableOverride === 'function') {
         for (k = 0; k < _grid.getDataLength(); k++) {
