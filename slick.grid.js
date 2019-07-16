@@ -2057,27 +2057,27 @@ if (typeof Slick === "undefined") {
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Column Autosizing
     //////////////////////////////////////////////////////////////////////////////////////////////
-    
+
     var canvas = null;
     var canvas_context = null;
-    
+
     function autosizeColumns(autosizeMode, isInit) {
       LogColWidths();
-      
+
       autosizeMode =  autosizeMode || options.autosizeColsMode;
       if (autosizeMode === Slick.GridAutosizeColsMode.Legacy) {
         legacyAutosizeColumns();
         return;
       }
-      
+
       if (autosizeMode === Slick.GridAutosizeColsMode.None) {
         return;
       }
-      
+
       // test for brower canvas support, canvas_context!=null if supported
       canvas = document.createElement("canvas");
       if (canvas && canvas.getContext) { canvas_context = canvas.getContext("2d"); }
-      
+
       // pass in the grid canvas
       var $gridCanvas = $(getCanvasNode(0, 0));
       var viewportWidth = viewportHasVScroll ? viewportW - scrollbarDimensions.width : viewportW;
@@ -2094,14 +2094,14 @@ if (typeof Slick === "undefined") {
         strColsMinWidth += (c.autoSize.sizeToRemaining ? c.minWidth || 0 : 0);
       }
       var strColTotalGuideWidth = totalWidth - totalWidthLessSTR;
-            
+
       if (autosizeMode === Slick.GridAutosizeColsMode.FitViewportToCols) {
-        // - if viewport with is outside MinViewportWidthPx and MaxViewportWidthPx, then the viewport is set to 
+        // - if viewport with is outside MinViewportWidthPx and MaxViewportWidthPx, then the viewport is set to
         //   MinViewportWidthPx or MaxViewportWidthPx and the FitColsToViewport algorithm is used
         // - viewport is resized to fit columns
         var setWidth = totalWidth + scrollbarDimensions.width;
         autosizeMode = Slick.GridAutosizeColsMode.IgnoreViewport;
-        
+
         if (options.viewportMaxWidthPx && setWidth > options.viewportMaxWidthPx) {
           setWidth = options.viewportMaxWidthPx;
           autosizeMode = Slick.GridAutosizeColsMode.FitColsToViewport;
@@ -2109,19 +2109,19 @@ if (typeof Slick === "undefined") {
           setWidth = options.viewportMinWidthPx;
           autosizeMode = Slick.GridAutosizeColsMode.FitColsToViewport;
         } else {
-          for (i = 0; i < columns.length; i++) { columns[i].width = columns[i].autoSize.widthPx; }          
+          for (i = 0; i < columns.length; i++) { columns[i].width = columns[i].autoSize.widthPx; }
         }
-        $container.width(setWidth);          
+        $container.width(setWidth);
       }
-      
+
       if (autosizeMode === Slick.GridAutosizeColsMode.FitColsToViewport) {
         if (strColTotalGuideWidth > 0 && totalWidthLessSTR < viewportWidth - strColsMinWidth) {
           // if addl space remains in the viewport and there are SizeToRemaining cols, just the SizeToRemaining cols expand proportionally to fill viewport
           for (i = 0; i < columns.length; i++) {
             c = columns[i];
             var totalSTRViewportWidth = viewportWidth - totalWidthLessSTR;
-            if (c.autoSize.sizeToRemaining) { 
-              c.width = totalSTRViewportWidth * c.autoSize.widthPx / strColTotalGuideWidth; 
+            if (c.autoSize.sizeToRemaining) {
+              c.width = totalSTRViewportWidth * c.autoSize.widthPx / strColTotalGuideWidth;
             } else {
               c.width = c.autoSize.widthPx;
             }
@@ -2137,49 +2137,49 @@ if (typeof Slick === "undefined") {
           var unallocatedViewportWidth = viewportWidth - totalLockedColWidth - strColsMinWidth;
           for (i = 0; i < columns.length; i++) {
             c = columns[i];
-            if (c.autoSize.autosizeMode !== Slick.ColAutosizeMode.Locked) { 
-              if (c.autoSize.sizeToRemaining) { 
-                c.width = c.minWidth; 
+            if (c.autoSize.autosizeMode !== Slick.ColAutosizeMode.Locked) {
+              if (c.autoSize.sizeToRemaining) {
+                c.width = c.minWidth;
               } else {
                 // size width proportionally to free space (we know we have enough room due to the earlier calculations)
-                c.width = unallocatedViewportWidth / unallocatedColWidth * c.autoSize.widthPx; 
+                c.width = unallocatedViewportWidth / unallocatedColWidth * c.autoSize.widthPx;
                 if (c.width < c.minWidth) { c.width = c.minWidth; }
-                
+
                 // remove the just allocated widths from the allocation pool
                 unallocatedColWidth -= c.autoSize.widthPx;
                 unallocatedViewportWidth -= c.width;
               }
             }
-          }         
+          }
         }
       }
-      
+
       if (autosizeMode === Slick.GridAutosizeColsMode.IgnoreViewport) {
         // just size columns as-is
-        for (i = 0; i < columns.length; i++) { columns[i].width = columns[i].autoSize.widthPx; }          
+        for (i = 0; i < columns.length; i++) { columns[i].width = columns[i].autoSize.widthPx; }
       }
-      
-      LogColWidths();      
+
+      LogColWidths();
     }
-    
+
     function LogColWidths () {
       var s =  "Col Widths:";
       for (i = 0; i < columns.length; i++) { s += ' ' + columns[i].width; }
       console.log(s);
     }
-    
+
     function getColAutosizeWidth(columnDef, $gridCanvas, isInit) {
       var autoSize = columnDef.autoSize;
-      
+
       // set to width as default
       autoSize.widthPx = columnDef.width;
       if (autoSize.autosizeMode === Slick.ColAutosizeMode.Locked
       || autoSize.autosizeMode === Slick.ColAutosizeMode.Guide) {
         return;
       }
-      
+
       var dl = getDataLength(); //getDataItem();
-          
+
       // ContentIntelligent takes settings from column data type
       if (autoSize.autosizeMode === Slick.ColAutosizeMode.ContentIntelligent) {
         // default to column colDataTypeOf (can be used if initially there are no data rows)
@@ -2187,7 +2187,7 @@ if (typeof Slick === "undefined") {
         var colDataItem = undefined;
         if (dl > 0) {
           var tempRow = getDataItem(0);
-          if (tempRow) { 
+          if (tempRow) {
             colDataItem = tempRow[columnDef.field];
             colDataTypeOf = typeof colDataItem;
             if (colDataTypeOf === 'object') {
@@ -2201,38 +2201,38 @@ if (typeof Slick === "undefined") {
         }
         if (colDataTypeOf === 'number') {
           autoSize.valueFilterMode = Slick.ValueFilterMode.GetGreatestAndSub;
-          autoSize.rowSelectionMode = Slick.RowSelectionMode.AllRows;           
+          autoSize.rowSelectionMode = Slick.RowSelectionMode.AllRows;
         }
-        if (colDataTypeOf === 'string') {          
-          autoSize.valueFilterMode = Slick.ValueFilterMode.GetLongestText;         
-          autoSize.rowSelectionMode = Slick.RowSelectionMode.AllRows;  
-          autoSize.allowAddlPercent = 5;          
+        if (colDataTypeOf === 'string') {
+          autoSize.valueFilterMode = Slick.ValueFilterMode.GetLongestText;
+          autoSize.rowSelectionMode = Slick.RowSelectionMode.AllRows;
+          autoSize.allowAddlPercent = 5;
         }
         if (colDataTypeOf === 'date') {
-          autoSize.colValueArray = [ new Date(2009, 08, 30, 12, 20, 20) ]; // Sep 30th 2009, 12:20:20 AM
+          autoSize.colValueArray = [ new Date(2009, 8, 30, 12, 20, 20) ]; // Sep 30th 2009, 12:20:20 AM
         }
-        if (colDataTypeOf === 'moment') {
-          autoSize.colValueArray = [ moment([2009, 08, 20, 12, 20, 20]) ]; // Sep 30th 2009, 12:20:20 AM
+        if (colDataTypeOf === 'moment' && typeof moment !== 'undefined') {
+          autoSize.colValueArray = [ moment('2009-09-30 12:20:20') ]; // Sep 30th 2009, 12:20:20 AM
         }
       }
-     
+
       // at this point, the autosizeMode is effectively 'Content', so proceed to get size
       var colWidth = getColContentSize(columnDef, $gridCanvas, isInit);
-      
+
       var addlPercentMultiplier = (autoSize.allowAddlPercent ? (1 + autoSize.allowAddlPercent/100) : 1);
       colWidth = colWidth * addlPercentMultiplier + options.autosizeColPaddingPx;
       if (columnDef.minWidth && colWidth < columnDef.minWidth) { colWidth = columnDef.minWidth; }
-      if (columnDef.maxWidth && colWidth > columnDef.maxWidth) { colWidth = columnDef.maxWidth; }   
-      
+      if (columnDef.maxWidth && colWidth > columnDef.maxWidth) { colWidth = columnDef.maxWidth; }
+
       autoSize.widthPx = colWidth;
     }
-    
+
     function getColContentSize(columnDef, $gridCanvas, isInit) {
       var autoSize = columnDef.autoSize;
       var widthAdjustRatio = 1;
-    
+
       // at this point, the autosizeMode is effectively 'Content', so proceed to get size
-      
+
       // get header width, if we are taking notice of it
       var i, ii;
       var maxColWidth = 0;
@@ -2246,19 +2246,19 @@ if (typeof Slick === "undefined") {
         maxColWidth = getColWidth(columnDef, $gridCanvas, autoSize.colValueArray);
         return Math.max(headerWidth, maxColWidth);
       }
-      
+
       // select rows to evaluate using rowSelectionMode and rowSelectionCount
       var rows = getData();
       if (rows.getItems) { rows = rows.getItems(); }
-      
+
       var rowSelectionMode = (isInit ? autoSize.rowSelectionModeOnInit : undefined) || autoSize.rowSelectionMode;
-      
+
       if (rowSelectionMode === Slick.RowSelectionMode.FirstRow) { rows = rows.slice(0,1); }
       if (rowSelectionMode === Slick.RowSelectionMode.LastRow) { rows = rows.slice(rows.length -1, rows.length); }
       if (rowSelectionMode === Slick.RowSelectionMode.FirstNRows) { rows = rows.slice(0, autoSize.rowSelectionCount); }
 
       // now use valueFilterMode to further filter selected rows
-      if (autoSize.valueFilterMode === Slick.ValueFilterMode.DeDuplicate) { 
+      if (autoSize.valueFilterMode === Slick.ValueFilterMode.DeDuplicate) {
         var rowsDict = {};
         for (i = 0, ii = rows.length; i < ii; i++) {
           rowsDict[rows[i][columnDef.field]] = true;
@@ -2267,10 +2267,10 @@ if (typeof Slick === "undefined") {
           rows = Object.keys(rowsDict);
         } else {
           var rows = [];
-          for (var i in rowsDict)  rows.push(i);          
+          for (var i in rowsDict)  rows.push(i);
         }
       }
-     
+
       if (autoSize.valueFilterMode === Slick.ValueFilterMode.GetGreatestAndSub) {
         // get greatest abs value in data
         var tempVal, maxVal, maxAbsVal = 0;
@@ -2280,12 +2280,12 @@ if (typeof Slick === "undefined") {
         }
         // now substitute a '9' for all characters (to get widest width) and convert back to a number
         maxVal = '' + maxVal;
-        maxVal = Array(maxVal.length + 1).join("9"); 
+        maxVal = Array(maxVal.length + 1).join("9");
         maxVal = +maxVal;
-        
+
         rows = [ maxVal ];
       }
-     
+
       if (autoSize.valueFilterMode === Slick.ValueFilterMode.GetLongestTextAndSub) {
         // get greatest abs value in data
         var tempVal, maxLen = 0, maxIndex;
@@ -2296,10 +2296,10 @@ if (typeof Slick === "undefined") {
         // now substitute a 'c' for all characters
         tempVal = Array(maxLen + 1).join("m");
         widthAdjustRatio = options.autosizeTextAvgToMWidthRatio;
-        
+
         rows = [ tempVal ];
       }
-     
+
       if (autoSize.valueFilterMode === Slick.ValueFilterMode.GetLongestText) {
         // get greatest abs value in data
         var tempVal, maxLen = 0, maxIndex;
@@ -2308,14 +2308,14 @@ if (typeof Slick === "undefined") {
           if ((tempVal || '').length > maxLen) { maxLen = tempVal.length; maxIndex = i; }
         }
         // now substitute a 'c' for all characters
-        tempVal = rows[maxIndex][columnDef.field];        
+        tempVal = rows[maxIndex][columnDef.field];
         rows = [ tempVal ];
       }
-     
+
       maxColWidth = getColWidth(columnDef, $gridCanvas, rows) * widthAdjustRatio;
       return Math.max(headerWidth, maxColWidth);
     }
-    
+
     function getColWidth(columnDef, $gridCanvas, data) {
         var colIndex = getColumnIndex(columnDef.id);
 
@@ -2332,9 +2332,9 @@ if (typeof Slick === "undefined") {
         $gridCanvas.append($rowEl);
 
         var len, max = 0, text, maxText, formatterResult, maxWidth = 0, val;
-         
+
          // use canvas - very fast, but text-only
-        if (canvas_context && columnDef.autoSize.widthEvalMode === Slick.WidthEvalMode.CanvasTextSize) {         
+        if (canvas_context && columnDef.autoSize.widthEvalMode === Slick.WidthEvalMode.CanvasTextSize) {
           canvas_context.font = $cellEl.css("font-size") + " " + $cellEl.css("font-family");
           $(data).each(function (index, row) {
               // row is either an array or values or a single value
@@ -2343,35 +2343,35 @@ if (typeof Slick === "undefined") {
               len = text ? canvas_context.measureText(text).width : 0;
               if (len > max) { max = len; maxText = text; }
           });
-          
+
           $cellEl.html(maxText);
           len = $cellEl.outerWidth();
-          
+
           $rowEl.remove();
           return len;
         }
-        
+
         $(data).each(function (index, row) {
             val = (Array.isArray(row) ? row[columnDef.field] : row);
             if (columnDef.formatterOverride) {
               // use formatterOverride as first preference
               formatterResult = columnDef.formatterOverride(index, colIndex, val, columnDef, row);
             } else if (columnDef.formatter) {
-              // otherwise, use formatter 
+              // otherwise, use formatter
               formatterResult = columnDef.formatter(index, colIndex, val, columnDef, row);
             } else {
-              // otherwise, use plain text 
+              // otherwise, use plain text
               formatterResult = '' + val;
             }
             applyFormatResultToCellNode(formatterResult, $cellEl[0]);
             len = $cellEl.outerWidth();
             if (len > max) { max = len; }
          });
-                   
+
         $rowEl.remove();
         return max;
     }
-        
+
     function getColHeaderWidth(columnDef) {
       var width = 0;
       //if (columnDef && (!columnDef.resizable || columnDef._autoCalcWidth === true)) return;
@@ -2394,13 +2394,13 @@ if (typeof Slick === "undefined") {
           .attr("id", dummyHeaderColElId)
           .css({ "position": "absolute", "visibility": "hidden", "right": "auto", "text-overflow:": "initial", "white-space": "nowrap" })
           .addClass(columnDef.headerCssClass || "")
-          .appendTo(header);        
+          .appendTo(header);
         width = headerColEl[0].offsetWidth;
         header[0].removeChild(headerColEl[0]);
-      }   
+      }
       return width;
     }
-                
+
     function legacyAutosizeColumns() {
       var i, c,
           widths = [],
