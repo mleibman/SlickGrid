@@ -77,6 +77,7 @@ if (typeof Slick === "undefined") {
       autoHeight: false,
       editorLock: Slick.GlobalEditorLock,
       showColumnHeader: true,
+      showColumnLabels: true,
       showHeaderRow: false,
       headerRowHeight: 25,
       createFooterRow: false,
