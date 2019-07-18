@@ -5,3 +5,4 @@ examples
 nuget*
 SlickgridRelease*
 tests
+testresult.xml
