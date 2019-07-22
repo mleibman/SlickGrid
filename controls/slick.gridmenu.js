@@ -105,6 +105,7 @@
     var $list;
     var $button;
     var $menu;
+    var columns;
     var columnCheckboxes;
     var _defaults = {
       hideForceFitButton: false,
@@ -262,9 +263,11 @@
         }
       }
 
-      var $li, $input;
+      var $li, $input, excludeCssClass;
       for (var i = 0; i < columns.length; i++) {
-        $li = $("<li />").appendTo($list);
+        excludeCssClass = columns[i].excludeFromGridMenu ? "hidden" : "";
+        $li = $('<li class="' + excludeCssClass + '" />').appendTo($list);
+
         $input = $("<input type='checkbox' />").data("column-id", columns[i].id);
         columnCheckboxes.push($input);
 
@@ -395,16 +398,7 @@
           ordered[i] = current.shift();
         }
       }
-
-      // filter out excluded column header when necessary
-      // (works with IE9+, older browser requires a polyfill for the filter to work, visit MDN for more info)
-      if (Array.isArray(ordered) && typeof ordered.filter === 'function') {
-        columns = ordered.filter(function (columnDef) {
-          return !columnDef.excludeFromGridMenu;
-        });
-      } else {
-        columns = ordered;
-      }
+      columns = ordered;
     }
 
     function updateColumn(e) {

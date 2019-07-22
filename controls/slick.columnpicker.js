@@ -32,6 +32,7 @@
     var _grid = grid;
     var _options = options;
     var $columnTitleElm;
+    var columns;
     var $list;
     var $menu;
     var columnCheckboxes;
@@ -97,9 +98,10 @@
       columnCheckboxes = [];
 
       var $li, $input;
-      var columnLabel;
+      var columnLabel, excludeCssClass;
       for (var i = 0; i < columns.length; i++) {
-        $li = $("<li />").appendTo($list);
+        excludeCssClass = columns[i].excludeFromColumnPicker ? "hidden" : "";
+        $li = $('<li class="' + excludeCssClass + '" />').appendTo($list);
         $input = $("<input type='checkbox' />").data("column-id", columns[i].id);
         columnCheckboxes.push($input);
 
@@ -177,16 +179,7 @@
           ordered[i] = current.shift();
         }
       }
-
-      // filter out excluded column header when necessary
-      // (works with IE9+, older browser requires a polyfill for the filter to work, visit MDN for more info)
-      if (Array.isArray(ordered) && typeof ordered.filter === 'function') {
-        columns = ordered.filter(function (columnDef) {
-          return !columnDef.excludeFromColumnPicker;
-        });
-      } else {
-        columns = ordered;
-      }
+      columns = ordered;
     }
 
     /** Update the Titles of each sections (command, customTitle, ...) */

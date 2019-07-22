@@ -106,10 +106,14 @@
   vertical-align: middle;
 }
 
-
 /* Disabled */
 .slick-gridmenu-item-disabled {
   color: silver;
+}
+
+/* Excluded item from Grid Menu will be hidden */
+.slick-gridmenu-list li.hidden {
+  display: none;
 }
 
 /* Divider */

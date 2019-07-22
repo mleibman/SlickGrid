@@ -44,3 +44,8 @@
 .slick-columnpicker li a:hover {
   background: white;
 }
+
+/* Excluded item from Column Picker will be hidden */
+.slick-columnpicker-list li.hidden {
+  display: none;
+}
