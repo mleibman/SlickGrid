@@ -118,7 +118,7 @@ if (typeof Slick === "undefined") {
       autosizeTextAvgToMWidthRatio: 0.75,
       viewportSwitchToScrollModeWidthPercent: undefined,
       viewportMinWidthPx: undefined,
-      viewportMaxWidthPx: undefined,
+      viewportMaxWidthPx: undefined
     };
 
     var columnDefaults = {
@@ -1431,7 +1431,7 @@ if (typeof Slick === "undefined") {
         start: startLimit,
         end: endLimit,
         group: groupColumnOfPreviousPosition
-      }
+      };
     }
 
     function remove(arr, elem) {
@@ -2185,7 +2185,7 @@ if (typeof Slick === "undefined") {
       if (autoSize.autosizeMode === Slick.ColAutosizeMode.ContentIntelligent) {
         // default to column colDataTypeOf (can be used if initially there are no data rows)
         var colDataTypeOf = autoSize.colDataTypeOf;
-        var colDataItem = undefined;
+        var colDataItem;
         if (dl > 0) {
           var tempRow = getDataItem(0);
           if (tempRow) {
@@ -2532,13 +2532,13 @@ if (typeof Slick === "undefined") {
             m.columns.forEach(function() {
               var $headerColumn = $groupHeader.next().children(':eq(' + (currentColumnIndex++) + ')');
               m.width += $headerColumn.outerWidth();
-            })
+            });
 
             $groupHeaderColumn.width(m.width - headerColumnWidthDiff);
 
           });
 
-        })
+        });
 
       }
     }
@@ -2735,7 +2735,7 @@ if (typeof Slick === "undefined") {
 
       if (args.showColumnHeader !== undefined) {
         setColumnHeaderVisibility(args.showColumnHeader);
-      };
+      }
 
       if (options.enableAddRow !== args.enableAddRow) {
         invalidateRow(getDataLength());
@@ -3328,9 +3328,9 @@ if (typeof Slick === "undefined") {
 
     function resizeCanvas() {
       if (!initialized) { return; }
-      paneTopH = 0
-      paneBottomH = 0
-      viewportTopH = 0
+      paneTopH = 0;
+      paneBottomH = 0;
+      viewportTopH = 0;
       viewportBottomH = 0;
 
       getViewportWidth();
@@ -4087,7 +4087,7 @@ if (typeof Slick === "undefined") {
       return {
         enqueue: enqueue,
         dequeue: dequeue
-      }
+      };
     }
 
     function asyncPostProcessRows() {
@@ -4415,7 +4415,7 @@ if (typeof Slick === "undefined") {
 
           var preClickModeOn = (e.target && e.target.className === Slick.preClickClassName);
           var column = columns[cell.cell];
-          var suppressActiveCellChangedEvent = (options.editable && column && column.editor && options.suppressActiveCellChangeOnEdit) ? true : false;
+          var suppressActiveCellChangedEvent = !!(options.editable && column && column.editor && options.suppressActiveCellChangeOnEdit);
           setActiveCellInternal(getCellNode(cell.row, cell.cell), null, preClickModeOn, suppressActiveCellChangedEvent, e);
         }
       }
@@ -4869,7 +4869,8 @@ if (typeof Slick === "undefined") {
         right: 0,
         width: $(elem).outerWidth(),
         height: $(elem).outerHeight(),
-        visible: true};
+        visible: true
+      };
       box.bottom = box.top + box.height;
       box.right = box.left + box.width;
 
@@ -4907,7 +4908,7 @@ if (typeof Slick === "undefined") {
     }
 
     function getGridPosition() {
-      return absBox($container[0])
+      return absBox($container[0]);
     }
 
     function handleActiveCellPositionChange() {
