@@ -2213,7 +2213,7 @@ if (typeof Slick === "undefined") {
           autoSize.colValueArray = [ new Date(2009, 8, 30, 12, 20, 20) ]; // Sep 30th 2009, 12:20:20 AM
         }
         if (colDataTypeOf === 'moment' && typeof moment !== 'undefined') {
-          autoSize.colValueArray = [ moment('2009-09-30 12:20:20') ]; // Sep 30th 2009, 12:20:20 AM
+          autoSize.colValueArray = [ moment([2009, 8, 30, 12, 20, 20]) ]; // Sep 30th 2009, 12:20:20 AM
         }
       }
 
