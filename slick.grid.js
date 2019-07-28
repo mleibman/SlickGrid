@@ -2063,7 +2063,7 @@ if (typeof Slick === "undefined") {
     var canvas_context = null;
 
     function autosizeColumns(autosizeMode, isInit) {
-      LogColWidths();
+      //LogColWidths();
 
       autosizeMode =  autosizeMode || options.autosizeColsMode;
       if (autosizeMode === Slick.GridAutosizeColsMode.Legacy) {
@@ -2160,7 +2160,7 @@ if (typeof Slick === "undefined") {
         for (i = 0; i < columns.length; i++) { columns[i].width = columns[i].autoSize.widthPx; }
       }
 
-      LogColWidths();
+      //LogColWidths();
     }
 
     function LogColWidths () {
