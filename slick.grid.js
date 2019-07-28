@@ -77,7 +77,6 @@ if (typeof Slick === "undefined") {
       autoHeight: false,
       editorLock: Slick.GlobalEditorLock,
       showColumnHeader: true,
-      showColumnLabels: true,
       showHeaderRow: false,
       headerRowHeight: 25,
       createFooterRow: false,
@@ -2840,8 +2839,8 @@ if (typeof Slick === "undefined") {
     }
 
     function setColumnHeaderVisibility(visible, animate) {
-      if (options.showColumnLabels != visible) {
-        options.showColumnLabels = visible;
+      if (options.showColumnHeader != visible) {
+        options.showColumnHeader = visible;
         if (visible) {
           if (animate) {
             $headerScroller.slideDown("fast", resizeCanvas);
@@ -3315,7 +3314,7 @@ if (typeof Slick === "undefined") {
           * getDataLengthIncludingAddNew()
           + ( ( options.frozenColumn == -1 ) ? fullHeight : 0 );
       } else {
-        columnNamesH = ( options.showColumnLabels ) ? parseFloat($.css($headerScroller[0], "height"))
+        columnNamesH = ( options.showColumnHeader ) ? parseFloat($.css($headerScroller[0], "height"))
           + getVBoxDelta($headerScroller) : 0;
         topPanelH = ( options.showTopPanel ) ? options.topPanelHeight + getVBoxDelta($topPanelScroller) : 0;
         headerRowH = ( options.showHeaderRow ) ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0;
