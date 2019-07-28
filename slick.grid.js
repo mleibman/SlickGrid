@@ -2062,6 +2062,20 @@ if (typeof Slick === "undefined") {
     var canvas = null;
     var canvas_context = null;
 
+    function autosizeColumn(columnOrIndexOrId, isInit) {
+      var c = columnOrIndexOrId;
+      if (typeof columnOrIndexOrId === 'number') {
+        c = columns[columnOrIndexOrId];
+      } 
+      else if (typeof columnOrIndexOrId === 'string') {
+        for (i = 0; i < columns.length; i++) {
+          if (columns[i].Id === columnOrIndexOrId) { c = columns[i]; }
+        }
+      }
+      var $gridCanvas = $(getCanvasNode(0, 0));
+      getColAutosizeWidth(c, $gridCanvas, isInit);      
+    }
+    
     function autosizeColumns(autosizeMode, isInit) {
       //LogColWidths();
 
@@ -3433,7 +3447,7 @@ if (typeof Slick === "undefined") {
         scrollbarDimensions = measureScrollbar();
       }
 
-      if (options.autosizeColsMode !== Slick.GridAutosizeColsMode.None) {
+      if (options.autosizeColsMode === Slick.GridAutosizeColsMode.Legacy) {
         autosizeColumns();
       }
 
@@ -3534,7 +3548,7 @@ if (typeof Slick === "undefined") {
         resizeCanvas();
       }
 
-      if (options.autosizeColsMode !== Slick.GridAutosizeColsMode.None && oldViewportHasVScroll != viewportHasVScroll) {
+      if (options.autosizeColsMode === Slick.GridAutosizeColsMode.Legacy && oldViewportHasVScroll != viewportHasVScroll) {
         autosizeColumns();
       }
       updateCanvasWidth(false);
@@ -5680,6 +5694,7 @@ if (typeof Slick === "undefined") {
       "setSortColumns": setSortColumns,
       "getSortColumns": getSortColumns,
       "autosizeColumns": autosizeColumns,
+      "autosizeColumn": autosizeColumn,
       "getOptions": getOptions,
       "setOptions": setOptions,
       "getData": getData,
