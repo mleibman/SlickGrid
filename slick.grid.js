@@ -112,7 +112,7 @@ if (typeof Slick === "undefined") {
       emulatePagingWhenScrolling: true, // when scrolling off bottom of viewport, place new row at top of viewport
       editorCellNavOnLRKeys: false,
       doPaging: true,
-      autosizeColsMode: Slick.GridAutosizeColsMode.None,
+      autosizeColsMode: Slick.GridAutosizeColsMode.LegacyOff,
       autosizeColPaddingPx: 4,
       autosizeTextAvgToMWidthRatio: 0.75,
       viewportSwitchToScrollModeWidthPercent: undefined,
@@ -2079,7 +2079,8 @@ if (typeof Slick === "undefined") {
       //LogColWidths();
 
       autosizeMode =  autosizeMode || options.autosizeColsMode;
-      if (autosizeMode === Slick.GridAutosizeColsMode.Legacy) {
+      if (autosizeMode === Slick.GridAutosizeColsMode.LegacyForceFit 
+      || autosizeMode === Slick.GridAutosizeColsMode.LegacyOff) {
         legacyAutosizeColumns();
         return;
       }
@@ -2097,7 +2098,7 @@ if (typeof Slick === "undefined") {
       var viewportWidth = viewportHasVScroll ? viewportW - scrollbarDimensions.width : viewportW;
 
       // iterate columns to get autosizes
-      var i, c, totalWidth = 0, totalWidthLessSTR = 0, strColsMinWidth = 0, totalMinWidth = 0, totalLockedColWidth = 0;
+      var i, c, colWidth, reRender, totalWidth = 0, totalWidthLessSTR = 0, strColsMinWidth = 0, totalMinWidth = 0, totalLockedColWidth = 0;
       for (i = 0; i < columns.length; i++) {
         c = columns[i];
         getColAutosizeWidth(c, $gridCanvas, isInit);
@@ -2123,7 +2124,8 @@ if (typeof Slick === "undefined") {
           setWidth = options.viewportMinWidthPx;
           autosizeMode = Slick.GridAutosizeColsMode.FitColsToViewport;
         } else {
-          for (i = 0; i < columns.length; i++) { columns[i].width = columns[i].autoSize.widthPx; }
+          // falling back to IgnoreViewport will size the columns as-is, with render checking
+          //for (i = 0; i < columns.length; i++) { columns[i].width = columns[i].autoSize.widthPx; }
         }
         $container.width(setWidth);
       }
@@ -2135,10 +2137,12 @@ if (typeof Slick === "undefined") {
             c = columns[i];
             var totalSTRViewportWidth = viewportWidth - totalWidthLessSTR;
             if (c.autoSize.sizeToRemaining) {
-              c.width = totalSTRViewportWidth * c.autoSize.widthPx / strColTotalGuideWidth;
+              colWidth = totalSTRViewportWidth * c.autoSize.widthPx / strColTotalGuideWidth;
             } else {
-              c.width = c.autoSize.widthPx;
+              colWidth = c.autoSize.widthPx;
             }
+            if (c.rerenderOnResize && c.width  != colWidth) { reRender = true; }
+            c.width = colWidth; 
           }
         } else if ((options.viewportSwitchToScrollModeWidthPercent && totalWidthLessSTR + strColsMinWidth > viewportWidth * options.viewportSwitchToScrollModeWidthPercent / 100)
           || (totalMinWidth > viewportWidth)) {
@@ -2151,29 +2155,39 @@ if (typeof Slick === "undefined") {
           var unallocatedViewportWidth = viewportWidth - totalLockedColWidth - strColsMinWidth;
           for (i = 0; i < columns.length; i++) {
             c = columns[i];
+            colWidth = c.width;
             if (c.autoSize.autosizeMode !== Slick.ColAutosizeMode.Locked) {
               if (c.autoSize.sizeToRemaining) {
-                c.width = c.minWidth;
+                colWidth = c.minWidth;
               } else {
                 // size width proportionally to free space (we know we have enough room due to the earlier calculations)
-                c.width = unallocatedViewportWidth / unallocatedColWidth * c.autoSize.widthPx;
-                if (c.width < c.minWidth) { c.width = c.minWidth; }
+                colWidth = unallocatedViewportWidth / unallocatedColWidth * c.autoSize.widthPx;
+                if (colWidth < c.minWidth) { colWidth = c.minWidth; }
 
                 // remove the just allocated widths from the allocation pool
                 unallocatedColWidth -= c.autoSize.widthPx;
-                unallocatedViewportWidth -= c.width;
+                unallocatedViewportWidth -= colWidth;
               }
             }
+            if (c.rerenderOnResize && c.width  != colWidth) { reRender = true; }
+            c.width = colWidth; 
           }
         }
       }
 
       if (autosizeMode === Slick.GridAutosizeColsMode.IgnoreViewport) {
         // just size columns as-is
-        for (i = 0; i < columns.length; i++) { columns[i].width = columns[i].autoSize.widthPx; }
+        for (i = 0; i < columns.length; i++) { 
+          colWidth = columns[i].autoSize.widthPx;
+          if (columns[i].rerenderOnResize && columns[i].width != colWidth) {
+            reRender = true;
+          }
+          columns[i].width = colWidth; 
+        }
       }
 
       //LogColWidths();
+      reRenderColumns(reRender);
     }
 
     function LogColWidths () {
@@ -2485,7 +2499,11 @@ if (typeof Slick === "undefined") {
         }
         columns[i].width = widths[i];
       }
+      
+      reRenderColumns(reRender);
+    }
 
+    function reRenderColumns(reRender) {
       applyColumnHeaderWidths();
       applyColumnGroupHeaderWidths();
       updateCanvasWidth(true);
@@ -2772,7 +2790,7 @@ if (typeof Slick === "undefined") {
         options.leaveSpaceForNewRows = false;
       }
       if (options.forceFitColumns) {
-        options.autosizeColsMode = Slick.GridAutosizeColsMode.Legacy;
+        options.autosizeColsMode = Slick.GridAutosizeColsMode.LegacyForceFit;
         console.log("forceFitColumns option is deprecated - use autosizeColsMode");
       }
     }
@@ -3446,7 +3464,7 @@ if (typeof Slick === "undefined") {
         scrollbarDimensions = measureScrollbar();
       }
 
-      if (options.autosizeColsMode === Slick.GridAutosizeColsMode.Legacy) {
+      if (options.autosizeColsMode === Slick.GridAutosizeColsMode.LegacyForceFit) {
         autosizeColumns();
       }
 
@@ -3547,7 +3565,7 @@ if (typeof Slick === "undefined") {
         resizeCanvas();
       }
 
-      if (options.autosizeColsMode === Slick.GridAutosizeColsMode.Legacy && oldViewportHasVScroll != viewportHasVScroll) {
+      if (options.autosizeColsMode === Slick.GridAutosizeColsMode.LegacyForceFit && oldViewportHasVScroll != viewportHasVScroll) {
         autosizeColumns();
       }
       updateCanvasWidth(false);

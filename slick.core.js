@@ -48,7 +48,8 @@
       
       "GridAutosizeColsMode": {
         None: 'NOA',
-        Legacy: 'LEG',
+        LegacyOff: 'LOF',
+        LegacyForceFit: 'LFF',
         IgnoreViewport: 'IGV',
         FitColsToViewport: 'FCV',
         FitViewportToCols: 'FVC'

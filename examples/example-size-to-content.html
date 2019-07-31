@@ -88,7 +88,9 @@
         <span class="label-wide">GridAutosizeColsMode</span>
           <input type="radio" id="vmNOA" name="GridAutosizeColsMode" value="NOA" checked><label for="vmNOA">None</label>
           <span class="spacer"></span>
-          <input type="radio" id="vmLEG" name="GridAutosizeColsMode" value="LEG" checked><label for="vmLEG">Legacy</label>
+          <input type="radio" id="vmLOF" name="GridAutosizeColsMode" value="LOF" checked><label for="vmLOF">Legacy Off</label>
+          <span class="spacer"></span>
+          <input type="radio" id="vmLFF" name="GridAutosizeColsMode" value="LFF" checked><label for="vmLFF">Legacy Force Fit</label>
           <span class="spacer"></span>
           <input type="radio" id="vmIGV" name="GridAutosizeColsMode" value="IGV"><label for="vmIGV">IgnoreViewport</label>
           <span class="spacer"></span>
@@ -103,7 +105,7 @@
          <span class="label-wide">viewportMinWidthPx</span> <input id="txtViewportMinWidthPx" type="text" class="numericIn" value="600">
       </div>
       <div class="spaced-para">
-         <span class="label-wide">viewportMaxWidthPx</span> <input id="txtViewportMaxWidthPx" type="text" class="numericIn" value="900">
+         <span class="label-wide">viewportMaxWidthPx</span> <input id="txtViewportMaxWidthPx" type="text" class="numericIn" value="1400">
       </div>
       <div class="spaced-para">
          <span class="label-wide">autosizeColPaddingPx</span> <input id="txtAutosizeColPaddingPx" type="text" class="numericIn" value="4">
@@ -670,6 +672,9 @@
     <div>
       <div style="float:left"><button onclick="CallResize()">Resize Columns</button></div>
       <div style="float:left; padding-left:30px; padding-top:3px">Time taken = <span id="TimeTaken">-</span></div>
+      <div style="float:left; padding-left:30px; padding-top:3px">Viewport width before = <span id="ViewportWidthBefore">-</span></div>
+      <div style="float:left; padding-left:30px; padding-top:3px">Viewport width after = <span id="ViewportWidthAfter">-</span></div>
+      <div style="float:left; padding-left:10px; padding-top:3px">(limits <span id="ViewportLimits">-</span>)</div>
       <div style="clear:both;"></div>
       <div style="padding-top:5px">Warning: this example has 500,000 rows, so badly optimised column width tests (ie. checking all rows) may take 100 seconds per column. If it looks like the page has crashed, just wait a while!</div>
     </div>
@@ -681,7 +686,7 @@
   </div>
 
   <div style="width:900px;">
-    <div class="grid-header" style="width:100%">
+    <div class="grid-header" id="grid-header-div" style="width:100%">
       <label>SlickGrid</label>
     </div>
     <div id="myGrid" style="width:100%;height:320px;"></div>
@@ -751,15 +756,22 @@
     $wrapperDiv.toggle();
   }
   
+  function syncGridHeaderWidthToGrid() {
+   $("#grid-header-div").width($(grid.getContainerNode()).width()); 
+  }
+  
   function CallResize() {
     var t0 = performance.now();
+    $("#ViewportWidthBefore").text($(grid.getContainerNode()).width() + "px");
+    $("#ViewportLimits").text($("#txtViewportMinWidthPx").val() + "-" + $("#txtViewportMaxWidthPx").val());
     
     GetAutosizeConfigFromUI();    
+    grid.autosizeColumns();
+    syncGridHeaderWidthToGrid();
     
     var t1 = performance.now();
     $("#TimeTaken").text(Math.round(t1 - t0) + " milliseconds.");
-
-   //grid.autosizeColumns(Slick.GridAutosizeColsMode.FitColsToViewport);
+    $("#ViewportWidthAfter").text($(grid.getContainerNode()).width() + "px");
   }
 
   //------------------------------------------------------------------------------------
@@ -828,8 +840,12 @@
       grid.render();
     });
 
+    grid.onAutosizeColumns.subscribe(syncGridHeaderWidthToGrid);
+
     // initialize the model after all the events have been hooked up
     dataView.setItems(data);
+    
+    $("#ViewportWidthBefore").text($(grid.getContainerNode()).width() + "px");    
   })
 </script>
 </body>
