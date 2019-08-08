@@ -7,7 +7,8 @@
           Avg: AvgAggregator,
           Min: MinAggregator,
           Max: MaxAggregator,
-          Sum: SumAggregator
+          Sum: SumAggregator,
+          Count: CountAggregator
         }
       }
     }
@@ -717,16 +718,21 @@
     }
 
     function compileAccumulatorLoop(aggregator) {
-      var accumulatorInfo = getFunctionInfo(aggregator.accumulate);
-      var fn = new Function(
-          "_items",
-          "for (var " + accumulatorInfo.params[0] + ", _i=0, _il=_items.length; _i<_il; _i++) {" +
-              accumulatorInfo.params[0] + " = _items[_i]; " +
-              accumulatorInfo.body +
-          "}"
-      );
-      fn.displayName = fn.name = "compiledAccumulatorLoop";
-      return fn;
+      if(aggregator.accumulate) {
+        var accumulatorInfo = getFunctionInfo(aggregator.accumulate);
+        var fn = new Function(
+            "_items",
+            "for (var " + accumulatorInfo.params[0] + ", _i=0, _il=_items.length; _i<_il; _i++) {" +
+                accumulatorInfo.params[0] + " = _items[_i]; " +
+                accumulatorInfo.body +
+            "}"
+        );
+        fn.displayName = fn.name = "compiledAccumulatorLoop";
+        return fn;  
+      } else {
+        return function noAccumulator() {
+        }
+      }
     }
 
     function compileFilter() {
@@ -1243,6 +1249,20 @@
     }
   }
 
+  function CountAggregator(field) {
+    this.field_ = field;
+
+    this.init = function () {
+    };
+
+    this.storeResult = function (groupTotals) {
+      if (!groupTotals.count) {
+        groupTotals.count = {};
+      }
+      groupTotals.count[this.field_] = groupTotals.group.rows.length;
+    }
+  }
+  
   // TODO:  add more built-in aggregators
   // TODO:  merge common aggregators in one to prevent needles iterating
 
