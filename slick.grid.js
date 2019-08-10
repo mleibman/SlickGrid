@@ -1802,7 +1802,7 @@ if (typeof Slick === "undefined") {
               }
               updateCanvasWidth(true);
               render();
-              trigger(self.onColumnsResized, {});
+              trigger(self.onColumnsResized, {triggeredByColumn: $(this).parent().attr("id").replace(uid, "")});
               setTimeout(function () { columnResizeDragging = false; }, 300);
             });
       });
