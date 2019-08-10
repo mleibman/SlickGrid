@@ -2220,7 +2220,7 @@ if (typeof Slick === "undefined") {
             colDataTypeOf = typeof colDataItem;
             if (colDataTypeOf === 'object') {
               if (colDataItem instanceof Date) { colDataTypeOf = "date"; }
-              if (moment && colDataItem instanceof moment) { colDataTypeOf = "moment"; }
+              if (typeof moment!=='undefined' && colDataItem instanceof moment) { colDataTypeOf = "moment"; }
             }
           }
         }
@@ -2239,7 +2239,7 @@ if (typeof Slick === "undefined") {
         if (colDataTypeOf === 'date') {
           autoSize.colValueArray = [ new Date(2009, 8, 30, 12, 20, 20) ]; // Sep 30th 2009, 12:20:20 AM
         }
-        if (colDataTypeOf === 'moment' && moment) {
+        if (colDataTypeOf === 'moment' && typeof moment!=='undefined') {
           autoSize.colValueArray = [ moment([2009, 8, 30, 12, 20, 20]) ]; // Sep 30th 2009, 12:20:20 AM
         }
       }
