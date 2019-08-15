@@ -3332,7 +3332,7 @@ if (typeof Slick === "undefined") {
           * getDataLengthIncludingAddNew()
           + ( ( options.frozenColumn == -1 ) ? fullHeight : 0 );
       } else {
-        columnNamesH = ( options.showColumnHeader ) ? parseFloat($.css($headerScroller[0], "height"))
+        var columnNamesH = ( options.showColumnHeader ) ? parseFloat($.css($headerScroller[0], "height"))
           + getVBoxDelta($headerScroller) : 0;
         topPanelH = ( options.showTopPanel ) ? options.topPanelHeight + getVBoxDelta($topPanelScroller) : 0;
         headerRowH = ( options.showHeaderRow ) ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0;
