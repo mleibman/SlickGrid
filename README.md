@@ -8,4 +8,6 @@ It aims to be a viable alternative master repo, building on the legacy of the ml
 
 Check out the [examples](https://github.com/6pac/SlickGrid/wiki/Examples) for examples demonstrating new features and use cases, such as dynamic grid creation and editors with third party controls.
 
+## SlickGrid is an advanced JavaScript grid/spreadsheet component
+
 Also check out the [wiki](https://github.com/6pac/SlickGrid/wiki) for news and documentation.
