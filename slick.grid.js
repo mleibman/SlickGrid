@@ -1254,6 +1254,14 @@ if (typeof Slick === "undefined") {
             .on('mouseleave', onMouseLeave);
         }
 
+        if(m.hasOwnProperty('headerCellAttrs') && m.headerCellAttrs instanceof Object) {
+          for (var key in m.headerCellAttrs) {
+            if (m.headerCellAttrs.hasOwnProperty(key)) {
+              header.attr(key, m.headerCellAttrs[key]);
+            }
+          }
+        }
+	      
         if (m.sortable) {
           header.addClass("slick-header-sortable");
           header.append("<span class='slick-sort-indicator"
@@ -3121,7 +3129,7 @@ if (typeof Slick === "undefined") {
       var toolTip = formatterResult && formatterResult.toolTip ? "title='" + formatterResult.toolTip + "'" : '';
 
       var customAttrStr = '';
-      if(m.cellAttrs) {
+      if(m.hasOwnProperty('cellAttrs') && m.cellAttrs instanceof Object) {
         for (var key in m.cellAttrs) {
           if (m.cellAttrs.hasOwnProperty(key)) {
             customAttrStr += ' ' + key + '="' + m.cellAttrs[key] + '" ';
