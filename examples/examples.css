@@ -22,7 +22,7 @@ ul {
   cursor: default;
 }
 
-li {
+.options-panel li {
   background: url("../images/arrow_right_spearmint.png") no-repeat center left;
   padding: 0 0 0 14px;
 
@@ -30,7 +30,7 @@ li {
   margin: 0;
 }
 
-#myGrid {
+#myGrid, .example-grid {
   background: white;
   outline: 0;
   border: 1px solid gray;
@@ -139,6 +139,10 @@ input.editor-text {
 }
 
 .ui-datepicker-trigger {
+  background:url("../images/calendar.gif") top left no-repeat;
+  width: 16px;
+  height: 16px;
+
   margin-top: 2px;
   padding: 0;
   vertical-align: top;

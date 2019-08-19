@@ -6,22 +6,27 @@
     }
   });
 
-
   function CellSelectionModel(options) {
     var _grid;
     var _canvas;
     var _ranges = [];
     var _self = this;
-    var _selector = new Slick.CellRangeSelector({
-      "selectionCss": {
-        "border": "2px solid black"
-      }
-    });
+    var _selector;
+
+    if (typeof options === "undefined" || typeof options.cellRangeSelector === "undefined") {
+      _selector = new Slick.CellRangeSelector({
+        "selectionCss": {
+          "border": "2px solid black"
+        }
+      });
+    } else {
+      _selector = options.cellRangeSelector;
+    }
+
     var _options;
     var _defaults = {
       selectActiveCell: true
     };
-
 
     function init(grid) {
       _options = $.extend(true, {}, _defaults, options);
@@ -55,9 +60,33 @@
       return result;
     }
 
+    function rangesAreEqual(range1, range2) {
+      var areDifferent = (range1.length !== range2.length);
+      if (!areDifferent) {
+        for (var i = 0; i < range1.length; i++) {
+          if (
+            range1[i].fromCell !== range2[i].fromCell
+            || range1[i].fromRow !== range2[i].fromRow
+            || range1[i].toCell !== range2[i].toCell
+            || range1[i].toRow !== range2[i].toRow
+          ) {
+            areDifferent = true;
+            break;
+          }
+        }
+      }
+      return !areDifferent;
+    }
+
     function setSelectedRanges(ranges) {
+      // simple check for: empty selection didn't change, prevent firing onSelectedRangesChanged
+      if ((!_ranges || _ranges.length === 0) && (!ranges || ranges.length === 0)) { return; }
+
+      // if range has not changed, don't fire onSelectedRangesChanged
+      var rangeHasChanged = !rangesAreEqual(_ranges, ranges);
+
       _ranges = removeInvalidRanges(ranges);
-      _self.onSelectedRangesChanged.notify(_ranges);
+      if (rangeHasChanged) { _self.onSelectedRangesChanged.notify(_ranges); }
     }
 
     function getSelectedRanges() {
@@ -72,6 +101,7 @@
     }
 
     function handleCellRangeSelected(e, args) {
+      _grid.setActiveCell(args.range.fromRow, args.range.fromCell, false, false, true);
       setSelectedRanges([args.range]);
     }
 
@@ -79,66 +109,71 @@
       if (_options.selectActiveCell && args.row != null && args.cell != null) {
         setSelectedRanges([new Slick.Range(args.row, args.cell)]);
       }
+      else if (!_options.selectActiveCell) {
+        // clear the previous selection once the cell changes
+        setSelectedRanges([]);
+      }
     }
-    
+
     function handleKeyDown(e) {
       /***
        * Кey codes
        * 37 left
        * 38 up
        * 39 right
-       * 40 down                     
-       */                                         
+       * 40 down
+       */
       var ranges, last;
-      var active = _grid.getActiveCell(); 
+      var active = _grid.getActiveCell();
+      var metaKey = e.ctrlKey || e.metaKey;
 
-      if ( active && e.shiftKey && !e.ctrlKey && !e.altKey && 
-          (e.which == 37 || e.which == 39 || e.which == 38 || e.which == 40) ) {
-      
-        ranges = getSelectedRanges();
+      if (active && e.shiftKey && !metaKey && !e.altKey &&
+        (e.which == 37 || e.which == 39 || e.which == 38 || e.which == 40)) {
+
+        ranges = getSelectedRanges().slice();
         if (!ranges.length)
-         ranges.push(new Slick.Range(active.row, active.cell));
-         
-        // keyboard can work with last range only          
+          ranges.push(new Slick.Range(active.row, active.cell));
+
+        // keyboard can work with last range only
         last = ranges.pop();
-        
+
         // can't handle selection out of active cell
         if (!last.contains(active.row, active.cell))
           last = new Slick.Range(active.row, active.cell);
-        
+
         var dRow = last.toRow - last.fromRow,
-            dCell = last.toCell - last.fromCell,
-            // walking direction
-            dirRow = active.row == last.fromRow ? 1 : -1,
-            dirCell = active.cell == last.fromCell ? 1 : -1;
-                 
+          dCell = last.toCell - last.fromCell,
+          // walking direction
+          dirRow = active.row == last.fromRow ? 1 : -1,
+          dirCell = active.cell == last.fromCell ? 1 : -1;
+
         if (e.which == 37) {
-          dCell -= dirCell; 
+          dCell -= dirCell;
         } else if (e.which == 39) {
-          dCell += dirCell ; 
+          dCell += dirCell;
         } else if (e.which == 38) {
-          dRow -= dirRow; 
+          dRow -= dirRow;
         } else if (e.which == 40) {
-          dRow += dirRow; 
+          dRow += dirRow;
         }
-        
-        // define new selection range 
-        var new_last = new Slick.Range(active.row, active.cell, active.row + dirRow*dRow, active.cell + dirCell*dCell);
+
+        // define new selection range
+        var new_last = new Slick.Range(active.row, active.cell, active.row + dirRow * dRow, active.cell + dirCell * dCell);
         if (removeInvalidRanges([new_last]).length) {
           ranges.push(new_last);
           var viewRow = dirRow > 0 ? new_last.toRow : new_last.fromRow;
           var viewCell = dirCell > 0 ? new_last.toCell : new_last.fromCell;
-         _grid.scrollRowIntoView(viewRow);
-         _grid.scrollCellIntoView(viewRow, viewCell);
+          _grid.scrollRowIntoView(viewRow);
+          _grid.scrollCellIntoView(viewRow, viewCell);
         }
-        else 
+        else
           ranges.push(last);
 
-        setSelectedRanges(ranges);  
-       
+        setSelectedRanges(ranges);
+
         e.preventDefault();
-        e.stopPropagation();        
-      }           
+        e.stopPropagation();
+      }
     }
 
     $.extend(this, {
@@ -147,6 +182,7 @@
 
       "init": init,
       "destroy": destroy,
+      "pluginName": "CellSelectionModel",
 
       "onSelectedRangesChanged": new Slick.Event()
     });

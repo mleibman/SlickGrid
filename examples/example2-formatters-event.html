@@ -1,0 +1,125 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+  <title>SlickGrid example 2a: Formatters with onBeforeAppendCell event</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <style>
+    .cell-title {
+      font-weight: bold;
+    }
+
+    .cell-effort-driven {
+      text-align: center;
+    }
+
+    .green {
+      background-color: green;
+    }      
+    .red {
+      background-color: red;
+    }      
+    .orange {
+      background-color: orange;
+    }      
+  </style>
+</head>
+<body>
+
+<input type=text>
+
+<table width="100%">
+  <tr>
+    <td valign="top" width="50%">
+      <div id="myGrid" style="width:700px;height:500px;"></div>
+    </td>
+    <td valign="top">
+      <h2>Demonstrates:</h2>
+      <ul>
+        <li>width, minWidth, maxWidth, resizable, cssClass column attributes</li>
+        <li>custom column formatters</li>
+        <li>use of onBeforeAppendCell to format cell classes (deprecated in preference of the extended formatter)</li>
+      </ul>
+        <h2>View Source:</h2>
+        <ul>
+            <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example2-formatters-event.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+        </ul>
+    </td>
+  </tr>
+</table>
+
+<input type=text>
+
+<script src="../lib/firebugx.js"></script>
+
+<script src="../lib/jquery-1.11.2.min.js"></script>
+<script src="../lib/jquery-ui-1.11.3.min.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../slick.formatters.js"></script>
+<script src="../slick.grid.js"></script>
+
+<script>
+  var grid;
+  var data = [];
+  var columns = [
+    {id: "title", name: "Title", field: "title", width: 120, cssClass: "cell-title"},
+    {id: "duration", name: "Duration", field: "duration"},
+    {id: "%", name: "% Complete", field: "percentComplete", width: 80, resizable: false, formatter: Slick.Formatters.PercentCompleteBar},
+    {id: "status", name: "Status", field: "percentComplete", width: 50, resizable: false},
+    {id: "start", name: "Start", field: "start", minWidth: 60},
+    {id: "finish", name: "Finish", field: "finish", minWidth: 60},
+    {id: "effort-driven", name: "Effort Driven", sortable: false, width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark}
+  ];
+
+  var options = {
+    editable: false,
+    enableAddRow: false,
+    enableCellNavigation: true,
+    explicitInitialization: true
+  };
+
+  $(function () {
+    for (var i = 0; i < 5; i++) {
+      var d = (data[i] = {});
+
+      d["title"] = "Task " + i;
+      d["duration"] = "5 days";
+      d["percentComplete"] = Math.min(100, Math.round(Math.random() * 110));
+      d["start"] = "01/01/2009";
+      d["finish"] = "01/05/2009";
+      d["effortDriven"] = (i % 5 == 0);
+    }
+
+    grid = new Slick.Grid("#myGrid", data, columns, options);
+    
+    // The onBeforeAppendCell event returns text corresponding to the css class to add to the cell. 
+    // It is called when first rendering the cell or when redrawing invalidated rows, so it can't respond to cell updates like a formatter.
+    // It was intended to be a general formatting tool rather then being tied to a particular column, for example to allow validation formatting 
+    // of cells. The idea was that formatting should remain in place until a subsequent validation.
+    // Note that onBeforeAppendCell requires explicitInitialization: true so that the event can be wired up before the first render.
+    
+    grid.onBeforeAppendCell.subscribe(function (e, args) {
+      if (grid.getColumns()[args.cell].id !== 'status') return null;
+  
+      if (args.value == null || args.value === "") {
+        return null;
+      } else if (args.value < 33) {
+        return "red";
+      } else if (args.value < 66) {
+        return "orange";
+      } else {
+        return "green";
+      }
+      return null;
+    }); 
+    
+    grid.init();
+  })
+</script>
+</body>
+</html>

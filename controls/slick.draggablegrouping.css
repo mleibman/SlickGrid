@@ -1,0 +1,52 @@
+.slick-group-toggle-all.expanded {
+    background: url('../images/collapse.gif') no-repeat center center;
+    width: 9px;
+    height: 9px;
+    position: absolute;
+    display: inline-block;
+    right: 10px;
+}
+
+.slick-group-toggle-all.collapsed {
+    background: url('../images/expand.gif') no-repeat center center;
+    width: 9px;
+    height: 9px;
+    position: absolute;
+    display: inline-block;
+    right: 10px;
+}
+
+.slick-column-groupable {  
+  width: 9px;
+  height: 9px;
+  display: inline-block;
+  margin-left: 4px;
+}
+
+.slick-column-groupable-image {
+  background: url('../images/column-grouping.png') no-repeat center center;
+}
+
+.slick-dropped-grouping {
+  display: inline-block;
+  margin-right: 5px;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.slick-groupby-remove {
+  padding-right: 20px;
+  display: inline-flex;
+} 
+
+.slick-groupby-remove-image {
+  background: url(../images/delete.png) no-repeat center right;
+}
+
+.slick-placeholder {
+  height: 25px;
+}
+
+.ui-droppable {
+  padding: 5px;
+}

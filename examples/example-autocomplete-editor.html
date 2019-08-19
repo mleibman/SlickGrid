@@ -1,0 +1,392 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+  <title>SlickGrid example: jQueryUI 'Autocomplete' javascript editor</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+</head>
+<body>
+<div style="position:relative">
+  <div style="width:600px;">
+    <div id="myGrid" style="width:100%;height:500px;"></div>
+  </div>
+
+  <div class="options-panel">
+    <h2>Demonstrates:</h2>
+    <ul>
+      <li>jQueryUI 'Autocomplete' javascript editor</li>
+      <li>auto-edit settings</li>
+    </ul>
+
+    <h2>Options:</h2>
+    <button onclick="grid.setOptions({autoEdit:true})">Auto-edit ON</button>
+    &nbsp;
+    <button onclick="grid.setOptions({autoEdit:false})">Auto-edit OFF</button>
+      <h2>View Source:</h2>
+      <ul>
+          <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-autocomplete-editor.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+      </ul>
+  </div>
+</div>
+
+<script src="../lib/firebugx.js"></script>
+
+<script src="../lib/jquery-1.11.2.min.js"></script>
+<script src="../lib/jquery-ui-1.11.3.min.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../plugins/slick.cellrangedecorator.js"></script>
+<script src="../plugins/slick.cellrangeselector.js"></script>
+<script src="../plugins/slick.cellselectionmodel.js"></script>
+<script src="../slick.formatters.js"></script>
+<script src="../slick.editors.js"></script>
+<script src="../slick.grid.js"></script>
+<script>
+var countryList = [
+"Afghanistan",
+"Albania",
+"Algeria",
+"American Samoa",
+"Andorra",
+"Angola",
+"Anguilla",
+"Antarctica",
+"Antigua And Barbuda",
+"Argentina",
+"Armenia",
+"Aruba",
+"Australia",
+"Austria",
+"Azerbaijan",
+"Bahamas",
+"Bahrain",
+"Bangladesh",
+"Barbados",
+"Belarus",
+"Belgium",
+"Belize",
+"Benin",
+"Bermuda",
+"Bhutan",
+"Bolivia",
+"Bosnia And Herzegovina",
+"Botswana",
+"Bouvet Island",
+"Brazil",
+"British Indian Ocean Territory",
+"Brunei Darussalam",
+"Bulgaria",
+"Burkina Faso",
+"Burundi",
+"Cambodia",
+"Cameroon",
+"Canada",
+"Cape Verde",
+"Cayman Islands",
+"Central African Republic",
+"Chad",
+"Chile",
+"China",
+"Christmas Island",
+"Cocos (keeling) Islands",
+"Colombia",
+"Comoros",
+"Congo",
+"Congo, The Democratic Republic Of The",
+"Cook Islands",
+"Costa Rica",
+"Cote D\"ivoire",
+"Croatia",
+"Cuba",
+"Cyprus",
+"Czech Republic",
+"Denmark",
+"Djibouti",
+"Dominica",
+"Dominican Republic",
+"East Timor",
+"Ecuador",
+"Egypt",
+"El Salvador",
+"Equatorial Guinea",
+"Eritrea",
+"Estonia",
+"Ethiopia",
+"Falkland Islands (malvinas)",
+"Faroe Islands",
+"Fiji",
+"Finland",
+"France",
+"French Guiana",
+"French Polynesia",
+"French Southern Territories",
+"Gabon",
+"Gambia",
+"Georgia",
+"Germany",
+"Ghana",
+"Gibraltar",
+"Greece",
+"Greenland",
+"Grenada",
+"Guadeloupe",
+"Guam",
+"Guatemala",
+"Guinea",
+"Guinea-bissau",
+"Guyana",
+"Haiti",
+"Heard Island And Mcdonald Islands",
+"Holy See (vatican City State)",
+"Honduras",
+"Hong Kong",
+"Hungary",
+"Iceland",
+"India",
+"Indonesia",
+"Iran",
+"Iraq",
+"Ireland",
+"Israel",
+"Italy",
+"Jamaica",
+"Japan",
+"Jordan",
+"Kazakstan",
+"Kenya",
+"Kiribati",
+"Korea",
+"Republic of Korea",
+"Kosovo",
+"Kuwait",
+"Kyrgyzstan",
+"Lao",
+"Latvia",
+"Lebanon",
+"Lesotho",
+"Liberia",
+"Libyan Arab Jamahiriya",
+"Liechtenstein",
+"Lithuania",
+"Luxembourg",
+"Macau",
+"Macedonia",
+"Madagascar",
+"Malawi",
+"Malaysia",
+"Maldives",
+"Mali",
+"Malta",
+"Marshall Islands",
+"Martinique",
+"Mauritania",
+"Mauritius",
+"Mayotte",
+"Mexico",
+"Micronesia",
+"Moldova",
+"Monaco",
+"Mongolia",
+"Montserrat",
+"Montenegro",
+"Morocco",
+"Mozambique",
+"Myanmar",
+"Namibia",
+"Nauru",
+"Nepal",
+"Netherlands",
+"Netherlands Antilles",
+"New Caledonia",
+"New Zealand",
+"Nicaragua",
+"Niger",
+"Nigeria",
+"Niue",
+"Norfolk Island",
+"Northern Mariana Islands",
+"Norway",
+"Oman",
+"Pakistan",
+"Palau",
+"Palestinian Territory",
+"Panama",
+"Papua New Guinea",
+"Paraguay",
+"Peru",
+"Philippines",
+"Pitcairn",
+"Poland",
+"Portugal",
+"Puerto Rico",
+"Qatar",
+"Reunion",
+"Romania",
+"Russian Federation",
+"Rwanda",
+"Saint Helena",
+"Saint Kitts And Nevis",
+"Saint Lucia",
+"Saint Pierre And Miquelon",
+"Saint Vincent And The Grenadines",
+"Samoa",
+"San Marino",
+"Sao Tome And Principe",
+"Saudi Arabia",
+"Senegal",
+"Serbia",
+"Seychelles",
+"Sierra Leone",
+"Singapore",
+"Slovakia",
+"Slovenia",
+"Solomon Islands",
+"Somalia",
+"South Africa",
+"South Georgia And The South Sandwich Islands",
+"Spain",
+"Sri Lanka",
+"Sudan",
+"Suriname",
+"Svalbard And Jan Mayen",
+"Swaziland",
+"Sweden",
+"Switzerland",
+"Syrian Arab Republic",
+"Taiwan",
+"Tajikistan",
+"Tanzania",
+"Thailand",
+"Togo",
+"Tokelau",
+"Tonga",
+"Trinidad And Tobago",
+"Tunisia",
+"Turkey",
+"Turkmenistan",
+"Turks And Caicos Islands",
+"Tuvalu",
+"Uganda",
+"Ukraine",
+"United Arab Emirates",
+"United Kingdom",
+"United States",
+"United States Minor Outlying Islands",
+"Uruguay",
+"Uzbekistan",
+"Vanuatu",
+"Venezuela",
+"Viet Nam",
+"Virgin Islands, British",
+"Virgin Islands, U.s.",
+"Wallis And Futuna",
+"Western Sahara",
+"Yemen",
+"Zambia",
+"Zimbabwe"
+ ];
+
+function AutoCompleteEditor(args) {
+  var $input;
+  var defaultValue;
+  var scope = this;
+  var calendarOpen = false;
+
+   this.keyCaptureList = [ Slick.keyCode.UP, Slick.keyCode.DOWN, Slick.keyCode.ENTER ];
+
+  this.init = function () {
+      $input = $("<INPUT id='tags' class='editor-text' />");
+      $input.appendTo(args.container);
+      $input.focus().select();
+
+      $input.autocomplete({
+          source: args.column.dataSource
+      });
+  };
+
+  this.destroy = function () {
+      $input.autocomplete("destroy");
+      $input.remove();
+ };
+
+  this.focus = function () {
+      $input.focus();
+  };
+
+  this.loadValue = function (item) {
+      defaultValue = item[args.column.field];
+      $input.val(defaultValue);
+      $input[0].defaultValue = defaultValue;
+      $input.select();
+  };
+
+  this.serializeValue = function () {
+      return $input.val();
+  };
+
+  this.applyValue = function (item, state) {
+      item[args.column.field] = state;
+  };
+
+  this.isValueChanged = function () {
+      return (!($input.val() == "" && defaultValue == null)) && ($input.val() != defaultValue);
+  };
+
+  this.validate = function () {
+      return {
+          valid: true,
+          msg: null
+      };
+  };
+
+  this.init();
+}
+</script>
+<script>
+  var grid;
+  var data = [];
+  var columns = [
+    {id: "title", name: "Title", field: "title", width: 120, cssClass: "cell-title", editor: Slick.Editors.Text},
+    {id: "duration", name: "Duration", field: "duration", editor: Slick.Editors.Text},
+    {id: "start", name: "Start", field: "start", minWidth: 60, editor: Slick.Editors.Date},
+    {id: "finish", name: "Finish", field: "finish", minWidth: 60, editor: Slick.Editors.Date},
+	{id: "CountryOfOrigin", name: "Country Of Origin", field: "country", minWidth: 120, editor: AutoCompleteEditor, dataSource: countryList}
+  ];
+  var options = {
+    editable: true,
+    enableAddRow: true,
+    enableCellNavigation: true,
+    asyncEditorLoading: false,
+    autoEdit: false
+  };
+
+  $(function () {
+    for (var i = 0; i < 500; i++) {
+      var d = (data[i] = {});
+
+      d["title"] = "Task " + i;
+      d["duration"] = "5 days";
+      d["start"] = "01/01/2009";
+      d["finish"] = "01/05/2009";
+      d["country"] = countryList[Math.trunc(Math.random() * countryList.length)];
+    }
+
+    grid = new Slick.Grid("#myGrid", data, columns, options);
+
+    grid.setSelectionModel(new Slick.CellSelectionModel());
+
+    grid.onAddNewRow.subscribe(function (e, args) {
+      var item = args.item;
+      grid.invalidateRow(data.length);
+      data.push(item);
+      grid.updateRowCount();
+      grid.render();
+    });
+  })
+</script>
+</body>
+</html>

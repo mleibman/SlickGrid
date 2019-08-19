@@ -1,0 +1,131 @@
+.slick-gridmenu {
+  border: 1px solid #718BB7;
+  background: #f0f0f0;
+  padding: 6px;
+  -moz-box-shadow: 2px 2px 2px silver;
+  -webkit-box-shadow: 2px 2px 2px silver;
+  box-shadow: 2px 2px 2px silver;
+  min-width: 180px;
+  cursor: default;
+  position:absolute;
+  z-index: 2000;
+	overflow:auto;
+  resize: both;
+}
+
+.slick-gridmenu-button {
+  position: absolute;
+  cursor: pointer;
+  right: 0;
+  padding: 0 2px;
+  top: 0;
+  background-color: transparent;
+  cursor: pointer;
+  border: 0;
+  margin-top: 5px;
+  width: 16px;
+}
+
+.slick-gridmenu > .close {
+  float: right;
+}
+
+.slick-gridmenu .title {
+  font-size: 16px;
+  width: calc(100% - 30px);
+  border-bottom: solid 1px #d6d6d6;
+  margin-bottom: 5px;
+}
+
+.slick-gridmenu li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: none;
+}
+
+.slick-gridmenu input {
+  margin: 4px;
+}
+
+.slick-gridmenu li a {
+  display: block;
+  padding: 4px;
+  font-weight: bold;
+}
+
+.slick-gridmenu li a:hover {
+  background: white;
+}
+
+
+.slick-gridmenu-custom {
+  margin-bottom: 10px;
+}
+
+/* Menu */
+.slick-gridmenu- {
+  position: absolute;
+  display: inline-block;
+  margin: 0;
+  padding: 2px;
+  cursor: default;
+}
+
+
+/* Menu items */
+.slick-gridmenu-item {
+  list-style: none;
+  margin: 0;
+  cursor: pointer;
+  padding: 2px 4px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+}
+.slick-gridmenu-item:hover {
+  border-color: silver;
+  background: white;
+}
+.slick-gridmenu-item-disabled {
+  border-color: transparent !important;
+  background: inherit !important;
+}
+
+.slick-gridmenu-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  margin-right: 4px;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+.slick-gridmenu-content {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Disabled */
+.slick-gridmenu-item-disabled {
+  color: silver;
+}
+
+/* Excluded item from Grid Menu will be hidden */
+.slick-gridmenu-list li.hidden {
+  display: none;
+}
+
+/* Divider */
+.slick-gridmenu-item.slick-gridmenu-item-divider {
+  cursor: default;
+  border: none;
+  overflow: hidden;
+  padding: 0;
+  height: 1px;
+  margin: 8px 2px;
+  background-color: #cecece;
+}
+.slick-gridmenu-item-divider.slick-gridmenu-item:hover {
+  background-color: #cecece;
+}

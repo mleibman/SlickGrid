@@ -8,7 +8,6 @@
     }
   });
 
-
   /***
    * A plugin to add drop-down menus to column headers.
    *
@@ -45,12 +44,16 @@
    *
    *
    * Available menu item options:
-   *    title:        Menu item text.
-   *    disabled:     Whether the item is disabled.
-   *    tooltip:      Item tooltip.
-   *    command:      A command identifier to be passed to the onCommand event handlers.
-   *    iconCssClass: A CSS class to be added to the menu item icon.
-   *    iconImage:    A url to the icon image.
+   *    title:            Menu item text.
+   *    divider:          Whether the current item is a divider, not an actual command.
+   *    disabled:         Whether the item is disabled.
+   *    tooltip:          Item tooltip.
+   *    command:          A command identifier to be passed to the onCommand event handlers.
+   *    iconCssClass:     A CSS class to be added to the menu item icon.
+   *    iconImage:        A url to the icon image.
+   *    minWidth:         Minimum width that the drop menu will have
+   *    autoAlign:        Auto-align drop menu to the left when not enough viewport space to show on the right
+   *    autoAlignOffset:  When drop menu is aligned to the left, it might not be perfectly aligned with the header menu icon, if that is the case you can add an offset (positive/negative number to move right/left)
    *
    *
    * The plugin exposes the following events:
@@ -83,7 +86,10 @@
     var _handler = new Slick.EventHandler();
     var _defaults = {
       buttonCssClass: null,
-      buttonImage: null
+      buttonImage: null,
+      minWidth: 100,
+      autoAlign: true,
+      autoAlignOffset: 0
     };
     var $menu;
     var $activeHeaderColumn;
@@ -100,13 +106,17 @@
       _grid.setColumns(_grid.getColumns());
 
       // Hide the menu on outside click.
-      $(document.body).bind("mousedown", handleBodyMouseDown);
+      $(document.body).on("mousedown", handleBodyMouseDown);
+    }
+
+    function setOptions(newOptions) {
+      options = $.extend(true, {}, options, newOptions);
     }
 
 
     function destroy() {
       _handler.unsubscribeAll();
-      $(document.body).unbind("mousedown", handleBodyMouseDown);
+      $(document.body).off("mousedown", handleBodyMouseDown);
     }
 
 
@@ -149,7 +159,7 @@
         }
 
         $el
-          .bind("click", showMenu)
+          .on("click", showMenu)
           .appendTo(args.node);
       }
     }
@@ -181,7 +191,7 @@
 
 
       if (!$menu) {
-        $menu = $("<div class='slick-header-menu'></div>")
+        $menu = $("<div class='slick-header-menu' style='min-width: " + options.minWidth + "px'></div>")
           .appendTo(_grid.getContainerNode());
       }
       $menu.empty();
@@ -195,11 +205,16 @@
           .data("command", item.command || '')
           .data("column", columnDef)
           .data("item", item)
-          .bind("click", handleMenuItemClick)
+          .on("click", handleMenuItemClick)
           .appendTo($menu);
 
         if (item.disabled) {
           $li.addClass("slick-header-menuitem-disabled");
+        }
+
+        if (item.divider) {
+          $li.addClass("slick-header-menuitem-divider");
+          continue;
         }
 
         if (item.tooltip) {
@@ -222,10 +237,20 @@
           .appendTo($li);
       }
 
+      var leftPos = $(this).offset().left;
 
-      // Position the menu.
+      // when auto-align is set, it will calculate whether it has enough space in the viewport to show the drop menu on the right (default)
+      // if there isn't enough space on the right, it will automatically align the drop menu to the left
+      // to simulate an align left, we actually need to know the width of the drop menu
+      if (options.autoAlign) {
+        var gridPos = _grid.getGridPosition();
+        if ((leftPos + options.minWidth) >= gridPos.width) {
+          leftPos = leftPos - options.minWidth + options.autoAlignOffset;
+        }
+      }
+
       $menu
-        .offset({ top: $(this).offset().top + $(this).height(), left: $(this).offset().left });
+        .offset({ top: $(this).offset().top + $(this).height(), left: leftPos });
 
 
       // Mark the header as active to keep the highlighting.
@@ -244,7 +269,7 @@
       var columnDef = $(this).data("column");
       var item = $(this).data("item");
 
-      if (item.disabled) {
+      if (item.disabled || item.divider) {
         return;
       }
 
@@ -267,6 +292,8 @@
     $.extend(this, {
       "init": init,
       "destroy": destroy,
+      "pluginName": "HeaderMenu",
+      "setOptions": setOptions,
 
       "onBeforeMenuShow": new Slick.Event(),
       "onCommand": new Slick.Event()

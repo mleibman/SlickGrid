@@ -1,0 +1,140 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <style>
+    .slick-preheader-panel.ui-state-default  {
+      width: 100%;
+      overflow: hidden;
+      border-left: 0px !important;
+      border-bottom: 0px !important;
+    }
+    .slick-preheader-panel .slick-header-columns {
+      border-bottom: 0px !important;
+    }
+  </style>
+</head>
+<body>
+<div style="position:relative">
+  <div style="width:600px;">
+    <div id="myGrid" style="width:100%;height:500px;"></div>
+  </div>
+
+  <div class="options-panel">
+    <h2>Demonstrates:</h2>
+    <ul>
+      <li>Extra header row grouping columns into categories</li>
+    </ul>
+      <h2>View Source:</h2>
+      <ul>
+          <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-column-group.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+      </ul>
+  </div>
+</div>
+
+<script src="../lib/firebugx.js"></script>
+
+<script src="../lib/jquery-1.11.2.min.js"></script>
+<script src="../lib/jquery-ui-1.11.3.min.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../slick.dataview.js"></script>
+<script src="../slick.grid.js"></script>
+
+<script>
+  function CreateAddlHeaderRow() {
+    var $preHeaderPanel = $(grid.getPreHeaderPanel())
+        .empty()
+        .addClass("slick-header-columns")
+        .css('left','-1000px')
+        .width(grid.getHeadersWidth());
+    $preHeaderPanel.parent().addClass("slick-header");
+
+    var headerColumnWidthDiff = grid.getHeaderColumnWidthDiff();
+    var m, header, lastColumnGroup = '', widthTotal = 0;
+    
+    for (var i = 0; i < columns.length; i++) {
+      m = columns[i];
+      if (lastColumnGroup === m.columnGroup && i>0) {
+        widthTotal += m.width;
+        header.width(widthTotal - headerColumnWidthDiff)
+      } else {
+          widthTotal = m.width;
+          header = $("<div class='ui-state-default slick-header-column' />")
+            .html("<span class='slick-column-name'>" + (m.columnGroup || '') + "</span>")
+            .width(m.width - headerColumnWidthDiff)
+            .appendTo($preHeaderPanel);
+      }
+      lastColumnGroup = m.columnGroup;
+    }
+  }
+
+  var dataView;
+  var grid;
+  var data = [];
+  var options = {
+    enableCellNavigation: true,
+    enableColumnReorder: false,
+    createPreHeaderPanel: true,
+    showPreHeaderPanel: true,
+    preHeaderPanelHeight: 23,
+    explicitInitialization: true
+  };
+  var columns = [
+    {id: "sel", name: "#", field: "num", behavior: "select", cssClass: "cell-selection", width: 40, resizable: false, selectable: false },
+    {id: "title", name: "Title", field: "title", width: 120, minWidth: 120, cssClass: "cell-title", columnGroup:"Common Factor"},
+    {id: "duration", name: "Duration", field: "duration", columnGroup:"Common Factor"},
+    {id: "start", name: "Start", field: "start", minWidth: 60, columnGroup:"Period"},
+    {id: "finish", name: "Finish", field: "finish", minWidth: 60, columnGroup:"Period"},
+    {id: "%", defaultSortAsc: false, name: "% Complete", field: "percentComplete", width: 80, resizable: false, columnGroup:"Analysis"},
+    {id: "effort-driven", name: "Effort Driven", width: 80, minWidth: 20, maxWidth: 80, field: "effortDriven", columnGroup:"Analysis"}
+  ];
+
+  $(function () {
+    for (var i = 0; i < 50000; i++) {
+      var d = (data[i] = {});
+
+      d["id"] = "id_" + i;
+      d["num"] = i;
+      d["title"] = "Task " + i;
+      d["duration"] = "5 days";
+      d["start"] = "01/01/2009";
+      d["finish"] = "01/05/2009";
+      d["percentComplete"] = Math.round(Math.random() * 100);
+      d["effortDriven"] = (i % 5 == 0);
+    }
+
+    dataView = new Slick.Data.DataView();
+    grid = new Slick.Grid("#myGrid", dataView, columns, options);
+
+    dataView.onRowCountChanged.subscribe(function (e, args) {
+      grid.updateRowCount();
+      grid.render();
+    });
+
+    dataView.onRowsChanged.subscribe(function (e, args) {
+      grid.invalidateRows(args.rows);
+      grid.render();
+    });
+
+    grid.init();
+
+    grid.onColumnsResized.subscribe(function (e, args) {
+      CreateAddlHeaderRow();
+    });
+    
+    CreateAddlHeaderRow();
+    
+    // Initialise data
+    dataView.beginUpdate();
+    dataView.setItems(data);
+    dataView.endUpdate();    
+  })
+</script>
+</body>
+</html>

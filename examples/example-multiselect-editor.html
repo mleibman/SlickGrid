@@ -1,0 +1,320 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+  <title>SlickGrid Example- Multiselect Dropdown Editor</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <style>
+    .cell-title {
+      font-weight: bold;
+    }
+
+    .cell-effort-driven {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div style="position:relative">
+  <div style="width:600px;">
+    <div id="myGrid" style="width:100%;height:500px;"></div>
+  </div>
+
+  <div class="options-panel">
+    <h2>Demonstrates:</h2>
+    <ul>
+      <li>multi-select dropdown editor control</li>
+    </ul>
+
+    <h2>View Source:</h2>
+    <ul>
+      <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-multiselect-editor.html"
+             target="_sourcewindow"> View the source for this example on Github</a></li>
+    </ul>
+  </div>
+</div>
+
+<script src="../lib/firebugx.js"></script>
+<script src="../lib/jquery-1.11.2.min.js"></script>
+<script src="../lib/jquery-ui-1.11.3.min.js"></script>
+<script src="../lib/jquery.event.drag-2.2.js"></script>
+<script src="../slick.core.js"></script>
+<script src="../plugins/slick.cellrangedecorator.js"></script>
+<script src="../plugins/slick.cellrangeselector.js"></script>
+<script src="../plugins/slick.cellselectionmodel.js"></script>
+<script src="../slick.formatters.js"></script>
+<script src="../slick.editors.js"></script>
+<script src="../slick.grid.js"></script>
+<script>
+
+  /*
+   * An example of a "Multi-Select Dropdown" editor.
+   * The UI is added onto document BODY and .position(), .show() and .hide() are implemented.
+   * KeyDown events are also handled to provide handling for Tab, Shift-Tab, Esc and Ctrl-Enter.
+   */
+
+  function MultiSelectDropdownEditor(args) {
+      var $input, $wrapper,$checkBoxInput, selectedchkBoxArray=[];
+      var defaultValue;
+      var scope = this;
+      // check scope get this value
+        
+      var chkBoxListData = getChkBoxDataList(args);
+      var chkBoxAllValues = chkBoxListData.AllValues;
+	  chkBoxAllValues.sort();
+      var selectedchkBox = chkBoxListData.SelectedValues;
+	  if(!(selectedchkBox == undefined || selectedchkBox == '')){
+	  if(selectedchkBox.length>0) selectedchkBoxArray = selectedchkBox.split(";");
+	  }
+      this.init = function () {
+          
+		  if(chkBoxAllValues.length!=0){
+          var $container = $("body");
+          $wrapper = $("<DIV style='z-index:10000;position:absolute;background:white;padding:5px;border:3px solid gray; -moz-border-radius:10px; border-radius:10px;'/>")
+          .appendTo($container);
+          
+          for (var i = 0; i < chkBoxAllValues.length; i++) {
+			  if(!(selectedchkBoxArray == undefined || selectedchkBoxArray == '')){
+              if (selectedchkBoxArray.length>0 && selectedchkBoxArray.indexOf(chkBoxAllValues[i]) > -1){
+                  $checkBoxInput = $("<input class='chkBox' type='checkbox' name='" + chkBoxAllValues[i] + "' id='chkBox_" + i + "' checked='checked'/>" + chkBoxAllValues[i] + "<br />");
+			  }
+			   else
+                  $checkBoxInput = $("<input class='chkBox' type='checkbox' name='" + chkBoxAllValues[i] + "' id='chkBox_" + i + "'/>" + chkBoxAllValues[i] + "<br />");
+			  }
+              else
+                  $checkBoxInput = $("<input class='chkBox' type='checkbox' name='" + chkBoxAllValues[i] + "' id='chkBox_" + i + "'/>" + chkBoxAllValues[i] + "<br />");
+
+              $wrapper.append($checkBoxInput);
+          }
+
+          $wrapper.append("<br/><br/>");
+
+          $input = $("<TEXTAREA style='display:none;' hidefocus rows=25 style='background:white;width:150px;height:100px;border:1px solid;outline:0'>")
+          .appendTo($wrapper);
+
+          $("<DIV style='text-align:right'><BUTTON>Save</BUTTON><BUTTON>Cancel</BUTTON></DIV>")
+              .appendTo($wrapper);
+
+          $wrapper.find("button:first").on("click", this.save);
+          $wrapper.find("button:last").on("click", this.cancel);
+          $input.on("keydown", this.handleKeyDown);
+		  }
+		  else{
+			  
+			  alert("Dropdown list is empty. Kindly provide data for this dropdown list");
+		  }
+          scope.position(args.position);
+          $input.focus().select();
+
+          $('input[type="checkbox"]').change(function () {
+              var name = $(this).prop('name');
+              var chkboxId = $(this).prop('id');
+              var check = $(this).prop('checked');
+              var currentValue = $input.val();
+              if (check) {
+                  var allSelectedValues = '';
+                   $('input[type="checkbox"]').each(function () {
+                      var isChecked = $(this).prop('checked');
+                      var name = $(this).prop('name');
+                      var currentChekBoxId = $(this).prop('id');
+                      if (isChecked) {
+                          if (allSelectedValues.length == 0)  allSelectedValues = name;
+                          else allSelectedValues = allSelectedValues + ";" + name;
+                      }
+                  });
+                  $input.val('');
+                  $input.val(allSelectedValues);
+              }
+              else {
+                  var allSelectedValues = '';
+                  $('input[type="checkbox"]').each(function () {
+                      var isChecked = $(this).prop('checked');
+					
+                      var name = $(this).prop('name');
+                      var currentChekBoxId = $(this).prop('id');
+                      if (isChecked) {
+                          if (allSelectedValues.length == 0) allSelectedValues = name;
+                          else allSelectedValues = allSelectedValues + ";" + name;
+                      }
+                  });
+                  $input.val('');
+                  $input.val(allSelectedValues);
+                   }
+           });
+ 				  var allSelValues = '';
+                  $('input[type="checkbox"]').each(function () {
+                      var isChecked = $(this).prop('checked');
+					 
+                      var name = $(this).prop('name');
+                      var currentChekBoxId = $(this).prop('id');
+                      if (isChecked) {
+                          if (allSelValues.length == 0) allSelValues = name;
+                          else allSelValues = allSelValues + ";" + name;
+                      }
+                  });
+                  $input.val('');
+                  $input.val(allSelValues);
+	  };
+
+      this.handleKeyDown = function (e) {
+          if (e.which == $.ui.keyCode.ENTER && e.ctrlKey) {
+              scope.save();
+          } else if (e.which == $.ui.keyCode.ESCAPE) {
+              e.preventDefault();
+              scope.cancel();
+          } else if (e.which == $.ui.keyCode.TAB && e.shiftKey) {
+              e.preventDefault();
+              args.grid.navigatePrev();
+          } else if (e.which == $.ui.keyCode.TAB) {
+              e.preventDefault();
+              args.grid.navigateNext();
+          }
+      };
+
+      this.save = function () {
+          args.commitChanges();
+          $wrapper.hide();
+      };
+
+      this.cancel = function () {
+          $input.val(defaultValue);
+          args.cancelChanges();
+      };
+
+      this.hide = function () {
+          $wrapper.hide();
+      };
+
+      this.show = function () {
+          $wrapper.show();
+      };
+
+      this.position = function (position) {
+          $wrapper
+              .css("top", position.top - 5)
+              .css("left", position.left - 5)
+      };
+
+      this.destroy = function () {
+          $wrapper.remove();
+      };
+
+      this.focus = function () {
+         $input.focus();
+      };
+
+      this.loadValue = function (item) {
+          $input.val(defaultValue = item[args.column.field]);
+      };
+
+      this.serializeValue = function () {
+          return $input.val();
+      };
+
+      this.applyValue = function (item, state) {
+          item[args.column.field] = state;
+      };
+
+      this.isValueChanged = function () {
+          return (!($input.val() == "" && defaultValue == null)) && ($input.val() != defaultValue);
+      };
+
+      this.validate = function () {
+          if (args.column.validator) {
+              var validationResults = args.column.validator($input.val());
+              if (!validationResults.valid) {
+                  return validationResults;
+              }
+          }
+
+          return {
+              valid: true,
+              msg: null
+          };
+      };
+
+      this.init();
+  }
+
+
+  function requiredFieldValidator(value) {
+    if (value == null || value == undefined || !value.length) {
+      return {valid: false, msg: "This is a required field"};
+    } else {
+      return {valid: true, msg: null};
+    }
+  }
+  
+  var grid;
+  var data = [];
+  var columns = [
+    {id: "title", name: "Title", field: "title", width: 150, cssClass: "cell-title"},
+	{id: "country", name: "Country", field: "country", width: 150, editor: MultiSelectDropdownEditor },
+    {id: "language", name: "Language", field: "language", width: 130},
+    {id: "area", name: "Area", field: "area", width: 150}
+  ];
+  var options = {
+    editable: true,
+    enableAddRow: true,
+    enableCellNavigation: true,
+    asyncEditorLoading: false,
+    autoEdit: false
+  };
+ 
+  $(function () {
+    for (var i = 0; i < 50; i++) {
+      var d = (data[i] = {});
+
+      d["title"] = "Country " + i;
+	  d["country"] = 'United States;India';
+      d["language"] = "English";
+      d["area"] = "123456789 sq Km";
+    
+    }
+
+    grid = new Slick.Grid("#myGrid", data, columns, options);
+
+    grid.setSelectionModel(new Slick.CellSelectionModel());
+
+    grid.onAddNewRow.subscribe(function (e, args) {
+      var item = args.item;
+      grid.invalidateRow(data.length);
+      data.push(item);
+      grid.updateRowCount();
+      grid.render();
+    });
+  })
+  
+	  /*
+      * An example of a "Multi-Select Dropdown" editor.
+      * "DropdownListData" is an array to store all the checkbox options required for the dropdowwn multi-select field.
+      */
+     var DropdownListData =["Afghanistan","Bangladesh","Canada","China","England","India","Japan","United Kingdom","United States","France"];
+     function getChkBoxDataList(args) {
+         var countryLeadsData = [];
+		 // here 'country' is column id
+         if (args.column.id == 'country') {
+             var countryData =
+                {
+                    "AllValues": DropdownListData,
+                    "SelectedValues": args.item.country 
+				   /*
+					* args.item.country is used to read the value of the field "country" of a particular row.
+					* This "SelectedValues" array generates prepopulated data if you want to retrieve data from your data base.
+					* Lets for emxample for row no 1 : you have 2 countries, this field captures the name of these countries(should be seprated by semicolon) and mark the checkboxes of those country as checked.
+					*/
+                }
+             return countryData;
+         }
+		 
+		 /*
+		  * add else if conditions if you have another multi-select dropdown list as well.
+		  */
+      
+     }
+  </script>
+</body>
+</html>

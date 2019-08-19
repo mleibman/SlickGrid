@@ -2,10 +2,17 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
   <title>SlickGrid plugin example: AutoTooltips</title>
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <style>
+    .ui-tooltip {
+      background-color: yellow;
+	  background-image:none;
+    }
+  </style>
 </head>
 <body>
 <table width="100%">
@@ -14,33 +21,48 @@
       <div id="myGrid" style="width:600px;height:300px;"></div>
     </td>
     <td valign="top">
+	  <button id="btnjQTooltips">Use jQuery UI tooltips</button>
+	  <br/>
       <h2>Demonstrates:</h2>
       <ul>
         <li>AutoTooltips plugin</li>
+        <li>Optional stylable jQueryUI tooltips.</li>
       </ul>
       <h2>Instructions:</h2>
       <p>Resize the columns until see ellipsis in column or header.  Hover over cell to see tooltip.</p>
+       <p>For jQueryUI tooltips, call the .tooltips() function on the document to convert all tooltips 
+	   to jQueryUI. To style jQueryUI tooltips, use the generic jQueryUI class 'ui-tooltip', or pass in a class name as an option.</p>
       <h2>Usage:</h2>
-      <pre style="background-color: white; font-size: 110%; border-radius: 5px; padding: 20px; ">plugin = new Slick.AutoTooltips(pluginOptions);
+     <pre style="background-color: white; font-size: 110%; border-radius: 5px; padding: 20px; ">plugin = new Slick.AutoTooltips(pluginOptions);
 grid.registerPlugin(plugin);
 grid.render();</pre>
-
+	 <p>jQueryUI Tooltips:</p>
+     <pre style="background-color: white; font-size: 110%; border-radius: 5px; padding: 20px; ">$( document ).tooltip( { tooltipClass: "my-tooltip-class" } );</pre>
         <h2>View Source:</h2>
         <ul>
-            <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-autotooltips.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+            <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-autotooltips.html" target="_sourcewindow"> View the source for this example on Github</a></li>
         </ul>
     </td>
   </tr>
 </table>
 
-<script src="../lib/jquery-1.7.min.js"></script>
-<script src="../lib/jquery.event.drag-2.2.js"></script>
+<script src="../lib/jquery-1.11.2.min.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
+<script src="../lib/jquery-ui-1.11.3.min.js"></script>
 
 <script src="../slick.core.js"></script>
 <script src="../slick.grid.js"></script>
 <script src="../plugins/slick.autotooltips.js"></script>
 
 <script>
+  var tooltipsActivated = false;
+  $("#btnjQTooltips").click(function () {
+    if (!tooltipsActivated) {
+      $( document ).tooltip( { tooltipClass: "slick-tooltip" } );
+	  tooltipsActivated = true;
+    }
+  });
+
   var grid;
   var columns = [
     {id: "title", name: "Title", field: "title"},
@@ -53,7 +75,7 @@ grid.render();</pre>
 
   var options = {
     enableCellNavigation: true,
-    enableColumnReorder: false
+    enableColumnReorder: true
   };
 
   $(function () {
