@@ -1,8 +1,15 @@
 (function ($) {
-  function SlickGridPager(dataView, grid, $container) {
+  function SlickGridPager(dataView, grid, $container, options) {
     var $status;
-
+    var _options;
+    var _defaults = {
+      showAllText: "Showing all {rowCount} rows",
+      showPageText: "Showing page {pageNum} of {pageCount}"
+    };
+    
     function init() {
+      _options = $.extend(true, {}, _defaults, options);
+      
       dataView.onPagingInfoChanged.subscribe(function (e, pagingInfo) {
         updatePager(pagingInfo);
       });
@@ -133,16 +140,9 @@
       }
 
       if (pagingInfo.pageSize == 0) {
-        var totalRowsCount = dataView.getItems().length;
-        var visibleRowsCount = pagingInfo.totalRows;
-        if (visibleRowsCount < totalRowsCount) {
-          $status.text("Showing " + visibleRowsCount + " of " + totalRowsCount + " rows");
-        } else {
-          $status.text("Showing all " + totalRowsCount + " rows");
-        }
-        $status.text("Showing all " + pagingInfo.totalRows + " rows");
+        $status.text(_options.showAllText.replace('{rowCount}', pagingInfo.totalRows + "").replace('{pageCount}', pagingInfo.totalPages + ""));
       } else {
-        $status.text("Showing page " + (pagingInfo.pageNum + 1) + " of " + pagingInfo.totalPages);
+        $status.text(_options.showPageText.replace('{pageNum}', pagingInfo.pageNum + 1 + "").replace('{pageCount}', pagingInfo.totalPages + ""));
       }
     }
 

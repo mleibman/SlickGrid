@@ -2,32 +2,68 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
   <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css"/>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous">
   <style>
     .slick-cell-checkboxsel {
       background: #f0f0f0;
       border-right-color: silver;
       border-right-style: solid;
     }
+
+    .slick-group-title[level='0'] {
+      font-weight: bold;
+    }
+
+    .slick-group-title[level='1'] {
+      text-decoration: underline;
+    }
+
+    .slick-group-title[level='2'] {
+      font-style: italic;
+    }
+
+    #myGrid2 input[type=checkbox] { display:none; } /* to hide the checkbox itself */
+    #myGrid2 input[type=checkbox] + label:before {
+      cursor: pointer;
+      font-family: FontAwesome;
+      color: rgb(143, 14, 106);
+      font-weight: bold;
+      display: inline-block;
+      content: "\f00c";
+      font-size: 13px;
+    }
+    #myGrid2 input[type=checkbox] + label:before { opacity: 0.1; } /* unchecked icon */
+    #myGrid2 input[type=checkbox]:checked + label:before { opacity: 1; } /* checked icon */
   </style>
 </head>
 <body>
 <div style="position:relative">
+  <p>Without Font Styling</p>
   <div style="width:600px;">
-    <div id="myGrid" style="width:100%;height:500px;"></div>
+    <div id="myGrid" style="width:100%;height:300px;"></div>
+  </div>
+  <br/>
+  <p>With Font Styling</p>
+  <div style="width:600px;">
+    <div id="myGrid2" style="width:100%;height:300px;" class="example-grid"></div>
   </div>
 
   <div class="options-panel">
     <h2>Demonstrates:</h2>
     <ul>
       <li>Checkbox row select column</li>
+      <p>
+        <button onclick="toggleHideSelectAllCheckbox()">Toggle show/hide "Select All" checkbox</button>
+      </p>
     </ul>
       <h2>View Source:</h2>
       <ul>
-          <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-checkbox-row-select.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+          <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-checkbox-row-select.html" target="_sourcewindow"> View the source for this example on Github</a></li>
       </ul>
 
   </div>
@@ -35,9 +71,9 @@
 
 <script src="../lib/firebugx.js"></script>
 
-<script src="../lib/jquery-1.7.min.js"></script>
-<script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
-<script src="../lib/jquery.event.drag-2.2.js"></script>
+<script src="../lib/jquery-1.11.2.min.js"></script>
+<script src="../lib/jquery-ui-1.11.3.min.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
 
 <script src="../slick.core.js"></script>
 <script src="../plugins/slick.checkboxselectcolumn.js"></script>
@@ -54,6 +90,7 @@
 
 <script>
   var grid;
+  var grid2;
   var data = [];
   var options = {
     editable: true,
@@ -61,7 +98,18 @@
     asyncEditorLoading: false,
     autoEdit: false
   };
+  var checkboxSelector1, checkboxSelector2;
   var columns = [];
+  var columns2 = [];
+  var isSelectAllCheckbox1Hidden = false;
+  var isSelectAllCheckbox2Hidden = false;
+
+  function toggleHideSelectAllCheckbox() {
+    isSelectAllCheckbox1Hidden = !isSelectAllCheckbox1Hidden;
+    isSelectAllCheckbox2Hidden = !isSelectAllCheckbox2Hidden;
+    checkboxSelector1.setOptions({ hideSelectAllCheckbox: isSelectAllCheckbox1Hidden });
+    checkboxSelector2.setOptions({ hideSelectAllCheckbox: isSelectAllCheckbox2Hidden });
+  }
 
   $(function () {
     for (var i = 0; i < 100; i++) {
@@ -69,27 +117,46 @@
       d[0] = "Row " + i;
     }
 
-    var checkboxSelector = new Slick.CheckboxSelectColumn({
+    checkboxSelector1 = new Slick.CheckboxSelectColumn({
+      cssClass: "slick-cell-checkboxsel"
+    });
+    checkboxSelector2 = new Slick.CheckboxSelectColumn({
       cssClass: "slick-cell-checkboxsel"
     });
 
-    columns.push(checkboxSelector.getColumnDefinition());
+    columns.push(checkboxSelector1.getColumnDefinition());
+    columns2.push(checkboxSelector2.getColumnDefinition());
 
     for (var i = 0; i < 5; i++) {
-      columns.push({
+      var item = {
         id: i,
         name: String.fromCharCode("A".charCodeAt(0) + i),
         field: i,
         width: 100,
         editor: Slick.Editors.Text
-      });
+      };
+      columns.push(item);
+      columns2.push(item);
     }
 
     grid = new Slick.Grid("#myGrid", data, columns, options);
     grid.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow: false}));
-    grid.registerPlugin(checkboxSelector);
+    grid.registerPlugin(checkboxSelector1);
+
+    grid2 = new Slick.Grid("#myGrid2", data, columns2, options);
+    grid2.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow: false}));
+    grid2.registerPlugin(checkboxSelector2);
 
     var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
+
+    grid.onSelectedRowsChanged.subscribe(function (e, args) {
+        // debugging to see the active row in response to questions
+        // active row has no correlation to the selected rows
+        // it will remain null until a row is clicked and made active
+        // selecting and deselecting rows via checkboxes will not change the active row
+        var rtn = args.grid.getActiveCell();
+        var x = args.rows;
+    });
   })
 </script>
 </body>

@@ -1,0 +1,852 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+  <title>SlickGrid example: Column Content Sizing</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="../controls/slick.pager.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <style>
+    .numericIn {
+      width: 30px;
+    }
+    .spacer {
+      width: 20px;
+      display: inline-block;
+    }
+    .label {
+      width: 90px;
+      display: inline-block;
+      margin-right: 10px;
+    }       
+    .label-3 {
+      width: 550px;
+      display: inline-block;
+      margin-right: 10px;
+    }        
+    .input-wide {
+      width: 350px;
+    }    
+    .label-wide {
+      width: 200px;
+      display: inline-block;
+      margin-right: 10px;
+    }    
+    .spaced-para {
+      margin: 8px 0;
+    }
+    input[type='radio'] {
+      vertical-align: text-bottom;
+    }
+    input[type='checkbox'] {
+      margin: 0;
+    }
+    
+    .toggle {
+      height: 9px;
+      width: 9px;
+      display: inline-block;
+    }
+
+    .toggle.expand {
+      background: url(../images/expand.gif) no-repeat center center;
+    }
+
+    .toggle.collapse {
+      background: url(../images/collapse.gif) no-repeat center center;
+    }
+    
+    .column-wrapper-div {
+      margin-left: 20px;
+      display: none;
+    }
+
+    .column-toggle-div {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+#Test {
+    position: absolute;
+    visibility: hidden;
+    height: auto;
+    width: auto;
+    white-space: nowrap; /* Thanks to Herb Caudill comment */
+}    
+  </style>  
+</head>
+<body>
+<div style="position:relative">
+  <div class="options-panel" style="width:900px; position: relative; left:0;">
+    <h1>Auto Column Sizing Example</h1>
+    <h2>Plugin Options:</h2>
+    <!-- GridAutosizeColsMode: None, Legacy, IgnoreViewport, FitColsToViewport, FitViewportToCols -->
+    <div style="margin-left: 10px">
+      <div class="spaced-para">
+        <span class="label-wide">GridAutosizeColsMode</span>
+          <input type="radio" id="vmNOA" name="GridAutosizeColsMode" value="NOA" checked><label for="vmNOA">None</label>
+          <span class="spacer"></span>
+          <input type="radio" id="vmLOF" name="GridAutosizeColsMode" value="LOF" checked><label for="vmLOF">Legacy Off</label>
+          <span class="spacer"></span>
+          <input type="radio" id="vmLFF" name="GridAutosizeColsMode" value="LFF" checked><label for="vmLFF">Legacy Force Fit</label>
+          <span class="spacer"></span>
+          <input type="radio" id="vmIGV" name="GridAutosizeColsMode" value="IGV"><label for="vmIGV">IgnoreViewport</label>
+          <span class="spacer"></span>
+          <input type="radio" id="vmFCV" name="GridAutosizeColsMode" value="FCV" checked="checked"><label for="vmFCV">FitColsToViewport</label>
+          <span class="spacer"></span>
+          <input type="radio" id="vmFVC" name="GridAutosizeColsMode" value="FVC"><label for="vmFVC">FitViewportToCols</label>
+      </div>
+      <div class="spaced-para">
+         <span class="label-wide">viewportSwitchToScrollModeWidthPercent</span> <input id="txtViewportSwitchToScrollModeWidthPercent" type="text" class="numericIn" value="120">
+      </div>
+      <div class="spaced-para">
+         <span class="label-wide">viewportMinWidthPx</span> <input id="txtViewportMinWidthPx" type="text" class="numericIn" value="600">
+      </div>
+      <div class="spaced-para">
+         <span class="label-wide">viewportMaxWidthPx</span> <input id="txtViewportMaxWidthPx" type="text" class="numericIn" value="1400">
+      </div>
+      <div class="spaced-para">
+         <span class="label-wide">autosizeColPaddingPx</span> <input id="txtAutosizeColPaddingPx" type="text" class="numericIn" value="4">
+      </div>
+      <div class="spaced-para">
+         <span class="label-wide">autosizeTextAvgToMWidthRatio</span> <input id="txtAutosizeTextAvgToMWidthRatio" type="text" class="numericIn" value="0.75">
+      </div>
+    </div>
+    
+    <h2>Column Options:</h2>
+    <p>'Locked' and 'Guide' use column width. Others will use content. When retrieving content values for a column, the first defined of the following will be used:
+    <ul>
+      <li>'colValueArray' will be used to provide a list of values</li>
+      <li>'formatterOverride' function will be used to retrieve row values</li>
+      <li>'formatter' function will be used to retrieve row values</li>
+      <li>raw row values</li>
+    </ul>
+    </p>
+    <div class="column-toggle-div"><span class="toggle expand" onclick="hideShow(this)"></span>&nbsp;Column 1 (#)</div>
+    <div class="column-wrapper-div">
+      <div class="spaced-para">
+        <span class="label">autosizeMode</span>
+        <input type="radio" id="col1_asmLCK" name="col1_autosizeMode" value="LCK"><label for="col1_asmLCK">Locked</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col1_asmGUI" name="col1_autosizeMode" value="GUI"><label for="col1_asmGUI">Guide</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col1_asmCON" name="col1_autosizeMode" value="CON"><label for="col1_asmCON">Content</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col1_asmCTI" name="col1_autosizeMode" value="CTI" checked="checked"><label for="col1_asmCTI">ContentIntelligent</label>
+      </div>
+      <div class="spaced-para">
+        <span class="label">rowSelectionMode</span>
+        <input type="radio" id="col1_rsmFS1" name="col1_rowSelectionMode" value="FS1"><label for="col1_rsmFS1">FirstRow</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col1_rsmFSN" name="col1_rowSelectionMode" value="FSN"><label for="col1_rsmFSN">FirstNRows</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col1_rsmALL" name="col1_rowSelectionMode" value="ALL" checked="checked"><label for="col1_rsmALL">AllRows</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col1_rsmLS1" name="col1_AutoWidthStrategy" value="LS1"><label for="col1_rsmLS1">LastRow</label>
+
+        <span class="label">&nbsp;</span>
+        <span class="label">rowSelectionCount</span>
+        <div class="label"><input type="text" class="numericIn" value="100" id="col1_rowSelectionCount"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">valueFilterMode</span>
+        <input type="radio" id="col1_vfmNONE" name="col1_valueFilterMode" value="NONE" checked="checked"><label for="col1_vfmNONE">None</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col1_vfmDEDP" name="col1_valueFilterMode" value="DEDP"><label for="col1_vfmDEDP">DeDuplicate</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col1_vfmGR8T" name="col1_valueFilterMode" value="GR8T"><label for="col1_vfmGR8T">GetGreatestAndSub</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col1_vfmLNSB" name="col1_valueFilterMode" value="LNSB"><label for="col1_vfmLNSB">GetLongestTextAndSub</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col1_vfmLNSC" name="col1_valueFilterMode" value="LNSC"><label for="col1_vfmLNSB">GetLongestText</label>
+      </div>      
+      <div class="spaced-para">
+        <span class="label">widthEvalMode</span>
+        <input type="radio" id="col1_wemCANV" name="col1_widthEvalMode" value="CANV"><label for="col1_wemCANV">CanvasTextSize</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col1_wemHTML" name="col1_widthEvalMode" value="HTML" checked="checked"><label for="col1_wemHTML">HTML</label>
+      </div>      
+      <div class="spaced-para">
+        <span class="label">ignoreHeaderText</span>
+        <div class="label"><input type="checkbox" id="col1_ignoreHeaderText"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">sizeToRemaining</span>
+        <div class="label"><input type="checkbox" id="col1_sizeToRemaining"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">allowAddlPercent</span>
+        <div class="label"><input type="text" class="numericIn" value="0" id="col1_allowAddlPercent"></div>
+      </div>
+      <div class="spaced-para">
+         <span class="label">colValueArray</span>
+         <div class="label-3">
+            <input id="col1_colValueArray" type="text" value="" class="input-wide"> (input as comma separated list)
+         </div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">column.width</span>
+        <div class="label"><input type="text" class="numericIn" value="" id="col1_width"></div> (blank = leave unchanged)
+      </div>
+    </div>
+
+    <div class="column-toggle-div"><span class="toggle expand" onclick="hideShow(this)"></span>&nbsp;Column 2 (Title)</div>
+    <div class="column-wrapper-div">
+      <div class="spaced-para">
+        <span class="label">autosizeMode</span>
+        <input type="radio" id="col2_asmLCK" name="col2_autosizeMode" value="LCK"><label for="col2_asmLCK">Locked</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col2_asmGUI" name="col2_autosizeMode" value="GUI"><label for="col2_asmGUI">Guide</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col2_asmCON" name="col2_autosizeMode" value="CON"><label for="col2_asmCON">Content</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col2_asmCTI" name="col2_autosizeMode" value="CTI" checked="checked"><label for="col2_asmCTI">ContentIntelligent</label>
+      </div>
+      <div class="spaced-para">
+        <span class="label">rowSelectionMode</span>
+        <input type="radio" id="col2_rsmFS1" name="col2_rowSelectionMode" value="FS1"><label for="col2_rsmFS1">FirstRow</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col2_rsmFSN" name="col2_rowSelectionMode" value="FSN"><label for="col2_rsmFSN">FirstNRows</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col2_rsmALL" name="col2_rowSelectionMode" value="ALL" checked="checked"><label for="col2_rsmALL">AllRows</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col2_rsmLS1" name="col2_AutoWidthStrategy" value="LS1"><label for="col2_rsmLS1">LastRow</label>
+
+        <span class="label">&nbsp;</span>
+        <span class="label">rowSelectionCount</span>
+        <div class="label"><input type="text" class="numericIn" value="100" id="col2_rowSelectionCount"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">valueFilterMode</span>
+        <input type="radio" id="col2_vfmNONE" name="col2_valueFilterMode" value="NONE" checked="checked"><label for="col2_vfmNONE">None</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col2_vfmDEDP" name="col2_valueFilterMode" value="DEDP"><label for="col2_vfmDEDP">DeDuplicate</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col2_vfmGR8T" name="col2_valueFilterMode" value="GR8T"><label for="col2_vfmGR8T">GetGreatestAndSub</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col2_vfmLNSB" name="col2_valueFilterMode" value="LNSB"><label for="col2_vfmLNSB">GetLongestTextAndSub</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col2_vfmLNSC" name="col2_valueFilterMode" value="LNSC"><label for="col2_vfmLNSC">GetLongestText</label>
+      </div>      
+      <div class="spaced-para">
+        <span class="label">widthEvalMode</span>
+        <input type="radio" id="col2_wemCANV" name="col2_widthEvalMode" value="CANV"><label for="col2_wemCANV">CanvasTextSize</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col2_wemHTML" name="col2_widthEvalMode" value="HTML" checked="checked"><label for="col2_wemHTML">HTML</label>
+      </div>      
+      <div class="spaced-para">
+        <span class="label">ignoreHeaderText</span>
+        <div class="label"><input type="checkbox" id="col2_ignoreHeaderText"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">sizeToRemaining</span>
+        <div class="label"><input type="checkbox" id="col2_sizeToRemaining"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">allowAddlPercent</span>
+        <div class="label"><input type="text" class="numericIn" value="0" id="col2_allowAddlPercent"></div>
+      </div>
+      <div class="spaced-para">
+         <span class="label">colValueArray</span>
+         <div class="label-3">
+            <input id="col2_colValueArray" type="text" value="" class="input-wide"> (input as comma separated list)
+         </div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">column.width</span>
+        <div class="label"><input type="text" class="numericIn" value="" id="col2_width"></div> (blank = leave unchanged)
+      </div>
+    </div>    
+
+    <div class="column-toggle-div"><span class="toggle expand" onclick="hideShow(this)"></span>&nbsp;Column 3 (Duration)</div>
+    <div class="column-wrapper-div">
+      <div class="spaced-para">
+        <span class="label">autosizeMode</span>
+        <input type="radio" id="col3_asmLCK" name="col3_autosizeMode" value="LCK"><label for="col3_asmLCK">Locked</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col3_asmGUI" name="col3_autosizeMode" value="GUI"><label for="col3_asmGUI">Guide</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col3_asmCON" name="col3_autosizeMode" value="CON"><label for="col3_asmCON">Content</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col3_asmCTI" name="col3_autosizeMode" value="CTI" checked="checked"><label for="col3_asmCTI">ContentIntelligent</label>
+      </div>
+      <div class="spaced-para">
+        <span class="label">rowSelectionMode</span>
+        <input type="radio" id="col3_rsmFS1" name="col3_rowSelectionMode" value="FS1"><label for="col3_rsmFS1">FirstRow</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col3_rsmFSN" name="col3_rowSelectionMode" value="FSN"><label for="col3_rsmFSN">FirstNRows</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col3_rsmALL" name="col3_rowSelectionMode" value="ALL" checked="checked"><label for="col3_rsmALL">AllRows</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col3_rsmLS1" name="col3_AutoWidthStrategy" value="LS1"><label for="col3_rsmLS1">LastRow</label>
+
+        <span class="label">&nbsp;</span>
+        <span class="label">rowSelectionCount</span>
+        <div class="label"><input type="text" class="numericIn" value="100" id="col3_rowSelectionCount"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">valueFilterMode</span>
+        <input type="radio" id="col3_vfmNONE" name="col3_valueFilterMode" value="NONE" checked="checked"><label for="col3_vfmNONE">None</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col3_vfmDEDP" name="col3_valueFilterMode" value="DEDP"><label for="col3_vfmDEDP">DeDuplicate</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col3_vfmGR8T" name="col3_valueFilterMode" value="GR8T"><label for="col3_vfmGR8T">GetGreatestAndSub</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col3_vfmLNSB" name="col3_valueFilterMode" value="LNSB"><label for="col3_vfmLNSB">GetLongestTextAndSub</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col3_vfmLNSC" name="col3_valueFilterMode" value="LNSC"><label for="col3_vfmLNSC">GetLongestText</label>
+      </div>      
+      <div class="spaced-para">
+        <span class="label">widthEvalMode</span>
+        <input type="radio" id="col3_wemCANV" name="col3_widthEvalMode" value="CANV"><label for="col3_wemCANV">CanvasTextSize</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col3_wemHTML" name="col3_widthEvalMode" value="HTML" checked="checked"><label for="col3_wemHTML">HTML</label>
+      </div>      
+      <div class="spaced-para">
+        <span class="label">ignoreHeaderText</span>
+        <div class="label"><input type="checkbox" id="col3_ignoreHeaderText"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">sizeToRemaining</span>
+        <div class="label"><input type="checkbox" id="col3_sizeToRemaining"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">allowAddlPercent</span>
+        <div class="label"><input type="text" class="numericIn" value="0" id="col3_allowAddlPercent"></div>
+      </div>
+      <div class="spaced-para">
+         <span class="label">colValueArray</span>
+         <div class="label-3">
+            <input id="col3_colValueArray" type="text" value="" class="input-wide"> (input as comma separated list)
+         </div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">column.width</span>
+        <div class="label"><input type="text" class="numericIn" value="" id="col3_width"></div> (blank = leave unchanged)
+      </div>
+    </div>
+
+    <div class="column-toggle-div"><span class="toggle expand" onclick="hideShow(this)"></span>&nbsp;Column 4 (Random Word)</div>
+    <div class="column-wrapper-div">
+      <div class="spaced-para">
+        <span class="label">autosizeMode</span>
+        <input type="radio" id="col4_asmLCK" name="col4_autosizeMode" value="LCK"><label for="col4_asmLCK">Locked</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col4_asmGUI" name="col4_autosizeMode" value="GUI"><label for="col4_asmGUI">Guide</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col4_asmCON" name="col4_autosizeMode" value="CON"><label for="col4_asmCON">Content</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col4_asmCTI" name="col4_autosizeMode" value="CTI" checked="checked"><label for="col4_asmCTI">ContentIntelligent</label>
+      </div>
+      <div class="spaced-para">
+        <span class="label">rowSelectionMode</span>
+        <input type="radio" id="col4_rsmFS1" name="col4_rowSelectionMode" value="FS1"><label for="col4_rsmFS1">FirstRow</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col4_rsmFSN" name="col4_rowSelectionMode" value="FSN"><label for="col4_rsmFSN">FirstNRows</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col4_rsmALL" name="col4_rowSelectionMode" value="ALL" checked="checked"><label for="col4_rsmALL">AllRows</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col4_rsmLS1" name="col4_AutoWidthStrategy" value="LS1"><label for="col4_rsmLS1">LastRow</label>
+
+        <span class="label">&nbsp;</span>
+        <span class="label">rowSelectionCount</span>
+        <div class="label"><input type="text" class="numericIn" value="100" id="col4_rowSelectionCount"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">valueFilterMode</span>
+        <input type="radio" id="col4_vfmNONE" name="col4_valueFilterMode" value="NONE" checked="checked"><label for="col4_vfmNONE">None</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col4_vfmDEDP" name="col4_valueFilterMode" value="DEDP"><label for="col4_vfmDEDP">DeDuplicate</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col4_vfmGR8T" name="col4_valueFilterMode" value="GR8T"><label for="col4_vfmGR8T">GetGreatestAndSub</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col4_vfmLNSB" name="col4_valueFilterMode" value="LNSB"><label for="col4_vfmLNSB">GetLongestTextAndSub</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col4_vfmLNSC" name="col4_valueFilterMode" value="LNSC"><label for="col4_vfmLNSC">GetLongestText</label>
+      </div>      
+      <div class="spaced-para">
+        <span class="label">widthEvalMode</span>
+        <input type="radio" id="col4_wemCANV" name="col4_widthEvalMode" value="CANV"><label for="col4_wemCANV">CanvasTextSize</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col4_wemHTML" name="col4_widthEvalMode" value="HTML" checked="checked"><label for="col4_wemHTML">HTML</label>
+      </div>      
+      <div class="spaced-para">
+        <span class="label">ignoreHeaderText</span>
+        <div class="label"><input type="checkbox" id="col4_ignoreHeaderText"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">sizeToRemaining</span>
+        <div class="label"><input type="checkbox" id="col4_sizeToRemaining"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">allowAddlPercent</span>
+        <div class="label"><input type="text" class="numericIn" value="0" id="col4_allowAddlPercent"></div>
+      </div>
+      <div class="spaced-para">
+         <span class="label">colValueArray</span>
+         <div class="label-3">
+            <input id="col4_colValueArray" type="text" value="" class="input-wide"> (input as comma separated list)
+         </div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">column.width</span>
+        <div class="label"><input type="text" class="numericIn" value="" id="col4_width"></div> (blank = leave unchanged)
+      </div>
+    </div>
+
+    <div class="column-toggle-div"><span class="toggle expand" onclick="hideShow(this)"></span>&nbsp;Column 5 (% Complete)</div>
+    <div class="column-wrapper-div">
+      <div class="spaced-para">
+        <span class="label">autosizeMode</span>
+        <input type="radio" id="col5_asmLCK" name="col5_autosizeMode" value="LCK"><label for="col5_asmLCK">Locked</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col5_asmGUI" name="col5_autosizeMode" value="GUI"><label for="col5_asmGUI">Guide</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col5_asmCON" name="col5_autosizeMode" value="CON"><label for="col5_asmCON">Content</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col5_asmCTI" name="col5_autosizeMode" value="CTI" checked="checked"><label for="col5_asmCTI">ContentIntelligent</label>
+      </div>
+      <div class="spaced-para">
+        <span class="label">rowSelectionMode</span>
+        <input type="radio" id="col5_rsmFS1" name="col5_rowSelectionMode" value="FS1"><label for="col5_rsmFS1">FirstRow</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col5_rsmFSN" name="col5_rowSelectionMode" value="FSN"><label for="col5_rsmFSN">FirstNRows</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col5_rsmALL" name="col5_rowSelectionMode" value="ALL" checked="checked"><label for="col5_rsmALL">AllRows</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col5_rsmLS1" name="col5_AutoWidthStrategy" value="LS1"><label for="col5_rsmLS1">LastRow</label>
+
+        <span class="label">&nbsp;</span>
+        <span class="label">rowSelectionCount</span>
+        <div class="label"><input type="text" class="numericIn" value="100" id="col5_rowSelectionCount"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">valueFilterMode</span>
+        <input type="radio" id="col5_vfmNONE" name="col5_valueFilterMode" value="NONE" checked="checked"><label for="col5_vfmNONE">None</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col5_vfmDEDP" name="col5_valueFilterMode" value="DEDP"><label for="col5_vfmDEDP">DeDuplicate</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col5_vfmGR8T" name="col5_valueFilterMode" value="GR8T"><label for="col5_vfmGR8T">GetGreatestAndSub</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col5_vfmLNSB" name="col5_valueFilterMode" value="LNSB"><label for="col5_vfmLNSB">GetLongestTextAndSub</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col5_vfmLNSC" name="col5_valueFilterMode" value="LNSC"><label for="col5_vfmLNSC">GetLongestText</label>
+      </div>      
+      <div class="spaced-para">
+        <span class="label">widthEvalMode</span>
+        <input type="radio" id="col5_wemCANV" name="col5_widthEvalMode" value="CANV"><label for="col5_wemCANV">CanvasTextSize</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col5_wemHTML" name="col5_widthEvalMode" value="HTML" checked="checked"><label for="col5_wemHTML">HTML</label>
+      </div>      
+      <div class="spaced-para">
+        <span class="label">ignoreHeaderText</span>
+        <div class="label"><input type="checkbox" id="col5_ignoreHeaderText"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">sizeToRemaining</span>
+        <div class="label"><input type="checkbox" id="col5_sizeToRemaining"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">allowAddlPercent</span>
+        <div class="label"><input type="text" class="numericIn" value="0" id="col5_allowAddlPercent"></div>
+      </div>
+      <div class="spaced-para">
+         <span class="label">colValueArray</span>
+         <div class="label-3">
+            <input id="col5_colValueArray" type="text" value="" class="input-wide"> (input as comma separated list)
+         </div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">column.width</span>
+        <div class="label"><input type="text" class="numericIn" value="" id="col5_width"></div> (blank = leave unchanged)
+      </div>
+    </div>
+ 
+    <div class="column-toggle-div"><span class="toggle expand" onclick="hideShow(this)"></span>&nbsp;Column 6 (Start)</div>
+    <div class="column-wrapper-div">
+      <div class="spaced-para">
+        <span class="label">autosizeMode</span>
+        <input type="radio" id="col6_asmLCK" name="col6_autosizeMode" value="LCK"><label for="col6_asmLCK">Locked</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col6_asmGUI" name="col6_autosizeMode" value="GUI"><label for="col6_asmGUI">Guide</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col6_asmCON" name="col6_autosizeMode" value="CON"><label for="col6_asmCON">Content</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col6_asmCTI" name="col6_autosizeMode" value="CTI" checked="checked"><label for="col6_asmCTI">ContentIntelligent</label>
+      </div>
+      <div class="spaced-para">
+        <span class="label">rowSelectionMode</span>
+        <input type="radio" id="col6_rsmFS1" name="col6_rowSelectionMode" value="FS1"><label for="col6_rsmFS1">FirstRow</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col6_rsmFSN" name="col6_rowSelectionMode" value="FSN"><label for="col6_rsmFSN">FirstNRows</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col6_rsmALL" name="col6_rowSelectionMode" value="ALL" checked="checked"><label for="col6_rsmALL">AllRows</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col6_rsmLS1" name="col6_AutoWidthStrategy" value="LS1"><label for="col6_rsmLS1">LastRow</label>
+
+        <span class="label">&nbsp;</span>
+        <span class="label">rowSelectionCount</span>
+        <div class="label"><input type="text" class="numericIn" value="100" id="col6_rowSelectionCount"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">valueFilterMode</span>
+        <input type="radio" id="col6_vfmNONE" name="col6_valueFilterMode" value="NONE" checked="checked"><label for="col6_vfmNONE">None</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col6_vfmDEDP" name="col6_valueFilterMode" value="DEDP"><label for="col6_vfmDEDP">DeDuplicate</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col6_vfmGR8T" name="col6_valueFilterMode" value="GR8T"><label for="col6_vfmGR8T">GetGreatestAndSub</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col6_vfmLNSB" name="col6_valueFilterMode" value="LNSB"><label for="col6_vfmLNSB">GetLongestTextAndSub</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col6_vfmLNSC" name="col6_valueFilterMode" value="LNSC"><label for="col6_vfmLNSC">GetLongestText</label>
+      </div>      
+      <div class="spaced-para">
+        <span class="label">widthEvalMode</span>
+        <input type="radio" id="col6_wemCANV" name="col6_widthEvalMode" value="CANV"><label for="col6_wemCANV">CanvasTextSize</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col6_wemHTML" name="col6_widthEvalMode" value="HTML" checked="checked"><label for="col6_wemHTML">HTML</label>
+      </div>      
+      <div class="spaced-para">
+        <span class="label">ignoreHeaderText</span>
+        <div class="label"><input type="checkbox" id="col6_ignoreHeaderText"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">sizeToRemaining</span>
+        <div class="label"><input type="checkbox" id="col6_sizeToRemaining"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">allowAddlPercent</span>
+        <div class="label"><input type="text" class="numericIn" value="0" id="col6_allowAddlPercent"></div>
+      </div>
+      <div class="spaced-para">
+         <span class="label">colValueArray</span>
+         <div class="label-3">
+            <input id="col6_colValueArray" type="text" value="" class="input-wide"> (input as comma separated list)
+         </div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">column.width</span>
+        <div class="label"><input type="text" class="numericIn" value="" id="col6_width"></div> (blank = leave unchanged)
+      </div>
+    </div>
+
+    <div class="column-toggle-div"><span class="toggle expand" onclick="hideShow(this)"></span>&nbsp;Column 7 (Effort Driven)</div>
+    <div class="column-wrapper-div">
+      <div class="spaced-para">
+        <span class="label">autosizeMode</span>
+        <input type="radio" id="col7_asmLCK" name="col7_autosizeMode" value="LCK"><label for="col7_asmLCK">Locked</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col7_asmGUI" name="col7_autosizeMode" value="GUI"><label for="col7_asmGUI">Guide</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col7_asmCON" name="col7_autosizeMode" value="CON"><label for="col7_asmCON">Content</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col7_asmCTI" name="col7_autosizeMode" value="CTI" checked="checked"><label for="col7_asmCTI">ContentIntelligent</label>
+      </div>
+      <div class="spaced-para">
+        <span class="label">rowSelectionMode</span>
+        <input type="radio" id="col7_rsmFS1" name="col7_rowSelectionMode" value="FS1"><label for="col7_rsmFS1">FirstRow</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col7_rsmFSN" name="col7_rowSelectionMode" value="FSN"><label for="col7_rsmFSN">FirstNRows</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col7_rsmALL" name="col7_rowSelectionMode" value="ALL" checked="checked"><label for="col7_rsmALL">AllRows</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col7_rsmLS1" name="col7_AutoWidthStrategy" value="LS1"><label for="col7_rsmLS1">LastRow</label>
+
+        <span class="label">&nbsp;</span>
+        <span class="label">rowSelectionCount</span>
+        <div class="label"><input type="text" class="numericIn" value="100" id="col7_rowSelectionCount"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">valueFilterMode</span>
+        <input type="radio" id="col7_vfmNONE" name="col7_valueFilterMode" value="NONE" checked="checked"><label for="col7_vfmNONE">None</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col7_vfmDEDP" name="col7_valueFilterMode" value="DEDP"><label for="col7_vfmDEDP">DeDuplicate</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col7_vfmGR8T" name="col7_valueFilterMode" value="GR8T"><label for="col7_vfmGR8T">GetGreatestAndSub</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col7_vfmLNSB" name="col7_valueFilterMode" value="LNSB"><label for="col7_vfmLNSB">GetLongestTextAndSub</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col7_vfmLNSC" name="col7_valueFilterMode" value="LNSC"><label for="col7_vfmLNSC">GetLongestText</label>
+      </div>      
+      <div class="spaced-para">
+        <span class="label">widthEvalMode</span>
+        <input type="radio" id="col7_wemCANV" name="col7_widthEvalMode" value="CANV"><label for="col7_wemCANV">CanvasTextSize</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col7_wemHTML" name="col7_widthEvalMode" value="HTML" checked="checked"><label for="col7_wemHTML">HTML</label>
+      </div>      
+      <div class="spaced-para">
+        <span class="label">ignoreHeaderText</span>
+        <div class="label"><input type="checkbox" id="col7_ignoreHeaderText"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">sizeToRemaining</span>
+        <div class="label"><input type="checkbox" id="col7_sizeToRemaining"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">allowAddlPercent</span>
+        <div class="label"><input type="text" class="numericIn" value="0" id="col7_allowAddlPercent"></div>
+      </div>
+      <div class="spaced-para">
+         <span class="label">colValueArray</span>
+         <div class="label-3">
+            <input id="col7_colValueArray" type="text" value="" class="input-wide"> (input as comma separated list)
+         </div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">column.width</span>
+        <div class="label"><input type="text" class="numericIn" value="" id="col7_width"></div> (blank = leave unchanged)
+      </div>
+    </div>
+
+    <div class="column-toggle-div"><span class="toggle expand" onclick="hideShow(this)"></span>&nbsp;Column 8 (Random Text)</div>
+    <div class="column-wrapper-div">
+      <div class="spaced-para">
+        <span class="label">autosizeMode</span>
+        <input type="radio" id="col8_asmLCK" name="col8_autosizeMode" value="LCK"><label for="col8_asmLCK">Locked</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col8_asmGUI" name="col8_autosizeMode" value="GUI"><label for="col8_asmGUI">Guide</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col8_asmCON" name="col8_autosizeMode" value="CON"><label for="col8_asmCON">Content</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col8_asmCTI" name="col8_autosizeMode" value="CTI" checked="checked"><label for="col8_asmCTI">ContentIntelligent</label>
+      </div>
+      <div class="spaced-para">
+        <span class="label">rowSelectionMode</span>
+        <input type="radio" id="col8_rsmFS1" name="col8_rowSelectionMode" value="FS1"><label for="col8_rsmFS1">FirstRow</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col8_rsmFSN" name="col8_rowSelectionMode" value="FSN"><label for="col8_rsmFSN">FirstNRows</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col8_rsmALL" name="col8_rowSelectionMode" value="ALL" checked="checked"><label for="col8_rsmALL">AllRows</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col8_rsmLS1" name="col8_AutoWidthStrategy" value="LS1"><label for="col8_rsmLS1">LastRow</label>
+
+        <span class="label">&nbsp;</span>
+        <span class="label">rowSelectionCount</span>
+        <div class="label"><input type="text" class="numericIn" value="100" id="col8_rowSelectionCount"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">valueFilterMode</span>
+        <input type="radio" id="col8_vfmNONE" name="col8_valueFilterMode" value="NONE" checked="checked"><label for="col8_vfmNONE">None</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col8_vfmDEDP" name="col8_valueFilterMode" value="DEDP"><label for="col8_vfmDEDP">DeDuplicate</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col8_vfmGR8T" name="col8_valueFilterMode" value="GR8T"><label for="col8_vfmGR8T">GetGreatestAndSub</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col8_vfmLNSB" name="col8_valueFilterMode" value="LNSB"><label for="col8_vfmLNSB">GetLongestTextAndSub</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col8_vfmLNSC" name="col8_valueFilterMode" value="LNSC"><label for="col8_vfmLNSC">GetLongestText</label>
+      </div>      
+      <div class="spaced-para">
+        <span class="label">widthEvalMode</span>
+        <input type="radio" id="col8_wemCANV" name="col8_widthEvalMode" value="CANV"><label for="col8_wemCANV">CanvasTextSize</label>
+        <span class="spacer"></span>
+        <input type="radio" id="col8_wemHTML" name="col8_widthEvalMode" value="HTML" checked="checked"><label for="col8_wemHTML">HTML</label>
+      </div>      
+      <div class="spaced-para">
+        <span class="label">ignoreHeaderText</span>
+        <div class="label"><input type="checkbox" id="col8_ignoreHeaderText"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">sizeToRemaining</span>
+        <div class="label"><input type="checkbox" id="col8_sizeToRemaining"></div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">allowAddlPercent</span>
+        <div class="label"><input type="text" class="numericIn" value="0" id="col8_allowAddlPercent"></div>
+      </div>
+      <div class="spaced-para">
+         <span class="label">colValueArray</span>
+         <div class="label-3">
+            <input id="col8_colValueArray" type="text" value="" class="input-wide"> (input as comma separated list)
+         </div>
+      </div>
+      <div class="spaced-para">
+        <span class="label">column.width</span>
+        <div class="label"><input type="text" class="numericIn" value="" id="col8_width"></div> (blank = leave unchanged)
+      </div>
+    </div>
+  
+  <h2>Test Grid</h2>
+    <div>
+      <div style="float:left"><button onclick="CallResize()">Resize Columns</button></div>
+      <div style="float:left; padding-left:30px; padding-top:3px">Time taken = <span id="TimeTaken">-</span></div>
+      <div style="float:left; padding-left:30px; padding-top:3px">Viewport width before = <span id="ViewportWidthBefore">-</span></div>
+      <div style="float:left; padding-left:30px; padding-top:3px">Viewport width after = <span id="ViewportWidthAfter">-</span></div>
+      <div style="float:left; padding-left:10px; padding-top:3px">(limits <span id="ViewportLimits">-</span>)</div>
+      <div style="clear:both;"></div>
+      <div style="padding-top:5px">Warning: this example has 500,000 rows, so badly optimised column width tests (ie. checking all rows) may take 100 seconds per column. If it looks like the page has crashed, just wait a while!</div>
+    </div>
+  
+  <h2>View Source:</h2>
+    <ul>
+        <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-size-to-content.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+    </ul>
+  </div>
+
+  <div style="width:900px;">
+    <div class="grid-header" id="grid-header-div" style="width:100%">
+      <label>SlickGrid</label>
+    </div>
+    <div id="myGrid" style="width:100%;height:320px;"></div>
+  </div>
+</div>
+
+<script src="../lib/jquery-1.11.2.min.js"></script>
+<script src="../lib/jquery-ui-1.11.3.min.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../slick.formatters.js"></script>
+<script src="../slick.grid.js"></script>
+<script src="../slick.dataview.js"></script>
+<script src="../controls/slick.pager.js"></script>
+
+<script>
+  //------------------------------------------------------------------------------------
+  // Get plugin and column properties from page controls
+  //------------------------------------------------------------------------------------    
+  function GetColPropsFromUI(column, colIndex) {
+    var colValArrayAsCSV = $("#col" + colIndex + "_colValueArray").val();
+    var colValArray = undefined;
+    if (colValArrayAsCSV) { colValArray = colValArrayAsCSV.split(','); }
+    var opts = {
+        autosizeMode: $("input[name='col" + colIndex + "_autosizeMode']:checked").val(), 
+        rowSelectionMode: $("input[name='col" + colIndex + "_rowSelectionMode']:checked").val(), 
+        valueFilterMode: $("input[name='col" + colIndex + "_valueFilterMode']:checked").val(), 
+        widthEvalMode: $("input[name='col" + colIndex + "_widthEvalMode']:checked").val(), 
+        ignoreHeaderText: $("#col" + colIndex + "_ignoreHeaderText").prop('checked') || false,
+        sizeToRemaining: $("#col" + colIndex + "_sizeToRemaining").prop('checked') || false,
+        allowAddlPercent: $("#col" + colIndex + "_allowAddlPercent").val() || undefined,
+        rowSelectionCount: parseInt($("#col" + colIndex + "_rowSelectionCount").val(),10) || 100,
+        colDataTypeOf: $("#col" + colIndex + "_colDataTypeOf").val() || undefined,
+        colValueArray: colValArray
+    };
+    column.autoSize = opts;
+    
+    var width = parseInt($("#col" + colIndex + "_width").val(),10) || -1;
+    if (width >=0) { column.width = width; }
+  }
+ 
+  function GetAutosizeConfigFromUI() {
+    var columns = grid.getColumns();
+    for (var i = 0, ii = columns.length; i < ii; i++) {
+      GetColPropsFromUI(columns[i], i+1);
+    }
+
+    var opts = {
+      autosizeColsMode: $("input[name='GridAutosizeColsMode']:checked").val(), 
+      autosizeColPaddingPx: +$("#txtAutosizeColPaddingPx").val(), 
+      viewportSwitchToScrollModeWidthPercent: +$("#txtViewportSwitchToScrollModeWidthPercent").val(),
+      viewportMinWidthPx: +$("#txtViewportMinWidthPx").val(),
+      viewportMaxWidthPx: +$("#txtViewportMaxWidthPx").val(),
+      autosizeTextAvgToMWidthRatio: +$("#txtAutosizeTextAvgToMWidthRatio").val()
+    };     
+      
+    grid.setOptions(opts);    
+  }
+  
+  function hideShow(clickedEl) {
+    var $clickedEl = $(clickedEl);
+    var $wrapperDiv = $clickedEl.parent().next();
+    
+    $clickedEl.toggleClass('expand');
+    $clickedEl.toggleClass('collapse');
+    $wrapperDiv.toggle();
+  }
+  
+  function syncGridHeaderWidthToGrid() {
+   $("#grid-header-div").width($(grid.getContainerNode()).width()); 
+  }
+  
+  function CallResize() {
+    var t0 = performance.now();
+    $("#ViewportWidthBefore").text($(grid.getContainerNode()).width() + "px");
+    $("#ViewportLimits").text($("#txtViewportMinWidthPx").val() + "-" + $("#txtViewportMaxWidthPx").val());
+    
+    GetAutosizeConfigFromUI();    
+    grid.autosizeColumns();
+    syncGridHeaderWidthToGrid();
+    
+    var t1 = performance.now();
+    $("#TimeTaken").text(Math.round(t1 - t0) + " milliseconds.");
+    $("#ViewportWidthAfter").text($(grid.getContainerNode()).width() + "px");
+  }
+
+  //------------------------------------------------------------------------------------
+  // Set up grid options, data and columns
+  //------------------------------------------------------------------------------------ 
+  
+  var dataView;
+  var grid;
+  var data = [];
+  var columns = [
+    {id: "sel", name: "#", field: "num", behavior: "select", cssClass: "cell-selection", width: 40, resizable: false, selectable: false },
+    {id: "title", name: "Title", field: "title", width: 120, cssClass: "cell-title"},
+    {id: "duration", name: "Duration", field: "duration"},
+    {id: "random-word", name: "Random word", field: "randomWord"},
+    {id: "%", name: "% Complete", field: "percentComplete", width: 80, resizable: false, formatter: Slick.Formatters.PercentCompleteBar},
+    {id: "start", name: "Start", field: "start"},
+    {id: "effort-driven", name: "Effort Driven", width: 80, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark},
+    {id: "random-text", name: "Random Text", field: "randomText"}
+  ];
+
+  function CreateRandomText(words) {
+    var amount = Math.round(Math.random() * 10)
+    var result = "";
+    for(var i = 0; i < amount; i++){
+      result += " " + words[Math.round(Math.random() * words.length)];
+    }
+    return result;
+  };  
+    
+  function DataItem(i) {
+    this.num = i;
+    this.id = "id_" + i;
+    this.title = "Task " + i;
+    this.duration =  (i % 5 == 0) ? 5 + " days and some" : 10 + " days";
+    this.randomWord = ["good", "bad", "dog", "something", "another word"][i % 5];
+    this.percentComplete = Math.round(Math.random() * 100);
+    this.start = "01/01/200" + Math.round(Math.random() * 9);
+    this.effortDriven = (i % 5 == 0);
+    this.randomText = CreateRandomText(["good", "bad", "dog", "vegetable", "Crimea", "platypus", "rumplestiltskin", "alteration"]);
+  }
+
+  var options = {
+    enableCellNavigation: true,
+    enableColumnReorder: true,
+    enableAddRow: false,
+    enableCellNavigation: true,
+    explicitInitialization: true,
+    autosizeColsMode: Slick.GridAutosizeColsMode.None
+  };
+      
+  $(function () {
+    var rows = 500000;
+    // prepare the data
+    for (var i = 0; i < rows; i++) {
+      data[i] = new DataItem(i);
+    }
+
+    dataView = new Slick.Data.DataView();
+    grid = new Slick.Grid("#myGrid", dataView, columns, options);
+    grid.init();
+   
+    // wire up model events to drive the grid
+    dataView.onRowsOrCountChanged.subscribe(function (e, args) {     
+      if (args.rowCountChanged) { grid.updateRowCount(); }
+      if (args.rowsChanged) { grid.invalidateRows(args.rows); }
+      grid.render();
+    });
+
+    grid.onAutosizeColumns.subscribe(syncGridHeaderWidthToGrid);
+
+    // initialize the model after all the events have been hooked up
+    dataView.setItems(data);
+    
+    $("#ViewportWidthBefore").text($(grid.getContainerNode()).width() + "px");    
+  })
+</script>
+</body>
+</html>

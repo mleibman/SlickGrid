@@ -1,0 +1,129 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+  <title>SlickGrid example: jQuery tabs with a dynamic grid in each pane</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <style>
+  .my-grid {
+	background: white;
+	outline: 0;
+	border: 1px solid gray;
+  }
+  </style>
+</head>
+<body>
+<table width="100%">
+  <tr>
+    <td valign="top" width="50%">
+		<button id='add-tab'>Add tab</button>
+		<div id="tabs">
+		  <ul>
+			<li><a href="#tabs-1">Grid 1</a></li>
+		  </ul>
+		  <div id="tabs-1">
+			<strong><i>This tab is the original</i></strong>
+			<div id="myGrid1" style="width:600px;height:300px;" class="my-grid"></div>
+		  </div>
+		</div>
+	</td>
+    <td valign="top">
+      <h2>Demonstrates:</h2>
+      <ul>
+        <li>jQuery tabs containing a grid in each pane</li>
+      </ul>
+        <h2>View Source:</h2>
+        <ul>
+            <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example1-simple.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+        </ul>
+    </td>
+  </tr>
+</table>
+
+<script src="../lib/jquery-1.11.2.min.js"></script>
+<script src="../lib/jquery-ui-1.11.3.min.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../slick.grid.js"></script>
+
+<script>
+  var gridArray;
+  
+  function CreateColumns() {
+	  var columns = [
+		{id: "title", name: "Title", field: "title"},
+		{id: "duration", name: "Duration", field: "duration"},
+		{id: "%", name: "% Complete", field: "percentComplete"},
+		{id: "start", name: "Start", field: "start"},
+		{id: "finish", name: "Finish", field: "finish"},
+		{id: "effort-driven", name: "Effort Driven", field: "effortDriven"},
+		{id: "title", name: "Title", field: "title"},
+		{id: "duration", name: "Duration", field: "duration"},
+		{id: "%", name: "% Complete", field: "percentComplete"},
+		{id: "start", name: "Start", field: "start"},
+		{id: "finish", name: "Finish", field: "finish"},
+		{id: "effort-driven", name: "Effort Driven", field: "effortDriven"}
+	  ];
+	return columns;
+  }
+
+ function CreateOptions() {
+	var options = {
+	  enableCellNavigation: true,
+	  enableColumnReorder: false
+	};
+	return options;
+  }
+
+  function CreateData() {
+    var data = [];
+    for (var i = 0; i < 500; i++) {
+      data[i] = {
+        title: "Task " + i,
+        duration: "5 days",
+        percentComplete: Math.round(Math.random() * 100),
+        start: "01/01/2009",
+        finish: "01/05/2009",
+        effortDriven: (i % 5 == 0)
+      };
+    }
+	return data;
+  }
+  
+  function CreateGrid(elementId) {
+    if (!gridArray) { gridArray = []; }
+	
+	var data = CreateData();
+    var grid = new Slick.Grid("#" + elementId, data, CreateColumns(), CreateOptions());
+	
+	gridArray[length] = grid;
+  }
+  
+  $(function () {
+	// take care of jqueryui tabs and adding tab
+    $( "div#tabs" ).tabs();	
+ 
+    $("button#add-tab").click(function() {
+        var num_tabs = $("div#tabs ul li").length + 1;
+
+        $("div#tabs ul").append(
+            "<li><a href='#tab" + num_tabs + "'>Grid " + num_tabs + "</a></li>"
+        );
+		$("div#tabs").append(
+            "<div id='tab" + num_tabs + "'>"
+				+ '<div id="myGrid' + num_tabs + '" style="width:600px;height:300px;" class="my-grid"></div>'
+			+ "</div>"
+        );
+		CreateGrid("myGrid" + num_tabs);
+        $("div#tabs").tabs("refresh");
+    });
+
+	CreateGrid("myGrid1");
+  })
+</script>
+</body>
+</html>

@@ -25,6 +25,9 @@
   function GroupItemMetadataProvider(options) {
     var _grid;
     var _defaults = {
+      checkboxSelect: false,
+      checkboxSelectCssClass: "slick-group-select-checkbox",
+      checkboxSelectPlugin: null,
       groupCssClass: "slick-group",
       groupTitleCssClass: "slick-group-title",
       totalsCssClass: "slick-group-totals",
@@ -41,14 +44,16 @@
     options = $.extend(true, {}, _defaults, options);
 
 
-    function defaultGroupCellFormatter(row, cell, value, columnDef, item) {
+    function defaultGroupCellFormatter(row, cell, value, columnDef, item, grid) {
       if (!options.enableExpandCollapse) {
         return item.title;
       }
 
       var indentation = item.level * 15 + "px";
 
-      return "<span class='" + options.toggleCssClass + " " +
+      return (options.checkboxSelect ? '<span class="' + options.checkboxSelectCssClass +
+          ' ' + (item.selectChecked ? 'checked' : 'unchecked') + '"></span>' : '') +
+          "<span class='" + options.toggleCssClass + " " +
           (item.collapsed ? options.toggleCollapsedCssClass : options.toggleExpandedCssClass) +
           "' style='margin-left:" + indentation +"'>" +
           "</span>" +
@@ -57,8 +62,8 @@
           "</span>";
     }
 
-    function defaultTotalsCellFormatter(row, cell, value, columnDef, item) {
-      return (columnDef.groupTotalsFormatter && columnDef.groupTotalsFormatter(item, columnDef)) || "";
+    function defaultTotalsCellFormatter(row, cell, value, columnDef, item, grid) {
+      return (columnDef.groupTotalsFormatter && columnDef.groupTotalsFormatter(item, columnDef, grid)) || "";
     }
 
 
@@ -77,8 +82,9 @@
     }
 
     function handleGridClick(e, args) {
+      var $target = $(e.target);
       var item = this.getDataItem(args.row);
-      if (item && item instanceof Slick.Group && $(e.target).hasClass(options.toggleCssClass)) {
+      if (item && item instanceof Slick.Group && $target.hasClass(options.toggleCssClass)) {
         var range = _grid.getRenderedRange();
         this.getData().setRefreshHints({
           ignoreDiffsBefore: range.top,
@@ -94,11 +100,19 @@
         e.stopImmediatePropagation();
         e.preventDefault();
       }
+      if (item && item instanceof Slick.Group && $target.hasClass(options.checkboxSelectCssClass)) {
+        item.selectChecked = !item.selectChecked;
+        $target.removeClass((item.selectChecked ? "unchecked" : "checked"));
+        $target.addClass((item.selectChecked ? "checked" : "unchecked"));
+        // get rowIndexes array
+        var rowIndexes = _grid.getData().mapItemsToRows(item.rows);
+        (item.selectChecked ? options.checkboxSelectPlugin.selectRows : options.checkboxSelectPlugin.deSelectRows)(rowIndexes);
+      }
     }
 
     // TODO:  add -/+ handling
     function handleGridKeyDown(e, args) {
-      if (options.enableExpandCollapse && (e.which == $.ui.keyCode.SPACE)) {
+      if (options.enableExpandCollapse && (e.which == Slick.keyCode.SPACE)) {
         var activeCell = this.getActiveCell();
         if (activeCell) {
           var item = this.getDataItem(activeCell.row);

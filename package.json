@@ -1,0 +1,38 @@
+{
+  "name": "slickgrid",
+  "version": "2.4.11",
+  "description": "A lightning fast JavaScript grid/spreadsheet",
+  "main": "slick.core.js",
+  "directories": {
+    "example": "examples",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/6pac/SlickGrid.git"
+  },
+  "keywords": [
+    "slickgrid",
+    "grid"
+  ],
+  "author": "Michael Leibman <michael.leibman@gmail.com>",
+  "contributors": [
+    "Ben McIntyre <email.ben.mcintyre@gmail.com>"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/6pac/SlickGrid/issues"
+  },
+  "homepage": "https://github.com/6pac/SlickGrid#readme",
+  "scripts": {
+    "cypress:ci": "node node_modules/cypress/bin/cypress run --reporter xunit --reporter-options output=testresult.xml",
+    "cypress:open": "node node_modules/cypress/bin/cypress open"
+  },
+  "dependencies": {
+    "jquery": ">=1.8.0",
+    "jquery-ui": ">=1.8.0"
+  },
+  "devDependencies": {
+    "cypress": "^3.3.1"
+  }
+}

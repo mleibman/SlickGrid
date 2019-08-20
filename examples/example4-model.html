@@ -2,10 +2,11 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
   <title>SlickGrid example 4: Model</title>
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
   <link rel="stylesheet" href="../controls/slick.pager.css" type="text/css"/>
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
   <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css"/>
   <style>
@@ -79,7 +80,7 @@
       </ul>
         <h2>View Source:</h2>
         <ul>
-            <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example4-model.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+            <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example4-model.html" target="_sourcewindow"> View the source for this example on Github</a></li>
         </ul>
 
     </div>
@@ -94,9 +95,9 @@
 
 <script src="../lib/firebugx.js"></script>
 
-<script src="../lib/jquery-1.7.min.js"></script>
-<script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
-<script src="../lib/jquery.event.drag-2.2.js"></script>
+<script src="../lib/jquery-1.11.2.min.js"></script>
+<script src="../lib/jquery-ui-1.11.3.min.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
 
 <script src="../slick.core.js"></script>
 <script src="../slick.formatters.js"></script>
@@ -108,20 +109,29 @@
 <script src="../controls/slick.columnpicker.js"></script>
 
 <script>
+function isIEPreVer9() { var v = navigator.appVersion.match(/MSIE ([\d.]+)/i); return (v ? v[1] < 9 : false); }
+
 var dataView;
 var grid;
 var data = [];
 var columns = [
-  {id: "sel", name: "#", field: "num", behavior: "select", cssClass: "cell-selection", width: 40, cannotTriggerInsert: true, resizable: false, selectable: false },
+  {id: "sel", name: "#", field: "num", behavior: "select", cssClass: "cell-selection", width: 40, cannotTriggerInsert: true, resizable: false, selectable: false, excludeFromColumnPicker: true },
   {id: "title", name: "Title", field: "title", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
   {id: "duration", name: "Duration", field: "duration", editor: Slick.Editors.Text, sortable: true},
   {id: "%", defaultSortAsc: false, name: "% Complete", field: "percentComplete", width: 80, resizable: false, formatter: Slick.Formatters.PercentCompleteBar, editor: Slick.Editors.PercentComplete, sortable: true},
   {id: "start", name: "Start", field: "start", minWidth: 60, editor: Slick.Editors.Date, sortable: true},
   {id: "finish", name: "Finish", field: "finish", minWidth: 60, editor: Slick.Editors.Date, sortable: true},
-  {id: "effort-driven", name: "Effort Driven", width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark, editor: Slick.Editors.Checkbox, cannotTriggerInsert: true, sortable: true}
+  {id: "effort-driven", name: "Effort Driven", width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.Checkbox, editor: Slick.Editors.Checkbox, cannotTriggerInsert: true, sortable: true}
 ];
 
 var options = {
+  columnPicker: {
+    columnTitle: "Columns",
+    hideForceFitButton: false,
+    hideSyncResizeButton: false,
+    forceFitTitle: "Force fit columns",
+    syncResizeTitle: "Synchronous resize",
+  },
   editable: true,
   enableAddRow: true,
   enableCellNavigation: true,
@@ -237,7 +247,7 @@ $(function () {
     sortdir = args.sortAsc ? 1 : -1;
     sortcol = args.sortCol.field;
 
-    if ($.browser.msie && $.browser.version <= 8) {
+    if (isIEPreVer9()) {
       // using temporary Object.prototype.toString override
       // more limited and does lexicographic sort only by default, but can be much faster
 
@@ -262,6 +272,8 @@ $(function () {
   });
 
   // wire up model events to drive the grid
+  // !! both dataView.onRowCountChanged and dataView.onRowsChanged MUST be wired to correctly update the grid
+  // see Issue#91
   dataView.onRowCountChanged.subscribe(function (e, args) {
     grid.updateRowCount();
     grid.render();
@@ -273,15 +285,8 @@ $(function () {
   });
 
   dataView.onPagingInfoChanged.subscribe(function (e, pagingInfo) {
-    var isLastPage = pagingInfo.pageNum == pagingInfo.totalPages - 1;
-    var enableAddRow = isLastPage || pagingInfo.pageSize == 0;
-    var options = grid.getOptions();
-
-    if (options.enableAddRow != enableAddRow) {
-      grid.setOptions({enableAddRow: enableAddRow});
-    }
+    grid.updatePagingStatusFromView( pagingInfo );
   });
-
 
   var h_runfilters = null;
 

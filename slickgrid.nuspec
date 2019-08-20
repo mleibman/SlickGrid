@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+    <metadata>
+      <!-- The identifier that must be unique within the hosting gallery -->
+      <id>SlickGrid</id>
+
+      <!-- The package version number that is used when resolving dependencies -->
+      <version>2.3.17</version>
+
+      <!-- Authors contain text that appears directly on the gallery -->
+      <authors>Michael Leibman, Ben McIntyre</authors>
+
+      <!-- Owners are typically nuget.org identities that allow gallery users to easily find other packages by the same owners.  -->
+      <owners>Michael Leibman, Ben McIntyre</owners>
+
+      <!-- License and project URLs provide links for the gallery -->
+      <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+      <projectUrl>http://slickgrid.net</projectUrl>
+
+      <!-- The description can be used in package manager UI. Note that the nuget.org gallery uses information you add in the portal. -->
+      <description>A lightning fast JavaScript grid/spreadsheet</description>
+
+      <!-- Tags appear in the gallery and can be used for tag searches -->
+      <tags>javascript slickgrid grid editor</tags>
+
+      <!-- Dependencies are automatically installed when the package is installed -->
+      <dependencies>
+          <dependency id="jQuery" version="1.8" />
+          <dependency id="jQuery.UI.Combined" version="1.8" />
+      </dependencies>
+    </metadata>
+
+    <files>
+       <file src="**" target="" exclude=".git\**;.idea\**;tests\**;nuget.exe;slick.grid - Copy.js;SlickgridRelease.exe;SlickgridRelease.pdb;examples\**;package.json;package\**" />
+    </files>
+</package>

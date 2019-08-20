@@ -2,10 +2,11 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
   <title>SlickGrid example: Grouping</title>
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
   <link rel="stylesheet" href="../controls/slick.pager.css" type="text/css"/>
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
   <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css"/>
   <style>
@@ -82,7 +83,7 @@
     </ul>
       <h2>View Source:</h2>
       <ul>
-          <li><A href="https://github.com/mleibman/SlickGrid/blob/gh-pages/examples/example-grouping.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+          <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-grouping.html" target="_sourcewindow"> View the source for this example on Github</a></li>
       </ul>
   </div>
 </div>
@@ -90,9 +91,9 @@
 
 <script src="../lib/firebugx.js"></script>
 
-<script src="../lib/jquery-1.7.min.js"></script>
-<script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
-<script src="../lib/jquery.event.drag-2.2.js"></script>
+<script src="../lib/jquery-1.11.2.min.js"></script>
+<script src="../lib/jquery-ui-1.11.3.min.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
 
 <script src="../slick.core.js"></script>
 <script src="../slick.formatters.js"></script>
@@ -107,6 +108,8 @@
 <script src="../controls/slick.columnpicker.js"></script>
 
 <script>
+function isIEPreVer9() { var v = navigator.appVersion.match(/MSIE ([\d.]+)/i); return (v ? v[1] < 9 : false); }
+
 var dataView;
 var grid;
 var data = [];
@@ -131,7 +134,7 @@ var sortdir = 1;
 var percentCompleteThreshold = 0;
 var prevPercentCompleteThreshold = 0;
 
-function avgTotalsFormatter(totals, columnDef) {
+function avgTotalsFormatter(totals, columnDef, grid) {
   var val = totals.avg && totals.avg[columnDef.field];
   if (val != null) {
     return "avg: " + Math.round(val) + "%";
@@ -139,7 +142,7 @@ function avgTotalsFormatter(totals, columnDef) {
   return "";
 }
 
-function sumTotalsFormatter(totals, columnDef) {
+function sumTotalsFormatter(totals, columnDef, grid) {
   var val = totals.sum && totals.sum[columnDef.field];
   if (val != null) {
     return "total: " + ((Math.round(parseFloat(val)*100)/100));
@@ -312,7 +315,7 @@ $(function () {
     sortdir = args.sortAsc ? 1 : -1;
     sortcol = args.sortCol.field;
 
-    if ($.browser.msie && $.browser.version <= 8) {
+    if (isIEPreVer9()) {
       // using temporary Object.prototype.toString override
       // more limited and does lexicographic sort only by default, but can be much faster
 

@@ -1,0 +1,110 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+  <title>Footer Row with Totals</title>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <style>
+  .totals {
+    font-weight: bold;
+    color: gray;
+    font-style: italic;
+  }
+  </style>
+</head>
+<body>
+<div style="position:relative">
+  <div style="width:600px;">
+    <div id="myGrid" style="width:100%;height:320px;"></div>
+  </div>
+
+  <div class="options-panel">
+    <h2>Demonstrates:</h2>
+    <ul>
+      <li>Display a totals row at the end of the grid.</li>
+      <li>This example uses basic JSON data. It can easily be modified to accommodate a DataView. </li>
+    </ul>
+  </div>
+    <h2>View Source:</h2>
+    <ul>
+        <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-footer-totals.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+    </ul>
+</div>
+
+<script src="../lib/firebugx.js"></script>
+
+<script src="../lib/jquery-1.11.2.min.js"></script>
+<script src="../lib/jquery-ui-1.11.3.min.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../slick.editors.js"></script>
+<script src="../slick.grid.js"></script>
+
+<script>
+  var grid;
+  var data = [];
+  var options = {
+    enableCellNavigation: true,
+    headerRowHeight: 30,
+    editable: true,
+    createFooterRow: true,
+    showFooterRow: true,
+    footerRowHeight: 21
+  };
+
+  var columns = [];
+  for (var i = 0; i < 10; i++) {
+    columns.push({
+      id: i,
+      name: String.fromCharCode("A".charCodeAt(0) + i),
+      field: i,
+      width: 58,
+      editor: Slick.Editors.Integer
+    });
+  }
+
+  function UpdateAllTotals(grid) {
+    var columnIdx = grid.getColumns().length;
+    while (columnIdx--) {
+      UpdateTotal(columnIdx, grid);
+    }
+  }
+
+  function UpdateTotal(cell, grid) {
+    var columnId = grid.getColumns()[cell].id;
+    
+    var total = 0;
+    var i = data.length;
+    while (i--) {
+      total += (parseInt(data[i][columnId], 10) || 0);
+    }
+    var columnElement = grid.getFooterRowColumn(columnId);
+    $(columnElement).html("Sum:  " + total);
+  }
+
+  $(function () {
+    for (var i = 0; i < 20; i++) {
+      var d = (data[i] = {});
+      d["id"] = i;
+      for (var j = 0; j < columns.length; j++) {
+        d[j] = Math.round(Math.random() * 10);
+      }
+    }
+
+    grid = new Slick.Grid("#myGrid", data, columns, options);
+    UpdateAllTotals(grid);
+
+    grid.onCellChange.subscribe(function(e, args) {
+      UpdateTotal(args.cell, args.grid);
+    });
+
+    grid.onColumnsReordered.subscribe(function(e, args) {
+      UpdateAllTotals(args.grid);
+    });    
+  })
+</script>
+</body>
+</html>

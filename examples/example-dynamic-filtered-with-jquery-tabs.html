@@ -1,0 +1,443 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+  <title>SlickGrid example: jQuery tabs with a dynamic filtered grid in each pane</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../controls/slick.pager.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css"/>
+  <style>
+   .my-grid {
+	  background: white;
+	  outline: 0;
+	  border: 1px solid gray;
+    }
+	
+    .cell-title {
+      font-weight: bold;
+    }
+
+    .cell-effort-driven {
+      text-align: center;
+    }
+
+    .cell-selection {
+      border-right-color: silver;
+      border-right-style: solid;
+      background: #f5f5f5;
+      color: gray;
+      text-align: right;
+      font-size: 10px;
+    }
+
+    .slick-row.selected .cell-selection {
+      background-color: transparent; /* show default selected row background */
+    }
+  </style>
+</head>
+<body>
+<table width="100%">
+  <tr>
+    <td valign="top" width="50%">
+		<button id='add-tab'>Add tab</button>
+		<div id="tabs">
+		  <ul>
+			<li><a href="#tabs-1">Grid 1</a></li>
+		  </ul>
+		  <div id="tabs-1">
+			<div><strong><i>This tab is the original</i></strong></div>
+			<br/>
+			
+		    <b>Search:</b>
+			<hr/>
+			<div style="padding:6px;">
+			  <label style="width:200px;float:left">Show tasks with % at least: </label>
+
+			  <div style="padding:2px;">
+				<div style="width:100px;display:inline-block;" id="pcSlider_1"></div>
+			  </div>
+			  <br/>
+			  <label style="width:200px;float:left">And title including:</label>
+			  <input type=text id="txtSearch_1" style="width:100px;">
+			  <br/><br/>
+			  <button id="btnSelectRows_1">Select first 10 rows</button>
+			  <br/><br/>
+
+			  <div id="grid_1" style="width:600px;height:300px;" class="my-grid"></div>
+			<div>
+		  </div>
+		</div>
+	</td>
+    <td valign="top">
+      <h2>Demonstrates:</h2>
+      <ul>
+        <li>jQuery tabs containing a grid in each pane, with filtering editing and sorting as per example4-model.</li>
+      </ul>
+        <h2>View Source:</h2>
+        <ul>
+            <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example1-simple.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+        </ul>
+    </td>
+  </tr>
+</table>
+
+<script src="../lib/firebugx.js"></script>
+
+<script src="../lib/jquery-1.11.2.min.js"></script>
+<script src="../lib/jquery-ui-1.11.3.min.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../slick.formatters.js"></script>
+<script src="../slick.editors.js"></script>
+<script src="../plugins/slick.rowselectionmodel.js"></script>
+<script src="../slick.grid.js"></script>
+<script src="../slick.dataview.js"></script>
+<script src="../controls/slick.pager.js"></script>
+<script src="../controls/slick.columnpicker.js"></script>
+
+<script>
+  function isIEPreVer9() { var v = navigator.appVersion.match(/MSIE ([\d.]+)/i); return (v ? v[1] < 9 : false); }
+
+  var gridElementName = "grid_";
+  var pagerElementName = "gridPager_";
+  var sliderElementName = "pcSlider_";
+  var searchElementName = "txtSearch_";
+  var selectButtonElementName = "btnSelectRows_";
+  
+  var gridArray;
+  var dataViewArray;
+  
+  // -----------------------------------------------------------------------------------
+  // HANDY HINTS
+  //
+  // There are many ways to achieve dynamic grids. The approach used in this example is
+  // to declare arrays for all the grid housekeeping objects such as search text, sort 
+  // direction etc, and for all the important objects such as grids and dataViews.
+  // In a single-grid page, these are usually variables, but for multiple grid pages, 
+  // declaring an array allows us to keep a set of data for each grid indexed by the 
+  // 'gridIndex' from 1 to n.
+  // Events are declared once within the function that creates the grid, with the grid, 
+  // dataview and gridIndex local vars being used to force a closure and lock the event 
+  // to that grid/dataView.
+  //
+  // Another approach would be to create single events used by all grids that can
+  // determine which grid they are associated with and respond accordingly.
+  // To facilitate this, all grid events pass the args.grid parameter which is the 
+  // grid itself, and all dataView events pass the args.dataView parameter similarly.
+  //
+  // Where the grid is available and you want the dataView, use grid.getData().
+  // Where the dataView is available and you want the grid, use GetDataViewIndex()
+  // and reference the grid using gridArray[gridIndex].
+  //
+  // Getting the gridIndex from the grid or dataView also allows reference to the arrays 
+  // of housekeeping objects discussed earlier, and makes it easy get a handle on a control
+  // in the grid's tab by constructing element ids eg. sliderElementName above.
+  
+  // The two following functions are not used in this page, but have been tested and can be 
+  // utilised as just described to get the gridIndex from the grid or dataView object.
+  function GetGridIndex(grid) {
+	for (var i=1; i<gridArray.length; i++) {
+		if (gridArray[i] === grid) { return i; }
+	}
+	return -1;
+  }
+  
+  function GetDataViewIndex(dataView) {
+	for (var i=1; i<dataViewArray.length; i++) {
+		if (dataViewArray[i] === dataView) { return i; }
+	}
+	return -1;
+  }
+  // -----------------------------------------------------------------------------------
+  
+  var sortcolArray = [];
+  var sortdirArray = [];
+  var percentCompleteThresholdArray = [];
+  var searchStringArray = [];
+  var h_runfiltersArray = [];
+
+  // generic handlers (can be used in all grids)
+  function requiredFieldValidator(value) {
+    if (value == null || value == undefined || !value.length) {
+      return {valid: false, msg: "This is a required field"};
+    }
+    else {
+      return {valid: true, msg: null};
+    }
+  }
+
+  function myFilter(item, args) {
+    if (item["percentComplete"] < args.percentCompleteThreshold) {
+      return false;
+    }
+    if (args.searchString != "" && item["title"].indexOf(args.searchString) == -1) {
+      return false;
+    }
+    return true;
+  }
+
+  function percentCompleteSort(a, b) {
+    return a["percentComplete"] - b["percentComplete"];
+  }
+
+  function CreateColumns() {
+	  var columns = [
+		  {id: "sel", name: "#", field: "num", behavior: "select", cssClass: "cell-selection", width: 40, cannotTriggerInsert: true, resizable: false, selectable: false },
+		  {id: "title", name: "Title", field: "title", width: 120, minWidth: 120, cssClass: "cell-title", editor: Slick.Editors.Text, validator: requiredFieldValidator, sortable: true},
+		  {id: "duration", name: "Duration", field: "duration", editor: Slick.Editors.Text, sortable: true},
+		  {id: "%", defaultSortAsc: false, name: "% Complete", field: "percentComplete", width: 80, resizable: false, formatter: Slick.Formatters.PercentCompleteBar, editor: Slick.Editors.PercentComplete, sortable: true},
+		  {id: "start", name: "Start", field: "start", minWidth: 60, editor: Slick.Editors.Date, sortable: true},
+		  {id: "finish", name: "Finish", field: "finish", minWidth: 60, editor: Slick.Editors.Date, sortable: true},
+		  {id: "effort-driven", name: "Effort Driven", width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark, editor: Slick.Editors.Checkbox, cannotTriggerInsert: true, sortable: true}
+	  ];
+	return columns;
+  }
+
+  function CreateOptions() {
+	var options = {
+		editable: true,
+		enableAddRow: true,
+		enableCellNavigation: true,
+		asyncEditorLoading: true,
+		forceFitColumns: false,
+		editorLock: new Slick.EditorLock()
+	};
+	return options;
+  }
+
+  function CreateData(dataView, gridIndex) {
+   var data = [];
+   // prepare the data
+   for (var i = 0; i < 50000; i++) {
+    var d = (data[i] = {});
+
+    d["id"] = "id_" + i;
+    d["num"] = i;
+    d["title"] = "Task " + i;
+    d["duration"] = "5 days";
+    d["percentComplete"] = Math.round(Math.random() * 100);
+    d["start"] = "01/01/2009";
+    d["finish"] = "01/05/2009";
+    d["effortDriven"] = (i % 5 == 0);
+  }
+  
+	dataView.beginUpdate();
+	dataView.setItems(data);
+	dataView.setFilterArgs({
+	  percentCompleteThreshold: percentCompleteThresholdArray[gridIndex],
+	  searchString: searchStringArray[gridIndex]
+	});
+	dataView.setFilter(myFilter);
+	dataView.endUpdate();
+  }
+  
+  function CreateGrid(gridIndex) {
+    if (!gridArray) { gridArray = []; dataViewArray=[]; }
+	
+	// define element names
+	var gridId = gridElementName + gridIndex;
+	var pagerId = pagerElementName + gridIndex;
+	
+	// create grid and associated components
+    var dataView = new Slick.Data.DataView({ inlineFilters: true });
+	var columns = CreateColumns();
+ 	var options = CreateOptions();
+    var grid = new Slick.Grid("#" + gridId, dataView, columns, options);
+	grid.setSelectionModel(new Slick.RowSelectionModel());
+
+	var pager = new Slick.Controls.Pager(dataView, grid, $("#" + pagerId));
+	var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
+	
+	gridArray[gridIndex] = grid;
+	dataViewArray[gridIndex] = dataView;
+	
+	// init arrays
+	sortcolArray[gridIndex] = "title";
+	sortdirArray[gridIndex] = 1;
+	percentCompleteThresholdArray[gridIndex] = 0;
+	searchStringArray[gridIndex] = "";
+	h_runfiltersArray[gridIndex] = null;
+	
+	// wire up events. any reference to gridIndex creates a closure and locks 
+	// the function to the current grid
+	function comparer(a, b) {
+	  var x = a[sortcolArray[gridIndex]], y = b[sortcolArray[gridIndex]];
+	  return (x == y ? 0 : (x > y ? 1 : -1));
+	}
+	
+	  grid.onCellChange.subscribe(function (e, args) {
+		dataView.updateItem(args.item.id, args.item);
+	  });
+
+	  grid.onAddNewRow.subscribe(function (e, args) {
+		var item = {"num": data.length, "id": "new_" + (Math.round(Math.random() * 10000)), "title": "New task", "duration": "1 day", "percentComplete": 0, "start": "01/01/2009", "finish": "01/01/2009", "effortDriven": false};
+		$.extend(item, args.item);
+		dataView.addItem(item);
+	  });
+
+	  grid.onKeyDown.subscribe(function (e) {
+		// select all rows on ctrl-a
+		if (e.which != 65 || !e.ctrlKey) {
+		  return false;
+		}
+
+		var rows = [];
+		for (var i = 0; i < dataView.getLength(); i++) {
+		  rows.push(i);
+		}
+
+		grid.setSelectedRows(rows);
+		e.preventDefault();
+	  });
+
+	  grid.onSort.subscribe(function (e, args) {
+		sortdirArray[gridIndex] = args.sortAsc ? 1 : -1;
+		sortcolArray[gridIndex] = args.sortCol.field;
+
+		if (isIEPreVer9()) {
+		  // using temporary Object.prototype.toString override
+		  // more limited and does lexicographic sort only by default, but can be much faster
+
+		  var percentCompleteValueFn = function () {
+			var val = this["percentComplete"];
+			if (val < 10) {
+			  return "00" + val;
+			} else if (val < 100) {
+			  return "0" + val;
+			} else {
+			  return val;
+			}
+		  };
+
+		  // use numeric sort of % and lexicographic for everything else
+		  dataView.fastSort((sortcol == "percentComplete") ? percentCompleteValueFn : sortcol, args.sortAsc);
+		} else {
+		  // using native sort with comparer
+		  // preferred method but can be very slow in IE with huge datasets
+		  dataView.sort(comparer, args.sortAsc);
+		}
+	  });
+
+	  // wire up model events to drive the grid
+	  dataView.onRowCountChanged.subscribe(function (e, args) {
+		grid.updateRowCount();
+		grid.render();
+	  });
+
+	  dataView.onRowsChanged.subscribe(function (e, args) {
+		grid.invalidateRows(args.rows);
+		grid.render();
+	  });
+
+	  dataView.onPagingInfoChanged.subscribe(function (e, pagingInfo) {
+		var isLastPage = pagingInfo.pageNum == pagingInfo.totalPages - 1;
+		var enableAddRow = isLastPage || pagingInfo.pageSize == 0;
+		var options = grid.getOptions();
+
+		if (options.enableAddRow != enableAddRow) {
+		  grid.setOptions({enableAddRow: enableAddRow});
+		}
+	  });
+
+	  h_runfiltersArray[gridIndex] = null;
+
+	  // wire up the slider to apply the filter to the model
+	  $("#" + sliderElementName + gridIndex).slider({
+		"range": "min",
+		"slide": function (event, ui) {
+		  grid.getEditorLock().cancelCurrentEdit();
+
+		  if (percentCompleteThresholdArray[gridIndex] != ui.value) {
+			window.clearTimeout(h_runfiltersArray[gridIndex]);
+			h_runfiltersArray[gridIndex] = window.setTimeout(updateFilter, 10);
+			percentCompleteThresholdArray[gridIndex] = ui.value;
+		  }
+		}
+	  });
+
+	  // wire up the search textbox to apply the filter to the model
+	  $("#" + searchElementName + gridIndex).keyup(function (e) {
+		grid.getEditorLock().cancelCurrentEdit();
+
+		// clear on Esc
+		if (e.which == 27) {
+		  this.value = "";
+		}
+
+		searchStringArray[gridIndex] = this.value;
+		updateFilter();
+	  });
+
+	  function updateFilter() {
+		dataView.setFilterArgs({
+		  percentCompleteThreshold: percentCompleteThresholdArray[gridIndex],
+		  searchString: searchStringArray[gridIndex]
+		});
+		dataView.refresh();
+	  }
+
+	  $("#" + selectButtonElementName + gridIndex).click(function () {
+		if (!grid.getEditorLock().commitCurrentEdit()) {
+		  return;
+		}
+
+		var rows = [];
+		for (var i = 0; i < 10 && i < dataView.getLength(); i++) {
+		  rows.push(i);
+		}
+
+		grid.setSelectedRows(rows);
+	  });
+
+	  // create data and refresh display
+	  CreateData(dataView, gridIndex);
+
+	  // if you don't want the items that are not visible (due to being filtered out
+	  // or being on a different page) to stay selected, pass 'false' to the second arg
+	  dataView.syncGridSelection(grid, true);
+  }
+  
+  $(function () {
+	// take care of jqueryui tabs and adding tab
+    $( "div#tabs" ).tabs();	
+ 
+    $("button#add-tab").click(function() {
+        var num_tabs = $("div#tabs ul li").length + 1;
+
+        $("div#tabs ul").append(
+            "<li><a href='#tab" + num_tabs + "'>Grid " + num_tabs + "</a></li>"
+        );
+		$("div#tabs").append(
+            "<div id='tab" + num_tabs + "'>"
+				+ '			<b>Search:</b>\
+			<hr/>\
+			<div style="padding:6px;">\
+			  <label style="width:200px;float:left">Show tasks with % at least: </label>\
+				\
+			  <div style="padding:2px;">\
+				<div style="width:100px;display:inline-block;" id="' + sliderElementName + num_tabs + '"></div>\
+			  </div>\
+			  <br/>\
+			  <label style="width:200px;float:left">And title including:</label>\
+			  <input type=text id="' + searchElementName + num_tabs + '" style="width:100px;">\
+			  <br/><br/>\
+			  <button id="' + selectButtonElementName + num_tabs + '">Select first 10 rows</button>\
+			  <br/><br/>\
+			  '
+				+ '<div id="' + gridElementName + num_tabs + '" style="width:600px;height:300px;" class="my-grid"></div>'
+			+ "</div>"
+        );
+		
+		CreateGrid(num_tabs);
+        $("div#tabs").tabs("refresh");
+    });
+
+	CreateGrid(1);
+  })
+</script>
+</body>
+</html>

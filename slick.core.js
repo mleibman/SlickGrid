@@ -16,17 +16,80 @@
       "Group": Group,
       "GroupTotals": GroupTotals,
       "EditorLock": EditorLock,
-
+  
       /***
        * A global singleton editor lock.
        * @class GlobalEditorLock
        * @static
        * @constructor
        */
-      "GlobalEditorLock": new EditorLock()
+      "GlobalEditorLock": new EditorLock(),
+      "TreeColumns": TreeColumns,
+
+      "keyCode": {
+        SPACE: 8,
+        BACKSPACE: 8,
+        DELETE: 46,
+        DOWN: 40,
+        END: 35,
+        ENTER: 13,
+        ESCAPE: 27,
+        HOME: 36,
+        INSERT: 45,
+        LEFT: 37,
+        PAGE_DOWN: 34,
+        PAGE_UP: 33,
+        RIGHT: 39,
+        TAB: 9,
+        UP: 38,
+        A: 65
+      },
+      "preClickClassName" : "slick-edit-preclick",
+      
+      "GridAutosizeColsMode": {
+        None: 'NOA',
+        LegacyOff: 'LOF',
+        LegacyForceFit: 'LFF',
+        IgnoreViewport: 'IGV',
+        FitColsToViewport: 'FCV',
+        FitViewportToCols: 'FVC'
+      },
+      
+      "ColAutosizeMode": {
+          Locked: 'LCK',
+          Guide: 'GUI',
+          Content: 'CON',
+          ContentIntelligent: 'CTI'
+      },
+      
+      "RowSelectionMode": {
+          FirstRow: 'FS1',
+          FirstNRows: 'FSN',
+          AllRows: 'ALL',
+          LastRow: 'LS1'
+      },
+      
+      "ValueFilterMode": {
+          None: 'NONE',
+          DeDuplicate: 'DEDP',
+          GetGreatestAndSub: 'GR8T',
+          GetLongestTextAndSub: 'LNSB',
+          GetLongestText: 'LNSC'
+      },
+      
+      "WidthEvalMode": {
+          CanvasTextSize: 'CANV',
+          HTML: 'HTML'
+      }      
     }
   });
 
+
+  if (Object.freeze) { 
+    Object.freeze(Slick.ColAutosizeMode); 
+    Object.freeze(Slick.AutoWidthStrategy); 
+  }
+    
   /***
    * An event object for passing data to event handlers and letting them control propagation.
    * <p>This is pretty much identical to how W3C and jQuery implement events.</p>
@@ -308,6 +371,13 @@
     this.collapsed = false;
 
     /***
+     * Whether a group selection checkbox is checked.
+     * @property selectChecked
+     * @type {Boolean}
+     */
+    this.selectChecked = false;
+
+    /***
      * GroupTotals, if any.
      * @property totals
      * @type {GroupTotals}
@@ -406,7 +476,7 @@
 
     /***
      * Sets the specified edit controller as the active edit controller (acquire edit lock).
-     * If another edit controller is already active, and exception will be thrown.
+     * If another edit controller is already active, and exception will be throw new Error(.
      * @method activate
      * @param editController {EditController} edit controller acquiring the lock
      */
@@ -415,26 +485,26 @@
         return;
       }
       if (activeEditController !== null) {
-        throw "SlickGrid.EditorLock.activate: an editController is still active, can't activate another editController";
+        throw new Error("SlickGrid.EditorLock.activate: an editController is still active, can't activate another editController");
       }
       if (!editController.commitCurrentEdit) {
-        throw "SlickGrid.EditorLock.activate: editController must implement .commitCurrentEdit()";
+        throw new Error("SlickGrid.EditorLock.activate: editController must implement .commitCurrentEdit()");
       }
       if (!editController.cancelCurrentEdit) {
-        throw "SlickGrid.EditorLock.activate: editController must implement .cancelCurrentEdit()";
+        throw new Error("SlickGrid.EditorLock.activate: editController must implement .cancelCurrentEdit()");
       }
       activeEditController = editController;
     };
 
     /***
      * Unsets the specified edit controller as the active edit controller (release edit lock).
-     * If the specified edit controller is not the active one, an exception will be thrown.
+     * If the specified edit controller is not the active one, an exception will be throw new Error(.
      * @method deactivate
      * @param editController {EditController} edit controller releasing the lock
      */
     this.deactivate = function (editController) {
       if (activeEditController !== editController) {
-        throw "SlickGrid.EditorLock.deactivate: specified editController is not the currently active one";
+        throw new Error("SlickGrid.EditorLock.deactivate: specified editController is not the currently active one");
       }
       activeEditController = null;
     };
@@ -461,6 +531,178 @@
     this.cancelCurrentEdit = function cancelCurrentEdit() {
       return (activeEditController ? activeEditController.cancelCurrentEdit() : true);
     };
+  }
+
+  /**
+   *
+   * @param {Array} treeColumns Array com levels of columns
+   * @returns {{hasDepth: 'hasDepth', getTreeColumns: 'getTreeColumns', extractColumns: 'extractColumns', getDepth: 'getDepth', getColumnsInDepth: 'getColumnsInDepth', getColumnsInGroup: 'getColumnsInGroup', visibleColumns: 'visibleColumns', filter: 'filter', reOrder: reOrder}}
+   * @constructor
+   */
+  function TreeColumns(treeColumns) {
+
+    var columnsById = {};
+
+    function init() {
+      mapToId(treeColumns);
+    }
+
+    function mapToId(columns) {
+      columns
+        .forEach(function (column) {
+          columnsById[column.id] = column;
+
+          if (column.columns)
+            mapToId(column.columns);
+        });
+    }
+
+    function filter(node, condition) {
+
+      return node.filter(function (column) {
+
+        var valid = condition.call(column);
+
+        if (valid && column.columns)
+          column.columns = filter(column.columns, condition);
+
+        return valid && (!column.columns || column.columns.length);
+      });
+
+    }
+
+    function sort(columns, grid) {
+      columns
+        .sort(function (a, b) {
+          var indexA = getOrDefault(grid.getColumnIndex(a.id)),
+            indexB = getOrDefault(grid.getColumnIndex(b.id));
+
+          return indexA - indexB;
+        })
+        .forEach(function (column) {
+          if (column.columns)
+            sort(column.columns, grid);
+        });
+    }
+
+    function getOrDefault(value) {
+      return typeof value === 'undefined' ? -1 : value;
+    }
+
+    function getDepth(node) {
+      if (node.length)
+        for (var i in node)
+          return getDepth(node[i]);
+      else if (node.columns)
+        return 1 + getDepth(node.columns);
+      else
+        return 1;
+    }
+
+    function getColumnsInDepth(node, depth, current) {
+      var columns = [];
+      current = current || 0;
+
+      if (depth == current) {
+
+        if (node.length)
+          node.forEach(function(n) {
+            if (n.columns)
+              n.extractColumns = function() {
+                return extractColumns(n);
+              };
+          });
+
+        return node;
+      } else
+        for (var i in node)
+          if (node[i].columns) {
+            columns = columns.concat(getColumnsInDepth(node[i].columns, depth, current + 1));
+          }
+
+      return columns;
+    }
+
+    function extractColumns(node) {
+      var result = [];
+
+      if (node.hasOwnProperty('length')) {
+
+        for (var i = 0; i < node.length; i++)
+          result = result.concat(extractColumns(node[i]));
+
+      } else {
+
+        if (node.hasOwnProperty('columns'))
+
+          result = result.concat(extractColumns(node.columns));
+
+        else
+          return node;
+
+      }
+
+      return result;
+    }
+
+    function cloneTreeColumns() {
+      return $.extend(true, [], treeColumns);
+    }
+
+    init();
+
+    this.hasDepth = function () {
+
+      for (var i in treeColumns)
+        if (treeColumns[i].hasOwnProperty('columns'))
+          return true;
+
+      return false;
+    };
+
+    this.getTreeColumns = function () {
+      return treeColumns;
+    };
+
+    this.extractColumns = function () {
+      return this.hasDepth()? extractColumns(treeColumns): treeColumns;
+    };
+
+    this.getDepth = function () {
+      return getDepth(treeColumns);
+    };
+
+    this.getColumnsInDepth = function (depth) {
+      return getColumnsInDepth(treeColumns, depth);
+    };
+
+    this.getColumnsInGroup = function (groups) {
+      return extractColumns(groups);
+    };
+
+    this.visibleColumns = function () {
+      return filter(cloneTreeColumns(), function () {
+        return this.visible;
+      });
+    };
+
+    this.filter = function (condition) {
+      return filter(cloneTreeColumns(), condition);
+    };
+
+    this.reOrder = function (grid) {
+      return sort(treeColumns, grid);
+    };
+
+    this.getById = function (id) {
+      return columnsById[id];
+    };
+
+    this.getInIds = function (ids) {
+      return ids.map(function (id) {
+        return columnsById[id];
+      });
+    }
   }
 })(jQuery);
 

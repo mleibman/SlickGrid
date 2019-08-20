@@ -1,7 +1,7 @@
 (function ($) {
   /***
    * A sample AJAX data store implementation.
-   * Right now, it's hooked up to load Hackernews stories, but can
+   * Right now, it's hooked up to load search results from Octopart, but can
    * easily be extended to support any JSONP-compatible backend that accepts paging parameters.
    */
   function RemoteModel() {
@@ -72,10 +72,10 @@
         return;
       }
 
-      var url = "http://api.thriftdb.com/api.hnsearch.com/items/_search?filter[fields][type][]=submission&q=" + searchstr + "&start=" + (fromPage * PAGESIZE) + "&limit=" + (((toPage - fromPage) * PAGESIZE) + PAGESIZE);
+      var url = "http://octopart.com/api/v3/parts/search?apikey=68b25f31&include[]=short_description&show[]=uid&show[]=manufacturer&show[]=mpn&show[]=brand&show[]=octopart_url&show[]=short_description&q=" + searchstr + "&start=" + (fromPage * PAGESIZE) + "&limit=" + (((toPage - fromPage) * PAGESIZE) + PAGESIZE);
 
       if (sortcol != null) {
-          url += ("&sortby=" + sortcol + ((sortdir > 0) ? "+asc" : "+desc"));
+        url += ("&sortby=" + sortcol + ((sortdir > 0) ? "+asc" : "+desc"));
       }
 
       if (h_request != null) {
@@ -113,10 +113,6 @@
 
       for (var i = 0; i < resp.results.length; i++) {
         var item = resp.results[i].item;
-
-        // Old IE versions can't parse ISO dates, so change to universally-supported format.
-        item.create_ts = item.create_ts.replace(/^(\d+)-(\d+)-(\d+)T(\d+:\d+:\d+)Z$/, "$2/$3/$1 $4 UTC"); 
-        item.create_ts = new Date(item.create_ts);
 
         data[from + i] = item;
         data[from + i].index = from + i;

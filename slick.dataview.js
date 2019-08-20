@@ -7,7 +7,8 @@
           Avg: AvgAggregator,
           Min: MinAggregator,
           Max: MaxAggregator,
-          Sum: SumAggregator
+          Sum: SumAggregator,
+          Count: CountAggregator
         }
       }
     }
@@ -53,7 +54,11 @@
     var groupingInfoDefaults = {
       getter: null,
       formatter: null,
-      comparer: function(a, b) { return a.value - b.value; },
+      comparer: function(a, b) {
+        return (a.value === b.value ? 0 :
+          (a.value > b.value ? 1 : -1)
+        );
+      },
       predefinedValues: [],
       aggregators: [],
       aggregateEmpty: false,
@@ -75,6 +80,7 @@
     // events
     var onRowCountChanged = new Slick.Event();
     var onRowsChanged = new Slick.Event();
+    var onRowsOrCountChanged = new Slick.Event();
     var onPagingInfoChanged = new Slick.Event();
 
     options = $.extend(true, {}, defaults, options);
@@ -103,7 +109,7 @@
       for (var i = startingIndex, l = items.length; i < l; i++) {
         id = items[i][idProperty];
         if (id === undefined) {
-          throw "Each data element must implement a unique 'id' property";
+          throw new Error("Each data element must implement a unique 'id' property");
         }
         idxById[id] = i;
       }
@@ -114,7 +120,7 @@
       for (var i = 0, l = items.length; i < l; i++) {
         id = items[i][idProperty];
         if (id === undefined || idxById[id] !== i) {
-          throw "Each data element must implement a unique 'id' property";
+          throw new Error("Each data element must implement a unique 'id' property");
         }
       }
     }
@@ -151,7 +157,7 @@
 
     function getPagingInfo() {
       var totalPages = pagesize ? Math.max(1, Math.ceil(totalRows / pagesize)) : 1;
-      return {pageSize: pagesize, pageNum: pagenum, totalRows: totalRows, totalPages: totalPages};
+      return {pageSize: pagesize, pageNum: pagenum, totalRows: totalRows, totalPages: totalPages, dataView: self};
     }
 
     function sort(comparer, ascending) {
@@ -204,6 +210,15 @@
       } else if (fastSortField) {
         fastSort(fastSortField, sortAsc);
       }
+    }
+
+    function getFilteredItems(){
+      return filteredItems;
+    }
+
+
+    function getFilter(){
+      return filter;
     }
 
     function setFilter(filterFn) {
@@ -293,6 +308,11 @@
       }
     }
 
+    function getRowByItem(item) {
+      ensureRowsByIdCache();
+      return rowsById[item[idProperty]];
+    }
+
     function getRowById(id) {
       ensureRowsByIdCache();
       return rowsById[id];
@@ -300,6 +320,18 @@
 
     function getItemById(id) {
       return items[idxById[id]];
+    }
+
+    function mapItemsToRows(itemArray) {
+      var rows = [];
+      ensureRowsByIdCache();
+      for (var i = 0, l = itemArray.length; i < l; i++) {
+        var row = rowsById[itemArray[i][idProperty]];
+        if (row != null) {
+          rows[rows.length] = row;
+        }
+      }
+      return rows;
     }
 
     function mapIdsToRows(idArray) {
@@ -325,10 +357,38 @@
     }
 
     function updateItem(id, item) {
-      if (idxById[id] === undefined || id !== item[idProperty]) {
-        throw "Invalid or non-matching id";
+      // see also https://github.com/mleibman/SlickGrid/issues/1082
+      if (idxById[id] === undefined) {
+        throw new Error("Invalid id");
+      }
+
+      // What if the specified item also has an updated idProperty?
+      // Then we'll have to update the index as well, and possibly the `updated` cache too.
+      if (id !== item[idProperty]) {
+        // make sure the new id is unique:
+        var newId = item[idProperty];
+        if (newId == null) {
+          throw new Error("Cannot update item to associate with a null id");
+        }
+        if (idxById[newId] !== undefined) {
+          throw new Error("Cannot update item to associate with a non-unique id");
+        }
+        idxById[newId] = idxById[id];
+        delete idxById[id];
+
+        // Also update the `updated` hashtable/markercache? Yes, `recalc()` inside `refresh()` needs that one!
+        if (updated && updated[id]) {
+          delete updated[id];
+        }
+
+        // Also update the row indexes? no need since the `refresh()`, further down, blows away the `rowsById[]` cache!
+
+        id = newId;
       }
       items[idxById[id]] = item;
+
+      // Also update the rows? no need since the `refresh()`, further down, blows away the `rows[]` cache and recalculates it via `recalc()`!
+
       if (!updated) {
         updated = {};
       }
@@ -351,12 +411,52 @@
     function deleteItem(id) {
       var idx = idxById[id];
       if (idx === undefined) {
-        throw "Invalid id";
+        throw new Error("Invalid id");
       }
       delete idxById[id];
       items.splice(idx, 1);
       updateIdxById(idx);
       refresh();
+    }
+
+    function sortedAddItem(item) {
+      if(!sortComparer) {
+        throw new Error("sortedAddItem() requires a sort comparer, use sort()");
+      }
+      insertItem(sortedIndex(item), item);
+    }
+
+    function sortedUpdateItem(id, item) {
+      if (idxById[id] === undefined || id !== item[idProperty]) {
+        throw new Error("Invalid or non-matching id " + idxById[id]);
+      }
+      if(!sortComparer) {
+        throw new Error("sortedUpdateItem() requires a sort comparer, use sort()");
+      }
+      var oldItem = getItemById(id);
+      if(sortComparer(oldItem, item) !== 0) {
+        // item affects sorting -> must use sorted add
+        deleteItem(id);
+        sortedAddItem(item);
+      }
+      else { // update does not affect sorting -> regular update works fine
+        updateItem(id, item);
+      }
+    }
+
+    function sortedIndex(searchItem) {
+      var low = 0, high = items.length;
+
+      while (low < high) {
+        var mid = low + high >>> 1;
+        if (sortComparer(items[mid], searchItem) === -1) {
+          low = mid + 1;
+        }
+        else {
+          high = mid;
+        }
+      }
+      return low;
     }
 
     function getLength() {
@@ -520,7 +620,7 @@
           group = groups[i];
           group.groups = extractGroups(group.rows, group);
         }
-      }      
+      }
 
       groups.sort(groupingInfos[level].comparer);
 
@@ -537,8 +637,8 @@
         // make sure all the subgroups are calculated
         var i = group.groups.length;
         while (i--) {
-          if (!group.groups[i].initialized) {
-            calculateTotals(group.groups[i]);
+          if (!group.groups[i].totals.initialized) {
+            calculateTotals(group.groups[i].totals);
           }
         }
       }
@@ -570,7 +670,7 @@
       level = level || 0;
       var gi = groupingInfos[level];
       var groupCollapsed = gi.collapsed;
-      var toggledGroups = toggledGroupsByLevel[level];      
+      var toggledGroups = toggledGroupsByLevel[level];
       var idx = groups.length, g;
       while (idx--) {
         g = groups[idx];
@@ -592,7 +692,7 @@
         g.collapsed = groupCollapsed ^ toggledGroups[g.groupingKey];
         g.title = gi.formatter ? gi.formatter(g) : g.value;
       }
-    } 
+    }
 
     function flattenGroupedRows(groups, level) {
       level = level || 0;
@@ -626,24 +726,34 @@
     }
 
     function compileAccumulatorLoop(aggregator) {
-      var accumulatorInfo = getFunctionInfo(aggregator.accumulate);
-      var fn = new Function(
-          "_items",
-          "for (var " + accumulatorInfo.params[0] + ", _i=0, _il=_items.length; _i<_il; _i++) {" +
-              accumulatorInfo.params[0] + " = _items[_i]; " +
-              accumulatorInfo.body +
-          "}"
-      );
-      fn.displayName = fn.name = "compiledAccumulatorLoop";
-      return fn;
+      if(aggregator.accumulate) {
+        var accumulatorInfo = getFunctionInfo(aggregator.accumulate);
+        var fn = new Function(
+            "_items",
+            "for (var " + accumulatorInfo.params[0] + ", _i=0, _il=_items.length; _i<_il; _i++) {" +
+                accumulatorInfo.params[0] + " = _items[_i]; " +
+                accumulatorInfo.body +
+            "}"
+        );
+        fn.displayName = fn.name = "compiledAccumulatorLoop";
+        return fn;  
+      } else {
+        return function noAccumulator() {
+        }
+      }
     }
 
     function compileFilter() {
       var filterInfo = getFunctionInfo(filter);
 
+      var filterPath1 = "{ continue _coreloop; }$1";
+      var filterPath2 = "{ _retval[_idx++] = $item$; continue _coreloop; }$1";
+      // make some allowances for minification - there's only so far we can go with RegEx
       var filterBody = filterInfo.body
-          .replace(/return false\s*([;}]|$)/gi, "{ continue _coreloop; }$1")
-          .replace(/return true\s*([;}]|$)/gi, "{ _retval[_idx++] = $item$; continue _coreloop; }$1")
+          .replace(/return false\s*([;}]|\}|$)/gi, filterPath1)
+          .replace(/return!1([;}]|\}|$)/gi, filterPath1)
+          .replace(/return true\s*([;}]|\}|$)/gi, filterPath2)
+          .replace(/return!0([;}]|\}|$)/gi, filterPath2)
           .replace(/return ([^;}]+?)\s*([;}]|$)/gi,
           "{ if ($1) { _retval[_idx++] = $item$; }; continue _coreloop; }$2");
 
@@ -673,9 +783,14 @@
     function compileFilterWithCaching() {
       var filterInfo = getFunctionInfo(filter);
 
+      var filterPath1 = "{ continue _coreloop; }$1";
+      var filterPath2 = "{ _cache[_i] = true;_retval[_idx++] = $item$; continue _coreloop; }$1";
+      // make some allowances for minification - there's only so far we can go with RegEx
       var filterBody = filterInfo.body
-          .replace(/return false\s*([;}]|$)/gi, "{ continue _coreloop; }$1")
-          .replace(/return true\s*([;}]|$)/gi, "{ _cache[_i] = true;_retval[_idx++] = $item$; continue _coreloop; }$1")
+          .replace(/return false\s*([;}]|\}|$)/gi, filterPath1)
+          .replace(/return!1([;}]|\}|$)/gi, filterPath1)
+          .replace(/return true\s*([;}]|\}|$)/gi, filterPath2)
+          .replace(/return!0([;}]|\}|$)/gi, filterPath2)
           .replace(/return ([^;}]+?)\s*([;}]|$)/gi,
           "{ if ((_cache[_i] = $1)) { _retval[_idx++] = $item$; }; continue _coreloop; }$2");
 
@@ -756,14 +871,17 @@
       // get the current page
       var paged;
       if (pagesize) {
-        if (filteredItems.length < pagenum * pagesize) {
-          pagenum = Math.floor(filteredItems.length / pagesize);
+        if (filteredItems.length <= pagenum * pagesize) {
+          if (filteredItems.length === 0) {
+            pagenum = 0;
+          } else {
+            pagenum = Math.floor((filteredItems.length - 1) / pagesize);
+          }
         }
         paged = filteredItems.slice(pagesize * pagenum, pagesize * pagenum + pagesize);
       } else {
         paged = filteredItems;
       }
-
       return {totalRows: filteredItems.length, rows: paged};
     }
 
@@ -855,14 +973,18 @@
       prevRefreshHints = refreshHints;
       refreshHints = {};
 
-      if (totalRowsBefore != totalRows) {
+      if (totalRowsBefore !== totalRows) {
         onPagingInfoChanged.notify(getPagingInfo(), null, self);
       }
-      if (countBefore != rows.length) {
-        onRowCountChanged.notify({previous: countBefore, current: rows.length}, null, self);
+      if (countBefore !== rows.length) {
+        onRowCountChanged.notify({previous: countBefore, current: rows.length, dataView: self, callingOnRowsChanged: (diff.length > 0)}, null, self);
       }
       if (diff.length > 0) {
-        onRowsChanged.notify({rows: diff}, null, self);
+        onRowsChanged.notify({rows: diff, dataView: self, calledOnRowCountChanged: (countBefore !== rows.length)}, null, self);
+      }
+      if (countBefore !== rows.length || diff.length > 0) {
+        onRowsOrCountChanged.notify({rowsDiff: diff, previousRowCount: countBefore, currentRowCount: rows.length,
+          rowCountChanged: countBefore !== rows.length, rowsChanged: diff.length > 0, dataView: self}, null, self);
       }
     }
 
@@ -900,7 +1022,8 @@
 
         onSelectedRowIdsChanged.notify({
           "grid": grid,
-          "ids": selectedRowIds
+          "ids": selectedRowIds,
+          "dataView": self
         }, new Slick.EventData(), self);
       }
 
@@ -909,7 +1032,7 @@
           inHandler = true;
           var selectedRows = self.mapIdsToRows(selectedRowIds);
           if (!preserveHidden) {
-            setSelectedRowIds(self.mapRowsToIds(selectedRows));       
+            setSelectedRowIds(self.mapRowsToIds(selectedRows));
           }
           grid.setSelectedRows(selectedRows);
           inHandler = false;
@@ -929,9 +1052,7 @@
         }
       });
 
-      this.onRowsChanged.subscribe(update);
-
-      this.onRowCountChanged.subscribe(update);
+      this.onRowsOrCountChanged.subscribe(update);
 
       return onSelectedRowIdsChanged;
     }
@@ -973,12 +1094,13 @@
         if (key != args.key) { return; }
         if (args.hash) {
           storeCellCssStyles(args.hash);
+        } else {
+          grid.onCellCssStylesChanged.unsubscribe(styleChanged);
+          self.onRowsOrCountChanged.unsubscribe(update);
         }
       });
 
-      this.onRowsChanged.subscribe(update);
-
-      this.onRowCountChanged.subscribe(update);
+      this.onRowsOrCountChanged.subscribe(update);
     }
 
     $.extend(this, {
@@ -991,6 +1113,8 @@
       "setItems": setItems,
       "getFilteredAndPagedItems": getFilteredAndPagedItems,
       "setFilter": setFilter,
+      "getFilter": getFilter,
+      "getFilteredItems": getFilteredItems,
       "sort": sort,
       "fastSort": fastSort,
       "reSort": reSort,
@@ -1004,9 +1128,11 @@
       "expandGroup": expandGroup,
       "getGroups": getGroups,
       "getIdxById": getIdxById,
+      "getRowByItem": getRowByItem,
       "getRowById": getRowById,
       "getItemById": getItemById,
       "getItemByIdx": getItemByIdx,
+      "mapItemsToRows": mapItemsToRows,
       "mapRowsToIds": mapRowsToIds,
       "mapIdsToRows": mapIdsToRows,
       "setRefreshHints": setRefreshHints,
@@ -1016,6 +1142,8 @@
       "insertItem": insertItem,
       "addItem": addItem,
       "deleteItem": deleteItem,
+      "sortedAddItem": sortedAddItem,
+      "sortedUpdateItem": sortedUpdateItem,
       "syncGridSelection": syncGridSelection,
       "syncGridCellCssStyles": syncGridCellCssStyles,
 
@@ -1027,6 +1155,7 @@
       // events
       "onRowCountChanged": onRowCountChanged,
       "onRowsChanged": onRowsChanged,
+      "onRowsOrCountChanged": onRowsOrCountChanged,
       "onPagingInfoChanged": onPagingInfoChanged
     });
   }
@@ -1043,7 +1172,7 @@
     this.accumulate = function (item) {
       var val = item[this.field_];
       this.count_++;
-      if (val != null && val !== "" && val !== NaN) {
+      if (val != null && val !== "" && !isNaN(val)) {
         this.nonNullCount_++;
         this.sum_ += parseFloat(val);
       }
@@ -1068,7 +1197,7 @@
 
     this.accumulate = function (item) {
       var val = item[this.field_];
-      if (val != null && val !== "" && val !== NaN) {
+      if (val != null && val !== "" && !isNaN(val)) {
         if (this.min_ == null || val < this.min_) {
           this.min_ = val;
         }
@@ -1092,7 +1221,7 @@
 
     this.accumulate = function (item) {
       var val = item[this.field_];
-      if (val != null && val !== "" && val !== NaN) {
+      if (val != null && val !== "" && !isNaN(val)) {
         if (this.max_ == null || val > this.max_) {
           this.max_ = val;
         }
@@ -1116,7 +1245,7 @@
 
     this.accumulate = function (item) {
       var val = item[this.field_];
-      if (val != null && val !== "" && val !== NaN) {
+      if (val != null && val !== "" && !isNaN(val)) {
         this.sum_ += parseFloat(val);
       }
     };
@@ -1129,6 +1258,20 @@
     }
   }
 
+  function CountAggregator(field) {
+    this.field_ = field;
+
+    this.init = function () {
+    };
+
+    this.storeResult = function (groupTotals) {
+      if (!groupTotals.count) {
+        groupTotals.count = {};
+      }
+      groupTotals.count[this.field_] = groupTotals.group.rows.length;
+    }
+  }
+  
   // TODO:  add more built-in aggregators
   // TODO:  merge common aggregators in one to prevent needles iterating
 
