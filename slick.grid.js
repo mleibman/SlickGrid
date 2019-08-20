@@ -570,6 +570,10 @@ if (typeof Slick === "undefined") {
             .on("scroll", handleHeaderRowScroll);
 
         if (options.createFooterRow) {
+          $footerRow
+            .on("contextmenu", handleFooterContextMenu)
+            .on("click", handleFooterClick)
+		
           $footerRowScroller
               .on("scroll", handleFooterRowScroll);
         }
@@ -4511,6 +4515,18 @@ if (typeof Slick === "undefined") {
       }
     }
 
+    function handleFooterContextMenu(e) {
+      var $footer = $(e.target).closest(".slick-footerrow-column", ".slick-footerrow-columns");
+      var column = $footer && $footer.data("column");
+      trigger(self.onFooterContextMenu, {column: column}, e);
+    }
+
+    function handleFooterClick(e) {
+      var $footer = $(e.target).closest(".slick-footerrow-column", ".slick-footerrow-columns");
+      var column = $footer && $footer.data("column");
+      trigger(self.onFooterClick, {column: column}, e);
+    }
+	  
     function handleMouseEnter(e) {
       trigger(self.onMouseEnter, {}, e);
     }
@@ -5670,6 +5686,8 @@ if (typeof Slick === "undefined") {
       "onBeforeHeaderCellDestroy": new Slick.Event(),
       "onHeaderRowCellRendered": new Slick.Event(),
       "onFooterRowCellRendered": new Slick.Event(),
+      "onFooterContextMenu": new Slick.Event(),
+      "onFooterClick": new Slick.Event(),
       "onBeforeHeaderRowCellDestroy": new Slick.Event(),
       "onBeforeFooterRowCellDestroy": new Slick.Event(),
       "onMouseEnter": new Slick.Event(),
