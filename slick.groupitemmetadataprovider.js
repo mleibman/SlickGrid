@@ -137,10 +137,11 @@
     }
 
     function getGroupRowMetadata(item) {
+      var groupLevel = item && item.level;      
       return {
         selectable: false,
         focusable: options.groupFocusable,
-        cssClasses: options.groupCssClass + ' slick-group-level-' + item.level,
+        cssClasses: options.groupCssClass + ' slick-group-level-' + groupLevel,
         columns: {
           0: {
             colspan: "*",
@@ -152,10 +153,11 @@
     }
 
     function getTotalsRowMetadata(item) {
+      var groupLevel = item && item.group && item.group.level;      
       return {
         selectable: false,
         focusable: options.totalsFocusable,
-        cssClasses: options.totalsCssClass + ' slick-group-level-' + item.group.level,
+        cssClasses: options.totalsCssClass + ' slick-group-level-' + groupLevel,
         formatter: options.totalsFormatter,
         editor: null
       };
