@@ -140,7 +140,7 @@
       return {
         selectable: false,
         focusable: options.groupFocusable,
-        cssClasses: options.groupCssClass,
+        cssClasses: options.groupCssClass + ' slick-group-level-' + item.level,
         columns: {
           0: {
             colspan: "*",
@@ -155,7 +155,7 @@
       return {
         selectable: false,
         focusable: options.totalsFocusable,
-        cssClasses: options.totalsCssClass,
+        cssClasses: options.totalsCssClass + ' slick-group-level-' + item.group.level,
         formatter: options.totalsFormatter,
         editor: null
       };
