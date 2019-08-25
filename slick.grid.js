@@ -570,6 +570,10 @@ if (typeof Slick === "undefined") {
             .on("scroll", handleHeaderRowScroll);
 
         if (options.createFooterRow) {
+          $footerRow
+            .on("contextmenu", handleFooterContextMenu)
+            .on("click", handleFooterClick)
+		
           $footerRowScroller
               .on("scroll", handleFooterRowScroll);
         }
@@ -3332,7 +3336,7 @@ if (typeof Slick === "undefined") {
           * getDataLengthIncludingAddNew()
           + ( ( options.frozenColumn == -1 ) ? fullHeight : 0 );
       } else {
-        columnNamesH = ( options.showColumnHeader ) ? parseFloat($.css($headerScroller[0], "height"))
+        var columnNamesH = ( options.showColumnHeader ) ? parseFloat($.css($headerScroller[0], "height"))
           + getVBoxDelta($headerScroller) : 0;
         topPanelH = ( options.showTopPanel ) ? options.topPanelHeight + getVBoxDelta($topPanelScroller) : 0;
         headerRowH = ( options.showHeaderRow ) ? options.headerRowHeight + getVBoxDelta($headerRowScroller) : 0;
@@ -4511,6 +4515,18 @@ if (typeof Slick === "undefined") {
       }
     }
 
+    function handleFooterContextMenu(e) {
+      var $footer = $(e.target).closest(".slick-footerrow-column", ".slick-footerrow-columns");
+      var column = $footer && $footer.data("column");
+      trigger(self.onFooterContextMenu, {column: column}, e);
+    }
+
+    function handleFooterClick(e) {
+      var $footer = $(e.target).closest(".slick-footerrow-column", ".slick-footerrow-columns");
+      var column = $footer && $footer.data("column");
+      trigger(self.onFooterClick, {column: column}, e);
+    }
+	  
     function handleMouseEnter(e) {
       trigger(self.onMouseEnter, {}, e);
     }
@@ -5670,6 +5686,8 @@ if (typeof Slick === "undefined") {
       "onBeforeHeaderCellDestroy": new Slick.Event(),
       "onHeaderRowCellRendered": new Slick.Event(),
       "onFooterRowCellRendered": new Slick.Event(),
+      "onFooterContextMenu": new Slick.Event(),
+      "onFooterClick": new Slick.Event(),
       "onBeforeHeaderRowCellDestroy": new Slick.Event(),
       "onBeforeFooterRowCellDestroy": new Slick.Event(),
       "onMouseEnter": new Slick.Event(),
