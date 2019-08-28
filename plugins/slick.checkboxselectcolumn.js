@@ -42,7 +42,7 @@
         addCheckboxToFilterHeaderRow(grid);
       }
       if (!_options.hideInColumnTitleRow) {
-        _handler.subscribe(_grid.onHeaderClick, handleHeaderClick)
+        _handler.subscribe(_grid.onHeaderClick, handleHeaderClick);
       }
     }
 
@@ -178,7 +178,7 @@
 
       if (_selectedRowsLookup[row]) {
         _grid.setSelectedRows($.grep(_grid.getSelectedRows(), function (n) {
-          return n != row
+          return n != row;
         }));
       } else {
         _grid.setSelectedRows(_grid.getSelectedRows().concat(row));
@@ -204,7 +204,7 @@
         }
       }
       _grid.setSelectedRows($.grep(_grid.getSelectedRows(), function (n) {
-        return removeRows.indexOf(n) < 0
+        return removeRows.indexOf(n) < 0;
       }));
     }
 
@@ -272,7 +272,7 @@
           $("<span id='filter-checkbox-selectall-container'><input id='header-filter-selector" + _selectAll_UID + "' type='checkbox'><label for='header-filter-selector" + _selectAll_UID + "'></label></span>")
             .appendTo(args.node)
             .on('click', function (evnt) {
-              handleHeaderClick(evnt, args)
+              handleHeaderClick(evnt, args);
             });
         }
       });

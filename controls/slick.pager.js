@@ -24,12 +24,12 @@
       var lastPage = pagingInfo.totalPages - 1;
 
       return {
-        canGotoFirst: !cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum > 0,
-        canGotoLast: !cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum != lastPage,
-        canGotoPrev: !cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum > 0,
-        canGotoNext: !cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum < lastPage,
+        canGotoFirst: !cannotLeaveEditMode && pagingInfo.pageSize !== 0 && pagingInfo.pageNum > 0,
+        canGotoLast: !cannotLeaveEditMode && pagingInfo.pageSize !== 0 && pagingInfo.pageNum !== lastPage,
+        canGotoPrev: !cannotLeaveEditMode && pagingInfo.pageSize !== 0 && pagingInfo.pageNum > 0,
+        canGotoNext: !cannotLeaveEditMode && pagingInfo.pageSize !== 0 && pagingInfo.pageNum < lastPage,
         pagingInfo: pagingInfo
-      }
+      };
     }
 
     function setPageSize(n) {
@@ -78,7 +78,7 @@
 
       $settings.find("a[data]").click(function (e) {
         var pagesize = $(e.target).attr("data");
-        if (pagesize != undefined) {
+        if (pagesize !== undefined) {
           if (pagesize == -1) {
             var vp = grid.getViewport();
             setPageSize(vp.bottom - vp.top);
@@ -93,7 +93,7 @@
 
       $(icon_prefix + "ui-icon-lightbulb" + icon_suffix)
           .click(function () {
-            $(".slick-pager-settings-expanded").toggle()
+            $(".slick-pager-settings-expanded").toggle();
           })
           .appendTo($settings);
 
@@ -139,7 +139,7 @@
         $container.find(".ui-icon-seek-prev").addClass("ui-state-disabled");
       }
 
-      if (pagingInfo.pageSize == 0) {
+      if (pagingInfo.pageSize === 0) {
         $status.text(_options.showAllText.replace('{rowCount}', pagingInfo.totalRows + "").replace('{pageCount}', pagingInfo.totalPages + ""));
       } else {
         $status.text(_options.showPageText.replace('{pageNum}', pagingInfo.pageNum + 1 + "").replace('{pageCount}', pagingInfo.totalPages + ""));

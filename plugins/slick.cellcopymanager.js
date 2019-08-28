@@ -35,7 +35,7 @@
 
         if (e.which == 67 && (e.ctrlKey || e.metaKey)) {
           ranges = _grid.getSelectionModel().getSelectedRanges();
-          if (ranges.length != 0) {
+          if (ranges.length !== 0) {
             e.preventDefault();
             _copiedRanges = ranges;
             markCopySelection(ranges);

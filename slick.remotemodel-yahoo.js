@@ -92,10 +92,10 @@
           callbackParameter: "callback",
           cache: true,
           success: function (json, textStatus, xOptions) {
-            onSuccess(json, recStart)
+            onSuccess(json, recStart);
           },
           error: function () {
-            onError(fromPage, toPage)
+            onError(fromPage, toPage);
           }
         });
 
