@@ -29,6 +29,8 @@ if (typeof Slick === "undefined") {
 
 
 (function ($) {
+  "use strict";
+  
   // Slick.Grid
   $.extend(true, window, {
     Slick: {
@@ -356,7 +358,7 @@ if (typeof Slick === "undefined") {
           .addClass("ui-widget");
 
       // set up a positioning container if needed
-      if (!/relative|absolute|fixed/.test($container.css("position"))) {
+      if (!(/relative|absolute|fixed/).test($container.css("position"))) {
         $container.css("position", "relative");
       }
 
@@ -389,7 +391,8 @@ if (typeof Slick === "undefined") {
       $headerScroller = $().add($headerScrollerL).add($headerScrollerR);
 
       if (treeColumns.hasDepth()) {
-        $groupHeadersL = [], $groupHeadersR = [];
+        $groupHeadersL = [];
+        $groupHeadersR = [];
         for (var index = 0; index < treeColumns.getDepth() - 1; index++) {
           $groupHeadersL[index] = $("<div class='slick-group-header-columns slick-group-header-columns-left' style='left:-1000px' />").appendTo($headerScrollerL);
           $groupHeadersR[index] = $("<div class='slick-group-header-columns slick-group-header-columns-right' style='left:-1000px' />").appendTo($headerScrollerR);
@@ -572,7 +575,7 @@ if (typeof Slick === "undefined") {
         if (options.createFooterRow) {
           $footerRow
             .on("contextmenu", handleFooterContextMenu)
-            .on("click", handleFooterClick)
+            .on("click", handleFooterClick);
 		
           $footerRowScroller
               .on("scroll", handleFooterRowScroll);
@@ -1138,7 +1141,7 @@ if (typeof Slick === "undefined") {
 
           columnsLength += m.extractColumns().length;
 
-          if (hasFrozenColumns() && index == 0 && (columnsLength-1) === options.frozenColumn)
+          if (hasFrozenColumns() && index === 0 && (columnsLength-1) === options.frozenColumn)
             frozenColumnsValid = true;
 
           $("<div class='ui-state-default slick-group-header-column' />")
@@ -1151,7 +1154,7 @@ if (typeof Slick === "undefined") {
             .appendTo(hasFrozenColumns() && (columnsLength - 1) > options.frozenColumn? $groupHeadersR[index]: $groupHeadersL[index]);
         }
 
-        if (hasFrozenColumns() && index == 0 && !frozenColumnsValid) {
+        if (hasFrozenColumns() && index === 0 && !frozenColumnsValid) {
           $groupHeadersL[index].empty();
           $groupHeadersR[index].empty();
           alert("All columns of group should to be grouped!");
@@ -1367,7 +1370,7 @@ if (typeof Slick === "undefined") {
                 if (!sortColumn) {
                   sortColumn = { columnId: column.id, sortAsc: column.defaultSortAsc };
                   sortColumns.push(sortColumn);
-                } else if (sortColumns.length == 0) {
+                } else if (sortColumns.length === 0) {
                   sortColumns.push(sortColumn);
                 }
               }
@@ -1543,7 +1546,7 @@ if (typeof Slick === "undefined") {
     function getImpactedColumns( limit ) {
     	var impactedColumns = [];
 
-    	if( limit != undefined ) {
+    	if( limit !== undefined ) {
 
 	   		for( var i = limit.start; i <= limit.end; i++ ) {
 	   			impactedColumns.push( columns[i] );
@@ -1644,10 +1647,10 @@ if (typeof Slick === "undefined") {
             .on("drag", function (e, dd) {
               columnResizeDragging = true;
               var actualMinWidth, d = Math.min(maxPageX, Math.max(minPageX, e.pageX)) - pageX, x;
+              var newCanvasWidthL = 0, newCanvasWidthR = 0;
+
               if (d < 0) { // shrink column
                 x = d;
-
-                var newCanvasWidthL = 0, newCanvasWidthR = 0;
 
                 for (j = i; j >= 0; j--) {
                   c = columns[j];
@@ -1723,7 +1726,8 @@ if (typeof Slick === "undefined") {
               } else { // stretch column
                 x = d;
 
-                var newCanvasWidthL = 0, newCanvasWidthR = 0;
+                newCanvasWidthL = 0;
+                newCanvasWidthR = 0;
 
                 for (j = i; j >= 0; j--) {
                   c = columns[j];
@@ -2298,7 +2302,7 @@ if (typeof Slick === "undefined") {
         if (Object.keys) {
           rows = Object.keys(rowsDict);
         } else {
-          var rows = [];
+          rows = [];
           for (var i in rowsDict)  rows.push(i);
         }
       }
@@ -2555,7 +2559,7 @@ if (typeof Slick === "undefined") {
           var $groupHeader = $(this),
             currentColumnIndex = 0;
 
-          $groupHeader.width(i == 0? getHeadersWidthL(): getHeadersWidthR());
+          $groupHeader.width(i === 0? getHeadersWidthL(): getHeadersWidthR());
 
           $groupHeader.children().each(function() {
             var $groupHeaderColumn = $(this);
@@ -3631,7 +3635,7 @@ if (typeof Slick === "undefined") {
             $lastNode = $lastNode.prev();
 
             // Hack to retrieve the frozen columns because
-            if ($lastNode.length == 0) {
+            if ($lastNode.length === 0) {
               $lastNode = $(cacheEntry.rowNode[0]).children().last();
             }
           }

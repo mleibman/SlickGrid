@@ -275,7 +275,7 @@
 
       hideMenu();
 
-      if (command != null && command != '') {
+      if (command != null && command !== '') {
         _self.onCommand.notify({
             "grid": _grid,
             "column": columnDef,

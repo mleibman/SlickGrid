@@ -104,7 +104,7 @@
       && (e.which == Slick.keyCode.UP || e.which == Slick.keyCode.DOWN)) {
         var selectedRows = getSelectedRows();
         selectedRows.sort(function (x, y) {
-          return x - y
+          return x - y;
         });
 
         if (!selectedRows.length) {

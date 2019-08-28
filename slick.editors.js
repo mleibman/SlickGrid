@@ -67,7 +67,7 @@
     };
 
     this.isValueChanged = function () {
-      return (!($input.val() == "" && defaultValue == null)) && ($input.val() != defaultValue);
+      return (!($input.val() === "" && defaultValue == null)) && ($input.val() != defaultValue);
     };
 
     this.validate = function () {
@@ -125,7 +125,7 @@
     };
 
     this.isValueChanged = function () {
-      return (!($input.val() == "" && defaultValue == null)) && ($input.val() != defaultValue);
+      return (!($input.val() === "" && defaultValue == null)) && ($input.val() != defaultValue);
     };
 
     this.validate = function () {
@@ -221,7 +221,7 @@
     };
 
     this.isValueChanged = function () {
-      return (!($input.val() == "" && defaultValue == null)) && ($input.val() != defaultValue);
+      return (!($input.val() === "" && defaultValue == null)) && ($input.val() != defaultValue);
     };
 
     this.validate = function () {
@@ -265,10 +265,10 @@
         showOn: "button",
         buttonImageOnly: true,
          beforeShow: function () {
-          calendarOpen = true
+          calendarOpen = true;
         },
         onClose: function () {
-          calendarOpen = false
+          calendarOpen = false;
         }
       });
       $input.width($input.width() - 18);
@@ -322,7 +322,7 @@
     };
 
     this.isValueChanged = function () {
-      return (!($input.val() == "" && defaultValue == null)) && ($input.val() != defaultValue);
+      return (!($input.val() === "" && defaultValue == null)) && ($input.val() != defaultValue);
     };
 
     this.validate = function () {
@@ -464,14 +464,14 @@
         range: "min",
         value: defaultValue,
         slide: function (event, ui) {
-          $input.val(ui.value)
+          $input.val(ui.value);
         }
       });
 
       $picker.find(".editor-percentcomplete-buttons button").on("click", function (e) {
         $input.val($(this).attr("val"));
         $picker.find(".editor-percentcomplete-slider").slider("value", $(this).attr("val"));
-      })
+      });
     };
 
     this.destroy = function () {
@@ -497,7 +497,7 @@
     };
 
     this.isValueChanged = function () {
-      return (!($input.val() == "" && defaultValue == null)) && ((parseInt($input.val(), 10) || 0) != defaultValue);
+      return (!($input.val() === "" && defaultValue == null)) && ((parseInt($input.val(), 10) || 0) != defaultValue);
     };
 
     this.validate = function () {
@@ -594,7 +594,7 @@
     this.position = function (position) {
       $wrapper
           .css("top", position.top - 5)
-          .css("left", position.left - 5)
+          .css("left", position.left - 5);
     };
 
     this.destroy = function () {
@@ -619,7 +619,7 @@
     };
 
     this.isValueChanged = function () {
-      return (!($input.val() == "" && defaultValue == null)) && ($input.val() != defaultValue);
+      return (!($input.val() === "" && defaultValue == null)) && ($input.val() != defaultValue);
     };
 
     this.validate = function () {

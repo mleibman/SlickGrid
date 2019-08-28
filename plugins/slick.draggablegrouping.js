@@ -81,11 +81,11 @@
         var node = args.node;
         if (!$.isEmptyObject(column.grouping)) {
           var groupableIcon = $("<span class='slick-column-groupable' />");
-          if(options.groupIconCssClass) groupableIcon.addClass(options.groupIconCssClass)
-          if(options.groupIconImage) groupableIcon.css("background", "url(" + options.groupIconImage + ") no-repeat center center");
+        if(options.groupIconCssClass) { groupableIcon.addClass(options.groupIconCssClass); }
+          if(options.groupIconImage) { groupableIcon.css("background", "url(" + options.groupIconImage + ") no-repeat center center"); }
           $(node).css('cursor', 'pointer').append(groupableIcon);
         }
-      })
+      });
 
       for (var i = 0; i < _gridColumns.length; i++) {
         var columnId = _gridColumns[i].field;
@@ -227,9 +227,9 @@
           if (e.id == columnid) {
             if (e.grouping != null && !$.isEmptyObject(e.grouping)) {
               var entry = $("<div id='" + _gridUid + e.id + "_entry' data-id='" + e.id + "' class='slick-dropped-grouping'>");
-              var groupText = $("<div style='display: inline-flex'>" + column.text() + "</div>")
+              var groupText = $("<div style='display: inline-flex'>" + column.text() + "</div>");
               groupText.appendTo(entry);
-              var groupRemoveIcon = $("<div class='slick-groupby-remove'>&nbsp;</div>")
+              var groupRemoveIcon = $("<div class='slick-groupby-remove'>&nbsp;</div>");
               if(options.deleteIconCssClass) groupRemoveIcon.addClass(options.deleteIconCssClass);
               if(options.deleteIconImage) groupRemoveIcon.css("background", "url(" + options.deleteIconImage + ") no-repeat center right");
               if(!options.deleteIconCssClass && !options.deleteIconImage) groupRemoveIcon.addClass('slick-groupby-remove-image');
@@ -261,7 +261,7 @@
 
     function setDroppedGroups(groupingInfo) {
       var groupingInfos = (groupingInfo instanceof Array) ? groupingInfo : [groupingInfo];
-      dropboxPlaceholder.hide()
+      dropboxPlaceholder.hide();
       for (var i = 0; i < groupingInfos.length; i++) {
         var column = $(_grid.getHeaderColumn(groupingInfos[i]));
         handleGroupByDrop(dropbox, column);
@@ -272,7 +272,7 @@
       updateGroupBy("clear-all");
       dropbox.find(".slick-dropped-grouping").remove();
       groupToggler.css("display", "none");
-      dropboxPlaceholder.show()
+      dropboxPlaceholder.show();
     }
 
     function removeFromArray(arr) {
@@ -295,14 +295,14 @@
         groupby[e.id] = e;
       });
       removeFromArray(columnsGroupBy, groupby[id]);
-      if(columnsGroupBy.length == 0){
+      if(columnsGroupBy.length === 0){
         dropboxPlaceholder.show();
       }
       updateGroupBy("remove-group");
     }
 
     function updateGroupBy(originator) {
-      if (columnsGroupBy.length == 0) {
+      if (columnsGroupBy.length === 0) {
         _dataView.setGrouping([]);
         onGroupChanged.notify({ caller: originator, groupColumns: [] });
         return;
@@ -315,7 +315,7 @@
       /*
       collapseAllGroups();
       */
-      onGroupChanged.notify({ caller: originator, groupColumns: groupingArray})
+      onGroupChanged.notify({ caller: originator, groupColumns: groupingArray});
     }
     
     // Public API

@@ -25,14 +25,12 @@
  * @constructor
  */
 
-'use strict';
-
 (function ($) {
+  'use strict';
   function SlickColumnPicker(columns, grid, options) {
     var _grid = grid;
     var _options = options;
     var $columnTitleElm;
-    var columns;
     var $list;
     var $menu;
     var columnCheckboxes;

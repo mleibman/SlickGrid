@@ -52,7 +52,7 @@
 
       var selectedRows = _grid.getSelectedRows();
 
-      if (selectedRows.length == 0 || $.inArray(cell.row, selectedRows) == -1) {
+      if (selectedRows.length === 0 || $.inArray(cell.row, selectedRows) == -1) {
         selectedRows = [cell.row];
         _grid.setSelectedRows(selectedRows);
       }

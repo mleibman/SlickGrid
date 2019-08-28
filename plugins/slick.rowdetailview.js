@@ -515,7 +515,7 @@
     function subscribeToOnAsyncResponse() {
       _self.onAsyncResponse.subscribe(function (e, args) {
         if (!args || (!args.item && !args.itemDetail)) {
-          throw 'Slick.RowDetailView plugin requires the onAsyncResponse() to supply "args.item" property.'
+          throw 'Slick.RowDetailView plugin requires the onAsyncResponse() to supply "args.item" property.';
         }
 
         // we accept item/itemDetail, just get the one which has data
@@ -570,7 +570,7 @@
       item[_keyPrefix + 'offset'] = offset;
 
       return item;
-    }
+    };
 
     //////////////////////////////////////////////////////////////
     // create the detail ctr node. this belongs to the dev & can be custom-styled as per
@@ -617,15 +617,15 @@
         return null;
       } else {
         if (dataContext[_keyPrefix + 'collapsed'] == undefined) {
-          dataContext[_keyPrefix + 'collapsed'] = true,
-            dataContext[_keyPrefix + 'sizePadding'] = 0,     //the required number of pading rows
-            dataContext[_keyPrefix + 'height'] = 0,     //the actual height in pixels of the detail field
-            dataContext[_keyPrefix + 'isPadding'] = false,
-            dataContext[_keyPrefix + 'parent'] = undefined,
-            dataContext[_keyPrefix + 'offset'] = 0
+          dataContext[_keyPrefix + 'collapsed'] = true;
+          dataContext[_keyPrefix + 'sizePadding'] = 0;     //the required number of pading rows
+          dataContext[_keyPrefix + 'height'] = 0;     //the actual height in pixels of the detail field
+          dataContext[_keyPrefix + 'isPadding'] = false;
+          dataContext[_keyPrefix + 'parent'] = undefined;
+          dataContext[_keyPrefix + 'offset'] = 0;
         }
 
-        if (dataContext[_keyPrefix + 'isPadding'] == true) {
+        if (dataContext[_keyPrefix + 'isPadding']) {
           // render nothing
         }
         else if (dataContext[_keyPrefix + 'collapsed']) {
