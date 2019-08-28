@@ -709,7 +709,9 @@
     }
 
     function getFunctionInfo(fn) {
-      var fnRegex = /^function[^(]*\(([^)]*)\)\s*{([\s\S]*)}$/;
+      var fnStr = fn.toString();
+      var usingEs5 = fnStr.indexOf('function') >= 0; // with ES6, the word function is not present
+      var fnRegex = usingEs5 ? /^function[^(]*\(([^)]*)\)\s*{([\s\S]*)}$/ : /^[^(]*\(([^)]*)\)\s*{([\s\S]*)}$/;
       var matches = fn.toString().match(fnRegex);
       return {
         params: matches[1].split(","),
@@ -727,11 +729,13 @@
                 accumulatorInfo.body +
             "}"
         );
-        fn.displayName = fn.name = "compiledAccumulatorLoop";
+        var fnName = "compiledAccumulatorLoop";
+        fn.displayName = fnName;
+        fn.name = setFunctionName(fn, fnName);
         return fn;  
       } else {
         return function noAccumulator() {
-        };
+        }
       }
     }
 
@@ -768,7 +772,9 @@
       tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
 
       var fn = new Function("_items,_args", tpl);
-      fn.displayName = fn.name = "compiledFilter";
+      var fnName = "compiledFilter";
+      fn.displayName = fnName;
+      fn.name = setFunctionName(fn, fnName);
       return fn;
     }
 
@@ -809,8 +815,28 @@
       tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1]);
 
       var fn = new Function("_items,_args,_cache", tpl);
-      fn.displayName = fn.name = "compiledFilterWithCaching";
+      var fnName = "compiledFilterWithCaching";
+      fn.displayName = fnName;
+      fn.name = setFunctionName(fn, fnName);
       return fn;
+    }
+
+    /**
+     * In ES5 we could set the function name on the fly but in ES6 this is forbidden and we need to set it through differently
+     * We can use Object.defineProperty and set it the property to writable, see MDN for reference
+     * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty
+     * @param {string} fn 
+     * @param {string} fnName 
+     */
+    function setFunctionName(fn, fnName) {
+      if (Object && Object.defineProperty) {
+        Object.defineProperty(fn, 'name', {
+          writable: true,
+          value: fnName
+        });
+      } else {
+        fn.name = fnName;
+      }
     }
 
     function uncompiledFilter(items, args) {
@@ -975,8 +1001,10 @@
         onRowsChanged.notify({rows: diff, dataView: self, calledOnRowCountChanged: (countBefore !== rows.length)}, null, self);
       }
       if (countBefore !== rows.length || diff.length > 0) {
-        onRowsOrCountChanged.notify({rowsDiff: diff, previousRowCount: countBefore, currentRowCount: rows.length,
-          rowCountChanged: countBefore !== rows.length, rowsChanged: diff.length > 0, dataView: self}, null, self);
+        onRowsOrCountChanged.notify({
+          rowsDiff: diff, previousRowCount: countBefore, currentRowCount: rows.length,
+          rowCountChanged: countBefore !== rows.length, rowsChanged: diff.length > 0, dataView: self
+        }, null, self);
       }
     }
 
