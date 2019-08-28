@@ -1258,6 +1258,14 @@ if (typeof Slick === "undefined") {
             .on('mouseleave', onMouseLeave);
         }
 
+        if(m.hasOwnProperty('headerCellAttrs') && m.headerCellAttrs instanceof Object) {
+          for (var key in m.headerCellAttrs) {
+            if (m.headerCellAttrs.hasOwnProperty(key)) {
+              header.attr(key, m.headerCellAttrs[key]);
+            }
+          }
+        }
+	      
         if (m.sortable) {
           header.addClass("slick-header-sortable");
           header.append("<span class='slick-sort-indicator"
@@ -3124,7 +3132,16 @@ if (typeof Slick === "undefined") {
       addlCssClasses += (formatterResult && formatterResult.addClasses ? (addlCssClasses ? ' ' : '') + formatterResult.addClasses : '');
       var toolTip = formatterResult && formatterResult.toolTip ? "title='" + formatterResult.toolTip + "'" : '';
 
-      stringArray.push("<div class='" + cellCss + (addlCssClasses ? ' ' + addlCssClasses : '') + "' " + toolTip + ">");
+      var customAttrStr = '';
+      if(m.hasOwnProperty('cellAttrs') && m.cellAttrs instanceof Object) {
+        for (var key in m.cellAttrs) {
+          if (m.cellAttrs.hasOwnProperty(key)) {
+            customAttrStr += ' ' + key + '="' + m.cellAttrs[key] + '" ';
+          }
+        }
+      }
+
+      stringArray.push("<div class='" + cellCss + (addlCssClasses ? ' ' + addlCssClasses : '') + "' " + toolTip + customAttrStr + ">");
 
       // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
       if (item) {
