@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <title>SlickGrid example: Plugin: State</title>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../plugins/slick.headerbuttons.css" type="text/css"/>
+  <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <style>
+    .icon-highlight-off,
+    .icon-highlight-on {
+      background-image: url(../images/bullet_blue.png);
+    }
+
+    .icon-highlight-off {
+      opacity: 0.2;
+    }
+
+    .negative-highlight {
+      background: red;
+    }
+
+    .slick-header-column.filtered {
+      background: #D8E2FF;
+    }
+  </style>
+</head>
+<body>
+<div style="position:relative">
+  <div id="gridContainer">
+    <div id="myGrid" style="width:600px;height:500px;"></div>
+  </div>
+
+  <div class="options-panel">
+    <h2>About</h2>
+    <p>
+      This example demonstrates using the <b>Slick.State</b> plugin persisting grid column width, order, visibility and sort order using Local Storage.
+      For this demo, we use Local Storage, but you could technically save this data into a database and reload at any time your previous session.
+    </p>
+  </div>
+</div>
+
+<script src="../lib/firebugx.js"></script>
+
+<script src="../lib/jquery-1.11.2.min.js"></script>
+<script src="../lib/jquery-ui-1.11.3.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../slick.dataview.js"></script>
+<script src="../slick.grid.js"></script>
+<script src="../plugins/slick.state.js"></script>
+<script src="../controls/slick.columnpicker.js"></script>
+
+<script id="script_tag_example" type="text/javascript">
+  var grid;
+  var data = [];
+  var options = {
+    enableColumnReorder: true,
+    multiColumnSort: true,
+    enableCellNavigation: true
+  };
+  var columns = [];
+  var columnsWithHighlightingById = {};
+
+
+  // Set up some test columns.
+  for (var i = 0; i < 10; i++) {
+    columns.push({
+      id: i,
+      name: String.fromCharCode("A".charCodeAt(0) + i),
+      field: i,
+      width: 90,
+      sortable: true
+    });
+  }
+
+  // Set up some test data.
+  for (var i = 0; i < 100; i++) {
+    var d = (data[i] = {});
+    d.id = i;
+    for (var j = 0; j < columns.length; j++) {
+      d[j] = Math.round(Math.random() * 10) - 5;
+    }
+  }
+
+  $(function () {
+    var dataView = new Slick.Data.DataView();
+    var statePersistor = new Slick.State({
+      cid: 'sample-grid',
+      defaultColumns: columns
+    });
+
+    statePersistor.onStateChanged.subscribe(function (e, args) {
+      console.log("onStateChanged", args);
+    });
+
+    grid = new Slick.Grid("#myGrid", dataView, columns, options);
+    var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
+    columnpicker.onColumnsChanged.subscribe(function () {
+      statePersistor.save();
+    });
+
+    grid.registerPlugin(statePersistor);
+
+    dataView.onRowCountChanged.subscribe(function (e, args) {
+      grid.updateRowCount();
+      grid.render();
+    });
+
+    dataView.onRowsChanged.subscribe(function (e, args) {
+      grid.invalidateRows(args.rows);
+      grid.render();
+    });
+
+    function sortDataView(cols) {
+      dataView.sort(function (dataRow1, dataRow2) {
+        for (var i = 0, l = cols.length; i < l; i++) {
+          if (!cols[i].sortCol) continue;
+          var field = cols[i].sortCol.field;
+          var sign = cols[i].sortAsc ? 1 : -1;
+          var value1 = dataRow1[field], value2 = dataRow2[field];
+          var result = (value1 === value2 ? 0 : (value1 > value2 ? 1 : -1)) * sign;
+          if (result !== 0) {
+            return result;
+          }
+        }
+        return 0;
+      });
+      grid.invalidate();
+      grid.render();
+    }
+
+    grid.onSort.subscribe(function (e, args) {
+      sortDataView(args.sortCols);
+    });
+
+    grid.init();
+
+    dataView.beginUpdate();
+    dataView.setItems(data);
+    dataView.endUpdate();
+
+    statePersistor.restore()
+      .then(function (state) {
+        grid.setSortColumns(state.sortcols);
+        var columns = grid.getColumns();
+        var sortCols = $.map(grid.getSortColumns(), function (col) {
+          return {
+            sortCol: columns[grid.getColumnIndex(col.columnId)],
+            sortAsc: col.sortAsc
+          };
+        });
+        sortDataView(sortCols);
+      });
+  });
+</script>
+</body>
+</html>
