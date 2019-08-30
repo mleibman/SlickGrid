@@ -174,6 +174,7 @@ if (typeof Slick === "undefined") {
     var $headerRow, $headerRowScroller, $headerRowSpacerL, $headerRowSpacerR;
     var $footerRow, $footerRowScroller, $footerRowSpacerL, $footerRowSpacerR;
     var $preHeaderPanel, $preHeaderPanelScroller, $preHeaderPanelSpacer;
+    var $preHeaderPanelR, $preHeaderPanelScrollerR, $preHeaderPanelSpacerR;
     var $topPanelScroller;
     var $topPanel;
     var $viewport;
@@ -379,8 +380,14 @@ if (typeof Slick === "undefined") {
         $preHeaderPanelSpacer = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
             .appendTo($preHeaderPanelScroller);
 
+        $preHeaderPanelScrollerR = $("<div class='slick-preheader-panel ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($paneHeaderR);
+        $preHeaderPanelR = $("<div />").appendTo($preHeaderPanelScrollerR);
+        $preHeaderPanelSpacerR = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
+            .appendTo($preHeaderPanelScrollerR);
+
         if (!options.showPreHeaderPanel) {
           $preHeaderPanelScroller.hide();
+          $preHeaderPanelScrollerR.hide();
         }
       }
 
@@ -1046,6 +1053,10 @@ if (typeof Slick === "undefined") {
 
     function getPreHeaderPanel() {
       return $preHeaderPanel[0];
+    }
+
+    function getPreHeaderPanelR() {
+      return $preHeaderPanelR[0];
     }
 
     function getHeaderRowColumn(columnIdOrIdx) {
@@ -4037,7 +4048,11 @@ if (typeof Slick === "undefined") {
           $footerRowScrollContainer[0].scrollLeft = scrollLeft;
         }
         if (options.createPreHeaderPanel) {
-          $preHeaderPanelScroller[0].scrollLeft = scrollLeft;
+          if (hasFrozenColumns()) {
+            $preHeaderPanelScrollerR[0].scrollLeft = scrollLeft;
+          } else {
+            $preHeaderPanelScroller[0].scrollLeft = scrollLeft;
+          }
         }
 
         if (hasFrozenColumns()) {
@@ -5827,6 +5842,7 @@ if (typeof Slick === "undefined") {
       "getTopPanel": getTopPanel,
       "setTopPanelVisibility": setTopPanelVisibility,
       "getPreHeaderPanel": getPreHeaderPanel,
+      "getPreHeaderPanelR": getPreHeaderPanelR,
       "setPreHeaderPanelVisibility": setPreHeaderPanelVisibility,
       "getHeader": getHeader,
       "getHeaderColumn": getHeaderColumn,
