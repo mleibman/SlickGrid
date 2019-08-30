@@ -133,21 +133,22 @@ if (typeof Slick === "undefined") {
       defaultSortAsc: true,
       focusable: true,
       selectable: true,
-      autoSize: {
-        ignoreHeaderText: false,
-        colValueArray: undefined,
-        allowAddlPercent: undefined,
-        formatterOverride: undefined,
-        autosizeMode: Slick.ColAutosizeMode.ContentIntelligent,
-        rowSelectionModeOnInit: undefined,
-        rowSelectionMode: Slick.RowSelectionMode.FirstNRows,
-        rowSelectionCount: 100,
-        valueFilterMode: Slick.ValueFilterMode.None,
-        widthEvalMode: Slick.WidthEvalMode.CanvasTextSize,
-        sizeToRemaining: undefined,
-        widthPx: undefined,
-        colDataTypeOf: undefined
-      }
+    };
+
+    var columnAutosizeDefaults = {
+      ignoreHeaderText: false,
+      colValueArray: undefined,
+      allowAddlPercent: undefined,
+      formatterOverride: undefined,
+      autosizeMode: Slick.ColAutosizeMode.ContentIntelligent,
+      rowSelectionModeOnInit: undefined,
+      rowSelectionMode: Slick.RowSelectionMode.FirstNRows,
+      rowSelectionCount: 100,
+      valueFilterMode: Slick.ValueFilterMode.None,
+      widthEvalMode: Slick.WidthEvalMode.CanvasTextSize,
+      sizeToRemaining: undefined,
+      widthPx: undefined,
+      colDataTypeOf: undefined
     };
 
     // scroller
@@ -1554,7 +1555,7 @@ if (typeof Slick === "undefined") {
     function getImpactedColumns( limit ) {
     	var impactedColumns = [];
 
-    	if( limit !== undefined ) {
+    	if( limit ) {
 
 	   		for( var i = limit.start; i <= limit.end; i++ ) {
 	   			impactedColumns.push( columns[i] );
@@ -2724,7 +2725,9 @@ if (typeof Slick === "undefined") {
       for (var i = 0; i < columns.length; i++) {
         if (columns[i].width) { columns[i].widthRequest = columns[i].width; }
 
-        var m = columns[i] = $.extend(true, {}, columnDefaults, columns[i]);
+        var m = columns[i] = $.extend({}, columnDefaults, columns[i]);
+        m.autoSize = $.extend({}, columnAutosizeDefaults, m.autoSize);
+        
         columnsById[m.id] = i;
         if (m.minWidth && m.width < m.minWidth) {
           m.width = m.minWidth;
