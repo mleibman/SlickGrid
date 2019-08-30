@@ -33,6 +33,6 @@
     "jquery-ui": ">=1.8.0"
   },
   "devDependencies": {
-    "cypress": "^3.3.1"
+    "cypress": "^3.4.1"
   }
 }

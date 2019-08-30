@@ -3,6 +3,7 @@ examples
 .gitk*
 .idea/*
 nuget*
+cypress/*
 SlickgridRelease*
 tests
 testresult.xml
