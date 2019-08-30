@@ -31,7 +31,7 @@
     </ul>
       <h2>View Source:</h2>
       <ul>
-          <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-column-group.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+          <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-frozen-columns-and-column-group.html" target="_sourcewindow"> View the source for this example on Github</a></li>
       </ul>
   </div>
 </div>
@@ -49,11 +49,11 @@
 <script>
   function CreateAddlHeaderRow() {
     // Add column groups to left panel
-    var $preHeaderPanel = $(grid.getPreHeaderPanel());
+    var $preHeaderPanel = $(grid.getPreHeaderPanelLeft());
     renderHeaderGroups($preHeaderPanel, 0, options.frozenColumn + 1);
 
     // Add column groups to right panel
-    $preHeaderPanel = $(grid.getPreHeaderPanelR());
+    $preHeaderPanel = $(grid.getPreHeaderPanelRight());
     renderHeaderGroups($preHeaderPanel, options.frozenColumn + 1, columns.length);
 
     function renderHeaderGroups(preHeaderPanel, start, end) {

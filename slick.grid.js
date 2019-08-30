@@ -1055,7 +1055,7 @@ if (typeof Slick === "undefined") {
       return $preHeaderPanel[0];
     }
 
-    function getPreHeaderPanelR() {
+    function getPreHeaderPanelRight() {
       return $preHeaderPanelR[0];
     }
 
@@ -5842,7 +5842,8 @@ if (typeof Slick === "undefined") {
       "getTopPanel": getTopPanel,
       "setTopPanelVisibility": setTopPanelVisibility,
       "getPreHeaderPanel": getPreHeaderPanel,
-      "getPreHeaderPanelR": getPreHeaderPanelR,
+      "getPreHeaderPanelLeft": getPreHeaderPanel,
+      "getPreHeaderPanelRight": getPreHeaderPanelRight,
       "setPreHeaderPanelVisibility": setPreHeaderPanelVisibility,
       "getHeader": getHeader,
       "getHeaderColumn": getHeaderColumn,
