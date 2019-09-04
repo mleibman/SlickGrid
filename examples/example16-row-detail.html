@@ -254,7 +254,7 @@
 
           if (item[column.field] !== undefined) {
             var filterResult = typeof item[column.field].indexOf === 'function'
-              ? (item[column.field].indexOf(columnFilters[columnId] && columnFilters[columnId]) === -1)
+              ? (item[column.field].indexOf(columnFilters[columnId]) === -1)
               : (item[column.field] != columnFilters[columnId]);
 
             if (filterResult) {
