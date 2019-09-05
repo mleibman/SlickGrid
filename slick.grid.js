@@ -4297,13 +4297,13 @@ if (typeof Slick === "undefined") {
         if (!times) {
           return;
         }
+
         setTimeout(function () {
-              $cell.queue(function () {
-                $cell.toggleClass(options.cellFlashingCssClass).dequeue();
-                toggleCellClass($cell, times - 1);
-              });
-            },
-            speed);
+          $cell.queue(function () {
+            $cell.toggleClass(options.cellFlashingCssClass).dequeue();
+            toggleCellClass($cell, times - 1);
+          });
+        }, speed);
       }
 
       if (rowsCache[row]) {
