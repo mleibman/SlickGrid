@@ -4292,23 +4292,24 @@ if (typeof Slick === "undefined") {
 
     function flashCell(row, cell, speed) {
       speed = speed || 100;
+
+      function toggleCellClass($cell, times) {
+        if (!times) {
+          return;
+        }
+
+        setTimeout(function () {
+          $cell.queue(function () {
+            $cell.toggleClass(options.cellFlashingCssClass).dequeue();
+            toggleCellClass($cell, times - 1);
+          });
+        }, speed);
+      }
+
       if (rowsCache[row]) {
         var $cell = $(getCellNode(row, cell));
 
-        function toggleCellClass(times) {
-          if (!times) {
-            return;
-          }
-          setTimeout(function () {
-                $cell.queue(function () {
-                  $cell.toggleClass(options.cellFlashingCssClass).dequeue();
-                  toggleCellClass(times - 1);
-                });
-              },
-              speed);
-        }
-
-        toggleCellClass(4);
+        toggleCellClass($cell, 4);
       }
     }
 
