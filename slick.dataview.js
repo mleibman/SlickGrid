@@ -829,12 +829,12 @@
      * @param {string} fnName 
      */
     function setFunctionName(fn, fnName) {
-      if (Object && Object.defineProperty) {
+      try {
         Object.defineProperty(fn, 'name', {
           writable: true,
           value: fnName
         });
-      } else {
+      } catch(err) {
         fn.name = fnName;
       }
     }
