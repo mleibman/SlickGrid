@@ -1096,7 +1096,7 @@ if (typeof Slick === "undefined") {
         $footerRowTarget = $footerRowL;
       }
 
-      var $footer = $footerRowTarget.children().eq(idx);
+      var $footer = $footerRowTarget && $footerRowTarget.children().eq(idx);
       return $footer && $footer[0];
     }
 
