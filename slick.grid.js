@@ -174,6 +174,7 @@ if (typeof Slick === "undefined") {
     var $headerRow, $headerRowScroller, $headerRowSpacerL, $headerRowSpacerR;
     var $footerRow, $footerRowScroller, $footerRowSpacerL, $footerRowSpacerR;
     var $preHeaderPanel, $preHeaderPanelScroller, $preHeaderPanelSpacer;
+    var $preHeaderPanelR, $preHeaderPanelScrollerR, $preHeaderPanelSpacerR;
     var $topPanelScroller;
     var $topPanel;
     var $viewport;
@@ -379,8 +380,14 @@ if (typeof Slick === "undefined") {
         $preHeaderPanelSpacer = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
             .appendTo($preHeaderPanelScroller);
 
+        $preHeaderPanelScrollerR = $("<div class='slick-preheader-panel ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($paneHeaderR);
+        $preHeaderPanelR = $("<div />").appendTo($preHeaderPanelScrollerR);
+        $preHeaderPanelSpacerR = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
+            .appendTo($preHeaderPanelScrollerR);
+
         if (!options.showPreHeaderPanel) {
           $preHeaderPanelScroller.hide();
+          $preHeaderPanelScrollerR.hide();
         }
       }
 
@@ -1048,6 +1055,10 @@ if (typeof Slick === "undefined") {
       return $preHeaderPanel[0];
     }
 
+    function getPreHeaderPanelRight() {
+      return $preHeaderPanelR[0];
+    }
+
     function getHeaderRowColumn(columnIdOrIdx) {
       var idx = (typeof columnIdOrIdx === "number" ? columnIdOrIdx : getColumnIndex(columnIdOrIdx));
 
@@ -1085,7 +1096,7 @@ if (typeof Slick === "undefined") {
         $footerRowTarget = $footerRowL;
       }
 
-      var $footer = $footerRowTarget.children().eq(idx);
+      var $footer = $footerRowTarget && $footerRowTarget.children().eq(idx);
       return $footer && $footer[0];
     }
 
@@ -4037,7 +4048,11 @@ if (typeof Slick === "undefined") {
           $footerRowScrollContainer[0].scrollLeft = scrollLeft;
         }
         if (options.createPreHeaderPanel) {
-          $preHeaderPanelScroller[0].scrollLeft = scrollLeft;
+          if (hasFrozenColumns()) {
+            $preHeaderPanelScrollerR[0].scrollLeft = scrollLeft;
+          } else {
+            $preHeaderPanelScroller[0].scrollLeft = scrollLeft;
+          }
         }
 
         if (hasFrozenColumns()) {
@@ -4277,23 +4292,24 @@ if (typeof Slick === "undefined") {
 
     function flashCell(row, cell, speed) {
       speed = speed || 100;
+
+      function toggleCellClass($cell, times) {
+        if (!times) {
+          return;
+        }
+
+        setTimeout(function () {
+          $cell.queue(function () {
+            $cell.toggleClass(options.cellFlashingCssClass).dequeue();
+            toggleCellClass($cell, times - 1);
+          });
+        }, speed);
+      }
+
       if (rowsCache[row]) {
         var $cell = $(getCellNode(row, cell));
 
-        function toggleCellClass(times) {
-          if (!times) {
-            return;
-          }
-          setTimeout(function () {
-                $cell.queue(function () {
-                  $cell.toggleClass(options.cellFlashingCssClass).dequeue();
-                  toggleCellClass(times - 1);
-                });
-              },
-              speed);
-        }
-
-        toggleCellClass(4);
+        toggleCellClass($cell, 4);
       }
     }
 
@@ -5827,6 +5843,8 @@ if (typeof Slick === "undefined") {
       "getTopPanel": getTopPanel,
       "setTopPanelVisibility": setTopPanelVisibility,
       "getPreHeaderPanel": getPreHeaderPanel,
+      "getPreHeaderPanelLeft": getPreHeaderPanel,
+      "getPreHeaderPanelRight": getPreHeaderPanelRight,
       "setPreHeaderPanelVisibility": setPreHeaderPanelVisibility,
       "getHeader": getHeader,
       "getHeaderColumn": getHeaderColumn,
