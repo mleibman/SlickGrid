@@ -83,12 +83,6 @@
       }      
     }
   });
-
-
-  if (Object.freeze) { 
-    Object.freeze(Slick.ColAutosizeMode); 
-    Object.freeze(Slick.AutoWidthStrategy); 
-  }
     
   /***
    * An event object for passing data to event handlers and letting them control propagation.
