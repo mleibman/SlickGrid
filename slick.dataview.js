@@ -143,7 +143,7 @@
       updateIdxById();
       ensureIdUniqueness();
       refresh();
-      onSetItemsCalled.notify({ data: data, idProperty: objectIdProperty }, null, self);
+      onSetItemsCalled.notify({ idProperty: objectIdProperty }, null, self);
     }
 
     function setPagingOptions(args) {
