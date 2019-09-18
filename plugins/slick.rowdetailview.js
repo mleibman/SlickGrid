@@ -173,7 +173,7 @@
 
       // after data is set, let's get the DataView Id Property name used (defaults to "id")
       _handler.subscribe(_dataView.onSetItemsCalled, function (e, args) {
-        _dataViewIdProperty = _dataView && _dataView.getIdPropertyName();
+        _dataViewIdProperty = _dataView && _dataView.getIdPropertyName() || 'id';
       });
 
       // if we use the alternative & simpler calculation of the out of viewport range
