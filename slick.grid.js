@@ -2344,10 +2344,10 @@ if (typeof Slick === "undefined") {
 
       if (autoSize.valueFilterMode === Slick.ValueFilterMode.GetLongestTextAndSub) {
         // get greatest abs value in data
-        var tempVal, maxLen = 0, maxIndex;
+        var tempVal, maxLen = 0;
         for (i = 0, ii = rows.length; i < ii; i++) {
           tempVal = rows[i][columnDef.field];
-          if ((tempVal || '').length > maxLen) { maxLen = tempVal.length; maxIndex = i; }
+          if ((tempVal || '').length > maxLen) { maxLen = tempVal.length; }
         }
         // now substitute a 'c' for all characters
         tempVal = Array(maxLen + 1).join("m");
@@ -2358,7 +2358,7 @@ if (typeof Slick === "undefined") {
 
       if (autoSize.valueFilterMode === Slick.ValueFilterMode.GetLongestText) {
         // get greatest abs value in data
-        var tempVal, maxLen = 0, maxIndex;
+        var tempVal, maxLen = 0, maxIndex = 0;
         for (i = 0, ii = rows.length; i < ii; i++) {
           tempVal = rows[i][columnDef.field];
           if ((tempVal || '').length > maxLen) { maxLen = tempVal.length; maxIndex = i; }
