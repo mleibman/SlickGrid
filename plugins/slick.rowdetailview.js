@@ -95,6 +95,7 @@
     var _gridOptions;
     var _gridUid;
     var _dataView;
+    var _dataViewIdProperty = 'id';
     var _expandableOverride = null;
     var _self = this;
     var _lastRange = null;
@@ -170,6 +171,11 @@
       // subscribe to the onAsyncResponse so that the plugin knows when the user server side calls finished
       subscribeToOnAsyncResponse();
 
+      // after data is set, let's get the DataView Id Property name used (defaults to "id")
+      _handler.subscribe(_dataView.onSetItemsCalled, function (e, args) {
+        _dataViewIdProperty = _dataView && _dataView.getIdPropertyName() || 'id';
+      });
+
       // if we use the alternative & simpler calculation of the out of viewport range
       // we will need to know how many rows are rendered on the screen and we need to wait for grid to be rendered
       // unfortunately there is no triggered event for knowing when grid is finished, so we use 250ms delay and it's typically more than enough
@@ -226,7 +232,7 @@
       }
 
       // clicking on a row select checkbox
-      if (_options.useRowClick || _grid.getColumns()[args.cell].id === _options.columnId && $(e.target).hasClass(_options.cssClass)) {
+      if (_options.useRowClick || _grid.getColumns()[args.cell][_dataViewIdProperty] === _options.columnId && $(e.target).hasClass(_options.cssClass)) {
         // if editing, try to commit
         if (_grid.getEditorLock().isActive() && !_grid.getEditorLock().commitCurrentEdit()) {
           e.preventDefault();
@@ -289,10 +295,10 @@
         }
 
         _expandedRows.forEach(function (row) {
-          var rowIndex = _dataView.getRowById(row.id);
+          var rowIndex = _dataView.getRowById(row[_dataViewIdProperty]);
 
           var rowPadding = row[_keyPrefix + 'sizePadding'];
-          var rowOutOfRange = arrayFindIndex(_rowIdsOutOfViewport, row.id) >= 0;
+          var rowOutOfRange = arrayFindIndex(_rowIdsOutOfViewport, row[_dataViewIdProperty]) >= 0;
 
           if (scrollDir === 'UP') {
             // save the view when asked
@@ -305,12 +311,12 @@
 
             // If the row expanded area is within the buffer notify that it is back in range
             if (rowOutOfRange && rowIndex - _outsideRange < renderedRange.top && rowIndex >= renderedRange.top) {
-              notifyBackToViewportWhenDomExist(row, row.id);
+              notifyBackToViewportWhenDomExist(row, row[_dataViewIdProperty]);
             }
 
             // if our first expanded row is about to go off the bottom
             else if (!rowOutOfRange && (rowIndex + rowPadding) > renderedRange.bottom) {
-              notifyOutOfViewport(row, row.id);
+              notifyOutOfViewport(row, row[_dataViewIdProperty]);
             }
           }
           else if (scrollDir === 'DOWN') {
@@ -324,12 +330,12 @@
 
             // If row index is i higher than bottom with some added value (To ignore top rows off view) and is with view and was our of range
             if (rowOutOfRange && (rowIndex + rowPadding + _outsideRange) > renderedRange.bottom && rowIndex < rowIndex + rowPadding) {
-              notifyBackToViewportWhenDomExist(row, row.id);
+              notifyBackToViewportWhenDomExist(row, row[_dataViewIdProperty]);
             }
 
             // if our row is outside top of and the buffering zone but not in the array of outOfVisable range notify it
             else if (!rowOutOfRange && rowIndex < renderedRange.top) {
-              notifyOutOfViewport(row, row.id);
+              notifyOutOfViewport(row, row[_dataViewIdProperty]);
             }
           }
         });
@@ -343,12 +349,12 @@
         var renderedRange = _grid.getRenderedRange();
 
         _expandedRows.forEach(function (row) {
-          var rowIndex = _dataView.getRowById(row.id);
+          var rowIndex = _dataView.getRowById(row[_dataViewIdProperty]);
           var isOutOfVisibility = checkIsRowOutOfViewportRange(rowIndex, renderedRange);
-          if (!isOutOfVisibility && arrayFindIndex(_rowIdsOutOfViewport, row.id) >= 0) {
-            notifyBackToViewportWhenDomExist(row, row.id);
+          if (!isOutOfVisibility && arrayFindIndex(_rowIdsOutOfViewport, row[_dataViewIdProperty]) >= 0) {
+            notifyBackToViewportWhenDomExist(row, row[_dataViewIdProperty]);
           } else if (isOutOfVisibility) {
-            notifyOutOfViewport(row, row.id);
+            notifyOutOfViewport(row, row[_dataViewIdProperty]);
           }
         });
       }
@@ -368,7 +374,7 @@
 
     /** Send a notification, through "onRowOutOfViewportRange", that is out of the viewport range */
     function notifyOutOfViewport(item, rowId) {
-      var rowIndex = item.rowIndex || _dataView.getRowById(item.id);
+      var rowIndex = item.rowIndex || _dataView.getRowById(item[_dataViewIdProperty]);
 
       _self.onRowOutOfViewportRange.notify({
         'grid': _grid,
@@ -382,11 +388,11 @@
 
     /** Send a notification, through "onRowBackToViewportRange", that a row came back to the viewport */
     function notifyBackToViewportWhenDomExist(item, rowId) {
-      var rowIndex = item.rowIndex || _dataView.getRowById(item.id);
+      var rowIndex = item.rowIndex || _dataView.getRowById(item[_dataViewIdProperty]);
 
       setTimeout(function () {
         // make sure View Row DOM Element really exist before notifying that it's a row that is visible again
-        if ($('.cellDetailView_' + item.id).length) {
+        if ($('.cellDetailView_' + item[_dataViewIdProperty]).length) {
           _self.onRowBackToViewportRange.notify({
             'grid': _grid,
             'item': item,
@@ -448,14 +454,14 @@
 
       item[_keyPrefix + 'collapsed'] = true;
       for (var idx = 1; idx <= item[_keyPrefix + 'sizePadding']; idx++) {
-        _dataView.deleteItem(item.id + '.' + idx);
+        _dataView.deleteItem(item[_dataViewIdProperty] + '.' + idx);
       }
       item[_keyPrefix + 'sizePadding'] = 0;
-      _dataView.updateItem(item.id, item);
+      _dataView.updateItem(item[_dataViewIdProperty], item);
 
       // Remove the item from the expandedRows
       _expandedRows = _expandedRows.filter(function (r) {
-        return r.id !== item.id;
+        return r[_dataViewIdProperty] !== item[_dataViewIdProperty];
       });
 
       if (!isMultipleCollapsing) {
@@ -485,13 +491,13 @@
           'detailView': item[_keyPrefix + 'detailContent']
         }, undefined, this);
         applyTemplateNewLineHeight(item);
-        _dataView.updateItem(item.id, item);
+        _dataView.updateItem(item[_dataViewIdProperty], item);
 
         return;
       }
 
       applyTemplateNewLineHeight(item);
-      _dataView.updateItem(item.id, item);
+      _dataView.updateItem(item[_dataViewIdProperty], item);
 
       // async server call
       _options.process(item);
@@ -499,9 +505,9 @@
 
     /** Saves the current state of the detail view */
     function saveDetailView(item) {
-      var view = $('.' + _gridUid + ' .innerDetailView_' + item.id);
+      var view = $('.' + _gridUid + ' .innerDetailView_' + item[_dataViewIdProperty]);
       if (view) {
-        var html = $('.' + _gridUid + ' .innerDetailView_' + item.id).html();
+        var html = $('.' + _gridUid + ' .innerDetailView_' + item[_dataViewIdProperty]).html();
         if (html !== undefined) {
           item[_keyPrefix + 'detailContent'] = html;
         }
@@ -529,7 +535,7 @@
         }
 
         itemDetail[_keyPrefix + 'detailViewLoaded'] = true;
-        _dataView.updateItem(itemDetail.id, itemDetail);
+        _dataView.updateItem(itemDetail[_dataViewIdProperty], itemDetail);
 
         // trigger an event once the post template is finished loading
         _self.onAsyncEndUpdate.notify({
@@ -561,7 +567,7 @@
       for (var prop in _grid.getData()) {
         item[prop] = null;
       }
-      item.id = parent.id + '.' + offset;
+      item[_dataViewIdProperty] = parent[_dataViewIdProperty] + '.' + offset;
 
       // additional hidden padding metadata fields
       item[_keyPrefix + 'collapsed'] = true;
@@ -584,7 +590,7 @@
       var lineHeight = 13; // we know cuz we wrote the custom css init ;)
       item[_keyPrefix + 'sizePadding'] = Math.ceil(((rowCount * 2) * lineHeight) / _gridOptions.rowHeight);
       item[_keyPrefix + 'height'] = (item[_keyPrefix + 'sizePadding'] * _gridOptions.rowHeight);
-      var idxParent = _dataView.getIdxById(item.id);
+      var idxParent = _dataView.getIdxById(item[_dataViewIdProperty]);
       for (var idx = 1; idx <= item[_keyPrefix + 'sizePadding']; idx++) {
         _dataView.insertItem(idxParent + idx, getPaddingItem(item, idx));
       }
@@ -658,11 +664,11 @@
           if (_options.expandedClass) expandedClasses += _options.expandedClass;
           html.push('<div class="' + expandedClasses + '"></div></div>');
 
-          html.push('<div class="dynamic-cell-detail cellDetailView_', dataContext.id, '" ');   //apply custom css to detail
+          html.push('<div class="dynamic-cell-detail cellDetailView_', dataContext[_dataViewIdProperty], '" ');   //apply custom css to detail
           html.push('style="height:', outterHeight, 'px;'); //set total height of padding
           html.push('top:', rowHeight, 'px">');             //shift detail below 1st row
-          html.push('<div class="detail-container detailViewContainer_', dataContext.id, '">'); //sub ctr for custom styling
-          html.push('<div class="innerDetailView_', dataContext.id, '">', dataContext[_keyPrefix + 'detailContent'], '</div></div>');
+          html.push('<div class="detail-container detailViewContainer_', dataContext[_dataViewIdProperty], '">'); //sub ctr for custom styling
+          html.push('<div class="innerDetailView_', dataContext[_dataViewIdProperty], '">', dataContext[_keyPrefix + 'detailContent'], '</div></div>');
           // &omit a final closing detail container </div> that would come next
 
           return html.join('');
@@ -678,16 +684,16 @@
       }
 
       // Grad each of the DOM elements
-      var mainContainer = document.querySelector('.' + _gridUid + ' .detailViewContainer_' + item.id);
-      var cellItem = document.querySelector('.' + _gridUid + ' .cellDetailView_' + item.id);
-      var inner = document.querySelector('.' + _gridUid + ' .innerDetailView_' + item.id);
+      var mainContainer = document.querySelector('.' + _gridUid + ' .detailViewContainer_' + item[_dataViewIdProperty]);
+      var cellItem = document.querySelector('.' + _gridUid + ' .cellDetailView_' + item[_dataViewIdProperty]);
+      var inner = document.querySelector('.' + _gridUid + ' .innerDetailView_' + item[_dataViewIdProperty]);
 
       if (!mainContainer || !cellItem || !inner) {
         return;
       }
 
       for (var idx = 1; idx <= item[_keyPrefix + 'sizePadding']; idx++) {
-        _dataView.deleteItem(item.id + '.' + idx);
+        _dataView.deleteItem(item[_dataViewIdProperty] + '.' + idx);
       }
 
       var rowHeight = _gridOptions.rowHeight; // height of a row
@@ -720,7 +726,7 @@
       mainContainer.setAttribute('style', 'min-height: ' + item[_keyPrefix + 'height'] + 'px');
       if (cellItem) cellItem.setAttribute('style', 'height: ' + outterHeight + 'px; top:' + rowHeight + 'px');
 
-      var idxParent = _dataView.getIdxById(item.id);
+      var idxParent = _dataView.getIdxById(item[_dataViewIdProperty]);
       for (var idx = 1; idx <= item[_keyPrefix + 'sizePadding']; idx++) {
         _dataView.insertItem(idxParent + idx, getPaddingItem(item, idx));
       }
