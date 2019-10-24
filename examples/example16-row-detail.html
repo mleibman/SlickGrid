@@ -466,7 +466,7 @@
       // initialize the model after all the events have been hooked up
       grid.init();
       dataView.beginUpdate();
-      dataView.setItems(data);
+      dataView.setItems(data, 'num');
       dataView.setFilter(filter);
       dataView.endUpdate();
     });

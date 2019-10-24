@@ -78,6 +78,7 @@
     var totalRows = 0;
 
     // events
+    var onSetItemsCalled = new Slick.Event();
     var onRowCountChanged = new Slick.Event();
     var onRowsChanged = new Slick.Event();
     var onRowsOrCountChanged = new Slick.Event();
@@ -129,6 +130,10 @@
       return items;
     }
 
+    function getIdPropertyName() {
+      return idProperty;
+    }
+
     function setItems(data, objectIdProperty) {
       if (objectIdProperty !== undefined) {
         idProperty = objectIdProperty;
@@ -138,6 +143,7 @@
       updateIdxById();
       ensureIdUniqueness();
       refresh();
+      onSetItemsCalled.notify({ idProperty: objectIdProperty }, null, self);
     }
 
     function setPagingOptions(args) {
@@ -732,7 +738,7 @@
         var fnName = "compiledAccumulatorLoop";
         fn.displayName = fnName;
         fn.name = setFunctionName(fn, fnName);
-        return fn;  
+        return fn;
       } else {
         return function noAccumulator() {
         }
@@ -825,8 +831,8 @@
      * In ES5 we could set the function name on the fly but in ES6 this is forbidden and we need to set it through differently
      * We can use Object.defineProperty and set it the property to writable, see MDN for reference
      * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty
-     * @param {string} fn 
-     * @param {string} fnName 
+     * @param {string} fn
+     * @param {string} fnName
      */
     function setFunctionName(fn, fnName) {
       try {
@@ -1129,6 +1135,7 @@
       "endUpdate": endUpdate,
       "setPagingOptions": setPagingOptions,
       "getPagingInfo": getPagingInfo,
+      "getIdPropertyName": getIdPropertyName,
       "getItems": getItems,
       "setItems": setItems,
       "setFilter": setFilter,
@@ -1172,6 +1179,7 @@
       "getItemMetadata": getItemMetadata,
 
       // events
+      "onSetItemsCalled": onSetItemsCalled,
       "onRowCountChanged": onRowCountChanged,
       "onRowsChanged": onRowsChanged,
       "onRowsOrCountChanged": onRowsOrCountChanged,
@@ -1290,7 +1298,7 @@
       groupTotals.count[this.field_] = groupTotals.group.rows.length;
     };
   }
-  
+
   // TODO:  add more built-in aggregators
   // TODO:  merge common aggregators in one to prevent needles iterating
 

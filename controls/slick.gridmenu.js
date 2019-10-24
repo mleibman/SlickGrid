@@ -120,7 +120,7 @@
       _gridOptions = grid.getOptions();
       var gridMenuWidth = (_options.gridMenu && _options.gridMenu.menuWidth) || _defaults.menuWidth;
       var $header;
-      if (_gridOptions && _gridOptions.frozenColumn && _gridOptions.frozenColumn > 0) {
+      if (_gridOptions && _gridOptions.hasOwnProperty('frozenColumn') && _gridOptions.frozenColumn >= 0) {
         $header = $('.' + _gridUid + ' .slick-header-right');
       } else {
         $header = $('.' + _gridUid + ' .slick-header-left');
