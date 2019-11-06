@@ -4773,8 +4773,10 @@ if (typeof Slick === "undefined") {
         }
 
         if (options.showCellSelection) {
-        $(activeCellNode).addClass("active");
-        $(rowsCache[activeRow].rowNode).addClass("active");
+          $activeCellNode.addClass("active");
+          if (rowsCache[activeRow]) {
+            $(rowsCache[activeRow].rowNode).addClass("active");
+          }
         }
 
         if (options.editable && opt_editMode && isCellPotentiallyEditable(activeRow, activeCell)) {
