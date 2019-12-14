@@ -26,13 +26,16 @@
   "homepage": "https://github.com/6pac/SlickGrid#readme",
   "scripts": {
     "cypress:ci": "node node_modules/cypress/bin/cypress run --reporter xunit --reporter-options output=testresult.xml",
-    "cypress:open": "node node_modules/cypress/bin/cypress open"
+    "cypress:open": "node node_modules/cypress/bin/cypress open",
+    "serve": "http-server ./ -p 8080 -a localhost -s"
   },
   "dependencies": {
     "jquery": ">=1.8.0",
     "jquery-ui": ">=1.8.0"
   },
   "devDependencies": {
-    "cypress": "^3.4.1"
+    "cypress": "^3.7.0",
+    "eslint": "^6.7.2",
+    "http-server": "^0.12.0"
   }
 }

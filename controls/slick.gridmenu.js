@@ -41,7 +41,7 @@
  *
  * Available custom menu item options:
  *    title:        Menu item text.
- *    divider:      Whether the current item is a divider, not an actual command.
+ *    divider:      Boolean which tell if the current item is a divider, not an actual command. You could also pass "divider" instead of an object
  *    disabled:     Whether the item is disabled.
  *    tooltip:      Item tooltip.
  *    command:      A command identifier to be passed to the onCommand event handlers.
@@ -199,13 +199,13 @@
           .on("click", handleMenuItemClick)
           .appendTo($customMenu);
 
-        if (item.disabled) {
-          $li.addClass("slick-gridmenu-item-disabled");
-        }
-
-        if (item.divider) {
+        if (item.divider || item === "divider") {
           $li.addClass("slick-gridmenu-item-divider");
           continue;
+        }
+
+        if (item.disabled) {
+          $li.addClass("slick-gridmenu-item-disabled");
         }
 
         if (item.tooltip) {
@@ -331,7 +331,7 @@
       var command = $(this).data("command");
       var item = $(this).data("item");
 
-      if (item.disabled || item.divider) {
+      if (item.disabled || item.divider || item === "divider") {
         return;
       }
 

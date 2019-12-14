@@ -45,7 +45,7 @@
    *
    * Available menu item options:
    *    title:            Menu item text.
-   *    divider:          Whether the current item is a divider, not an actual command.
+   *    divider:          Boolean which tells if the current item is a divider, not an actual command. You could also pass "divider" instead of an object
    *    disabled:         Whether the item is disabled.
    *    tooltip:          Item tooltip.
    *    command:          A command identifier to be passed to the onCommand event handlers.
@@ -182,10 +182,10 @@
       // Let the user modify the menu or cancel altogether,
       // or provide alternative menu implementation.
       if (_self.onBeforeMenuShow.notify({
-          "grid": _grid,
-          "column": columnDef,
-          "menu": menu
-        }, e, _self) == false) {
+        "grid": _grid,
+        "column": columnDef,
+        "menu": menu
+      }, e, _self) == false) {
         return;
       }
 
@@ -208,13 +208,13 @@
           .on("click", handleMenuItemClick)
           .appendTo($menu);
 
-        if (item.disabled) {
-          $li.addClass("slick-header-menuitem-disabled");
-        }
-
-        if (item.divider) {
+        if (item.divider || item === "divider") {
           $li.addClass("slick-header-menuitem-divider");
           continue;
+        }
+
+        if (item.disabled) {
+          $li.addClass("slick-header-menuitem-disabled");
         }
 
         if (item.tooltip) {
@@ -269,7 +269,7 @@
       var columnDef = $(this).data("column");
       var item = $(this).data("item");
 
-      if (item.disabled || item.divider) {
+      if (item.disabled || item.divider || item === "divider") {
         return;
       }
 
@@ -277,11 +277,11 @@
 
       if (command != null && command !== '') {
         _self.onCommand.notify({
-            "grid": _grid,
-            "column": columnDef,
-            "command": command,
-            "item": item
-          }, e, _self);
+          "grid": _grid,
+          "column": columnDef,
+          "command": command,
+          "item": item
+        }, e, _self);
       }
 
       // Stop propagation so that it doesn't register as a header click event.

@@ -1,0 +1,10 @@
+{
+    "extends": "eslint:recommended",
+    "env": {
+        "browser": true
+    },
+    "globals": {
+        "jQuery": true,
+        "Slick": true
+    }
+}

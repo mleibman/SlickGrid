@@ -1,0 +1,54 @@
+name: Cypress E2E Tests
+on: 
+  # Trigger the workflow on push or pull request,
+  # but only for the master branch on Push and any branches on PR
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '**'
+env:
+  CI: true
+
+jobs:
+  run:
+    name: Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # define which version of NodeJS to run the build, version 12 should be enough
+        node: [12]
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 3
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Set Node.js version
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node }}
+
+      - run: node --version
+      - run: npm --version
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Run Cypress E2E tests
+        uses: cypress-io/github-action@v1
+        with:
+          start: npm run serve
+          wait-on: 'http://localhost:8080'
+          browser: chrome

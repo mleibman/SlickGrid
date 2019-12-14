@@ -116,10 +116,9 @@
             command: "hide",
             tooltip: "Can't hide this column"
           },
-          {
-            divider: true,
-            command: ""
-          },
+          // you can pass divider as a string or an object with a boolean
+          // "divider",
+          { divider: true },
           {
             iconCssClass: "icon-help",
             title: "Help",
@@ -188,11 +187,11 @@
 
   function formattedRandomNum(maxVal) {
     var numDigits = ('' + maxVal).length;
-    return ('0000' + (Math.floor(Math.random() * maxVal) + 1)).slice(-numDigits) 
+    return ('0000' + (Math.floor(Math.random() * maxVal) + 1)).slice(-numDigits)
   }
 
-  
-  
+
+
   $(function () {
     data = [];
     for (var i = 0; i < 500; i++) {

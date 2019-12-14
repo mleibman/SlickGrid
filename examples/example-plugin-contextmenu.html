@@ -1,0 +1,525 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+  <title>SlickGrid example 7: Events</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
+  <link rel="stylesheet" href="../plugins/slick.cellMenu.css" type="text/css" />
+  <link rel="stylesheet" href="../plugins/slick.contextmenu.css" type="text/css" />
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui.css" type="text/css" />
+  <link rel="stylesheet" href="examples.css" type="text/css" />
+  <style>
+    .bold {
+      font-weight: bold;
+    }
+
+    .italic {
+      font-style: italic;
+    }
+
+    .grey {
+      color: grey;
+    }
+
+    .orange {
+      color: orange;
+    }
+
+    .red {
+      color: red;
+    }
+
+    .pointer {
+      cursor: pointer;
+    }
+
+    .checkmark {
+      background-image: url(../images/tick.png);
+    }
+
+    .icon-help {
+      background-image: url(../images/help.png);
+    }
+
+    .disabled {
+      color: #ccc;
+    }
+
+    .fake-hyperlink {
+      cursor: pointer;
+      color: #08c;
+    }
+
+    .fake-hyperlink:hover {
+      text-decoration: underline;
+    }
+
+    /**
+     * Style the drop-down menu here since the plugin stylesheet mostly contains structural CSS.
+     */
+    .slick-context-menu .title {
+      font-size: 17px;
+    }
+
+    .slick-context-menu {
+      border: 1px solid #718BB7;
+      background: #f0f0f0;
+      box-shadow: 2px 2px 2px silver;
+    }
+  </style>
+</head>
+
+<body>
+  <table width="100%">
+    <tr>
+      <td valign="top" width="50%">
+        <div id="myGrid" style="width:630px;height:700px;"></div>
+      </td>
+      <td valign="top">
+        <h2>
+          Demonstrates:
+          <span style="margin-left: 15px; font-size: 12px">Slick.Plugins.ContextMenu / Slick.Plugins.CellMenu</span>
+        </h2>
+        <ul>
+          <li><strong>Slick.Plugins.ContextMenu - Context Menu (global from any columns right+click)</strong></li>
+          <li>This plugin subscribes internally to the "onContextMenu" event</li>
+          <li>Mouse Right-Click the row to open a Context Menu (global any columns)</li>
+          <li>The context menu showing on left columns will show only commands (from Title to EffortDriven)</li>
+          <li>
+            The context menu showing on Priority column will show list of options that will be applied to the Priority
+            cell
+          </li>
+          <li>
+            You can dynamically change the behavior and show Commands & Options over the Priority column
+            (choose option below, then try it over Priority column)
+          </li>
+          <div style="margin-bottom:10px">
+            <button onclick="showContextCommandsAndOptions(false)">Show Priority Options Only</button>
+            <button onclick="showContextCommandsAndOptions(true)">Show Commands & Priority Options</button>
+          </div>
+          <p></p>
+          <li><strong>Slick.Plugins.CellMenu - Cell Menu (from a single cell click)</strong></li>
+          <li>The "Action" column is demoing this functionality</li>
+          <li>This plugin subscribes internally to the "onClick" event</li>
+          <li>Regular Cell Click (left mouse or touch) will open a Cell Menu </li>
+          <li>It will also "autoAdjustDrop" (bottom/top) and "autoAlignSide" (left/right)</li>
+          <li>
+            Very similar to the global Context Menu except that it's on a single cell click instead of a right+click
+          </li>
+          <li>Uses the same context menu structure as the global one but is defined on a column definition level</li>
+          <li>A good usage example is with an "Action" button/cell as shown in the grid</li>
+          <li>Note that the Action text is just a placeholder, user can click anywhere in the cell to trigger the
+            action.</li>
+          <div style="margin-bottom:10px">
+            <button onclick="showCellMenuCommandsAndOptions(false)">Show Action Commands Only</button>
+            <button onclick="showCellMenuCommandsAndOptions(true)">Show Actions Commands & Effort Options</button>
+          </div>
+          <p></p>
+          <li><strong>Common Features</strong></li>
+          <li>It will also "autoAdjustDrop" (bottom/top) and "autoAlignSide" (left/right) by default but could be turned
+            off</li>
+          <li>
+            There are 2 sections, the first section can have an Options array (change value of a field)
+            and second section can have an array of Commands (execute a command)
+          </li>
+          <li>These 2 lists are static arrays and are not meant to be dynamic however you can...</li>
+          <li>Use override callback functions to change show/hide, enable/disable, use/block certain item(s)</li>
+          <li>These callbacks are: "menuUsabilityOverride", "itemVisibilityOverride", "itemUsabilityOverride"</li>
+          <li>... e.g. in the demo, the "Action" menu is only available when Priority is set to "High" via
+            "menuUsabilityOverride"</li>
+          <li>
+            There are many properties available for each list items:
+            disabled, divider, tooltip, cssClass, iconCssClass, iconImage
+          </li>
+          <li>
+            There are also a few SlickGrid Events you can subscribe
+            onBeforeMenuShow, onBeforeMenuClose, onCommand, onOptionSelected
+          </li>
+          <li>
+            There 2 ways to execute a Command/Option
+          </li>
+          <ol>
+            <li>via onCommand/onOptionSelected (use a switch/case to parse command/option and do something with it)</li>
+            <li>via action callback (must be defined on each command/option)</li>
+          </ol>
+          <li>
+            Each Command/Option have full knowledge of the column definition, data context object
+            and are available arguments of the subsribe events (or action callback)
+          </li>
+          <li>Lots of options, looks at each plugin to see the entire list of options available</li>
+        </ul>
+        <h2>View Source:</h2>
+        <ul>
+          <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-plugin-contextmenu.html"
+              target="_sourcewindow"> View the source for this example on Github</a></li>
+        </ul>
+      </td>
+    </tr>
+  </table>
+
+  <script src="../lib/firebugx.js"></script>
+
+  <script src="../lib/jquery-1.12.4.min.js"></script>
+  <script src="../lib/jquery-ui.min.js"></script>
+  <script src="../lib/jquery.event.drag-2.3.0.js"></script>
+
+  <script src="../slick.core.js"></script>
+  <script src="../slick.formatters.js"></script>
+  <script src="../slick.dataview.js"></script>
+  <script src="../slick.editors.js"></script>
+  <script src="../slick.grid.js"></script>
+  <script src="../plugins/slick.cellmenu.js"></script>
+  <script src="../plugins/slick.contextmenu.js"></script>
+
+  <script>
+    var grid;
+    var data = [];
+    var dataView;
+    var cellMenuPlugin;
+    var contextMenuPlugin;
+
+    function actionFormatter(row, cell, value, columnDef, dataContext) {
+      // only enable the Action menu when Priority is set to High (3)
+      if (dataContext.priority === 3) {
+        return "<div class='fake-hyperlink'>Action &#9660;</div>";
+      }
+      return "<div class='disabled'>Action &#9660;</div>";
+    }
+
+    function priorityFormatter(row, cell, value, columnDef, dataContext) {
+      if (!value) {
+        return "";
+      }
+      var count = +(value >= 3 ? 3 : value);
+      return count === 3 ? "High" : (count === 2 ? "Medium" : "Low");
+    }
+
+    function formattedRandomNum(maxVal) {
+      var numDigits = ("" + maxVal).length;
+      return ("0000" + (Math.floor(Math.random() * maxVal) + 1)).slice(-numDigits)
+    }
+
+    // Copy text to clipboard, on IE it's easy to copy a text, we can just call the clipboard
+    // but on other browsers this is insecure and we need to use the following trick to copy a cell, 
+    // by creating a temp div and change the text value, we can then call the execCommand to copy which only works with dom element
+    function copyCellValue(textToCopy) {
+      try {
+        if (window.clipboardData) {
+          window.clipboardData.setData("Text", textToCopy);
+        } else {
+          var range = document.createRange();
+          var tmpElem = $('<div>')
+            .css({ position: "absolute", left: "-1000px", top: "-1000px" })
+            .text(textToCopy);
+          $("body").append(tmpElem);
+          range.selectNodeContents(tmpElem.get(0));
+          var selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+          var success = document.execCommand("copy", false, null);
+          if (success) {
+            tmpElem.remove();
+          }
+        }
+      } catch (e) { }
+    }
+
+    function showContextCommandsAndOptions(showBothList) {
+      // when showing both Commands/Options, we can just pass an empty array to show over all columns
+      // else show on all columns except Priority
+      var showOverColumnIds = showBothList ? [] : ["id", "title", "complete", "start", "finish", "effortDriven"];
+      contextMenuPlugin.setOptions({
+        commandShownOverColumnIds: showOverColumnIds,
+        // hideCommandSection: !showBothList
+      });
+    }
+
+    function showCellMenuCommandsAndOptions(showBothList) {
+      // change via the plugin setOptions
+      cellMenuPlugin.setOptions({
+        hideOptionSection: !showBothList
+      });
+
+      // OR find the column, then change the same hide property
+      // var actionColumn = columns.find(function (column) { return column.id === "action" });
+      // actionColumn.cellMenu.hideOptionSection = !showBothList;
+    }
+
+    function loadData(count) {
+      data = [];
+      for (var i = 0; i < 500; i++) {
+        data[i] = {
+          id: i,
+          title: "Task " + i,
+          duration: Math.floor(Math.random() * 25) + " days",
+          percentComplete: Math.floor(Math.random() * 100),
+          start: "" + formattedRandomNum(28) + "/03/2009",
+          finish: "" + formattedRandomNum(28) + "/05/2011",
+          priority: i % 3 ? 2 : (i % 5 ? 3 : 1),
+          effortDriven: (i % 4 === 0)
+        };
+      }
+      return data;
+    }
+
+    function executeCommand(e, args) {
+      var columnDef = args.column;
+      var command = args.command;
+      var dataContext = args.dataContext;
+
+      switch (command) {
+        case "command1":
+          alert('Command 1');
+          break;
+        case "command2":
+          alert('Command 2');
+          break;
+        case "copy-text":
+          copyCellValue(args.value);
+          break;
+        case "help":
+          alert('Please help!');
+          break;
+        case "delete-row":
+          if (confirm("Do you really want to delete row " + (args.row + 1) + " with " + dataContext.title + "?")) {
+            dataView.deleteItem(dataContext.id);
+          }
+          break;
+      }
+    }
+
+    var columns = [
+      { id: "id", name: "#", field: "id", width: 32 },
+      { id: "title", name: "Title", field: "title", width: 90, cssClass: "cell-title", editor: Slick.Editors.Text },
+      { id: "complete", name: "% Complete", field: "percentComplete", sortable: true, width: 90 },
+      { id: "start", name: "Start", field: "start", sortable: true },
+      { id: "finish", name: "Finish", field: "finish", sortable: true },
+      { id: "priority", name: "Priority", field: "priority", width: 80, resizable: false, formatter: priorityFormatter },
+      { id: "effortDriven", name: "Effort Driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark },
+      {
+        id: "action", name: "Action", field: "id", width: 80, resizable: false,
+        formatter: actionFormatter,
+        cellMenu: {
+          // you can override the logic of when the menu is usable
+          // for example say that we want to show a menu only when then Priority is set to "High".
+          // Note that this ONLY overrides the usability itself NOT the text displayed in the cell,
+          // if you wish to change the cell text (or hide it)
+          // then you SHOULD use it in combination with a custom formatter (actionFormatter) and use the same logic in that formatter
+          menuUsabilityOverride: function (args) {
+            return (args.dataContext.priority === 3); // option 3 is High
+          },
+          commandTitle: "Commands",
+          commandItems: [
+            { command: "command1", title: "Command 1", cssClass: "orange" },
+            {
+              command: "command2", title: "Command 2",
+              // you can use the "action" callback and/or subscribe to the "onCallback" event, they both have the same arguments
+              action: function (e, args) {
+                console.log(args.dataContext, args.column)
+                // action callback.. do something
+              },
+              // only enable command when there's no Effort Driven
+              itemUsabilityOverride: function (args) {
+                return (!args.dataContext.effortDriven);
+              }
+            },
+            {
+              command: "delete-row", title: "Delete Row",
+              iconImage: "../images/delete.png",
+              cssClass: "bold", textCssClass: "red",
+              // only show command to "Delete Row" when there's no Effort Driven
+              itemVisibilityOverride: function (args) {
+                return (!args.dataContext.effortDriven);
+              }
+            },
+            // you can pass divider as a string or an object with a boolean
+            "divider",
+            // { divider: true },
+            { command: "help", title: "Help", iconCssClass: "icon-help" },
+            { command: "something", title: "Disabled Command", disabled: true }
+          ],
+          optionTitle: "Change Effort Driven",
+          optionItems: [
+            { option: true, title: "True", iconCssClass: 'checkmark' },
+            { option: false, title: "False" },
+            {
+              option: null, title: "null", textCssClass: "italic",
+              // you can use the "action" callback and/or subscribe to the "onCallback" event, they both have the same arguments
+              action: function (e, args) {
+                // action callback.. do something
+              },
+              // only enable command when the Priority is set to High
+              itemUsabilityOverride: function (args) {
+                return (args.dataContext.priority === 3);
+              },
+              // only show command to "Delete Row" when there's no Effort Driven
+              itemVisibilityOverride: function (args) {
+                return (!args.dataContext.effortDriven);
+              }
+            },
+          ]
+        }
+      }
+    ];
+
+    var gridOptions = {
+      editable: true,
+      enableAddRow: false,
+      enableCellNavigation: true,
+      enableTextSelectionOnCells: true,
+      asyncEditorLoading: false,
+      rowHeight: 30
+    };
+
+    var contextMenuOptions = {
+      // optionally and conditionally define when the the menu is usable,
+      // this should be used with a custom formatter to show/hide/disable the menu
+      menuUsabilityOverride: function (args) {
+        return (args.dataContext.id < 21); // say we want to display the menu only from Task 0 to 20
+      },
+      commandTitle: "Commands",
+      // which column to show the command list? when not defined it will be shown over all columns
+      commandShownOverColumnIds: ["id", "title", "complete", "start", "finish", "effortDriven" /*, "priority"*/],
+      commandItems: [
+        { command: "copy-text", title: "Copy Cell Value" },
+        { command: "delete-row", title: "Delete Row", iconImage: "../images/delete.png", cssClass: "bold", textCssClass: "red", },
+        { divider: true },
+        {
+          command: "help", title: "Help", iconCssClass: "icon-help",
+          // you can use the "action" callback and/or subscribe to the "onCallback" event, they both have the same arguments
+          action: function (e, args) {
+            // action callback.. do something
+          },
+          // only show command to "Help" when there's no Effort Driven
+          itemVisibilityOverride: function (args) {
+            return (!args.dataContext.effortDriven);
+          }
+        },
+        { command: "something", title: "Command (always disabled)", disabled: true },
+      ],
+
+      // Options allows you to edit a column from an option chose a list
+      // for example, changing the Priority value
+      // you can also optionally define an array of column ids that you wish to display this option list (when not defined it will show over all columns)
+      optionTitle: "Change Priority",
+      optionShownOverColumnIds: ["priority"], // optional, when defined it will only show over the columns (column id) defined in the array
+      optionItems: [
+        {
+          option: 0, title: "none", textCssClass: "italic",
+          // only enable this option when there's no Effort Driven
+          itemUsabilityOverride: function (args) {
+            return (!args.dataContext.effortDriven);
+          },
+          // you can use the "action" callback and/or subscribe to the "onCallback" event, they both have the same arguments
+          action: function (e, args) {
+            // action callback.. do something
+          },
+        },
+        { option: 1, iconImage: "../images/info.gif", title: "Low" },
+        { option: 2, iconImage: "../images/info.gif", title: "Medium" },
+        { option: 3, iconImage: "../images/bullet_star.png", title: "High" },
+        // you can pass divider as a string or an object with a boolean
+        // "divider",
+        { divider: true },
+        {
+          option: 4, title: "Extreme", disabled: true,
+          // only shown when there's no Effort Driven
+          itemVisibilityOverride: function (args) {
+            return (!args.dataContext.effortDriven);
+          }
+        },
+      ]
+    };
+
+    $(function () {
+      dataView = new Slick.Data.DataView();
+      grid = new Slick.Grid("#myGrid", dataView, columns, gridOptions);
+      cellMenuPlugin = new Slick.Plugins.CellMenu({ hideMenuOnScroll: true });
+      contextMenuPlugin = new Slick.Plugins.ContextMenu(contextMenuOptions);
+      grid.registerPlugin(cellMenuPlugin);
+      grid.registerPlugin(contextMenuPlugin);
+
+      dataView.onRowCountChanged.subscribe(function (e, args) {
+        grid.updateRowCount();
+        grid.render();
+      });
+
+      dataView.onRowsChanged.subscribe(function (e, args) {
+        grid.invalidateRows(args.rows);
+        grid.render();
+      });
+
+      grid.init();
+      data = loadData(1000);
+      dataView.beginUpdate();
+      dataView.setItems(data);
+      dataView.endUpdate();
+
+      //
+      // -- subscribe to some Context Menu (from any columns) events
+      // --------------------------------------------------------------
+
+      // subscribe to Context Menu
+      contextMenuPlugin.onBeforeMenuShow.subscribe(function (e, args) {
+        // for example, you could select the row it was clicked with
+        // grid.setSelectedRows([args.row]); // select the entire row
+        grid.setActiveCell(args.row, args.cell, false); // select the cell that the click originated
+        console.log("Before the global Context Menu is shown", args);
+      });
+      contextMenuPlugin.onBeforeMenuClose.subscribe(function (e, args) {
+        console.log("Global Context Menu is closing", args);
+      });
+
+      // subscribe to Context Menu onCommand event (or use the action callback on each command)
+      contextMenuPlugin.onCommand.subscribe(function (e, args) {
+        executeCommand(e, args);
+      });
+
+      // subscribe to Context Menu onOptionSelected event (or use the action callback on each option)
+      contextMenuPlugin.onOptionSelected.subscribe(function (e, args) {
+        var dataContext = args && args.dataContext;
+
+        // change Priority
+        if (dataContext && dataContext.hasOwnProperty("priority")) {
+          dataContext.priority = args.item.option;
+          grid.updateRow(args.row);
+        }
+      });
+
+      //
+      // -- subscribe to some Cell Menu (menu from column def, cell click) events
+      // ---------------------------------------------------------------------------------
+
+      // subscribe to Cell Menu
+      cellMenuPlugin.onBeforeMenuShow.subscribe(function (e, args) {
+        // for example, you could select the row it was clicked with
+        // grid.setSelectedRows([args.row]);
+        console.log("Before the Cell Menu is shown", args);
+      });
+      cellMenuPlugin.onBeforeMenuClose.subscribe(function (e, args) {
+        console.log("Cell Menu is closing", args);
+      });
+
+      // subscribe to Cell Menu onCommand event (or use the action callback on each command)
+      cellMenuPlugin.onCommand.subscribe(function (e, args) {
+        executeCommand(e, args);
+      });
+
+      // subscribe to Cell Menu onOptionSelected event (or use the action callback on each option)
+      cellMenuPlugin.onOptionSelected.subscribe(function (e, args) {
+        var dataContext = args && args.dataContext;
+
+        // change Effort Driven column
+        if (dataContext && dataContext.hasOwnProperty("priority")) {
+          dataContext.effortDriven = args.item.option;
+          grid.updateRow(args.row);
+        }
+      });
+    });
+
+  </script>
+</body>
+
+</html>
