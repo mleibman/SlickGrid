@@ -40,10 +40,22 @@
    * Available button options:
    *    cssClass:     CSS class to add to the button.
    *    image:        Relative button image path.
+   *    disabled:     Whether the item is disabled.
    *    tooltip:      Button tooltip.
    *    showOnHover:  Only show the button on hover.
    *    handler:      Button click handler.
    *    command:      A command identifier to be passed to the onCommand event handlers.
+   *
+   * Available menu item options:
+   *    action:                   Optionally define a callback function that gets executed when item is chosen (and/or use the onCommand event)
+   *    command:                  A command identifier to be passed to the onCommand event handlers.
+   *    cssClass:                 CSS class to add to the button.
+   *    handler:                  Button click handler.
+   *    image:                    Relative button image path.
+   *    showOnHover:              Only show the button on hover.
+   *    tooltip:                  Button tooltip.
+   *    itemVisibilityOverride:   Callback method that user can override the default behavior of showing/hiding an item from the list
+   *    itemUsabilityOverride:    Callback method that user can override the default behavior of enabling/disabling an item from the list
    *
    * The plugin exposes the following events:
    *    onCommand:    Fired on button click for buttons with 'command' specified.
@@ -96,10 +108,30 @@
         var i = column.header.buttons.length;
         while (i--) {
           var button = column.header.buttons[i];
+
+          // run each override functions to know if the item is visible and usable
+          var isItemVisible = runOverrideFunctionWhenExists(button.itemVisibilityOverride, args);
+          var isItemUsable = runOverrideFunctionWhenExists(button.itemUsabilityOverride, args);
+
+          // if the result is not visible then there's no need to go further
+          if (!isItemVisible) {
+            continue;
+          }
+
+          // when the override is defined, we need to use its result to update the disabled property
+          // so that "handleMenuItemCommandClick" has the correct flag and won't trigger a command clicked event
+          if (Object.prototype.hasOwnProperty.call(button, "itemUsabilityOverride")) {
+            button.disabled = isItemUsable ? false : true;
+          }
+
           var btn = $("<div></div>")
             .addClass(options.buttonCssClass)
             .data("column", column)
             .data("button", button);
+
+          if (button.disabled) {
+            btn.addClass("slick-header-button-disabled");
+          }
 
           if (button.showOnHover) {
             btn.addClass("slick-header-button-hidden");
@@ -150,13 +182,23 @@
       var columnDef = $(this).data("column");
       var button = $(this).data("button");
 
+      var callbackArgs = {
+        "grid": _grid,
+        "column": columnDef,
+        "button": button
+      };
+
       if (command != null) {
-        _self.onCommand.notify({
-            "grid": _grid,
-            "column": columnDef,
-            "command": command,
-            "button": button
-          }, e, _self);
+        callbackArgs.command = command;
+      }
+
+      // execute action callback when defined
+      if (typeof button.action === "function") {
+        button.action.call(this, e, callbackArgs);
+      }
+
+      if (command != null && !button.disabled) {
+        _self.onCommand.notify(callbackArgs, e, _self);
 
         // Update the header in case the user updated the button definition in the handler.
         _grid.updateColumnHeader(columnDef.id);
@@ -165,6 +207,19 @@
       // Stop propagation so that it doesn't register as a header click event.
       e.preventDefault();
       e.stopPropagation();
+    }
+
+    /**
+     * Method that user can pass to override the default behavior.
+     * In order word, user can choose or an item is (usable/visible/enable) by providing his own logic.
+     * @param overrideFn: override function callback
+     * @param args: multiple arguments provided to the override (cell, row, columnDef, dataContext, grid)
+     */
+    function runOverrideFunctionWhenExists(overrideFn, args) {
+      if (typeof overrideFn === 'function') {
+        return overrideFn.call(this, args);
+      }
+      return true;
     }
 
     $.extend(this, {

@@ -6,5 +6,8 @@
     "globals": {
         "jQuery": true,
         "Slick": true
+    },
+    "rules": {
+        "no-prototype-builtins": [0]
     }
 }

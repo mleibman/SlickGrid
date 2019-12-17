@@ -104,7 +104,7 @@
    *            grid:         Reference to the grid.
    *            command:      Menu command identified.
    *            item:         Menu item selected
-   *            columnDef:    Cell Column definition
+   *            column:    Cell Column definition
    *            dataContext:  Cell Data Context (data object)
    *
    *    onOptionSelected: Fired on menu option clicked from the Option items list
@@ -114,7 +114,7 @@
    *            grid:         Reference to the grid.
    *            option:       Menu option selected.
    *            item:         Menu item selected
-   *            columnDef:    Cell Column definition
+   *            column:    Cell Column definition
    *            dataContext:  Cell Data Context (data object)
    *
    *
@@ -222,7 +222,7 @@
           _cellMenuProperties,
           $optionMenu,
           optionItems,
-          { cell: _currentCell, row: _currentRow, columnDef: columnDef, dataContext: dataContext, grid: _grid }
+          { cell: _currentCell, row: _currentRow, column: columnDef, dataContext: dataContext, grid: _grid }
         );
       }
 
@@ -237,7 +237,7 @@
           _cellMenuProperties,
           $commandMenu,
           commandItems,
-          { cell: _currentCell, row: _currentRow, columnDef: columnDef, dataContext: dataContext, grid: _grid }
+          { cell: _currentCell, row: _currentRow, column: columnDef, dataContext: dataContext, grid: _grid }
         );
       }
 
@@ -623,7 +623,7 @@
      */
     function runOverrideFunctionWhenExists(overrideFn, args) {
       if (typeof overrideFn === 'function') {
-        return overrideFn(args);
+        return overrideFn.call(this, args);
       }
       return true;
     }

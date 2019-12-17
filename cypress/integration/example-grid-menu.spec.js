@@ -16,13 +16,34 @@ describe('Example - Grid Menu', () => {
       .each(($child, index) => expect($child.text()).to.eq(fullTitles[index]));
   });
 
+  it('should open the Grid Menu and expect a title for "Custom Menus" and for "Columns"', () => {
+    cy.get('#myGrid')
+      .find('button.slick-gridmenu-button')
+      .trigger('click')
+      .click({ force: true });
+
+    cy.get('.slick-gridmenu-custom')
+      .find('.title')
+      .contains('Custom Menus');
+
+    cy.get('.slick-gridmenu')
+      .find('.title')
+      .contains('Columns');
+
+    cy.get('#myGrid')
+      .get('.slick-gridmenu:visible')
+      .find('span.close')
+      .trigger('click')
+      .click({ force: true });
+  });
+
   it('should click on the Grid Menu to hide the column "A"', () => {
     const expectedTitleList = ['#', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']; // without "A"
 
     cy.get('#myGrid')
       .find('button.slick-gridmenu-button')
       .trigger('click')
-      .click();
+      .click({ force: true });
 
     cy.get('#myGrid')
       .get('.slick-gridmenu:visible')
@@ -30,13 +51,13 @@ describe('Example - Grid Menu', () => {
       .children('li:visible:nth(0)')
       .children('label')
       .should('contain', 'A')
-      .click();
+      .click({ force: true });
 
     cy.get('#myGrid')
       .get('.slick-gridmenu:visible')
       .find('span.close')
       .trigger('click')
-      .click();
+      .click({ force: true });
 
     cy.get('#myGrid')
       .find('.slick-header-columns')
@@ -48,7 +69,7 @@ describe('Example - Grid Menu', () => {
     cy.get('button')
       .contains('Grid Menu')
       .trigger('click')
-      .click();
+      .click({ force: true });
 
     cy.get('#myGrid')
       .get('.slick-gridmenu:visible')
@@ -56,7 +77,7 @@ describe('Example - Grid Menu', () => {
       .children('li:visible:nth(0)')
       .children('label')
       .should('contain', 'A')
-      .click();
+      .click({ force: true });
 
     cy.get('[data-dismiss=slick-gridmenu]')
       .click({ force: true });
@@ -74,13 +95,13 @@ describe('Example - Grid Menu', () => {
 
     cy.get('.slick-gridmenu-item')
       .contains('Help')
-      .click();
+      .click({ force: true });
   });
 
   it('should toggle Filter Row and expect the row to be hidden', () => {
     cy.get('.slick-gridmenu-item')
       .contains('Toggle Filter Row')
-      .click();
+      .click({ force: true });
 
     cy.get('#myGrid')
       .find('.slick-pane-left')
@@ -91,7 +112,7 @@ describe('Example - Grid Menu', () => {
   it('should toggle Filter Row and expect the row to be shown again', () => {
     cy.get('.slick-gridmenu-item')
       .contains('Toggle Filter Row')
-      .click();
+      .click({ force: true });
 
     cy.get('#myGrid')
       .find('.slick-pane-left')
@@ -100,9 +121,10 @@ describe('Example - Grid Menu', () => {
   });
 
   it('should toggle Top Panel and expect the row to show up', () => {
-    cy.get('.slick-gridmenu-item')
+    cy.get('.slick-gridmenu-item.italic')
+      .find('.slick-gridmenu-content.orange')
       .contains('Toggle Top Panel')
-      .click();
+      .click({ force: true });
 
     cy.get('#myGrid')
       .find('.slick-pane-left')
@@ -113,7 +135,7 @@ describe('Example - Grid Menu', () => {
   it('should toggle Top Panel and expect the row to be hide', () => {
     cy.get('.slick-gridmenu-item')
       .contains('Toggle Top Panel')
-      .click();
+      .click({ force: true });
 
     cy.get('#myGrid')
       .find('.slick-pane-left')
@@ -140,11 +162,12 @@ describe('Example - Grid Menu', () => {
     cy.get('#myGrid')
       .find('button.slick-gridmenu-button')
       .trigger('click')
-      .click();
+      .click({ force: true });
 
     cy.get('.slick-gridmenu-item')
+      .find('.slick-gridmenu-content.red')
       .contains('Clear Filters')
-      .click();
+      .click({ force: true });
 
     cy.get('.grid-canvas')
       .find('.slick-row')
@@ -153,13 +176,7 @@ describe('Example - Grid Menu', () => {
     cy.get('#myGrid')
       .find('.slick-row')
       .its('length')
-      .should('be.gt', 1)
-
-    cy.get('#myGrid')
-      .get('.slick-gridmenu:visible')
-      .find('span.close')
-      .trigger('click')
-      .click();
+      .should('be.gt', 1);
   });
 
   it('should drag column "A" to be after column "C" and expect this to be reflected in the Grid Menu', () => {
@@ -179,12 +196,70 @@ describe('Example - Grid Menu', () => {
     cy.get('button')
       .contains('Grid Menu')
       .trigger('click')
-      .click();
+      .click({ force: true });
 
     cy.get('#myGrid')
       .get('.slick-gridmenu:visible')
       .find('.slick-gridmenu-list')
       .children('li:visible')
       .each(($child, index) => expect($child.text()).to.eq(expectedGridMenuList[index]));
+
+    cy.get('#myGrid')
+      .get('.slick-gridmenu:visible')
+      .find('span.close')
+      .trigger('click')
+      .click();
+  });
+
+  it('should toggle start filtering and not be able to toggle Filter Row when filters are entered', () => {
+    cy.get('.slick-gridmenu')
+      .should('be.hidden');
+
+    cy.get('.slick-headerrow-column:nth(2)')
+      .find('input')
+      .type('8');
+
+    cy.get('#myGrid')
+      .find('button.slick-gridmenu-button')
+      .trigger('click')
+      .click({ force: true });
+
+    cy.get('.slick-gridmenu-item.slick-gridmenu-item-disabled')
+      .contains('Toggle Filter Row')
+      .should('exist');
+
+    cy.get('#myGrid')
+      .find('.slick-pane-left')
+      .find('.slick-headerrow')
+      .should('not.be.hidden');
+
+    cy.get('#myGrid')
+      .get('.slick-gridmenu:visible')
+      .find('span.close')
+      .trigger('click')
+      .click({ force: true });
+  });
+
+  it('should remove filter and be able to toggle Filter Row', () => {
+    cy.get('.slick-gridmenu')
+      .should('be.hidden');
+
+    cy.get('.slick-headerrow-column:nth(2)')
+      .find('input')
+      .clear();
+
+    cy.get('#myGrid')
+      .find('button.slick-gridmenu-button')
+      .click({ force: true });
+
+    cy.get('.slick-gridmenu-item')
+      .contains('Toggle Filter Row')
+      .should('be.visible')
+      .click({ force: true });
+
+    cy.get('#myGrid')
+      .find('.slick-pane-left')
+      .find('.slick-headerrow')
+      .should('not.be.hidden');
   });
 });

@@ -1,18 +1,38 @@
 <!DOCTYPE HTML>
 <html>
+
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
-  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui.css" type="text/css"/>
-  <link rel="stylesheet" href="../plugins/slick.headermenu.css" type="text/css"/>
-  <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css"/>
-  <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui.css" type="text/css" />
+  <link rel="stylesheet" href="../plugins/slick.headermenu.css" type="text/css" />
+  <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css" />
+  <link rel="stylesheet" href="examples.css" type="text/css" />
   <style>
+    .blue {
+      color: rgb(73, 73, 255);
+    }
+
+    .orange {
+      color: orange;
+    }
+
+    .red {
+      color: red;
+    }
+
+    .bold {
+      font-weight: bold;
+    }
+
+    .italic {
+      font-style: italic;
+    }
+
     /**
      * Style the drop-down menu here since the plugin stylesheet mostly contains structural CSS.
      */
-
     .slick-header-menu {
       border: 1px solid #718BB7;
       background: #f0f0f0;
@@ -43,24 +63,27 @@
       background-image: url(../images/help.png);
     }
   </style>
-</head>
-<body>
-<div style="position:relative">
-  <div style="width:500px;">
-    <div id="myGrid" style="width:100%;height:500px;"></div>
-  </div>
 
-  <div class="options-panel">
+</head>
+
+<body>
+  <div style="position:relative">
+    <div style="width:525px;">
+      <div id="myGrid" style="width:100%;height:500px;"></div>
+    </div>
+
+    <div class="options-panel">
       <h2>Demonstrates:</h2>
       <p>
         This example demonstrates using the <b>Slick.Plugins.HeaderMenu</b> plugin to add drop-down menus to column
-        headers.  (Hover over the headers.)
+        headers. (Hover over the headers.)
       </p>
       <hr>
       <h3>Auto-align option</h3>
       <p>
         Auto-align (defaults to True), will calculate whether it has enough space to show the drop menu to the right.
-        If it calculates that the drop menu is to fall outside of the viewport, it will automatically align the drop menu to the left.
+        If it calculates that the drop menu is to fall outside of the viewport, it will automatically align the drop
+        menu to the left.
       </p>
       <hr>
       <h3>Auto-Align Header Menu Drop</h3>
@@ -68,92 +91,108 @@
       <button onclick="autoAlignMenu(false)">OFF</button>
       <h2>View Source:</h2>
       <ul>
-          <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-plugin-headermenu.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+        <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-plugin-headermenu.html"
+            target="_sourcewindow"> View the source for this example on Github</a></li>
       </ul>
+    </div>
   </div>
-</div>
 
-<script src="../lib/jquery-1.12.4.min.js"></script>
-<script src="../lib/jquery.event.drag-2.3.0.js"></script>
+  <script src="../lib/jquery-1.12.4.min.js"></script>
+  <script src="../lib/jquery.event.drag-2.3.0.js"></script>
 
-<script src="../slick.core.js"></script>
-<script src="../slick.grid.js"></script>
-<script src="../plugins/slick.headermenu.js"></script>
-<script src="../controls/slick.columnpicker.js"></script>
+  <script src="../slick.core.js"></script>
+  <script src="../slick.grid.js"></script>
+  <script src="../plugins/slick.headermenu.js"></script>
+  <script src="../controls/slick.columnpicker.js"></script>
 
-<script>
-  var data = [];
-  var grid;
-  var headerMenuPlugin;
-  var columns = [
-    {id: "title", name: "Title", field: "title", width: 90},
-    {id: "duration", name: "Duration", field: "duration", sortable: true, width: 90},
-    {id: "%", name: "% Complete", field: "percentComplete", sortable: true, width: 90},
-    {id: "start", name: "Start", field: "start", sortable: true},
-    {id: "finish", name: "Finish", field: "finish", sortable: true},
-    {id: "effort-driven", name: "Effort Driven", field: "effortDriven"}
+  <script>
+    var data = [];
+    var grid;
+    var headerMenuPlugin;
+    var columns = [
+      { id: "title", name: "Title", field: "title", width: 90 },
+      { id: "duration", name: "Duration", field: "duration", sortable: true, width: 90 },
+      { id: "percentComplete", name: "% Complete", field: "percentComplete", sortable: true, width: 90 },
+      { id: "start", name: "Start", field: "start", sortable: true },
+      { id: "finish", name: "Finish", field: "finish", sortable: true },
+      { id: "effort-driven", name: "Effort Driven", field: "effortDriven" }
 
-  ];
+    ];
 
-  for (var i = 0; i < columns.length; i++) {
-    columns[i].header = {
-      menu: {
-        items: [
-          {
-            iconImage: "../images/sort-asc.gif",
-            title: "Sort Ascending",
-            disabled: !columns[i].sortable,
-            command: "sort-asc"
-          },
-          {
-            iconImage: "../images/sort-desc.gif",
-            title: "Sort Descending",
-            disabled: !columns[i].sortable,
-            command: "sort-desc"
-          },
-          {
-            title: "Hide Column",
-            command: "hide",
-            tooltip: "Can't hide this column"
-          },
-          // you can pass divider as a string or an object with a boolean
-          // "divider",
-          { divider: true },
-          {
-            iconCssClass: "icon-help",
-            title: "Help",
-            command: "help"
-          }
-        ]
-      }
-    };
-  }
-
-  // keep a copy of all column for the array of visible columns
-  var visibleColumns = columns;
-
-  var options = {
-    columnPicker: {
-      columnTitle: "Columns"
-    },
-    enableColumnReorder: false,
-    multiColumnSort: true
-  };
-
-  var executeSort = function(sortCols) {
-    // firstly add column reference and remove any sort columns that are no longer visible
-    sortCols = sortCols.filter(function (el, i) {
-      for (var i=0; i<visibleColumns.length; i++) {
-        if (visibleColumns[i].id === el.columnId) {
-          el.sortCol = visibleColumns[i];
-          return true;
+    for (var i = 0; i < columns.length; i++) {
+      columns[i].header = {
+        menu: {
+          items: [
+            {
+              iconImage: "../images/sort-asc.gif",
+              title: "Sort Ascending",
+              disabled: !columns[i].sortable,
+              command: "sort-asc"
+            },
+            {
+              iconImage: "../images/sort-desc.gif",
+              title: "Sort Descending",
+              disabled: !columns[i].sortable,
+              cssClass: !columns[i].sortable ? 'italic' : '',
+              command: "sort-desc"
+            },
+            {
+              title: "Hide Column",
+              command: "hide",
+              tooltip: "Can't hide this column",
+              itemUsabilityOverride: function (args) {
+                // for example we want to disable the "Hide Column" over the "Duration" column
+                return args.column.id === "Duration";
+              },
+            },
+            // you can pass divider as a string or an object with a boolean
+            // "divider",
+            { divider: true },
+            {
+              iconCssClass: "icon-help",
+              title: "Help",
+              command: "help",
+              cssClass: 'bold',     // container css class
+              textCssClass: 'blue', // just the text css class
+              itemVisibilityOverride: function (args) {
+                // for example don't show Help on column "% Complete"
+                return (args.column.id !== "percentComplete");
+              },
+              action: function (e, args) {
+                // you can use the "action" callback and/or subscribe to the "onCallback" event, they both have the same arguments
+                console.log('execute an action on Help', args);
+              }
+            }
+          ]
         }
-      }
-      return false;
-    });
-    grid.setSortColumns(sortCols);
+      };
+    }
 
-    data.sort(function (dataRow1, dataRow2) {
+    // keep a copy of all column for the array of visible columns
+    var visibleColumns = columns;
+
+    var options = {
+      columnPicker: {
+        columnTitle: "Columns"
+      },
+      enableColumnReorder: false,
+      multiColumnSort: true
+    };
+
+    var executeSort = function (sortCols) {
+      // firstly add column reference and remove any sort columns that are no longer visible
+      sortCols = sortCols.filter(function (el, i) {
+        for (var i = 0; i < visibleColumns.length; i++) {
+          if (visibleColumns[i].id === el.columnId) {
+            el.sortCol = visibleColumns[i];
+            return true;
+          }
+        }
+        return false;
+      });
+      grid.setSortColumns(sortCols);
+
+      data.sort(function (dataRow1, dataRow2) {
         for (var i = 0, l = sortCols.length; i < l; i++) {
           var field = sortCols[i].sortCol.field;
           var sign = sortCols[i].sortAsc ? 1 : -1;
@@ -167,76 +206,77 @@
       });
       grid.invalidate();
       grid.render();
-  };
+    };
 
-  var removeColumnById = function(array, idVal) {
-    return array.filter(function (el, i) {
-      return el.id !== idVal;
-    });
-  };
+    var removeColumnById = function (array, idVal) {
+      return array.filter(function (el, i) {
+        return el.id !== idVal;
+      });
+    };
 
-  var removeSortColumnById = function(array, idVal) {
-    return array.filter(function (el, i) {
-      return el.columnId !== idVal;
-    });
-  };
+    var removeSortColumnById = function (array, idVal) {
+      return array.filter(function (el, i) {
+        return el.columnId !== idVal;
+      });
+    };
 
-  function autoAlignMenu(isEnabled) {
-    headerMenuPlugin.setOptions({ autoAlign: isEnabled });
-  }
-
-  function formattedRandomNum(maxVal) {
-    var numDigits = ('' + maxVal).length;
-    return ('0000' + (Math.floor(Math.random() * maxVal) + 1)).slice(-numDigits)
-  }
-
-
-
-  $(function () {
-    data = [];
-    for (var i = 0; i < 500; i++) {
-      data[i] = {
-        title: "Task " + i,
-        duration: Math.floor(Math.random() * 25) + " days",
-        percentComplete: Math.floor(Math.random() * 100),
-        start: "" + formattedRandomNum(28) + "/03/2009",
-        finish: "" + formattedRandomNum(28) + "/05/2011",
-        effortDriven: (i % 5 == 0)
-      };
+    function autoAlignMenu(isEnabled) {
+      headerMenuPlugin.setOptions({ autoAlign: isEnabled });
     }
 
-    grid = new Slick.Grid("#myGrid", data, columns, options);
-    var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
-    headerMenuPlugin = new Slick.Plugins.HeaderMenu({});
+    function formattedRandomNum(maxVal) {
+      var numDigits = ('' + maxVal).length;
+      return ('0000' + (Math.floor(Math.random() * maxVal) + 1)).slice(-numDigits)
+    }
 
-    grid.onSort.subscribe(function (e, args) {
-      executeSort(args.sortCols);
-    });
 
-    headerMenuPlugin.onCommand.subscribe(function(e, args) {
-      if(args.command === "hide") {
-        // hide column
-        visibleColumns = removeColumnById(visibleColumns, args.column.id);
-        grid.setColumns(visibleColumns);
-        executeSort(grid.getSortColumns());
-      }else if(args.command === "sort-asc" || args.command === "sort-desc") {
-        // sort column asc or desc
-        var isSortedAsc = (args.command === "sort-asc");
 
-        var sortCols = removeSortColumnById(grid.getSortColumns(), args.column.id);
-        sortCols.push({ sortAsc: isSortedAsc, columnId: args.column.id });
-
-        grid.setSortColumns(sortCols);
-        executeSort(sortCols);
-      }else {
-        // command not recognised
-        alert("Command: " + args.command);
+    $(function () {
+      data = [];
+      for (var i = 0; i < 500; i++) {
+        data[i] = {
+          title: "Task " + i,
+          duration: Math.floor(Math.random() * 25) + " days",
+          percentComplete: Math.floor(Math.random() * 100),
+          start: "" + formattedRandomNum(28) + "/03/2009",
+          finish: "" + formattedRandomNum(28) + "/05/2011",
+          effortDriven: (i % 5 == 0)
+        };
       }
-    });
 
-    grid.registerPlugin(headerMenuPlugin);
+      grid = new Slick.Grid("#myGrid", data, columns, options);
+      var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
+      headerMenuPlugin = new Slick.Plugins.HeaderMenu({});
 
-  })
-</script>
+      grid.onSort.subscribe(function (e, args) {
+        executeSort(args.sortCols);
+      });
+
+      headerMenuPlugin.onCommand.subscribe(function (e, args) {
+        if (args.command === "hide") {
+          // hide column
+          visibleColumns = removeColumnById(visibleColumns, args.column.id);
+          grid.setColumns(visibleColumns);
+          executeSort(grid.getSortColumns());
+        } else if (args.command === "sort-asc" || args.command === "sort-desc") {
+          // sort column asc or desc
+          var isSortedAsc = (args.command === "sort-asc");
+
+          var sortCols = removeSortColumnById(grid.getSortColumns(), args.column.id);
+          sortCols.push({ sortAsc: isSortedAsc, columnId: args.column.id });
+
+          grid.setSortColumns(sortCols);
+          executeSort(sortCols);
+        } else {
+          // command not recognised
+          alert("Command: " + args.command);
+        }
+      });
+
+      grid.registerPlugin(headerMenuPlugin);
+
+    })
+  </script>
 </body>
+
 </html>

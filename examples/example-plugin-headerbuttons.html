@@ -1,11 +1,12 @@
 <!DOCTYPE HTML>
 <html>
+
 <head>
   <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
-  <link rel="stylesheet" href="../css/smoothness/jquery-ui.css" type="text/css"/>
-  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
-  <link rel="stylesheet" href="examples.css" type="text/css"/>
-  <link rel="stylesheet" href="../plugins/slick.headerbuttons.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui.css" type="text/css" />
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
+  <link rel="stylesheet" href="examples.css" type="text/css" />
+  <link rel="stylesheet" href="../plugins/slick.headerbuttons.css" type="text/css" />
   <style>
     .icon-highlight-off,
     .icon-highlight-on {
@@ -21,148 +22,174 @@
     }
   </style>
 </head>
-<body>
-<div style="position:relative">
-  <div style="width:600px;">
-    <div id="myGrid" style="width:100%;height:500px;"></div>
-  </div>
 
-  <div class="options-panel">
-    <p>
-      This example demonstrates using the <b>Slick.Plugins.HeaderButtons</b> plugin to easily add buttons to column
-      headers.  These buttons can be specified directly in the column definition, and are very easy to configure and use.
-    </p>
+<body>
+  <div style="position:relative">
+    <div style="width:600px;">
+      <div id="myGrid" style="width:100%;height:500px;"></div>
+    </div>
+
+    <div class="options-panel">
+      <p>
+        This example demonstrates using the <b>Slick.Plugins.HeaderButtons</b> plugin to easily add buttons to column
+        headers. These buttons can be specified directly in the column definition, and are very easy to configure and
+        use.
+      </p>
       <h2>View Source:</h2>
       <ul>
-          <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-plugin-headerbuttons.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+        <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-plugin-headerbuttons.html"
+            target="_sourcewindow"> View the source for this example on Github</a></li>
       </ul>
+    </div>
   </div>
-</div>
 
-<script src="../lib/firebugx.js"></script>
+  <script src="../lib/firebugx.js"></script>
 
-<script src="../lib/jquery-1.12.4.min.js"></script>
-<script src="../lib/jquery-ui.min.js"></script>
-<script src="../lib/jquery.event.drag-2.3.0.js"></script>
+  <script src="../lib/jquery-1.12.4.min.js"></script>
+  <script src="../lib/jquery-ui.min.js"></script>
+  <script src="../lib/jquery.event.drag-2.3.0.js"></script>
 
-<script src="../slick.core.js"></script>
-<script src="../slick.grid.js"></script>
-<script src="../plugins/slick.headerbuttons.js"></script>
+  <script src="../slick.core.js"></script>
+  <script src="../slick.grid.js"></script>
+  <script src="../plugins/slick.headerbuttons.js"></script>
 
-<script>
-  var grid;
-  var data = [];
-  var options = {
-    enableCellNavigation: true
-  };
-  var columns = [];
-  var columnsWithHighlightingById = {};
+  <script>
+    var grid;
+    var data = [];
+    var options = {
+      enableCellNavigation: true
+    };
+    var columns = [];
+    var columnsWithHighlightingById = {};
 
 
-  // Set up some test columns.
-  for (var i = 0; i < 10; i++) {
-    columns.push({
-      id: i,
-      name: String.fromCharCode("A".charCodeAt(0) + i),
-      field: i,
-      width: 90,
-      sortable: true,
-      formatter: highlightingFormatter,
-      header: {
-        buttons: [
-          {
-            cssClass: "icon-highlight-off",
-            command: "toggle-highlight",
-            tooltip: "Highlight negative numbers."
+    // Set up some test columns.
+    for (var i = 0; i < 10; i++) {
+      columns.push({
+        id: i,
+        name: String.fromCharCode("A".charCodeAt(0) + i),
+        field: i,
+        width: 90,
+        sortable: true,
+        formatter: highlightingFormatter,
+        header: {
+          buttons: [
+            {
+              cssClass: "icon-highlight-off",
+              command: "toggle-highlight",
+              tooltip: "Highlight negative numbers.",
+              itemVisibilityOverride: function (args) {
+                // for example don't show the header button on column "E"
+                return args.column.name !== "E";
+              },
+              itemUsabilityOverride: function (args) {
+                // for example the button usable everywhere except on last column "J"
+                return args.column.name !== "J";
+              },
+              action: function (e, args) {
+                // you can use the "action" callback and/or subscribe to the "onCallback" event, they both have the same arguments
+                // do something
+                console.log('execute a callback action to "' + args.command + '" on column ' + args.column.name);
+              }
+            }
+          ]
+        }
+      });
+    }
+
+    // Set multiple buttons on the first column to demonstrate overflow.
+    columns[0].name = "Resize me!";
+    columns[0].header = {
+      buttons: [
+        {
+          image: "../images/tag_red.png",
+          command: "Red Tag Day",
+          action: function (e, args) {
+            alert("command: " + args.command);
           }
-        ]
-      }
-    });
-  }
-
-  // Set multiple buttons on the first column to demonstrate overflow.
-  columns[0].name = "Resize me!";
-  columns[0].header = {
-    buttons: [
-      {
-        image: "../images/tag_red.png"
-      },
-      {
-        image: "../images/comment_yellow.gif"
-      },
-      {
-        image: "../images/info.gif"
-      },
-      {
-        image: "../images/help.png"
-      }
-    ]
-  };
-
-  // Set a button on the second column to demonstrate hover.
-  columns[1].name = "Hover me!";
-  columns[1].header = {
-    buttons: [
-      {
-        image: "../images/help.png",
-        showOnHover: true,
-        tooltip: "This button only appears on hover.",
-        handler: function(e) {
-          alert('Help');
+        },
+        {
+          image: "../images/comment_yellow.gif",
+          action: function (e, args) {
+            // do something
+            console.log(e, args);
+            alert("Write a comment!");
+          }
+        },
+        {
+          image: "../images/info.gif"
+        },
+        {
+          image: "../images/help.png"
         }
-      }
-    ]
-  };
+      ]
+    };
 
-
-
-  // Set up some test data.
-  for (var i = 0; i < 100; i++) {
-    var d = (data[i] = {});
-    d["id"] = i;
-    for (var j = 0; j < columns.length; j++) {
-      d[j] = Math.round(Math.random() * 10) - 5;
-    }
-  }
-
-
-  function highlightingFormatter(row, cell, value, columnDef, dataContext) {
-    if (columnsWithHighlightingById[columnDef.id] && value < 0) {
-      return "<div style='color:red; font-weight:bold;'>" + value + "</div>";
-    } else {
-      return value;
-    }
-  }
-
-
-
-  $(function () {
-    grid = new Slick.Grid("#myGrid", data, columns, options);
-
-    var headerButtonsPlugin = new Slick.Plugins.HeaderButtons();
-
-    headerButtonsPlugin.onCommand.subscribe(function(e, args) {
-      var column = args.column;
-      var button = args.button;
-      var command = args.command;
-
-      if (command == "toggle-highlight") {
-        if (button.cssClass == "icon-highlight-on") {
-          delete columnsWithHighlightingById[column.id];
-          button.cssClass = "icon-highlight-off";
-          button.tooltip = "Highlight negative numbers."
-        } else {
-          columnsWithHighlightingById[column.id] = true;
-          button.cssClass = "icon-highlight-on";
-          button.tooltip = "Remove highlight."
+    // Set a button on the second column to demonstrate hover.
+    columns[1].name = "Hover me!";
+    columns[1].header = {
+      buttons: [
+        {
+          image: "../images/help.png",
+          showOnHover: true,
+          tooltip: "This button only appears on hover.",
+          handler: function (e) {
+            alert("Help");
+          }
         }
+      ]
+    };
 
-        grid.invalidate();
+
+
+    // Set up some test data.
+    for (var i = 0; i < 100; i++) {
+      var d = (data[i] = {});
+      d["id"] = i;
+      for (var j = 0; j < columns.length; j++) {
+        d[j] = Math.round(Math.random() * 10) - 5;
       }
-    });
+    }
 
-    grid.registerPlugin(headerButtonsPlugin);
-  });
-</script>
+
+    function highlightingFormatter(row, cell, value, columnDef, dataContext) {
+      if (columnsWithHighlightingById[columnDef.id] && value < 0) {
+        return '<div style="color:red; font-weight:bold;">' + value + '</div>';
+      } else {
+        return value;
+      }
+    }
+
+
+
+    $(function () {
+      grid = new Slick.Grid("#myGrid", data, columns, options);
+
+      var headerButtonsPlugin = new Slick.Plugins.HeaderButtons();
+
+      headerButtonsPlugin.onCommand.subscribe(function (e, args) {
+        var column = args.column;
+        var button = args.button;
+        var command = args.command;
+
+        if (command == "toggle-highlight") {
+          if (button.cssClass == "icon-highlight-on") {
+            delete columnsWithHighlightingById[column.id];
+            button.cssClass = "icon-highlight-off";
+            button.tooltip = "Highlight negative numbers."
+          } else {
+            columnsWithHighlightingById[column.id] = true;
+            button.cssClass = "icon-highlight-on";
+            button.tooltip = "Remove highlight."
+          }
+
+          grid.invalidate();
+        }
+      });
+
+      grid.registerPlugin(headerButtonsPlugin);
+    });
+  </script>
 </body>
+
 </html>

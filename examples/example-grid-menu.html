@@ -7,7 +7,23 @@
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
   <link rel="stylesheet" href="../controls/slick.gridmenu.css" type="text/css"/>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous">
   <style>
+    .blue {
+      color: rgb(73, 73, 255);
+    }
+    .orange {
+      color: orange;
+    }
+    .red {
+      color: red;
+    }
+    .bold {
+      font-weight: bold;
+    }
+    .italic {
+      font-style: italic;
+    }
     .slick-headerrow-column {
       background: #BDD8E0;
       text-overflow: clip;
@@ -26,6 +42,40 @@
     .icon-help {
       background-image: url(../images/help.png);
     }
+
+    /** you could optionally style the grid menu column picker list with font-awesome checkboxes */
+    .slick-gridmenu-list li {
+      margin: 4px;
+    }
+    .slick-gridmenu-list label {
+      padding: 1px;
+      display: block;
+      cursor: pointer;
+    }
+    
+    #myGrid input[type=checkbox], 
+    .slick-gridmenu-list input[type=checkbox] { 
+      display:none; /* to hide the checkbox itself */
+    } 
+    #myGrid input[type=checkbox] + label:before,
+    .slick-gridmenu-list input[type=checkbox] + label:before {
+      cursor: pointer;
+      font-family: FontAwesome;
+      color: #013668;
+      font-weight: bold;
+      display: inline-block;
+      content: "\f00c";
+      font-size: 13px;
+      margin-right: 4px;
+    }
+    #myGrid input[type=checkbox] + label:before,
+    .slick-gridmenu-list input[type=checkbox] + label:before { 
+      opacity: 0.2; /* unchecked icon */
+    } 
+    #myGrid input[type=checkbox]:checked + label:before,
+    .slick-gridmenu-list input[type=checkbox]:checked + label:before { 
+      opacity: 1; /* checked icon */
+    } 
   </style>
 </head>
 <body>
@@ -80,6 +130,16 @@
   var grid;
   var gridMenu;
   var data = [];
+
+  function isObjectEmpty(obj) {
+    for(var key in obj) {
+      if(obj.hasOwnProperty(key) && obj[key] !== "") {
+        return false;
+      }
+    }
+    return true;
+  }
+
   var options = {
     enableCellNavigation: true,
     showHeaderRow: true,
@@ -91,6 +151,10 @@
     // gridMenu Object is optional
     // when not passed, it will act as a regular Column Picker (with default Grid Menu image of drag-handle.png)
     gridMenu: {
+      menuUsabilityOverride: function (args) {
+        // we could disable the menu entirely by returning false
+        return true;
+      },
       customTitle: "Custom Menus",
       columnTitle: "Columns",
       hideForceFitButton: false,
@@ -105,19 +169,27 @@
           iconImage: "../images/delete.png",
           title: "Clear Filters",
           disabled: false,
-          command: "clear-filter"
+          command: "clear-filter",
+          cssClass: 'bold',     // container css class
+          textCssClass: 'red'   // just the text css class
         },
         {
           iconImage: "../images/info.gif",
           title: "Toggle Filter Row",
           disabled: false,
-          command: "toggle-filter"
+          command: "toggle-filter",
+          itemUsabilityOverride: function (args) {
+            // for example disable the toggle of the filter bar when there's filters provided
+            return isObjectEmpty(columnFilters);
+          },
         },
         {
           iconImage: "../images/info.gif",
           title: "Toggle Top Panel",
           disabled: false,
-          command: "toggle-toppanel"
+          command: "toggle-toppanel",
+          cssClass: 'italic',     // container css class
+          textCssClass: 'orange'  // just the text css class
         },
         // you can pass divider as a string or an object with a boolean
         // "divider",
@@ -125,7 +197,17 @@
         {
           iconCssClass: "icon-help",
           title: "Help",
-          command: "help"
+          command: "help",
+          textCssClass: "blue",
+          // you could dynamically remove a command from the list (only checks before opening the menu)
+          // for example don't show the "Help" button if we have less than 5 columns left
+          itemVisibilityOverride: function (args) {
+            return args.visibleColumns.length > 4;
+          },
+          action: function(e, args) {
+            // you can use the "action" callback and/or subscribe to the "onCallback" event, they both have the same arguments
+            console.log('execute an action on Help', args);
+          }
         },
         {
           iconImage: "",

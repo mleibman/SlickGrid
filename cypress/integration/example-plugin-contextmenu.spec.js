@@ -115,13 +115,10 @@ describe('Example - Context Menu & Cell Menu', () => {
       .contains('Action')
       .click({ force: true });
 
-
     cy.get('.slick-cell-menu .slick-cell-menu-item')
       .contains('Command 2')
       .click()
-      .then(() => {
-        expect(stub.getCall(0)).to.be.calledWith('Command 2')
-      })
+      .then(() => expect(stub.getCall(0)).to.be.calledWith('Command 2'));
   });
 
   it('should expect the Context Menu now have the "Help" menu when Effort Driven is set to False', () => {

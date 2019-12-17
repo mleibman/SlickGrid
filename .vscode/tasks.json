@@ -4,13 +4,13 @@
     {
       "label": "Cypress Open GUI",
       "type": "shell",
-      "command": "yarn run cypress:open",
+      "command": "npm run cypress:open",
       "problemMatcher": []
     },
     {
       "label": "Cypress CI",
       "type": "shell",
-      "command": "yarn run cypress:ci",
+      "command": "npm run cypress:ci",
       "problemMatcher": []
     }
   ]

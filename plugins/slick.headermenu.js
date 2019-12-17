@@ -40,20 +40,27 @@
    *
    *
    * Available menu options:
-   *    tooltip:      Menu button tooltip.
+   *    autoAlign:              Auto-align drop menu to the left when not enough viewport space to show on the right
+   *    autoAlignOffset:        When drop menu is aligned to the left, it might not be perfectly aligned with the header menu icon, if that is the case you can add an offset (positive/negative number to move right/left)
+   *    buttonCssClass:         an extra CSS class to add to the menu button
+   *    buttonImage:            a url to the menu button image (default '../images/down.gif')
+   *    menuUsabilityOverride:  Callback method that user can override the default behavior of enabling/disabling the menu from being usable (must be combined with a custom formatter)
+   *    minWidth:               Minimum width that the drop menu will have
    *
    *
    * Available menu item options:
-   *    title:            Menu item text.
-   *    divider:          Boolean which tells if the current item is a divider, not an actual command. You could also pass "divider" instead of an object
-   *    disabled:         Whether the item is disabled.
-   *    tooltip:          Item tooltip.
-   *    command:          A command identifier to be passed to the onCommand event handlers.
-   *    iconCssClass:     A CSS class to be added to the menu item icon.
-   *    iconImage:        A url to the icon image.
-   *    minWidth:         Minimum width that the drop menu will have
-   *    autoAlign:        Auto-align drop menu to the left when not enough viewport space to show on the right
-   *    autoAlignOffset:  When drop menu is aligned to the left, it might not be perfectly aligned with the header menu icon, if that is the case you can add an offset (positive/negative number to move right/left)
+   *    action:                   Optionally define a callback function that gets executed when item is chosen (and/or use the onCommand event)
+   *    title:                    Menu item text.
+   *    divider:                  Whether the current item is a divider, not an actual command.
+   *    disabled:                 Whether the item is disabled.
+   *    tooltip:                  Item tooltip.
+   *    command:                  A command identifier to be passed to the onCommand event handlers.
+   *    cssClass:                 A CSS class to be added to the menu item container.
+   *    iconCssClass:             A CSS class to be added to the menu item icon.
+   *    iconImage:                A url to the icon image.
+   *    textCssClass:             A CSS class to be added to the menu item text.
+   *    itemVisibilityOverride:   Callback method that user can override the default behavior of showing/hiding an item from the list
+   *    itemUsabilityOverride:    Callback method that user can override the default behavior of enabling/disabling an item from the list
    *
    *
    * The plugin exposes the following events:
@@ -141,6 +148,11 @@
       var menu = column.header && column.header.menu;
 
       if (menu) {
+        // run the override function (when defined), if the result is false it won't go further
+        if (!runOverrideFunctionWhenExists(options.menuUsabilityOverride, args)) {
+          return;
+        }
+
         var $el = $("<div></div>")
           .addClass("slick-header-menubutton")
           .data("column", column)
@@ -181,11 +193,12 @@
 
       // Let the user modify the menu or cancel altogether,
       // or provide alternative menu implementation.
-      if (_self.onBeforeMenuShow.notify({
+      var callbackArgs = {
         "grid": _grid,
         "column": columnDef,
         "menu": menu
-      }, e, _self) == false) {
+      };
+      if (_self.onBeforeMenuShow.notify(callbackArgs, e, _self) == false) {
         return;
       }
 
@@ -200,6 +213,21 @@
       // Construct the menu items.
       for (var i = 0; i < menu.items.length; i++) {
         var item = menu.items[i];
+
+        // run each override functions to know if the item is visible and usable
+        var isItemVisible = runOverrideFunctionWhenExists(item.itemVisibilityOverride, callbackArgs);
+        var isItemUsable = runOverrideFunctionWhenExists(item.itemUsabilityOverride, callbackArgs);
+
+        // if the result is not visible then there's no need to go further
+        if (!isItemVisible) {
+          continue;
+        }
+
+        // when the override is defined, we need to use its result to update the disabled property
+        // so that "handleMenuItemCommandClick" has the correct flag and won't trigger a command clicked event
+        if (Object.prototype.hasOwnProperty.call(item, "itemUsabilityOverride")) {
+          item.disabled = isItemUsable ? false : true;
+        }
 
         var $li = $("<div class='slick-header-menuitem'></div>")
           .data("command", item.command || '')
@@ -217,6 +245,10 @@
           $li.addClass("slick-header-menuitem-disabled");
         }
 
+        if (item.cssClass) {
+          $li.addClass(item.cssClass);
+        }
+
         if (item.tooltip) {
           $li.attr("title", item.tooltip);
         }
@@ -232,9 +264,13 @@
           $icon.css("background-image", "url(" + item.iconImage + ")");
         }
 
-        $("<span class='slick-header-menucontent'></span>")
+        var $text = $("<span class='slick-header-menucontent'></span>")
           .text(item.title)
           .appendTo($li);
+
+        if (item.textCssClass) {
+          $text.addClass(item.textCssClass);
+        }
       }
 
       var leftPos = $(this).offset().left;
@@ -276,17 +312,36 @@
       hideMenu();
 
       if (command != null && command !== '') {
-        _self.onCommand.notify({
+        var callbackArgs = {
           "grid": _grid,
           "column": columnDef,
           "command": command,
           "item": item
-        }, e, _self);
+        };
+        _self.onCommand.notify(callbackArgs, e, _self);
+
+        // execute action callback when defined
+        if (typeof item.action === "function") {
+          item.action.call(this, e, callbackArgs);
+        }
       }
 
       // Stop propagation so that it doesn't register as a header click event.
       e.preventDefault();
       e.stopPropagation();
+    }
+
+    /**
+     * Method that user can pass to override the default behavior.
+     * In order word, user can choose or an item is (usable/visible/enable) by providing his own logic.
+     * @param overrideFn: override function callback
+     * @param args: multiple arguments provided to the override (cell, row, columnDef, dataContext, grid)
+     */
+    function runOverrideFunctionWhenExists(overrideFn, args) {
+      if (typeof overrideFn === 'function') {
+        return overrideFn.call(this, args);
+      }
+      return true;
     }
 
     $.extend(this, {

@@ -31,8 +31,21 @@
       border-right-style: solid;
     }
 
-    #myGrid input[type=checkbox] { display:none; } /* to hide the checkbox itself */
-    #myGrid input[type=checkbox] + label:before {
+    .slick-columnpicker-list li {
+      margin: 4px;
+    }
+    .slick-columnpicker-list label {
+      padding: 1px;
+      display: block;
+      cursor: pointer;
+    }
+
+    #myGrid input[type=checkbox], 
+    .slick-columnpicker-list input[type=checkbox] { 
+      display:none; /* to hide the checkbox itself */
+    } 
+    #myGrid input[type=checkbox] + label:before,
+    .slick-columnpicker-list input[type=checkbox] + label:before {
       cursor: pointer;
       font-family: FontAwesome;
       color: rgb(143, 14, 106);
@@ -40,9 +53,16 @@
       display: inline-block;
       content: "\f00c";
       font-size: 13px;
+      margin-right: 4px;
     }
-    #myGrid input[type=checkbox] + label:before { opacity: 0.2; } /* unchecked icon */
-    #myGrid input[type=checkbox]:checked + label:before { opacity: 1; } /* checked icon */
+    #myGrid input[type=checkbox] + label:before,
+    .slick-columnpicker-list input[type=checkbox] + label:before { 
+      opacity: 0.2; /* unchecked icon */
+    } 
+    #myGrid input[type=checkbox]:checked + label:before,
+    .slick-columnpicker-list input[type=checkbox]:checked + label:before { 
+      opacity: 1; /* checked icon */
+    } 
   </style>
 </head>
 <body>
