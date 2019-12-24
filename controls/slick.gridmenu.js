@@ -114,7 +114,6 @@
     var _isMenuOpen = false;
     var _options = options;
     var _self = this;
-    var _visibleColumns = columns;
     var $customTitleElm;
     var $columnTitleElm;
     var $customMenu;
@@ -220,7 +219,7 @@
           "grid": _grid,
           "menu": $menu,
           "columns": columns,
-          "visibleColumns": _visibleColumns
+          "visibleColumns": getVisibleColumns()
         };
 
         // run each override functions to know if the item is visible and usable
@@ -311,7 +310,7 @@
         "grid": _grid,
         "menu": $menu,
         "allColumns": columns,
-        "visibleColumns": _visibleColumns
+        "visibleColumns": getVisibleColumns()
       };
 
       // run the override function (when defined), if the result is false it won't go further
@@ -408,7 +407,7 @@
           "command": command,
           "item": item,
           "allColumns": columns,
-          "visibleColumns": _visibleColumns
+          "visibleColumns": getVisibleColumns()
         };
         _self.onCommand.notify(callbackArgs, e, _self);
 
@@ -432,7 +431,7 @@
           "grid": _grid,
           "menu": $menu,
           "allColumns": columns,
-          "visibleColumns": _visibleColumns
+          "visibleColumns": getVisibleColumns()
         };
         if (_self.onMenuClose.notify(callbackArgs, e, _self) == false) {
           return;
@@ -510,7 +509,6 @@
           "allColumns": columns,
           "columns": visibleColumns
         };
-        _visibleColumns = visibleColumns;
         _grid.setColumns(visibleColumns);
         _self.onColumnsChanged.notify(callbackArgs, e, _self);
       }
@@ -522,8 +520,9 @@
       return columns;
     }
 
+    /** visible columns, we can simply get them directly from the grid */
     function getVisibleColumns() {
-      return _visibleColumns;
+      return _grid.getColumns();
     }
 
     /**

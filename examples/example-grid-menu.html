@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
   <link rel="stylesheet" href="../controls/slick.gridmenu.css" type="text/css"/>
+  <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css"/>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous">
   <style>
     .blue {
@@ -44,21 +45,26 @@
     }
 
     /** you could optionally style the grid menu column picker list with font-awesome checkboxes */
-    .slick-gridmenu-list li {
+    .slick-gridmenu-list li,
+    .slick-columnpicker-list li {
+      cursor: pointer;
       margin: 4px;
     }
-    .slick-gridmenu-list label {
+    .slick-gridmenu-list label,
+    .slick-columnpicker-list label {
       padding: 1px;
       display: block;
       cursor: pointer;
     }
     
     #myGrid input[type=checkbox], 
-    .slick-gridmenu-list input[type=checkbox] { 
+    .slick-gridmenu-list input[type=checkbox],
+    .slick-columnpicker-list input[type=checkbox] { 
       display:none; /* to hide the checkbox itself */
     } 
     #myGrid input[type=checkbox] + label:before,
-    .slick-gridmenu-list input[type=checkbox] + label:before {
+    .slick-gridmenu-list input[type=checkbox] + label:before,
+    .slick-columnpicker-list input[type=checkbox] + label:before {
       cursor: pointer;
       font-family: FontAwesome;
       color: #013668;
@@ -69,11 +75,13 @@
       margin-right: 4px;
     }
     #myGrid input[type=checkbox] + label:before,
-    .slick-gridmenu-list input[type=checkbox] + label:before { 
+    .slick-gridmenu-list input[type=checkbox] + label:before,
+    .slick-columnpicker-list input[type=checkbox] + label:before { 
       opacity: 0.2; /* unchecked icon */
     } 
     #myGrid input[type=checkbox]:checked + label:before,
-    .slick-gridmenu-list input[type=checkbox]:checked + label:before { 
+    .slick-gridmenu-list input[type=checkbox]:checked + label:before,
+    .slick-columnpicker-list input[type=checkbox]:checked + label:before { 
       opacity: 1; /* checked icon */
     } 
   </style>
@@ -123,6 +131,7 @@
 <script src="../slick.core.js"></script>
 <script src="../slick.dataview.js"></script>
 <script src="../slick.grid.js"></script>
+<script src="../controls/slick.columnpicker.js"></script>
 <script src="../controls/slick.gridmenu.js"></script>
 
 <script>
@@ -130,6 +139,8 @@
   var grid;
   var gridMenu;
   var data = [];
+  var columnpicker;
+  var gridMenuControl;
 
   function isObjectEmpty(obj) {
     for(var key in obj) {
@@ -147,6 +158,14 @@
     explicitInitialization: true,
     forceFitColumns: false,
     alwaysShowVerticalScroll: true, // this is necessary when using Grid Menu with a small dataset
+    columnPicker: {
+      fadeSpeed: 100,
+      columnTitle: "Columns",
+      hideForceFitButton: false,
+      hideSyncResizeButton: false,
+      forceFitTitle: "Force fit columns",
+      syncResizeTitle: "Synchronous resize",
+    },
 
     // gridMenu Object is optional
     // when not passed, it will act as a regular Column Picker (with default Grid Menu image of drag-handle.png)
@@ -261,8 +280,8 @@
   $(function () {
     dataView = new Slick.Data.DataView();
     grid = new Slick.Grid("#myGrid", dataView, columns, options);
+    columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
     gridMenuControl = new Slick.Controls.GridMenu(columns, grid, options);
-
 
     dataView.onRowCountChanged.subscribe(function (e, args) {
       grid.updateRowCount();

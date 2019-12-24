@@ -79,17 +79,17 @@
       _grid.onHeaderContextMenu.unsubscribe(handleHeaderContextMenu);
       _grid.onColumnsReordered.unsubscribe(updateColumnOrder);
       $(document.body).off("mousedown", handleBodyMouseDown);
-      $("div.slick-columnpicker").hide(_options.fadeSpeed);
+      $("div.slick-columnpicker").hide(_options && _options.columnPicker && _options.columnPicker.fadeSpeed);
       $menu.remove();
     }
 
     function handleBodyMouseDown(e) {
       if (($menu && $menu[0] != e.target && !$.contains($menu[0], e.target)) || e.target.className == "close") {
-        $menu.hide(_options.fadeSpeed);
+        $menu.hide(_options && _options.columnPicker && _options.columnPicker.fadeSpeed);
       }
     }
 
-    function handleHeaderContextMenu(e, args) {
+    function handleHeaderContextMenu(e) {
       e.preventDefault();
       $list.empty();
       updateColumnOrder();
@@ -147,7 +147,7 @@
         .css("top", e.pageY - 10)
         .css("left", e.pageX - 10)
         .css("max-height", $(window).height() - e.pageY - 10)
-        .fadeIn(_options.fadeSpeed);
+        .fadeIn(_options && _options.columnPicker && _options.columnPicker.fadeSpeed);
 
       $list.appendTo($menu);
     }
