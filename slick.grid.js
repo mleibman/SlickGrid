@@ -4768,19 +4768,15 @@ if (typeof Slick === "undefined") {
         activeRow = cell.row;
         activeCell = activePosX = activeCell = activePosX = getCellFromNode(activeCellNode);
 
-        $activeCellNode.addClass("active");
-        if (rowsCache[activeRow]) {
-          $(rowsCache[activeRow].rowNode).addClass('active');
-        }
-
-
         if (opt_editMode == null) {
           opt_editMode = (activeRow == getDataLength()) || options.autoEdit;
         }
 
         if (options.showCellSelection) {
-        $(activeCellNode).addClass("active");
-        $(rowsCache[activeRow].rowNode).addClass("active");
+          $activeCellNode.addClass("active");
+          if (rowsCache[activeRow]) {
+            $(rowsCache[activeRow].rowNode).addClass("active");
+          }
         }
 
         if (options.editable && opt_editMode && isCellPotentiallyEditable(activeRow, activeCell)) {
