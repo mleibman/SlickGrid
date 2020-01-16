@@ -64,6 +64,13 @@
    *
    *
    * The plugin exposes the following events:
+
+   *    onAfterMenuShow:   Fired after the menu is shown.  You can customize the menu or dismiss it by returning false.
+   *        Event args:
+   *            grid:     Reference to the grid.
+   *            column:   Column definition.
+   *            menu:     Menu options.  Note that you can change the menu items here.
+   * 
    *    onBeforeMenuShow:   Fired before the menu is shown.  You can customize the menu or dismiss it by returning false.
    *        Event args:
    *            grid:     Reference to the grid.
@@ -294,6 +301,10 @@
       $activeHeaderColumn
         .addClass("slick-header-column-active");
 
+      if (_self.onAfterMenuShow.notify(callbackArgs, e, _self) == false) {
+        return;
+      }
+
       // Stop propagation so that it doesn't register as a header click event.
       e.preventDefault();
       e.stopPropagation();
@@ -350,6 +361,7 @@
       "pluginName": "HeaderMenu",
       "setOptions": setOptions,
 
+      "onAfterMenuShow": new Slick.Event(),
       "onBeforeMenuShow": new Slick.Event(),
       "onCommand": new Slick.Event()
     });

@@ -90,6 +90,12 @@
    *
    * The plugin exposes the following events:
    *
+   *    onAfterMenuShow: Fired after the menu is shown.  You can customize the menu or dismiss it by returning false.
+   *        Event args:
+   *            cell:         Cell or column index
+   *            row:          Row index
+   *            grid:         Reference to the grid.
+   *
    *    onBeforeMenuShow: Fired before the menu is shown.  You can customize the menu or dismiss it by returning false.
    *        Event args:
    *            cell:         Cell or column index
@@ -178,6 +184,7 @@
     }
 
     function destroy() {
+      _self.onAfterMenuShow.unsubscribe();
       _self.onBeforeMenuShow.unsubscribe();
       _self.onBeforeMenuClose.unsubscribe();
       _self.onCommand.unsubscribe();
@@ -262,6 +269,14 @@
 
       menu.show();
       menu.appendTo("body");
+
+      if (_self.onAfterMenuShow.notify({
+        "cell": _currentCell,
+        "row": _currentRow,
+        "grid": _grid
+      }, e, _self) == false) {
+        return;
+      }
 
       return menu;
     }
@@ -657,6 +672,7 @@
       "pluginName": "ContextMenu",
       "setOptions": setOptions,
 
+      "onAfterMenuShow": new Slick.Event(),
       "onBeforeMenuShow": new Slick.Event(),
       "onBeforeMenuClose": new Slick.Event(),
       "onCommand": new Slick.Event(),
