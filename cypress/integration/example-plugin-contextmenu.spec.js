@@ -3,6 +3,13 @@
 describe('Example - Context Menu & Cell Menu', () => {
   const fullTitles = ['#', 'Title', '% Complete', 'Start', 'Finish', 'Priority', 'Effort Driven', 'Action'];
 
+  beforeEach(() => {
+    // create a console.log spy for later use
+    cy.window().then((win) => {
+      cy.spy(win.console, "log");
+    });
+  });
+
   it('should display Example Context Menu & Cell Menu', () => {
     cy.visit(`${Cypress.config('baseExampleUrl')}/example-plugin-contextmenu.html`);
     cy.get('h2').should('contain', 'Demonstrates:');
@@ -38,6 +45,41 @@ describe('Example - Context Menu & Cell Menu', () => {
 
     cy.get('.slick-cell-menu')
       .should('not.exist')
+  });
+
+  it('should open the Context Menu and expect onBeforeMenuShow then onAfterMenuShow to show in the console log', () => {
+    cy.get('#myGrid')
+      .find('.slick-row .slick-cell:nth(1)')
+      .contains('Task 0');
+
+    cy.get('#myGrid')
+      .find('.slick-row .slick-cell:nth(1)')
+      .rightclick();
+
+    cy.window().then((win) => {
+      expect(win.console.log).to.have.callCount(2);
+      expect(win.console.log).to.be.calledWith('Before the global Context Menu is shown');
+      expect(win.console.log).to.be.calledWith('After the Context Menu is shown');
+    });
+  });
+
+  it('should expect the Context Menu to not have the "Help" menu when there is Effort Driven set to True', () => {
+    const commands = ['Copy Cell Value', 'Delete Row', '', 'Command (always disabled)'];
+
+    cy.get('#myGrid')
+      .find('.slick-row .slick-cell:nth(1)')
+      .contains('Task 0');
+
+    cy.get('#myGrid')
+      .find('.slick-row .slick-cell:nth(1)')
+      .rightclick();
+
+    cy.get('.slick-context-menu.dropright .slick-context-menu-command-list')
+      .find('.slick-context-menu-item')
+      .each(($command, index) => {
+        expect($command.text()).to.eq(commands[index]);
+        expect($command.text()).not.include('Help');
+      });
   });
 
   it('should expect the Context Menu to not have the "Help" menu when there is Effort Driven set to True', () => {
@@ -140,12 +182,23 @@ describe('Example - Context Menu & Cell Menu', () => {
       .click();
   });
 
-  it('should be able to click on the Action Cell Menu (x) close button, on top right corner, to close the menu', () => {
+  it('should open the Cell Menu and expect onBeforeMenuShow then onAfterMenuShow to show in the console log', () => {
     cy.get('#myGrid')
       .find('.slick-row .slick-cell:nth(7)')
       .contains('Action')
       .click({ force: true });
 
+    cy.get('.slick-cell-menu.dropleft')
+      .should('exist');
+
+    cy.window().then((win) => {
+      expect(win.console.log).to.have.callCount(2);
+      expect(win.console.log).to.be.calledWith('Before the Cell Menu is shown');
+      expect(win.console.log).to.be.calledWith('After the Cell Menu is shown');
+    });
+  });
+
+  it('should be able to click on the Action Cell Menu (x) close button, on top right corner, to close the menu', () => {
     cy.get('.slick-cell-menu.dropleft')
       .should('exist');
 

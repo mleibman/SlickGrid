@@ -3,6 +3,13 @@
 describe('Example - Grid Menu', () => {
   const fullTitles = ['#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 
+  beforeEach(() => {
+    // create a console.log spy for later use
+    cy.window().then((win) => {
+      cy.spy(win.console, "log");
+    });
+  });
+
   it('should display Example Grid Menu', () => {
     cy.visit(`${Cypress.config('baseExampleUrl')}/example-grid-menu.html`);
     cy.get('h2').should('contain', 'Demonstrates:');
@@ -16,12 +23,19 @@ describe('Example - Grid Menu', () => {
       .each(($child, index) => expect($child.text()).to.eq(fullTitles[index]));
   });
 
-  it('should open the Grid Menu and expect a title for "Custom Menus" and for "Columns"', () => {
+  it('should open the Grid Menu and expect onBeforeMenuShow then onAfterMenuShow to show in the console log', () => {
     cy.get('#myGrid')
       .find('button.slick-gridmenu-button')
-      .trigger('click')
       .click({ force: true });
 
+    cy.window().then((win) => {
+      expect(win.console.log).to.have.callCount(2);
+      expect(win.console.log).to.be.calledWith('Before the Grid Menu is shown');
+      expect(win.console.log).to.be.calledWith('After the Grid Menu is shown');
+    });
+  });
+
+  it('should have the Grid Menu already opened and expect a title for "Custom Menus" and for "Columns"', () => {
     cy.get('.slick-gridmenu-custom')
       .find('.title')
       .contains('Custom Menus');
@@ -33,7 +47,6 @@ describe('Example - Grid Menu', () => {
     cy.get('#myGrid')
       .get('.slick-gridmenu:visible')
       .find('span.close')
-      .trigger('click')
       .click({ force: true });
   });
 
@@ -42,7 +55,6 @@ describe('Example - Grid Menu', () => {
 
     cy.get('#myGrid')
       .find('button.slick-gridmenu-button')
-      .trigger('click')
       .click({ force: true });
 
     cy.get('#myGrid')
@@ -56,7 +68,6 @@ describe('Example - Grid Menu', () => {
     cy.get('#myGrid')
       .get('.slick-gridmenu:visible')
       .find('span.close')
-      .trigger('click')
       .click({ force: true });
 
     cy.get('#myGrid')
@@ -68,7 +79,6 @@ describe('Example - Grid Menu', () => {
   it('should click on the External Grid Menu to show the column "A" as 1st column again', () => {
     cy.get('button')
       .contains('Grid Menu')
-      .trigger('click')
       .click({ force: true });
 
     cy.get('#myGrid')
@@ -161,7 +171,6 @@ describe('Example - Grid Menu', () => {
   it('should open the Grid Menu and click on Clear Filter and expect multiple rows now showing in the grid', () => {
     cy.get('#myGrid')
       .find('button.slick-gridmenu-button')
-      .trigger('click')
       .click({ force: true });
 
     cy.get('.slick-gridmenu-item')
@@ -195,7 +204,6 @@ describe('Example - Grid Menu', () => {
 
     cy.get('button')
       .contains('Grid Menu')
-      .trigger('click')
       .click({ force: true });
 
     cy.get('#myGrid')
@@ -207,7 +215,6 @@ describe('Example - Grid Menu', () => {
     cy.get('#myGrid')
       .get('.slick-gridmenu:visible')
       .find('span.close')
-      .trigger('click')
       .click();
   });
 
@@ -221,7 +228,6 @@ describe('Example - Grid Menu', () => {
 
     cy.get('#myGrid')
       .find('button.slick-gridmenu-button')
-      .trigger('click')
       .click({ force: true });
 
     cy.get('.slick-gridmenu-item.slick-gridmenu-item-disabled')
@@ -236,7 +242,6 @@ describe('Example - Grid Menu', () => {
     cy.get('#myGrid')
       .get('.slick-gridmenu:visible')
       .find('span.close')
-      .trigger('click')
       .click({ force: true });
   });
 

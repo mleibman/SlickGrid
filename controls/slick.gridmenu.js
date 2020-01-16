@@ -388,8 +388,10 @@
       $list.appendTo($menu);
       _isMenuOpen = true;
 
-      if (_self.onAfterMenuShow.notify(callbackArgs, e, _self) == false) {
-        return;
+      if (typeof e.isPropagationStopped === "function") {
+        if (_self.onAfterMenuShow.notify(callbackArgs, e, _self) == false) {
+          return;
+        }
       }
     }
 
