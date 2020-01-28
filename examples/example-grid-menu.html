@@ -337,6 +337,15 @@
       }
     });
 
+    // subscribe to some events
+    
+    gridMenuControl.onBeforeMenuShow.subscribe(function(e, args) {
+      console.log('Before the Grid Menu is shown');
+    });
+    gridMenuControl.onAfterMenuShow.subscribe(function(e, args) {
+      console.log('After the Grid Menu is shown');
+    });
+
     // subscribe to event when column visibility is changed via the menu
     gridMenuControl.onColumnsChanged.subscribe(function(e, args) {
       console.log('Columns changed via the menu');

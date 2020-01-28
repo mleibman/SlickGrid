@@ -4,7 +4,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
-  <title>SlickGrid example 7: Events</title>
+  <title>SlickGrid example: Cell Menu & Context Menu</title>
   <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
   <link rel="stylesheet" href="../plugins/slick.cellmenu.css" type="text/css" />
   <link rel="stylesheet" href="../plugins/slick.contextmenu.css" type="text/css" />
@@ -135,7 +135,7 @@
           </li>
           <li>
             There are also a few SlickGrid Events you can subscribe
-            onBeforeMenuShow, onBeforeMenuClose, onCommand, onOptionSelected
+            onBeforeMenuShow, onBeforeMenuClose, onAfterMenuShow, onCommand, onOptionSelected
           </li>
           <li>
             There 2 ways to execute a Command/Option
@@ -472,6 +472,13 @@
         console.log("Global Context Menu is closing", args);
       });
 
+      contextMenuPlugin.onAfterMenuShow.subscribe(function (e, args) {
+        // for example, you could select the row it was clicked with
+        // grid.setSelectedRows([args.row]); // select the entire row
+        grid.setActiveCell(args.row, args.cell, false); // select the cell that the click originated
+        console.log("After the Context Menu is shown", args);
+      });
+
       // subscribe to Context Menu onCommand event (or use the action callback on each command)
       contextMenuPlugin.onCommand.subscribe(function (e, args) {
         executeCommand(e, args);
@@ -500,6 +507,13 @@
       });
       cellMenuPlugin.onBeforeMenuClose.subscribe(function (e, args) {
         console.log("Cell Menu is closing", args);
+      });
+
+      cellMenuPlugin.onAfterMenuShow.subscribe(function (e, args) {
+        // for example, you could select the row it was clicked with
+        // grid.setSelectedRows([args.row]); // select the entire row
+        grid.setActiveCell(args.row, args.cell, false); // select the cell that the click originated
+        console.log("After the Cell Menu is shown", args);
       });
 
       // subscribe to Cell Menu onCommand event (or use the action callback on each command)

@@ -64,6 +64,14 @@
  *
  *
  * The plugin exposes the following events:
+ *
+ *    onAfterMenuShow:   Fired after the menu is shown.  You can customize the menu or dismiss it by returning false.
+ *      * ONLY works with a jQuery event (as per slick.core code), so we cannot notify when it's a button event (when grid menu is attached to an external button, not the hamburger menu)
+ *        Event args:
+ *            grid:     Reference to the grid.
+ *            column:   Column definition.
+ *            menu:     Menu options.  Note that you can change the menu items here.
+ * 
  *    onBeforeMenuShow:   Fired before the menu is shown.  You can customize the menu or dismiss it by returning false.
  *      * ONLY works with a jQuery event (as per slick.core code), so we cannot notify when it's a button event (when grid menu is attached to an external button, not the hamburger menu)
  *        Event args:
@@ -189,6 +197,7 @@
     }
 
     function destroy() {
+      _self.onAfterMenuShow.unsubscribe();
       _self.onBeforeMenuShow.unsubscribe();
       _self.onMenuClose.unsubscribe();
       _self.onCommand.unsubscribe();
@@ -321,7 +330,6 @@
       // notify of the onBeforeMenuShow only works when it's a jQuery event (as per slick.core code)
       // this mean that we cannot notify when the grid menu is attach to a button event
       if (typeof e.isPropagationStopped === "function") {
-
         if (_self.onBeforeMenuShow.notify(callbackArgs, e, _self) == false) {
           return;
         }
@@ -379,6 +387,12 @@
 
       $list.appendTo($menu);
       _isMenuOpen = true;
+
+      if (typeof e.isPropagationStopped === "function") {
+        if (_self.onAfterMenuShow.notify(callbackArgs, e, _self) == false) {
+          return;
+        }
+      }
     }
 
     function handleBodyMouseDown(e) {
@@ -547,6 +561,7 @@
       "setOptions": setOptions,
       "updateAllTitles": updateAllTitles,
 
+      "onAfterMenuShow": new Slick.Event(),
       "onBeforeMenuShow": new Slick.Event(),
       "onMenuClose": new Slick.Event(),
       "onCommand": new Slick.Event(),

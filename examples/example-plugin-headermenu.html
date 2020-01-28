@@ -252,6 +252,13 @@
         executeSort(args.sortCols);
       });
 
+      headerMenuPlugin.onBeforeMenuShow.subscribe(function(e, args) {
+        console.log('Before the Header Menu is shown');
+      });
+      headerMenuPlugin.onAfterMenuShow.subscribe(function(e, args) {
+        console.log('After the Header Menu is shown');
+      });
+
       headerMenuPlugin.onCommand.subscribe(function (e, args) {
         if (args.command === "hide") {
           // hide column

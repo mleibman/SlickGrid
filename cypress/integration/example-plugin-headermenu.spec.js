@@ -22,7 +22,7 @@ describe('Example - Header Menu', () => {
       .each(($child, index) => expect($child.text()).to.eq(titles[index]));
   });
 
-  it('should hover over the "Title" column and expect Sort & Hide commands to be disabled', () => {
+  it('should open the Header Menu on the "Title" column and expect onBeforeMenuShow then onAfterMenuShow to show in the console log', () => {
     cy.get('#myGrid')
       .find('.slick-header-column')
       .first()
@@ -32,6 +32,14 @@ describe('Example - Header Menu', () => {
       .invoke('show')
       .click();
 
+    cy.window().then((win) => {
+      expect(win.console.log).to.have.callCount(2);
+      expect(win.console.log).to.be.calledWith('Before the Header Menu is shown');
+      expect(win.console.log).to.be.calledWith('After the Header Menu is shown');
+    });
+  });
+
+  it('should open the Header Menu on the "Title" column and expect Sort & Hide commands to be disabled', () => {
     cy.get('.slick-header-menuitem.slick-header-menuitem-disabled')
       .contains('Sort Ascending')
       .should('exist');
