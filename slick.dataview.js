@@ -82,6 +82,7 @@
     var onRowCountChanged = new Slick.Event();
     var onRowsChanged = new Slick.Event();
     var onRowsOrCountChanged = new Slick.Event();
+    var onBeforePagingInfoChanged = new Slick.Event();
     var onPagingInfoChanged = new Slick.Event();
 
     options = $.extend(true, {}, defaults, options);
@@ -147,6 +148,8 @@
     }
 
     function setPagingOptions(args) {
+      onBeforePagingInfoChanged.notify(getPagingInfo(), null, self);
+
       if (args.pageSize != undefined) {
         pagesize = args.pageSize;
         pagenum = pagesize ? Math.min(pagenum, Math.max(0, Math.ceil(totalRows / pagesize) - 1)) : 0;
@@ -981,6 +984,8 @@
         return;
       }
 
+      var previousPagingInfo = $.extend(true, {}, getPagingInfo());
+
       var countBefore = rows.length;
       var totalRowsBefore = totalRows;
 
@@ -998,6 +1003,7 @@
       refreshHints = {};
 
       if (totalRowsBefore !== totalRows) {
+        onBeforePagingInfoChanged.notify(previousPagingInfo, null, self); // use the previously saved paging info
         onPagingInfoChanged.notify(getPagingInfo(), null, self);
       }
       if (countBefore !== rows.length) {
@@ -1121,7 +1127,7 @@
         if (args.hash) {
           storeCellCssStyles(args.hash);
         } else {
-          grid.onCellCssStylesChanged.unsubscribe(styleChanged);
+          grid.onCellCssStylesChanged.unsubscribe();
           self.onRowsOrCountChanged.unsubscribe(update);
         }
       });
@@ -1183,6 +1189,7 @@
       "onRowCountChanged": onRowCountChanged,
       "onRowsChanged": onRowsChanged,
       "onRowsOrCountChanged": onRowsOrCountChanged,
+      "onBeforePagingInfoChanged": onBeforePagingInfoChanged,
       "onPagingInfoChanged": onPagingInfoChanged
     });
   }
