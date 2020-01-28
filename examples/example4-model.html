@@ -286,6 +286,16 @@ $(function () {
 
   dataView.onPagingInfoChanged.subscribe(function (e, pagingInfo) {
     grid.updatePagingStatusFromView( pagingInfo );
+
+    // show the pagingInfo but remove the dataView from the object, just for the Cypress E2E test
+    delete pagingInfo.dataView;
+    console.log('on After Paging Info Changed - New Paging:: ', pagingInfo);
+  });
+
+  dataView.onBeforePagingInfoChanged.subscribe(function (e, previousPagingInfo) {
+    // show the previous pagingInfo but remove the dataView from the object, just for the Cypress E2E test
+    delete previousPagingInfo.dataView;
+    console.log('on Before Paging Info Changed - Previous Paging:: ', previousPagingInfo);
   });
 
   var h_runfilters = null;
