@@ -85,10 +85,15 @@
         <button onclick="toggleWhichRowToShowSelectAll()">Toggle which row to show "Select All" checkbox</button>
       </p>
     </ul>
-      <h2>View Source:</h2>
-      <ul>
-          <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-checkbox-header-row.html" target="_sourcewindow"> View the source for this example on Github</a></li>
-      </ul>
+    <h2>View Source:</h2>
+    <ul>
+        <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-checkbox-header-row.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+    </ul>
+
+    <hr/>
+
+    <h3>Selected Rows:</h3>
+    <div id="selectedRows" style="overflow-x: auto;"></div>
   </div>
 </div>
 
@@ -197,7 +202,12 @@
     });
 
     grid.onSelectedRowsChanged.subscribe(function (e, args) {
-      console.log("Selected Rows: " + args.rows.toString());
+      var previousSelectedRows = args.previousSelectedRows.sort(function (a, b) { return a - b });
+      var sortedSelectedRows = args.rows.sort(function (a, b) { return a - b });
+
+      console.log("Previously Selected Rows: " + previousSelectedRows.toString());
+      console.log("Selected Rows: " + sortedSelectedRows.toString());
+      $('#selectedRows').text(sortedSelectedRows.toString());
     });
 
     $(grid.getHeaderRow()).on("change keyup", ":input", function (e) {
