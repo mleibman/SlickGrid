@@ -2701,7 +2701,7 @@ if (typeof Slick === "undefined") {
       setCellCssStyles(options.selectedCellCssClass, hash);
 
       if (simpleArrayEquals(previousSelectedRows, selectedRows)) {
-        trigger(self.onSelectedRowsChanged, {rows: getSelectedRows()}, e);
+        trigger(self.onSelectedRowsChanged, {rows: getSelectedRows(), previousSelectedRows: previousSelectedRows}, e);
       }
     }
 
