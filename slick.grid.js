@@ -1839,9 +1839,11 @@ if (typeof Slick === "undefined") {
     function getVBoxDelta($el) {
       var p = ["borderTopWidth", "borderBottomWidth", "paddingTop", "paddingBottom"];
       var delta = 0;
-      $.each(p, function (n, val) {
-        delta += parseFloat($el.css(val)) || 0;
-      });
+      if ($el && typeof $el.css === 'function') {
+        $.each(p, function (n, val) {
+          delta += parseFloat($el.css(val)) || 0;
+        });
+      }
       return delta;
     }
 
