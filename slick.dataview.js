@@ -84,6 +84,8 @@
     var onRowsOrCountChanged = new Slick.Event();
     var onBeforePagingInfoChanged = new Slick.Event();
     var onPagingInfoChanged = new Slick.Event();
+    var onGroupExpanded = new Slick.Event();
+    var onGroupCollapsed = new Slick.Event();
 
     options = $.extend(true, {}, defaults, options);
 
@@ -511,16 +513,28 @@
     }
 
     function expandCollapseAllGroups(level, collapse) {
-      if (level == null) {
-        for (var i = 0; i < groupingInfos.length; i++) {
-          toggledGroupsByLevel[i] = {};
-          groupingInfos[i].collapsed = collapse;
+        if (level === null) {
+            for (let i = 0; i < groupingInfos.length; i++) {
+                toggledGroupsByLevel[i] = {};
+                groupingInfos[i].collapsed = collapse;
+
+                if (collapse === true) {
+                    onGroupCollapsed.notify({ level: i, groupingKey: null });
+                } else {
+                    onGroupExpanded.notify({ level: i, groupingKey: null });
+                }
+            }
+        } else {
+            toggledGroupsByLevel[level] = {};
+            groupingInfos[level].collapsed = collapse;
+
+            if (collapse === true) {
+                onGroupCollapsed.notify({ level: level, groupingKey: null });
+            } else {
+                onGroupExpanded.notify({ level: level, groupingKey: null });
+            }
         }
-      } else {
-        toggledGroupsByLevel[level] = {};
-        groupingInfos[level].collapsed = collapse;
-      }
-      refresh();
+        refresh();
     }
 
     /**
@@ -542,36 +556,40 @@
       refresh();
     }
 
-    /**
-     * @param varArgs Either a Slick.Group's "groupingKey" property, or a
-     *     variable argument list of grouping values denoting a unique path to the row.  For
-     *     example, calling collapseGroup('high', '10%') will collapse the '10%' subgroup of
-     *     the 'high' group.
-     */
-    function collapseGroup(varArgs) {
-      var args = Array.prototype.slice.call(arguments);
-      var arg0 = args[0];
-      if (args.length == 1 && arg0.indexOf(groupingDelimiter) != -1) {
-        expandCollapseGroup(arg0.split(groupingDelimiter).length - 1, arg0, true);
-      } else {
-        expandCollapseGroup(args.length - 1, args.join(groupingDelimiter), true);
-      }
+    function collapseGroup() {
+        const args = Array.prototype.slice.call(arguments);
+        const arg0 = args[0];
+        let groupingKey;
+        let level;
+
+        if (args.length === 1 && arg0.indexOf(groupingDelimiter) !== -1) {
+            groupingKey = arg0;
+            level = arg0.split(groupingDelimiter).length - 1;
+        } else {
+            groupingKey = args.join(groupingDelimiter);
+            level = args.length - 1;
+        }
+
+        expandCollapseGroup(level, groupingKey, true);
+        onGroupCollapsed.notify({ level: level, groupingKey: groupingKey });
     }
 
-    /**
-     * @param varArgs Either a Slick.Group's "groupingKey" property, or a
-     *     variable argument list of grouping values denoting a unique path to the row.  For
-     *     example, calling expandGroup('high', '10%') will expand the '10%' subgroup of
-     *     the 'high' group.
-     */
-    function expandGroup(varArgs) {
-      var args = Array.prototype.slice.call(arguments);
-      var arg0 = args[0];
-      if (args.length == 1 && arg0.indexOf(groupingDelimiter) != -1) {
-        expandCollapseGroup(arg0.split(groupingDelimiter).length - 1, arg0, false);
-      } else {
-        expandCollapseGroup(args.length - 1, args.join(groupingDelimiter), false);
-      }
+    function expandGroup() {
+        const args = Array.prototype.slice.call(arguments);
+        const arg0 = args[0];
+        let groupingKey;
+        let level;
+
+        if (args.length === 1 && arg0.indexOf(groupingDelimiter) !== -1) {
+            level = arg0.split(groupingDelimiter).length - 1;
+            groupingKey = arg0;
+        } else {
+            level = args.length - 1;
+            groupingKey = args.join(groupingDelimiter);
+        }
+
+        expandCollapseGroup(level, groupingKey, false);
+        onGroupExpanded.notify({ level: level, groupingKey: groupingKey });
     }
 
     function getGroups() {
@@ -1190,7 +1208,9 @@
       "onRowsChanged": onRowsChanged,
       "onRowsOrCountChanged": onRowsOrCountChanged,
       "onBeforePagingInfoChanged": onBeforePagingInfoChanged,
-      "onPagingInfoChanged": onPagingInfoChanged
+      "onPagingInfoChanged": onPagingInfoChanged,
+      "onGroupExpanded": onGroupExpanded,
+      "onGroupCollapsed": onGroupCollapsed
     });
   }
 
