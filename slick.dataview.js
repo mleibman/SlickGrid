@@ -556,7 +556,13 @@
       refresh();
     }
 
-    function collapseGroup() {
+    /**
+     * @param varArgs Either a Slick.Group's "groupingKey" property, or a
+     *     variable argument list of grouping values denoting a unique path to the row.  For
+     *     example, calling collapseGroup('high', '10%') will collapse the '10%' subgroup of
+     *     the 'high' group.
+     */
+    function collapseGroup(varArgs) {
       var args = Array.prototype.slice.call(arguments);
       var arg0 = args[0];
       var groupingKey;
@@ -574,7 +580,13 @@
       onGroupCollapsed.notify({level:level, groupingKey:groupingKey});
     }
 
-    function expandGroup() {
+    /**
+     * @param varArgs Either a Slick.Group's "groupingKey" property, or a
+     *     variable argument list of grouping values denoting a unique path to the row.  For
+     *     example, calling expandGroup('high', '10%') will expand the '10%' subgroup of
+     *     the 'high' group.
+     */
+    function expandGroup(varArgs) {
       var args = Array.prototype.slice.call(arguments);
       var arg0 = args[0];
       var groupingKey;
