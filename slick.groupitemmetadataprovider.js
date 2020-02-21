@@ -20,9 +20,9 @@
    * @module Data
    * @namespace Slick.Data
    * @constructor
-   * @param _options
+   * @param inputOptions
    */
-  function GroupItemMetadataProvider(_options) {
+  function GroupItemMetadataProvider(inputOptions) {
     var _grid;
     var _defaults = {
       checkboxSelect: false,
@@ -44,17 +44,15 @@
 
     var options = {};
 
-    setOptions(_options);
+    setOptions(inputOptions);
 
     function getOptions(){
       return options;
     }
 
-    function setOptions(_options)
+    function setOptions(inputOptions)
     {
-      options = $.extend(true, {}, _defaults, options, _options);
-
-      return this;
+      options = $.extend(true, {}, _defaults, options, inputOptions);
     }
 
     function defaultGroupCellFormatter(row, cell, value, columnDef, item, grid) {
