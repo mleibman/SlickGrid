@@ -20,9 +20,9 @@
    * @module Data
    * @namespace Slick.Data
    * @constructor
-   * @param options
+   * @param _options
    */
-  function GroupItemMetadataProvider(options) {
+  function GroupItemMetadataProvider(_options) {
     var _grid;
     var _defaults = {
       checkboxSelect: false,
@@ -42,8 +42,20 @@
       includeHeaderTotals: false
     };
 
-    options = $.extend(true, {}, _defaults, options);
+    var options = {};
 
+    setOptions(_options);
+
+    function getOptions(){
+      return options;
+    }
+
+    function setOptions(_options)
+    {
+      options = $.extend(true, {}, _defaults, options, _options);
+
+      return this;
+    }
 
     function defaultGroupCellFormatter(row, cell, value, columnDef, item, grid) {
       if (!options.enableExpandCollapse) {
@@ -170,7 +182,9 @@
       "init": init,
       "destroy": destroy,
       "getGroupRowMetadata": getGroupRowMetadata,
-      "getTotalsRowMetadata": getTotalsRowMetadata
+      "getTotalsRowMetadata": getTotalsRowMetadata,
+      "getOptions": getOptions,
+      "setOptions": setOptions
     };
   }
 })(jQuery);
