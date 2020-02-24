@@ -42,7 +42,7 @@
       includeHeaderTotals: false
     };
 
-    var options = {};
+    var options = $.extend(true, {}, _defaults);
 
     setOptions(inputOptions);
 
@@ -52,7 +52,7 @@
 
     function setOptions(inputOptions)
     {
-      options = $.extend(true, {}, _defaults, options, inputOptions);
+      options = $.extend(true, {}, options, inputOptions);
     }
 
     function defaultGroupCellFormatter(row, cell, value, columnDef, item, grid) {
