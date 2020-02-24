@@ -513,7 +513,7 @@
     }
 
     function expandCollapseAllGroups(level, collapse) {
-      if (level === null) {
+      if (level == null) {
         for (var i = 0; i < groupingInfos.length; i++) {
           toggledGroupsByLevel[i] = {};
           groupingInfos[i].collapsed = collapse;
