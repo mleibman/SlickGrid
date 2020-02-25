@@ -84,6 +84,8 @@
     var onRowsOrCountChanged = new Slick.Event();
     var onBeforePagingInfoChanged = new Slick.Event();
     var onPagingInfoChanged = new Slick.Event();
+    var onGroupExpanded = new Slick.Event();
+	var onGroupCollapsed = new Slick.Event();
 
     options = $.extend(true, {}, defaults, options);
 
@@ -515,10 +517,22 @@
         for (var i = 0; i < groupingInfos.length; i++) {
           toggledGroupsByLevel[i] = {};
           groupingInfos[i].collapsed = collapse;
+        
+          if (collapse === true) {
+            onGroupCollapsed.notify({level:i, groupingKey:null});
+          } else {
+            onGroupExpanded.notify({level:i, groupingKey:null});
+          }
         }
       } else {
         toggledGroupsByLevel[level] = {};
         groupingInfos[level].collapsed = collapse;
+          
+        if (collapse === true) {
+          onGroupCollapsed.notify({level:level, groupingKey:null});
+        } else {
+          onGroupExpanded.notify({level:level, groupingKey:null});
+        }
       }
       refresh();
     }
@@ -551,11 +565,19 @@
     function collapseGroup(varArgs) {
       var args = Array.prototype.slice.call(arguments);
       var arg0 = args[0];
-      if (args.length == 1 && arg0.indexOf(groupingDelimiter) != -1) {
-        expandCollapseGroup(arg0.split(groupingDelimiter).length - 1, arg0, true);
+      var groupingKey;
+      var level;
+
+      if (args.length === 1 && arg0.indexOf(groupingDelimiter) !== -1) {
+        groupingKey = arg0;
+        level = arg0.split(groupingDelimiter).length - 1;
       } else {
-        expandCollapseGroup(args.length - 1, args.join(groupingDelimiter), true);
+        groupingKey = args.join(groupingDelimiter);
+       level = args.length - 1;
       }
+
+      expandCollapseGroup(level, groupingKey, true);
+      onGroupCollapsed.notify({level:level, groupingKey:groupingKey});
     }
 
     /**
@@ -567,11 +589,19 @@
     function expandGroup(varArgs) {
       var args = Array.prototype.slice.call(arguments);
       var arg0 = args[0];
-      if (args.length == 1 && arg0.indexOf(groupingDelimiter) != -1) {
-        expandCollapseGroup(arg0.split(groupingDelimiter).length - 1, arg0, false);
+      var groupingKey;
+      var level;
+
+      if (args.length === 1 && arg0.indexOf(groupingDelimiter) !== -1) {
+        level = arg0.split(groupingDelimiter).length - 1;
+        groupingKey = arg0;
       } else {
-        expandCollapseGroup(args.length - 1, args.join(groupingDelimiter), false);
+        level = args.length - 1;
+        groupingKey = args.join(groupingDelimiter);
       }
+
+      expandCollapseGroup(level, groupingKey, false);
+      onGroupExpanded.notify({level:level, groupingKey:groupingKey});
     }
 
     function getGroups() {
@@ -1190,7 +1220,9 @@
       "onRowsChanged": onRowsChanged,
       "onRowsOrCountChanged": onRowsOrCountChanged,
       "onBeforePagingInfoChanged": onBeforePagingInfoChanged,
-      "onPagingInfoChanged": onPagingInfoChanged
+      "onPagingInfoChanged": onPagingInfoChanged,
+	  "onGroupExpanded":onGroupExpanded,
+	  "onGroupCollapsed":onGroupCollapsed
     });
   }
 
