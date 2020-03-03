@@ -354,11 +354,14 @@
     }
 
     function handleCellClick(e, args) {
-      e.preventDefault();
-
       var cell = _grid.getCellFromEvent(e);
       var dataContext = _grid.getDataItem(cell.row);
       var columnDef = _grid.getColumns()[cell.cell];
+
+      // prevent event from bubbling but only on column that has a cell menu defined
+      if (columnDef && columnDef.cellMenu) {
+        e.preventDefault();
+      }
 
       // merge the cellMenu of the column definition with the default properties
       _cellMenuProperties = $.extend({}, _cellMenuProperties, columnDef.cellMenu);
