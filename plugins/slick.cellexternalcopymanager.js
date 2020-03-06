@@ -159,7 +159,7 @@
         if (clipRows[i]!=="")
           clippedRange[j++] = clipRows[i].split("\t");
           else
-          clippedRange[i] = [""];
+          clippedRange[j++] = [""];
       }
       var selectedCell = _grid.getActiveCell();
       var ranges = _grid.getSelectionModel().getSelectedRanges();
@@ -357,7 +357,7 @@
                     var clipTextCells = [];
                     var dt = _grid.getDataItem(i);
                     
-                    if (clipTextRows === "" && _options.includeHeaderWhenCopying) {
+                    if (clipTextRows.length === 0 && _options.includeHeaderWhenCopying) {
                         var clipTextHeaders = [];
                         for (var j = range.fromCell; j < range.toCell + 1 ; j++) {
                             if (columns[j].name.length > 0)
