@@ -4028,6 +4028,11 @@ if (typeof Slick === "undefined") {
       var maxScrollDistanceY = $viewportScrollContainerY[0].scrollHeight - $viewportScrollContainerY[0].clientHeight;
       var maxScrollDistanceX = $viewportScrollContainerY[0].scrollWidth - $viewportScrollContainerY[0].clientWidth;
 
+      // Protect against erroneous clientHeight/Width greater than scrollHeight/Width.
+      // Sometimes seen in Chrome.
+      maxScrollDistanceY = Math.max(0, maxScrollDistanceY);
+      maxScrollDistanceX = Math.max(0, maxScrollDistanceX);
+
       // Ceiling the max scroll values
       if (scrollTop > maxScrollDistanceY) {
         scrollTop = maxScrollDistanceY;
