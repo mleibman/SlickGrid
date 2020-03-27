@@ -11,12 +11,12 @@ Check out the **[Examples](https://github.com/6pac/SlickGrid/wiki/Examples)** fo
 Also check out the [Wiki](https://github.com/6pac/SlickGrid/wiki) for news and documentation.
 
 ### E2E Tests with Cypress
-We are now starting to add E2E (end to end) tests in the browser with [Cypress](https://www.cypress.io/). You can see [here](https://github.com/6pac/SlickGrid/tree/master/cypress/integration) the list of Examples that now have Cypress tests. We also added these Cypress tests to the [GitHub Actions](https://github.com/features/actions) Workflow to automate certain steps, it will basically run all the E2E tests every time someone pushes a commit or a PR.
+We are now starting to add E2E (end to end) tests in the browser with [Cypress](https://www.cypress.io/). You can see [here](https://github.com/6pac/SlickGrid/tree/master/cypress/integration) the list of Examples that now have E2E tests. We also added these Cypress E2E tests to the [GitHub Actions](https://github.com/features/actions) Workflow to automate certain steps while making sure any new commits aren't breaking the build/test. It will basically run all the E2E tests every time someone pushes a commit or a PR.
 
-We also welcome any contributions (tests or fixes) and if you wish to add Cypress tests, all you need to do is to clone the repo and then run the following commands
+We also welcome any contributions (tests or fixes) and if you wish to add Cypress E2E tests, all you need to do is to clone the repo and then run the following commands
 ```bash
 npm install # install all npm packages
 npm run server # run a local http server
 npm run cypress:open # open Cypress tool
 ```
-Once Cypress tool is open, you can click on "Run all Specs" to start the E2E browser tests.
+Once Cypress UI is open, you can click on "Run all Specs" to start the E2E browser tests.

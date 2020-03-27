@@ -1,0 +1,377 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui.css" type="text/css" />
+  <link rel="stylesheet" href="examples.css" type="text/css" />
+  <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css" />
+  <link rel="stylesheet" href="../plugins/slick.rowdetailview.css" type="text/css" />
+  <style>
+    .cell-reorder {
+      cursor: move;
+      background: url("../images/drag-handle.png") no-repeat center center;
+    }
+
+    .cell-selection {
+      border-right-color: silver;
+      border-right-style: solid;
+      background: #f5f5f5;
+      color: gray;
+      text-align: right;
+      font-size: 10px;
+    }
+
+    .slick-row.selected .cell-selection {
+      background-color: transparent;
+      /* show default selected row background */
+    }
+
+    .slick-cell-checkboxsel {
+      background: #f0f0f0;
+      border-right-color: silver;
+      border-right-style: solid;
+    }
+
+    .slick-group-title[level='0'] {
+      font-weight: bold;
+    }
+
+    .slick-group-title[level='1'] {
+      text-decoration: underline;
+    }
+
+    .slick-group-title[level='2'] {
+      font-style: italic;
+    }
+
+    .detail {
+      padding: 5px
+    }
+
+    .preload {
+      font-size: 18px;
+    }
+
+    .dynamic-cell-detail> :first-child {
+      vertical-align: middle;
+      line-height: 13px;
+      padding: 10px;
+      margin-left: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div style="position:relative">
+    <div style="width:600px;">
+      <div id="myGrid" style="width:100%;height:500px;"></div>
+    </div>
+
+    <div class="options-panel">
+      <h2>Demonstrates:</h2>
+      <h3>The following three Plugins used together</h3>
+      <ul>
+        <li>1. Checkbox Row Selection</li>
+        <li>2. Row Detail</li>
+        <li>3. Row Move Manager</li>
+      </ul>
+
+      <h2>Options:</h2>
+      <p>
+        <p>If you wish to use all 3 plugins at the same time, you might encounter some issues with row selections.
+          Since the Row Manager Plugin also uses the selected rows array to move multiple row at once,
+          you could if you to simply make the Row Move plugin to only allow 1 row be moved at a time,
+          doing this will make the 2 plugins work nicely together without any clashing.
+          The options you will want to use for that would these 2 options to predefine while instantiating the Row Move
+          Manager Plugin ({ singleRowMove: true, disableRowSelection: true })
+        </p>
+        <p></p>
+        <button onclick="rowMovePlugin.setOptions({ singleRowMove: true, disableRowSelection: true })">
+          Single Row Move ON
+        </button>
+        &nbsp;
+        <button onclick="rowMovePlugin.setOptions({ singleRowMove: false, disableRowSelection: false })">
+          Single Row Move OFF
+        </button>
+      </p>
+      <p>
+        The RowMoveManager Plugin can be configured with an "usabilityOverride" which will make the row moveable
+        or not depending on a custom override callback that can be provided by the user (all 3 plugins have such
+        override). Also don't forget to also configure a custom formatter that will follow the same logic of when to
+        show the icon. For example this demo makes the row moveable only on every second row.
+      </p>
+
+      <h2>View Source:</h2>
+      <ul>
+        <li>
+          <a href="https://github.com/6pac/SlickGrid/blob/master/examples/example-checkbox-selection-row-detail.html"
+            target="_sourcewindow">
+            View the source for this example on Github
+          </a>
+        </li>
+        <h3>Selected Titles:</h3>
+        <div id="selectedTitles" style="overflow-x: auto; white-space: nowrap; text-overflow: ellipsis;"></div>
+      </ul>
+    </div>
+  </div>
+
+  <script src="../lib/firebugx.js"></script>
+
+  <script src="../lib/jquery-1.12.4.min.js"></script>
+  <script src="../lib/jquery-ui.min.js"></script>
+  <script src="../lib/jquery.event.drag-2.3.0.js"></script>
+
+  <script src="../slick.core.js"></script>
+  <script src="../slick.formatters.js"></script>
+  <script src="../plugins/slick.cellrangeselector.js"></script>
+  <script src="../plugins/slick.checkboxselectcolumn.js"></script>
+  <script src="../plugins/slick.rowdetailview.js"></script>
+  <script src="../plugins/slick.rowmovemanager.js"></script>
+  <script src="../plugins/slick.rowselectionmodel.js"></script>
+  <script src="../controls/slick.columnpicker.js"></script>
+  <script src="../slick.grid.js"></script>
+  <script src="../slick.dataview.js"></script>
+
+  <script>
+    var grid;
+    var dataView;
+    var data = [];
+    var detailViewPlugin;
+    var checkboxSelectorPlugin;
+    var rowMovePlugin;
+    var sortcol = "title";
+    var sortdir = 1;
+
+    var fakeNames = ['John Doe', 'Jane Doe', 'Chuck Norris', 'Bumblebee', 'Jackie Chan', 'Elvis Presley', 'Bob Marley', 'Mohammed Ali', 'Bruce Lee', 'Rocky Balboa'];
+
+    var columns = [
+      { id: "sel", name: "#", field: "num", behavior: "select", cssClass: "cell-selection", width: 40, resizable: false, selectable: false },
+      { id: "title", name: "Title", field: "title", width: 110, minWidth: 110, cssClass: "cell-title", sortable: true },
+      { id: "duration", name: "Duration", field: "duration", sortable: true },
+      { id: "%", name: "% Complete", field: "percentComplete", width: 80, resizable: false, formatter: Slick.Formatters.PercentCompleteBar, sortable: true },
+      { id: "start", name: "Start", field: "start", minWidth: 60 },
+      { id: "finish", name: "Finish", field: "finish", minWidth: 60 },
+      { id: "effort-driven", name: "Effort Driven", width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark }
+    ];
+    var options = {
+      editable: false,
+      enableAddRow: false,
+      enableCellNavigation: true,
+      enableColumnReorder: true,
+      explicitInitialization: true,
+    };
+
+    function DataItem(i) {
+      this.id = i;
+      this.num = i;
+      this.percentComplete = Math.round(Math.random() * 100);
+      this.effortDriven = (i % 5 == 0);
+      this.start = "01/01/2009";
+      this.finish = "01/05/2009";
+      this.title = "Task " + i;
+      this.duration = "5 days";
+    }
+
+    function loadingTemplate() {
+      return '<div class="preload">Loading...</div>';
+    }
+
+    function loadView(itemDetail) {
+      return [
+        '<div>',
+        '<h2>' + itemDetail.title + '</h2>',
+        '<div class="detail">',
+        '<label>Assignee:</label> <input id="assignee_' + itemDetail.id + '" type="text" value="' + itemDetail.assignee + '"/>',
+        '</div>',
+        '<div class="detail"><label>Reporter:</label> <span>' + itemDetail.reporter + '</span></div>',
+        '<div class="detail"><label>Duration:</label> <span>' + itemDetail.duration + '</span></div>',
+        '<div class="detail"><label>% Complete:</label> <span>' + itemDetail.percentComplete + '</span></div>',
+        '<div class="detail"><label>Start:</label> <span>' + itemDetail.start + '</span></div>',
+        '<div class="detail"><label>Finish:</label> <span>' + itemDetail.finish + '</span></div>',
+        '<div class="detail"><label>Effort Driven:</label> <span>' + itemDetail.effortDriven + '</span></div>',
+        '<div class="detail"><label>Effort Driven:</label> <span>' + itemDetail.effortDriven + '</span></div>',
+        '</div>'
+      ].join('');
+    }
+
+    // fill the template with a delay to simulate a server call
+    function simulateServerCall(item) {
+      setTimeout(function () {
+        // let's add some property to our item for a better simulation
+        var itemDetail = item;
+        itemDetail.assignee = fakeNames[randomNumber(0, 9)];
+        itemDetail.reporter = fakeNames[randomNumber(0, 9)];
+        notifyTemplate(itemDetail)
+      }, 250);
+    }
+
+    // notify the onAsyncResponse with the "args.item" (required property)
+    // the plugin will then use itemDetail to populate the detail panel with "postTemplate"
+    function notifyTemplate(itemDetail) {
+      detailViewPlugin.onAsyncResponse.notify({
+        "item": itemDetail
+      }, undefined, this);
+    }
+
+    function randomNumber(min, max) {
+      return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
+    function comparer(a, b) {
+      var x = a[sortcol], y = b[sortcol];
+      return (x == y ? 0 : (x > y ? 1 : -1));
+    }
+
+    $(function () {
+      // prepare the data
+      for (var i = 0; i < 1000; i++) {
+        data[i] = new DataItem(i);
+      }
+      dataView = new Slick.Data.DataView();
+
+      // create the row detail plugin
+      detailViewPlugin = new Slick.Plugins.RowDetailView({
+        cssClass: "detailView-toggle",
+        preTemplate: loadingTemplate,
+        postTemplate: loadView,
+        process: simulateServerCall,
+        useRowClick: false,
+        panelRows: 7,
+        singleRowExpand: true
+      });
+
+      // push the plugin as the first column
+      columns.unshift(detailViewPlugin.getColumnDefinition());
+
+      // create the Checkbox Selector and push it on first index 
+      var columnIndex = 1; // which column index position do we want to add the checkbox selector?
+      checkboxSelectorPlugin = new Slick.CheckboxSelectColumn({ cssClass: "slick-cell-checkboxsel" });
+      columns.splice(columnIndex, 0, checkboxSelectorPlugin.getColumnDefinition());
+
+      grid = new Slick.Grid("#myGrid", dataView, columns, options);
+
+      // register the Selection Model that will be used for all Plugins 
+      grid.setSelectionModel(new Slick.RowSelectionModel({ selectActiveRow: false }));
+
+      // register all Plugins (Row Selection / Row Detail)
+      grid.registerPlugin(checkboxSelectorPlugin);
+      grid.registerPlugin(detailViewPlugin);
+
+      rowMovePlugin = new Slick.RowMoveManager({
+        cancelEditOnDrag: true,
+        singleRowMove: true,
+        disableRowSelection: true,
+
+        // make only every 2nd row an a moveable row,
+        // you can override it here in the options or externally by calling the method on the plugin instance
+        usabilityOverride: function (row, dataContext, grid) {
+          return (dataContext.id % 2 === 1);
+        }
+      });
+      grid.registerPlugin(rowMovePlugin);
+
+      // use unshift to make it the 1st column OR splice to position it where you wish
+      columns.splice(1, 0, rowMovePlugin.getColumnDefinition());
+
+      rowMovePlugin.onBeforeMoveRows.subscribe(function (e, args) {
+        // collapse any Row Details to avoid any rendering issues
+        detailViewPlugin.collapseAll();
+
+        for (var i = 0; i < args.rows.length; i++) {
+          if (args.rows[i] == args.insertBefore || args.rows[i] == args.insertBefore - 1) {
+            e.stopPropagation();
+            return false;
+          }
+        }
+        return true;
+      });
+
+      rowMovePlugin.onMoveRows.subscribe(function (e, args) {
+        var extractedRows = [], left, right;
+        var rows = args.rows;
+        var insertBefore = args.insertBefore;
+        left = data.slice(0, insertBefore);
+        right = data.slice(insertBefore, data.length);
+
+        rows.sort(function (a, b) { return a - b; });
+
+        for (var i = 0; i < rows.length; i++) {
+          extractedRows.push(data[rows[i]]);
+        }
+
+        rows.reverse();
+
+        for (var i = 0; i < rows.length; i++) {
+          var row = rows[i];
+          if (row < insertBefore) {
+            left.splice(row, 1);
+          } else {
+            right.splice(row - insertBefore, 1);
+          }
+        }
+
+        data = left.concat(extractedRows.concat(right));
+
+        var selectedRows = [];
+        for (var i = 0; i < rows.length; i++)
+          selectedRows.push(left.length + i);
+
+        // grid.resetActiveCell();
+        dataView.beginUpdate();
+        dataView.setItems(data);
+        dataView.endUpdate();
+        grid.render();
+      });
+
+      var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
+
+      detailViewPlugin.onBeforeRowDetailToggle.subscribe(function (e, args) {
+        console.log('before toggling row detail', args.item);
+      });
+
+      detailViewPlugin.onAfterRowDetailToggle.subscribe(function (e, args) {
+        console.log('after toggling row detail', args.item);
+      });
+
+      detailViewPlugin.onAsyncEndUpdate.subscribe(function (e, args) {
+        console.log('finished updating the post async template', args);
+      });
+
+      grid.onSelectedRowsChanged.subscribe(function (e, args) {
+        var grid = args && args.grid;
+        var selectedTitles = '';
+        var sortedSelectedRows = args.rows.sort(function (a, b) { return a - b });
+
+        // get titles for all selected rows
+        if (Array.isArray(sortedSelectedRows)) {
+          selectedTitles = args.rows.map(function (idx) {
+            var item = grid.getDataItem(idx);
+            return item && item.title || '';
+          });
+        }
+        $('#selectedTitles').text(selectedTitles.toString());
+      });
+
+      grid.onSort.subscribe(function (e, args) {
+        sortdir = args.sortAsc ? 1 : -1;
+        sortcol = args.sortCol.field;
+
+        // using native sort with comparer
+        // preferred method but can be very slow in IE with huge datasets
+        dataView.sort(comparer, args.sortAsc);
+      });
+
+      // initialize the model after all the events have been hooked up
+      grid.init();
+      dataView.beginUpdate();
+      dataView.setItems(data);
+      dataView.endUpdate();
+      dataView.syncGridSelection(grid, true);
+    });
+  </script>
+</body>
+
+</html>

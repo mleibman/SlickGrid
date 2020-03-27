@@ -1,3 +1,14 @@
+/**
+ * Row Move Manager options: 
+ *    cssClass:             A CSS class to be added to the menu item container.
+ *    columnId:             Column definition id (defaults to "_move")
+ *    cancelEditOnDrag:     Do we want to cancel any Editing while dragging a row (defaults to false)
+ *    disableRowSelection:  Do we want to disable the row selection? (defaults to false)
+ *    singleRowMove:        Do we want a single row move? Setting this to false means that it's a multple row move (defaults to false)
+ *    width:                Width of the column
+ *    usabilityOverride:    Callback method that user can override the default behavior of the row being moveable or not
+ *
+ */
 (function ($) {
   // register namespace
   $.extend(true, window, {
@@ -11,10 +22,21 @@
     var _canvas;
     var _dragging;
     var _self = this;
+    var _usabilityOverride = null;
     var _handler = new Slick.EventHandler();
     var _defaults = {
-      cancelEditOnDrag: false
+      columnId: "_move",
+      cssClass: null,
+      cancelEditOnDrag: false,
+      disableRowSelection: false,
+      singleRowMove: false,
+      width: 40,
     };
+
+    // user could override the expandable icon logic from within the options or after instantiating the plugin
+    if (typeof options.usabilityOverride === 'function') {
+      usabilityOverride(options.usabilityOverride);
+    }
 
     function init(grid) {
       options = $.extend(true, {}, _defaults, options);
@@ -31,13 +53,23 @@
       _handler.unsubscribeAll();
     }
 
-    function handleDragInit(e, dd) {
+    function setOptions(newOptions) {
+      options = $.extend({}, options, newOptions);
+    }
+
+    function handleDragInit(e) {
       // prevent the grid from cancelling drag'n'drop by default
       e.stopImmediatePropagation();
     }
 
     function handleDragStart(e, dd) {
       var cell = _grid.getCellFromEvent(e);
+      var currentRow = cell && cell.row;
+      var dataContext = _grid.getDataItem(currentRow);
+
+      if (!checkUsabilityOverride(currentRow, dataContext, _grid)) {
+        return;
+      }
 
       if (options.cancelEditOnDrag && _grid.getEditorLock().isActive()) {
         _grid.getEditorLock().cancelCurrentEdit();
@@ -50,11 +82,13 @@
       _dragging = true;
       e.stopImmediatePropagation();
 
-      var selectedRows = _grid.getSelectedRows();
+      var selectedRows = options.singleRowMove ? [cell.row] : _grid.getSelectedRows();
 
       if (selectedRows.length === 0 || $.inArray(cell.row, selectedRows) == -1) {
         selectedRows = [cell.row];
-        _grid.setSelectedRows(selectedRows);
+        if (!options.disableRowSelection) {
+          _grid.setSelectedRows(selectedRows);
+        }
       }
 
       var rowHeight = _grid.getOptions().rowHeight;
@@ -62,18 +96,18 @@
       dd.selectedRows = selectedRows;
 
       dd.selectionProxy = $("<div class='slick-reorder-proxy'/>")
-          .css("position", "absolute")
-          .css("zIndex", "99999")
-          .css("width", $(_canvas).innerWidth())
-          .css("height", rowHeight * selectedRows.length)
-          .appendTo(_canvas);
+        .css("position", "absolute")
+        .css("zIndex", "99999")
+        .css("width", $(_canvas).innerWidth())
+        .css("height", rowHeight * selectedRows.length)
+        .appendTo(_canvas);
 
       dd.guide = $("<div class='slick-reorder-guide'/>")
-          .css("position", "absolute")
-          .css("zIndex", "99998")
-          .css("width", $(_canvas).innerWidth())
-          .css("top", -1000)
-          .appendTo(_canvas);
+        .css("position", "absolute")
+        .css("zIndex", "99998")
+        .css("width", $(_canvas).innerWidth())
+        .css("top", -1000)
+        .appendTo(_canvas);
 
       dd.insertBefore = -1;
     }
@@ -91,6 +125,7 @@
       var insertBefore = Math.max(0, Math.min(Math.round(top / _grid.getOptions().rowHeight), _grid.getDataLength()));
       if (insertBefore !== dd.insertBefore) {
         var eventData = {
+          "grid": _grid,
           "rows": dd.selectedRows,
           "insertBefore": insertBefore
         };
@@ -119,6 +154,7 @@
 
       if (dd.canMove) {
         var eventData = {
+          "grid": _grid,
           "rows": dd.selectedRows,
           "insertBefore": dd.insertBefore
         };
@@ -127,12 +163,53 @@
       }
     }
 
+    function getColumnDefinition() {
+      return {
+        id: options.columnId || "_move",
+        name: "",
+        field: "move",
+        width: options.width || 40,
+        behavior: "selectAndMove",
+        selectable: false,
+        resizable: false,
+        cssClass: options.cssClass,
+        formatter: moveIconFormatter
+      };
+    }
+
+    function moveIconFormatter(row, cell, value, columnDef, dataContext, grid) {
+      if (!checkUsabilityOverride(row, dataContext, grid)) {
+        return null;
+      } else {
+        return { addClasses: "cell-reorder dnd" };
+      }
+    }
+
+    function checkUsabilityOverride(row, dataContext, grid) {
+      if (typeof _usabilityOverride === 'function') {
+        return _usabilityOverride(row, dataContext, grid);
+      }
+      return true;
+    }
+
+    /**
+     * Method that user can pass to override the default behavior or making every row moveable.
+     * In order word, user can choose which rows to be an available as moveable (or not) by providing his own logic show/hide icon and usability.
+     * @param overrideFn: override function callback
+     */
+    function usabilityOverride(overrideFn) {
+      _usabilityOverride = overrideFn;
+    }
+
     $.extend(this, {
       "onBeforeMoveRows": new Slick.Event(),
       "onMoveRows": new Slick.Event(),
 
       "init": init,
       "destroy": destroy,
+      "getColumnDefinition": getColumnDefinition,
+      "setOptions": setOptions,
+      "usabilityOverride": usabilityOverride,
       "pluginName": "RowMoveManager"
     });
   }
