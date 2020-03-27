@@ -27,7 +27,7 @@
     var _options = $.extend(true, {}, _defaults, options);
 
     // user could override the checkbox icon logic from within the options or after instantiating the plugin
-    if(typeof _options.selectableOverride === 'function') {
+    if (typeof _options.selectableOverride === 'function') {
       selectableOverride(_options.selectableOverride);
     }
 
@@ -254,7 +254,7 @@
       return {
         id: _options.columnId,
         name: (_options.hideSelectAllCheckbox || _options.hideInColumnTitleRow) ? "" : "<input id='header-selector" + _selectAll_UID + "' type='checkbox'><label for='header-selector" + _selectAll_UID + "'></label>",
-        toolTip: _options.toolTip,
+        toolTip: (_options.hideSelectAllCheckbox || _options.hideInColumnTitleRow) ? "" : _options.toolTip,
         field: "sel",
         width: _options.width,
         resizable: false,
