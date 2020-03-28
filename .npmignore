@@ -7,3 +7,6 @@ cypress/*
 SlickgridRelease*
 tests
 testresult.xml
+package-lock.json
+yarn-error.log
+yarn.lock
