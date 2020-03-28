@@ -60,6 +60,10 @@
       <p>
         <button onclick="toggleHideSelectAllCheckbox()">Toggle show/hide "Select All" checkbox</button>
       </p>
+      
+      <p>
+        <button id="unselectRow5">Unselect row 5</button> <button id="selectRow5">Select row 5</button> <button id="unselectAllRows">Unselect all rows</button>
+      </p>
     </ul>
       <h2>View Source:</h2>
       <ul>
@@ -157,6 +161,30 @@
         var rtn = args.grid.getActiveCell();
         var x = args.rows;
     });
+    
+    $("#selectRow5").click(function() {
+        var rowIndex = 5; // use row 5 for this example
+        var selectedRowsIndexes = grid.getSelectedRows();
+        if (selectedRowsIndexes.indexOf(rowIndex) < 0) {
+          selectedRowsIndexes.push(rowIndex);
+          grid.setSelectedRows(selectedRowsIndexes);
+        }
+    });
+
+    $("#unselectRow5").click(function() {
+        var rowIndex = 5; // use row 5 for this example
+        var selectedRowsIndexes = grid.getSelectedRows();
+        var rowIndexInArr = selectedRowsIndexes.indexOf(rowIndex);
+        if (rowIndexInArr >= 0) {
+          selectedRowsIndexes.splice(rowIndexInArr, 1);
+          grid.setSelectedRows(selectedRowsIndexes);
+        }
+    });
+
+    $("#unselectAllRows").click(function() {
+        grid.setSelectedRows([]);
+    });
+    
   })
 </script>
 </body>

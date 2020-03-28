@@ -221,8 +221,8 @@
           var rows = [];
           for (var i = 0; i < _grid.getDataLength(); i++) {
             // Get the row and check it's a selectable row before pushing it onto the stack
-            var rowItem = _grid.getDataItem(i);
-            if (rowItem.selectableRow !== false) {
+            var rowItem = _grid.getDataItem(i);            
+            if (checkSelectableOverride(i, rowItem, _grid)) {
               rows.push(i);
             }
           }
