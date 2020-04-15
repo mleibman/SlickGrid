@@ -181,7 +181,7 @@
       if (!checkUsabilityOverride(row, dataContext, grid)) {
         return null;
       } else {
-        return { addClasses: "cell-reorder dnd" };
+        return { addClasses: "cell-reorder dnd", text: "" };
       }
     }
 
