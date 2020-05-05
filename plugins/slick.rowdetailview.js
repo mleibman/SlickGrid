@@ -232,7 +232,7 @@
       }
 
       // clicking on a row select checkbox
-      if (_options.useRowClick || _grid.getColumns()[args.cell][_dataViewIdProperty] === _options.columnId && $(e.target).hasClass(_options.cssClass)) {
+      if (_options.useRowClick || _grid.getColumns()[args.cell]['id'] === _options.columnId && $(e.target).hasClass(_options.cssClass)) {
         // if editing, try to commit
         if (_grid.getEditorLock().isActive() && !_grid.getEditorLock().commitCurrentEdit()) {
           e.preventDefault();
