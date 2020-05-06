@@ -2866,24 +2866,48 @@ if (typeof Slick === "undefined") {
       return $topPanel[0];
     }
 
-    function setTopPanelVisibility(visible) {
+    function setTopPanelVisibility(visible, animate) {
+      var animated = (animate === false) ? false : true;
+
       if (options.showTopPanel != visible) {
         options.showTopPanel = visible;
         if (visible) {
-          $topPanelScroller.slideDown("fast", resizeCanvas);
+          if (animated) {
+            $topPanelScroller.slideDown("fast", resizeCanvas);
+          } else {
+            $topPanelScroller.show();
+            resizeCanvas();
+          }
         } else {
-          $topPanelScroller.slideUp("fast", resizeCanvas);
+          if (animated) {
+            $topPanelScroller.slideUp("fast", resizeCanvas);
+          } else {
+            $topPanelScroller.hide();
+            resizeCanvas();
+          }
         }
       }
     }
 
-    function setHeaderRowVisibility(visible) {
+    function setHeaderRowVisibility(visible, animate) {
+      var animated = (animate === false) ? false : true;
+
       if (options.showHeaderRow != visible) {
         options.showHeaderRow = visible;
         if (visible) {
-          $headerRowScroller.slideDown("fast", resizeCanvas);
+          if (animated) {
+            $headerRowScroller.slideDown("fast", resizeCanvas);
+          } else {
+            $headerRowScroller.show();
+            resizeCanvas();
+          }
         } else {
-          $headerRowScroller.slideUp("fast", resizeCanvas);
+          if (animated) {
+            $headerRowScroller.slideUp("fast", resizeCanvas);
+          } else {
+            $headerRowScroller.hide();
+            resizeCanvas();
+          }
         }
       }
     }
@@ -2909,24 +2933,48 @@ if (typeof Slick === "undefined") {
       }
     }
 
-    function setFooterRowVisibility(visible) {
+    function setFooterRowVisibility(visible, animate) {
+      var animated = (animate === false) ? false : true;
+
       if (options.showFooterRow != visible) {
         options.showFooterRow = visible;
         if (visible) {
-          $footerRowScroller.slideDown("fast", resizeCanvas);
+          if (animated) {
+            $footerRowScroller.slideDown("fast", resizeCanvas);
+          } else {
+            $footerRowScroller.show();
+            resizeCanvas();
+          }
         } else {
-          $footerRowScroller.slideUp("fast", resizeCanvas);
+          if (animated) {
+            $footerRowScroller.slideUp("fast", resizeCanvas);
+          } else {
+            $footerRowScroller.hide();
+            resizeCanvas();
+          }
         }
       }
     }
 
-    function setPreHeaderPanelVisibility(visible) {
+    function setPreHeaderPanelVisibility(visible, animate) {
+      var animated = (animate === false) ? false : true;
+
       if (options.showPreHeaderPanel != visible) {
         options.showPreHeaderPanel = visible;
         if (visible) {
-          $preHeaderPanelScroller.slideDown("fast", resizeCanvas);
+          if (animated) {
+            $preHeaderPanelScroller.slideDown("fast", resizeCanvas);
+          } else {
+            $preHeaderPanelScroller.show();
+            resizeCanvas();
+          }
         } else {
-          $preHeaderPanelScroller.slideUp("fast", resizeCanvas);
+          if (animated) {
+            $preHeaderPanelScroller.slideUp("fast", resizeCanvas);
+          } else {
+            $preHeaderPanelScroller.hide();
+            resizeCanvas();
+          }
         }
       }
     }
