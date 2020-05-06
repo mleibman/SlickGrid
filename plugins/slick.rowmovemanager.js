@@ -131,11 +131,23 @@
         };
 
         if (_self.onBeforeMoveRows.notify(eventData) === false) {
-          dd.guide.css("top", -1000);
           dd.canMove = false;
         } else {
-          dd.guide.css("top", insertBefore * _grid.getOptions().rowHeight);
           dd.canMove = true;
+        }
+
+        // if there's a UsabilityOverride defined, we also need to verify that the condition is valid
+        if (_usabilityOverride) {
+          var insertBeforeDataContext = _grid.getDataItem(insertBefore);
+          dd.canMove = checkUsabilityOverride(insertBefore, insertBeforeDataContext, _grid);
+        }
+
+        // if the new target is possible we'll display the dark blue bar (representin the acceptability) at the target position
+        // else it won't show up (it will be off the screen)
+        if (!dd.canMove) {
+          dd.guide.css("top", -1000);
+        } else {
+          dd.guide.css("top", insertBefore * _grid.getOptions().rowHeight);
         }
 
         dd.insertBefore = insertBefore;
@@ -181,7 +193,7 @@
       if (!checkUsabilityOverride(row, dataContext, grid)) {
         return null;
       } else {
-        return { addClasses: "cell-reorder dnd", text: "" };
+        return { addClasses: "cell-reorder dnd" };
       }
     }
 
