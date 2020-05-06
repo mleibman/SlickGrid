@@ -653,6 +653,10 @@
         }
       }
 
+      if(groups.length) {
+        addTotals(groups);
+      }
+
       groups.sort(groupingInfos[level].comparer);
 
       return groups;
@@ -997,7 +1001,6 @@
       if (groupingInfos.length) {
         groups = extractGroups(newRows);
         if (groups.length) {
-          addTotals(groups);
           newRows = flattenGroupedRows(groups);
         }
       }
