@@ -3452,6 +3452,7 @@ if (typeof Slick === "undefined") {
       paneBottomH = 0;
       viewportTopH = 0;
       viewportBottomH = 0;
+      var preHeaderHeight = options.showPreHeaderPanel ? options.preHeaderPanelHeight : 0;
 
       getViewportWidth();
       getViewportHeight();
@@ -3470,7 +3471,7 @@ if (typeof Slick === "undefined") {
       }
 
       // The top pane includes the top panel and the header row
-      paneTopH += topPanelH + headerRowH + footerRowH;
+      paneTopH += topPanelH + preHeaderHeight + headerRowH + footerRowH;
 
       if (hasFrozenColumns() && options.autoHeight) {
         paneTopH += scrollbarDimensions.height;
