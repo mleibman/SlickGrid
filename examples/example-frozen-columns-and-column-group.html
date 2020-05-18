@@ -6,6 +6,8 @@
   <link rel="stylesheet" href="../css/smoothness/jquery-ui.css" type="text/css"/>
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css"/>
+  <link rel="stylesheet" href="../controls/slick.gridmenu.css" type="text/css"/>
   <style>
     .slick-preheader-panel.ui-state-default  {
       width: 100%;
@@ -45,6 +47,8 @@
 <script src="../slick.core.js"></script>
 <script src="../slick.dataview.js"></script>
 <script src="../slick.grid.js"></script>
+<script src="../controls/slick.columnpicker.js"></script>
+<script src="../controls/slick.gridmenu.js"></script>
 
 <script>
   function CreateAddlHeaderRow() {
@@ -83,9 +87,19 @@
     }
   }
 
+  function pickerHeaderColumnValueExtractor(column) {
+    var headerGroup = column.columnGroup || '';
+    if (headerGroup) {
+      return headerGroup + ' - ' + column.name;
+    }
+    return column.name;
+  }
+
   var dataView;
   var grid;
   var data = [];
+  var columnpicker;
+  var gridMenuControl;
   var options = {
     enableCellNavigation: true,
     enableColumnReorder: false,
@@ -93,7 +107,15 @@
     showPreHeaderPanel: true,
     preHeaderPanelHeight: 23,
     explicitInitialization: true,
-    frozenColumn: 2
+    frozenColumn: 2,
+
+    // if you wish to include the columnGroup as part of the pickers, you can do so with following code 
+    columnPicker: {
+      headerColumnValueExtractor: pickerHeaderColumnValueExtractor
+    },
+    gridMenu: {
+      headerColumnValueExtractor: pickerHeaderColumnValueExtractor
+    },
   };
   var columns = [
     {id: "sel", name: "#", field: "num", behavior: "select", cssClass: "cell-selection", width: 40, resizable: false, selectable: false },
@@ -121,6 +143,8 @@
 
     dataView = new Slick.Data.DataView();
     grid = new Slick.Grid("#myGrid", dataView, columns, options);
+    columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
+    gridMenuControl = new Slick.Controls.GridMenu(columns, grid, options);
 
     dataView.onRowCountChanged.subscribe(function (e, args) {
       grid.updateRowCount();

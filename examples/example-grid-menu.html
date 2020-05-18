@@ -170,6 +170,7 @@
     // gridMenu Object is optional
     // when not passed, it will act as a regular Column Picker (with default Grid Menu image of drag-handle.png)
     gridMenu: {
+      useClickToRepositionMenu: false, // defaults to true (false would use the icon offset to reposition the grid menu)
       menuUsabilityOverride: function (args) {
         // we could disable the menu entirely by returning false
         return true;
