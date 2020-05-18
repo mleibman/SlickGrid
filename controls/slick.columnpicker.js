@@ -183,12 +183,12 @@
 
     function updateColumn(e) {
       if ($(e.target).data("option") == "autoresize") {
-        if (e.target.checked) {
-          _grid.setOptions({ forceFitColumns: true });
-          _grid.autosizeColumns();
-        } else {
-          _grid.setOptions({ forceFitColumns: false });
-        }
+        // when calling setOptions, it will resize with ALL Columns (even the hidden ones)
+        // we can avoid this problem by keeping a reference to the visibleColumns before setOptions and then setColumns after 
+        var previousVisibleColumns = getVisibleColumns();
+        var isChecked = e.target.checked;
+        _grid.setOptions({ forceFitColumns: isChecked });
+        _grid.setColumns(previousVisibleColumns);
         return;
       }
 
@@ -215,7 +215,7 @@
         }
 
         _grid.setColumns(visibleColumns);
-        onColumnsChanged.notify({ columns: visibleColumns, grid: _grid });
+        onColumnsChanged.notify({ allColumns: columns, columns: visibleColumns, grid: _grid });
       }
     }
 
@@ -223,11 +223,17 @@
       return columns;
     }
 
+    /** visible columns, we can simply get them directly from the grid */
+    function getVisibleColumns() {
+      return _grid.getColumns();
+    }
+
     init(_grid);
 
     return {
       "init": init,
       "getAllColumns": getAllColumns,
+      "getVisibleColumns": getVisibleColumns,
       "destroy": destroy,
       "updateAllTitles": updateAllTitles,
       "onColumnsChanged": onColumnsChanged

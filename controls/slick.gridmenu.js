@@ -487,12 +487,12 @@
 
     function updateColumn(e) {
       if ($(e.target).data("option") == "autoresize") {
-        if (e.target.checked) {
-          _grid.setOptions({ forceFitColumns: true });
-          _grid.autosizeColumns();
-        } else {
-          _grid.setOptions({ forceFitColumns: false });
-        }
+        // when calling setOptions, it will resize with ALL Columns (even the hidden ones)
+        // we can avoid this problem by keeping a reference to the visibleColumns before setOptions and then setColumns after 
+        var previousVisibleColumns = getVisibleColumns();
+        var isChecked = e.target.checked;
+        _grid.setOptions({ forceFitColumns: isChecked });
+        _grid.setColumns(previousVisibleColumns);
         return;
       }
 
