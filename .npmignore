@@ -2,6 +2,9 @@
 examples
 .gitk*
 .idea/*
+*.exe
+*.pdb
+*.nuspec
 nuget*
 cypress/*
 SlickgridRelease*

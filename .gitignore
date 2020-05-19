@@ -1,6 +1,8 @@
 .gitk*
 .idea/*
 .DS_Store
+*.exe
+*.pdb
 node_modules/*
 SlickgridRelease*
 nuget*
