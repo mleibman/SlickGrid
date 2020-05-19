@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
   <link rel="stylesheet" href="../css/smoothness/jquery-ui.css" type="text/css"/>
   <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <link rel="stylesheet" href="../controls/slick.gridmenu.css" type="text/css"/>
+  <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css"/>
   <style>
   #myGrid01, #myGrid02 {
 	background: white;
@@ -26,7 +28,8 @@
     <td valign="top">
       <h2>Demonstrates:</h2>
       <ul>
-        <li>two basic grids with minimal configuration</li>
+        <li>Two basic Grids with minimal configuration</li>
+        <li>Each Grids has separate Column Picker & Grid Menu</li>
       </ul>
         <h2>View Source:</h2>
         <ul>
@@ -41,6 +44,8 @@
 
 <script src="../slick.core.js"></script>
 <script src="../slick.grid.js"></script>
+<script src="../controls/slick.columnpicker.js"></script>
+<script src="../controls/slick.gridmenu.js"></script>
 
 <script>
   var grid01, grid02;
@@ -74,11 +79,19 @@
   }
   
   $(function () {
+    // Create 1st Grid with its own ColumnPicker/GridMenu
     var data01 = CreateData();
     grid01 = new Slick.Grid("#myGrid01", data01, columns, options);
-
+    new Slick.Controls.ColumnPicker(columns, grid01, options);
+    new Slick.Controls.GridMenu(columns, grid01, options);
+    
+    // Create 2nd Grid with its own ColumnPicker/GridMenu
     var data02 = CreateData();
-    grid02 = new Slick.Grid("#myGrid02", data02, columns.slice(0), jQuery.extend({}, options));
+    var columns02 = columns.slice(0);
+    var options02 = jQuery.extend({}, options);
+    grid02 = new Slick.Grid("#myGrid02", data02, columns02, options02);
+    new Slick.Controls.ColumnPicker(columns02, grid02, options02);
+    new Slick.Controls.GridMenu(columns02, grid02, options02);
   })
 </script>
 </body>

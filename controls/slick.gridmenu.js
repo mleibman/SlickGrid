@@ -350,7 +350,7 @@
         excludeCssClass = columns[i].excludeFromGridMenu ? "hidden" : "";
         $li = $('<li class="' + excludeCssClass + '" />').appendTo($list);
 
-        $input = $("<input type='checkbox' id='gridmenu-colpicker-" + columnId + "' />").data("column-id", columns[i].id).appendTo($li);
+        $input = $("<input type='checkbox' id='" + _gridUid + "-gridmenu-colpicker-" + columnId + "' />").data("column-id", columns[i].id).appendTo($li);
         columnCheckboxes.push($input);
 
         if (_grid.getColumnIndex(columns[i].id) != null) {
@@ -364,7 +364,7 @@
           columnLabel = _defaults.headerColumnValueExtractor(columns[i]);
         }
 
-        $("<label for='gridmenu-colpicker-" + columnId + "' />")
+        $("<label for='" + _gridUid + "-gridmenu-colpicker-" + columnId + "' />")
           .html(columnLabel)
           .appendTo($li);
       }
@@ -376,8 +376,8 @@
       if (!(_options.gridMenu && _options.gridMenu.hideForceFitButton)) {
         var forceFitTitle = (_options.gridMenu && _options.gridMenu.forceFitTitle) || _defaults.forceFitTitle;
         $li = $("<li />").appendTo($list);
-        $input = $("<input type='checkbox' id='gridmenu-colpicker-forcefit' />").data("option", "autoresize").appendTo($li);
-        $("<label for='gridmenu-colpicker-forcefit' />").text(forceFitTitle).appendTo($li);
+        $input = $("<input type='checkbox' id='" + _gridUid + "-gridmenu-colpicker-forcefit' />").data("option", "autoresize").appendTo($li);
+        $("<label for='" + _gridUid + "-gridmenu-colpicker-forcefit' />").text(forceFitTitle).appendTo($li);
 
         if (_grid.getOptions().forceFitColumns) {
           $input.attr("checked", "checked");
@@ -387,8 +387,8 @@
       if (!(_options.gridMenu && _options.gridMenu.hideSyncResizeButton)) {
         var syncResizeTitle = (_options.gridMenu && _options.gridMenu.syncResizeTitle) || _defaults.syncResizeTitle;
         $li = $("<li />").appendTo($list);
-        $input = $("<input type='checkbox' id='gridmenu-colpicker-syncresize' />").data("option", "syncresize").appendTo($li);
-        $("<label for='gridmenu-colpicker-syncresize' />").text(syncResizeTitle).appendTo($li);
+        $input = $("<input type='checkbox' id='" + _gridUid + "-gridmenu-colpicker-syncresize' />").data("option", "syncresize").appendTo($li);
+        $("<label for='" + _gridUid + "-gridmenu-colpicker-syncresize' />").text(syncResizeTitle).appendTo($li);
 
         if (_grid.getOptions().syncColumnCellResize) {
           $input.attr("checked", "checked");

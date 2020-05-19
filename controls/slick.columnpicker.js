@@ -30,6 +30,7 @@
   function SlickColumnPicker(columns, grid, options) {
     var _grid = grid;
     var _options = options;
+    var _gridUid = (grid && grid.getUID) ? grid.getUID() : '';
     var $columnTitleElm;
     var $list;
     var $menu;
@@ -55,7 +56,7 @@
       grid.onColumnsReordered.subscribe(updateColumnOrder);
       _options = $.extend({}, defaults, options);
 
-      $menu = $("<div class='slick-columnpicker' style='display:none' />").appendTo(document.body);
+      $menu = $("<div class='slick-columnpicker " + _gridUid + "' style='display:none' />").appendTo(document.body);
       $("<button type='button' class='close' data-dismiss='slick-columnpicker' aria-label='Close'><span class='close' aria-hidden='true'>&times;</span></button>").appendTo($menu);
 
       // user could pass a title on top of the columns list
@@ -101,7 +102,7 @@
         columnId = columns[i].id;
         excludeCssClass = columns[i].excludeFromColumnPicker ? "hidden" : "";
         $li = $('<li class="' + excludeCssClass + '" />').appendTo($list);
-        $input = $("<input type='checkbox' id='colpicker-" + columnId + "' />").data("column-id", columnId).appendTo($li);
+        $input = $("<input type='checkbox' id='" + _gridUid + "colpicker-" + columnId + "' />").data("column-id", columnId).appendTo($li);
         columnCheckboxes.push($input);
 
         if (_grid.getColumnIndex(columnId) != null) {
@@ -114,7 +115,7 @@
           columnLabel = defaults.headerColumnValueExtractor(columns[i]);
         }
 
-        $("<label for='colpicker-" + columnId + "' />")
+        $("<label for='" + _gridUid + "colpicker-" + columnId + "' />")
           .html(columnLabel)
           .appendTo($li);
       }
@@ -126,8 +127,8 @@
       if (!(_options.columnPicker && _options.columnPicker.hideForceFitButton)) {
         var forceFitTitle = (_options.columnPicker && _options.columnPicker.forceFitTitle) || _options.forceFitTitle;
         $li = $("<li />").appendTo($list);
-        $input = $("<input type='checkbox' id='colpicker-forcefit' />").data("option", "autoresize").appendTo($li);
-        $("<label for='colpicker-forcefit' />").text(forceFitTitle).appendTo($li);
+        $input = $("<input type='checkbox' id='" + _gridUid + "colpicker-forcefit' />").data("option", "autoresize").appendTo($li);
+        $("<label for='" + _gridUid + "colpicker-forcefit' />").text(forceFitTitle).appendTo($li);
         if (_grid.getOptions().forceFitColumns) {
           $input.attr("checked", "checked");
         }
@@ -136,8 +137,8 @@
       if (!(_options.columnPicker && _options.columnPicker.hideSyncResizeButton)) {
         var syncResizeTitle = (_options.columnPicker && _options.columnPicker.syncResizeTitle) || _options.syncResizeTitle;
         $li = $("<li />").appendTo($list);
-        $input = $("<input type='checkbox' id='colpicker-syncresize' />").data("option", "syncresize").appendTo($li);
-        $("<label for='colpicker-syncresize' />").text(syncResizeTitle).appendTo($li);
+        $input = $("<input type='checkbox' id='" + _gridUid + "colpicker-syncresize' />").data("option", "syncresize").appendTo($li);
+        $("<label for='" + _gridUid + "colpicker-syncresize' />").text(syncResizeTitle).appendTo($li);
         if (_grid.getOptions().syncColumnCellResize) {
           $input.attr("checked", "checked");
         }
