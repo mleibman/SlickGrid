@@ -2097,7 +2097,7 @@ if (typeof Slick === "undefined") {
         c = columns[columnOrIndexOrId];
       }
       else if (typeof columnOrIndexOrId === 'string') {
-        for (i = 0; i < columns.length; i++) {
+        for (var i = 0; i < columns.length; i++) {
           if (columns[i].Id === columnOrIndexOrId) { c = columns[i]; }
         }
       }
@@ -2222,7 +2222,7 @@ if (typeof Slick === "undefined") {
 
     function LogColWidths () {
       var s =  "Col Widths:";
-      for (i = 0; i < columns.length; i++) { s += ' ' + columns[i].width; }
+      for (var i = 0; i < columns.length; i++) { s += ' ' + columns[i].width; }
       console.log(s);
     }
 
