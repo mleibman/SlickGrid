@@ -20,6 +20,7 @@
  *      leaveOpen: false,                           // do we want to leave the Grid Menu open after a command execution? (false by default)
  *      menuWidth: 18,                              // width (icon) that will be use to resize the column header container (18 by default)
  *      contentMinWidth: 0,							            // defaults to 0 (auto), minimum width of grid menu content (command, column list) 
+ *      marginBottom: 15,                           // defaults to 15, margin to use at the bottom of the grid when using max-height (default)
  *      resizeOnShowHeaderRow: false,               // false by default
  *      useClickToRepositionMenu: true,             // true by default
  *
@@ -46,11 +47,13 @@
  *     hideSyncResizeButton:      Hide the "Synchronous resize" button (defaults to false)
  *     forceFitTitle:             Text of the title "Force fit columns"
  *     contentMinWidth:						minimum width of grid menu content (command, column list), defaults to 0 (auto)
+ *     height:                    Height of the Grid Menu content, when provided it will be used instead of the max-height (defaults to undefined)
  *     menuWidth:                 Grid menu button width (defaults to 18)
  *     resizeOnShowHeaderRow:     Do we want to resize on the show header row event
  *     syncResizeTitle:           Text of the title "Synchronous resize"
  *     useClickToRepositionMenu:  Use the Click offset to reposition the Grid Menu (defaults to true), when set to False it will use the icon offset to reposition the grid menu
  *     menuUsabilityOverride:     Callback method that user can override the default behavior of enabling/disabling the menu from being usable (must be combined with a custom formatter)
+ *     marginBottom:              Margin to use at the bottom of the grid menu, only in effect when height is undefined (defaults to 15)
  *
  * Available custom menu item options:
  *    action:                     Optionally define a callback function that gets executed when item is chosen (and/or use the onCommand event)
@@ -137,6 +140,7 @@
       hideForceFitButton: false,
       hideSyncResizeButton: false,
       forceFitTitle: "Force fit columns",
+      marginBottom: 15,
       menuWidth: 18,
       contentMinWidth: 0,
       resizeOnShowHeaderRow: false,
@@ -406,14 +410,21 @@
       var currentMenuWidth = (contentMinWidth > menuWidth) ? contentMinWidth : (menuWidth + gridMenuIconWidth);
       var nextPositionTop = (useClickToRepositionMenu && e.pageY > 0) ? e.pageY : menuIconOffset.top + 10;
       var nextPositionLeft = (useClickToRepositionMenu && e.pageX > 0) ? e.pageX : menuIconOffset.left + 10;
+      var menuMarginBottom = (_options.gridMenu && _options.gridMenu.marginBottom !== undefined) ? _options.gridMenu.marginBottom : _defaults.marginBottom;
 
       $menu
         .css("top", nextPositionTop + 10)
-        .css("left", nextPositionLeft - currentMenuWidth + 10)
-        .css("max-height", $(window).height() - e.clientY - 15);
+        .css("left", nextPositionLeft - currentMenuWidth + 10);
 
       if (contentMinWidth > 0) {
         $menu.css("min-width", contentMinWidth);
+      }
+
+      // set "height" when defined OR ELSE use the "max-height" with available window size and optional margin bottom
+      if (_options.gridMenu && _options.gridMenu.height !== undefined) {
+        $menu.css("height", _options.gridMenu.height);
+      } else {
+        $menu.css("max-height", $(window).height() - e.clientY - menuMarginBottom);
       }
 
       $menu.show();
