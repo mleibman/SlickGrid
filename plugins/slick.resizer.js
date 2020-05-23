@@ -134,7 +134,7 @@
       }
 
       // calculate bottom padding
-      var bottomPadding = (options && options.bottomPadding) ? options.bottomPadding : DATAGRID_BOTTOM_PADDING;
+      var bottomPadding = (options && options.bottomPadding !== undefined) ? options.bottomPadding : DATAGRID_BOTTOM_PADDING;
 
       var gridHeight = 0;
       var gridOffsetTop = 0;
@@ -154,9 +154,9 @@
       var availableHeight = gridHeight - gridOffsetTop - bottomPadding;
       var availableWidth = _gridContainerElm.width() || window.innerWidth || 0;
       var maxHeight = options && options.maxHeight || undefined;
-      var minHeight = options && options.minHeight || DATAGRID_MIN_HEIGHT;
+      var minHeight = (options && options.minHeight !== undefined) ? options.minHeight : DATAGRID_MIN_HEIGHT;
       var maxWidth = options && options.maxWidth || undefined;
-      var minWidth = options && options.minWidth || DATAGRID_MIN_WIDTH;
+      var minWidth = (options && options.minWidth !== undefined) ? options.minWidth : DATAGRID_MIN_WIDTH;
 
       var newHeight = availableHeight;
       var newWidth = (options && options.rightPadding) ? availableWidth - options.rightPadding : availableWidth;
