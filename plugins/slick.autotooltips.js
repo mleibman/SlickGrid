@@ -19,7 +19,8 @@
     var _defaults = {
       enableForCells: true,
       enableForHeaderCells: false,
-      maxToolTipLength: null
+      maxToolTipLength: null,
+      replaceExisting: true
     };
     
     /**
@@ -49,8 +50,7 @@
       if (cell) {
         var $node = $(_grid.getCellNode(cell.row, cell.cell));
         var text;
-        if (!$node.attr("title"))
-        {
+        if (!$node.attr("title") || options.replaceExisting) {
           if ($node.innerWidth() < $node[0].scrollWidth) {
             text = $.trim($node.text());
             if (options.maxToolTipLength && text.length > options.maxToolTipLength) {
