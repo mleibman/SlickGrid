@@ -1818,8 +1818,14 @@ if (typeof Slick === "undefined") {
               }
             })
             .on("dragend", function (e, dd) {
-              var newWidth;
               $(this).parent().removeClass("slick-header-column-active");
+
+              var triggeredByColumn = $(this).parent().attr("id").replace(uid, "");
+              if (trigger(self.onBeforeColumnsResize, { triggeredByColumn: triggeredByColumn }) === true) {
+                applyColumnHeaderWidths();
+                applyColumnGroupHeaderWidths();
+              }
+              var newWidth;
               for (j = 0; j < columns.length; j++) {
                 c = columns[j];
                 newWidth = $(columnElements[j]).outerWidth();
@@ -1830,7 +1836,7 @@ if (typeof Slick === "undefined") {
               }
               updateCanvasWidth(true);
               render();
-              trigger(self.onColumnsResized, {triggeredByColumn: $(this).parent().attr("id").replace(uid, "")});
+              trigger(self.onColumnsResized, { triggeredByColumn: triggeredByColumn });
               setTimeout(function () { columnResizeDragging = false; }, 300);
             });
       });
@@ -5793,6 +5799,7 @@ if (typeof Slick === "undefined") {
       "onViewportChanged": new Slick.Event(),
       "onColumnsReordered": new Slick.Event(),
       "onColumnsResized": new Slick.Event(),
+      "onBeforeColumnsResize": new Slick.Event(),
       "onCellChange": new Slick.Event(),
       "onBeforeEditCell": new Slick.Event(),
       "onBeforeCellEditorDestroy": new Slick.Event(),
