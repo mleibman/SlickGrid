@@ -1816,6 +1816,10 @@ if (typeof Slick === "undefined") {
               if (options.syncColumnCellResize) {
                 applyColumnWidths();
               }
+              trigger(self.onColumnsDrag, { 
+                triggeredByColumn: $(this).parent().attr("id").replace(uid, ""), 
+                resizeHandle: $(this) 
+              });
             })
             .on("dragend", function (e, dd) {
               $(this).parent().removeClass("slick-header-column-active");
@@ -5798,6 +5802,7 @@ if (typeof Slick === "undefined") {
       "onValidationError": new Slick.Event(),
       "onViewportChanged": new Slick.Event(),
       "onColumnsReordered": new Slick.Event(),
+      "onColumnsDrag": new Slick.Event(),
       "onColumnsResized": new Slick.Event(),
       "onBeforeColumnsResize": new Slick.Event(),
       "onCellChange": new Slick.Event(),
