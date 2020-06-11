@@ -34,7 +34,7 @@
     };
 
     // user could override the expandable icon logic from within the options or after instantiating the plugin
-    if (typeof options.usabilityOverride === 'function') {
+    if (options && typeof options.usabilityOverride === 'function') {
       usabilityOverride(options.usabilityOverride);
     }
 
