@@ -31,6 +31,11 @@
     <ul>
       <li>Frozen columns with extra header row grouping columns into categories</li>
     </ul>
+    <div style="margin-bottom:10px">
+      <button onclick="setFrozenColumns(-1)">Remove Frozen Columns</button>
+      <button onclick="setFrozenColumns(2)">Set 3 Frozen Columns</button>
+    </div>
+
       <h2>View Source:</h2>
       <ul>
           <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-frozen-columns-and-column-group.html" target="_sourcewindow"> View the source for this example on Github</a></li>
@@ -52,13 +57,20 @@
 
 <script>
   function CreateAddlHeaderRow() {
-    // Add column groups to left panel
-    var $preHeaderPanel = $(grid.getPreHeaderPanelLeft());
-    renderHeaderGroups($preHeaderPanel, 0, options.frozenColumn + 1);
+    // when it's a frozen grid, we need to render both side (left/right)
+    if (options.frozenColumn >=0) {
+      // Add column groups to left panel
+      var $preHeaderPanel = $(grid.getPreHeaderPanelLeft());
+      renderHeaderGroups($preHeaderPanel, 0, options.frozenColumn + 1, columns.length);
 
-    // Add column groups to right panel
-    $preHeaderPanel = $(grid.getPreHeaderPanelRight());
-    renderHeaderGroups($preHeaderPanel, options.frozenColumn + 1, columns.length);
+      // Add column groups to right panel
+      $preHeaderPanel = $(grid.getPreHeaderPanelRight());
+      renderHeaderGroups($preHeaderPanel, options.frozenColumn + 1, columns.length);
+    } else {
+      // when it's a regular grid (without frozen rows), after clearning frozen columns, we re-render everything on the left
+      var $preHeaderPanel = $(grid.getPreHeaderPanelLeft());
+      renderHeaderGroups($preHeaderPanel, 0, columns.length);
+    }
 
     function renderHeaderGroups(preHeaderPanel, start, end) {
       preHeaderPanel.empty()
@@ -85,6 +97,12 @@
         lastColumnGroup = m.columnGroup;
       }
     }
+  }
+
+  function setFrozenColumns(frozenCols) {
+    grid.setOptions({ frozenColumn: frozenCols });
+    options = grid.getOptions();
+    CreateAddlHeaderRow();
   }
 
   function pickerHeaderColumnValueExtractor(column) {
@@ -114,7 +132,19 @@
       headerColumnValueExtractor: pickerHeaderColumnValueExtractor
     },
     gridMenu: {
-      headerColumnValueExtractor: pickerHeaderColumnValueExtractor
+      headerColumnValueExtractor: pickerHeaderColumnValueExtractor,
+      customTitle: "Commands",
+      columnTitle: "Columns",
+      customItems: [
+        {
+          iconImage: "../images/delete.png",
+          title: "Clear Frozen Columns",
+          disabled: false,
+          command: "clear-frozen-columns",
+          cssClass: 'bold',     // container css class
+          textCssClass: 'red'   // just the text css class
+        }
+      ]
     },
   };
   var columns = [
@@ -160,6 +190,13 @@
 
     grid.onColumnsResized.subscribe(function (e, args) {
       CreateAddlHeaderRow();
+    });
+
+    // subscribe to Grid Menu event(s)
+    gridMenuControl.onCommand.subscribe(function(e, args) {
+      if(args.command === "clear-frozen-columns") {
+        setFrozenColumns(-1);
+      }
     });
     
     // Initialise data

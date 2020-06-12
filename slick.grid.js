@@ -2814,7 +2814,10 @@ if (typeof Slick === "undefined") {
         invalidateRow(getDataLength());
       }
 
+      var originalOptions = $.extend(true, {}, options);
       options = $.extend(options, args);
+      trigger(self.onSetOptions, { "optionsBefore": originalOptions, "optionsAfter": options });
+
       validateAndEnforceOptions();
 
       $viewport.css("overflow-y", options.autoHeight ? "hidden" : "auto");
@@ -5819,6 +5822,7 @@ if (typeof Slick === "undefined") {
       "onCellCssStylesChanged": new Slick.Event(),
       "onAutosizeColumns": new Slick.Event(),
       "onRendered": new Slick.Event(),
+      "onSetOptions": new Slick.Event(),
 
       // Methods
       "registerPlugin": registerPlugin,

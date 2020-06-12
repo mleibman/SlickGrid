@@ -132,6 +132,7 @@
     var $customTitleElm;
     var $columnTitleElm;
     var $customMenu;
+    var $header;
     var $list;
     var $button;
     var $menu;
@@ -151,6 +152,18 @@
       }
     };
 
+    // when a grid changes from a regular grid to a frozen grid, we need to destroy & recreate the grid menu
+    // we do this change because the Grid Menu is on the left container on a regular grid but is on the right container on a frozen grid
+    grid.onSetOptions.subscribe(function(e, args) {
+      if (args && args.optionsBefore && args.optionsAfter) {
+        var switchedFromRegularToFrozen = args.optionsBefore.frozenColumn >= 0 && args.optionsAfter.frozenColumn === -1;
+        var switchedFromFrozenToRegular = args.optionsBefore.frozenColumn === -1 && args.optionsAfter.frozenColumn >= 0;
+        if (switchedFromRegularToFrozen || switchedFromFrozenToRegular) {
+          recreateGridMenu();
+        }
+      }
+    });
+
     function init(grid) {
       _gridOptions = grid.getOptions();
       createGridMenu();
@@ -165,7 +178,6 @@
 
     function createGridMenu() {
       var gridMenuWidth = (_options.gridMenu && _options.gridMenu.menuWidth) || _defaults.menuWidth;
-      var $header;
       if (_gridOptions && _gridOptions.hasOwnProperty('frozenColumn') && _gridOptions.frozenColumn >= 0) {
         $header = $('.' + _gridUid + ' .slick-header-right');
       } else {
@@ -209,6 +221,7 @@
       $button.on("click." + _gridUid, showGridMenu);
     }
 
+    /** Destroy the plugin by unsubscribing every events & also delete the menu DOM elements */
     function destroy() {
       _self.onAfterMenuShow.unsubscribe();
       _self.onBeforeMenuShow.unsubscribe();
@@ -217,10 +230,19 @@
       _self.onColumnsChanged.unsubscribe();
       _grid.onColumnsReordered.unsubscribe(updateColumnOrder);
       _grid.onBeforeDestroy.unsubscribe();
+      _grid.onSetOptions.unsubscribe();
+      deleteMenu();
+    }
+
+    /** Delete the menu DOM element but without unsubscribing any events */
+    function deleteMenu() {
       $(document.body).off("mousedown." + _gridUid, handleBodyMouseDown);
       $("div.slick-gridmenu." + _gridUid).hide();
       $menu.remove();
       $button.remove();
+      if ($header) {
+        $header.attr('style', 'width: 100%'); // put back original width
+      }
     }
 
     function populateCustomMenus(options, $customMenu) {
@@ -315,6 +337,12 @@
 
       $menu.on("click", updateColumn);
       $list = $('<span class="slick-gridmenu-list" />');
+    }
+
+    /** Delete and then Recreate the Grid Menu (for example when we switch from regular to a frozen grid) */
+    function recreateGridMenu() {
+      deleteMenu();
+      init(_grid);
     }
 
     function showGridMenu(e) {
@@ -600,6 +628,8 @@
       "getAllColumns": getAllColumns,
       "getVisibleColumns": getVisibleColumns,
       "destroy": destroy,
+      "deleteMenu": deleteMenu,
+      "recreateGridMenu": recreateGridMenu,
       "showGridMenu": showGridMenu,
       "setOptions": setOptions,
       "updateAllTitles": updateAllTitles,
