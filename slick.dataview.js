@@ -654,7 +654,7 @@
       }
 
       if(groups.length) {
-        addTotals(groups);
+        addTotals(groups, level);
       }
 
       groups.sort(groupingInfos[level].comparer);
