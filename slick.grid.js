@@ -5779,7 +5779,7 @@ if (typeof Slick === "undefined") {
     // Public API
 
     $.extend(this, {
-      "slickGridVersion": "2.4.25",
+      "slickGridVersion": "2.4.26",
 
       // Events
       "onScroll": new Slick.Event(),
