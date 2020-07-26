@@ -32,7 +32,8 @@
  *
  *
  * @param {Object} options available plugin options that can be passed in the constructor:
- *   container:                 DOM element container selector (REQUIRED)
+ *   container:      (REQUIRED) DOM element selector of the page container, basically what element in the page will be used to calculate the available space
+ *   gridContainer:             DOM element selector of the grid container, optional but when provided it will be resized with same size as the grid (typically a container holding the grid and extra custom footer/pagination)
  *   rightPadding:              Defaults to 0, right side padding to remove from the total dimension
  *   bottomPadding:             Defaults to 20, bottom padding to remove from the total dimension
  *   minHeight:                 Defaults to 180, minimum height of the grid
@@ -73,6 +74,7 @@
     var _timer;
     var _resizePaused = false;
     var _gridDomElm;
+    var _pageContainerElm;
     var _gridContainerElm;
     var _defaults = {
       bottomPadding: 20,
@@ -87,7 +89,10 @@
       _gridOptions = _grid.getOptions();
       _gridUid = _grid.getUID();
       _gridDomElm = $(_grid.getContainerNode());
-      _gridContainerElm = $(options.container);
+      _pageContainerElm = $(options.container);
+      if (options.gridContainer) {
+        _gridContainerElm = $(options.gridContainer);
+      }
 
       if (fixedDimensions) {
         _fixedHeight = fixedDimensions.height;
@@ -99,9 +104,9 @@
       }
     }
 
-		/** Bind an auto resize trigger on the datagrid, if that is enable then it will resize itself to the available space
-		 * Options: we could also provide a % factor to resize on each height/width independently
-		 */
+    /** Bind an auto resize trigger on the datagrid, if that is enable then it will resize itself to the available space
+    * Options: we could also provide a % factor to resize on each height/width independently
+    */
     function bindAutoResizeDataGrid(newSizes) {
       // if we can't find the grid to resize, return without binding anything
       if (_gridDomElm !== undefined || _gridDomElm.offset() !== undefined) {
@@ -125,11 +130,11 @@
       }
     }
 
-		/**
-		 * Calculate the datagrid new height/width from the available space, also consider that a % factor might be applied to calculation
-		 */
+    /**
+    * Calculate the datagrid new height/width from the available space, also consider that a % factor might be applied to calculation
+    */
     function calculateGridNewDimensions() {
-      if (!window || _gridContainerElm === undefined || _gridDomElm === undefined || _gridDomElm.offset() === undefined) {
+      if (!window || _pageContainerElm === undefined || _gridDomElm === undefined || _gridDomElm.offset() === undefined) {
         return null;
       }
 
@@ -143,7 +148,7 @@
       // defaults to "window"
       if (options.calculateAvailableSizeBy === 'container') {
         // uses the container's height to calculate grid height without any top offset
-        gridHeight = _gridContainerElm.height() || 0;
+        gridHeight = _pageContainerElm.height() || 0;
       } else {
         // uses the browser's window height with its top offset to calculate grid height
         gridHeight = window.innerHeight || 0;
@@ -152,7 +157,7 @@
       }
 
       var availableHeight = gridHeight - gridOffsetTop - bottomPadding;
-      var availableWidth = _gridContainerElm.width() || window.innerWidth || 0;
+      var availableWidth = _pageContainerElm.width() || window.innerWidth || 0;
       var maxHeight = options && options.maxHeight || undefined;
       var minHeight = (options && options.minHeight !== undefined) ? options.minHeight : DATAGRID_MIN_HEIGHT;
       var maxWidth = options && options.maxWidth || undefined;
@@ -189,10 +194,10 @@
       $(window).off('resize.grid.' + _gridUid);
     }
 
-		/**
-		 * Return the last resize dimensions used by the service
-		 * @return {object} last dimensions (height: number, width: number)
-		 */
+    /**
+    * Return the last resize dimensions used by the service
+    * @return {object} last dimensions (height: number, width: number)
+    */
     function getLastResizeDimensions() {
       return _lastDimensions;
     }
@@ -251,7 +256,7 @@
       // calculate the available sizes with minimum height defined as a varant
       var availableDimensions = calculateGridNewDimensions();
 
-      if ((newSizes || availableDimensions) && _gridDomElm.length > 0) {
+      if ((newSizes || availableDimensions) && _gridDomElm && _gridDomElm.length > 0) {
         // get the new sizes, if new sizes are passed (not 0), we will use them else use available space
         // basically if user passes 1 of the dimension, let say he passes just the height,
         // we will use the height as a fixed height but the width will be resized by it's available space
@@ -261,8 +266,15 @@
         // apply these new height/width to the datagrid
         if (!_gridOptions.autoHeight) {
           _gridDomElm.height(newHeight);
+          if (options.gridContainer) {
+            _gridContainerElm.height(newHeight);
+          }
         }
+
         _gridDomElm.width(newWidth);
+        if (options.gridContainer) {
+          _gridContainerElm.width(newWidth);
+        }
 
         // resize the slickgrid canvas on all browser except some IE versions
         // exclude all IE below IE11

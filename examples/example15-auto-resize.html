@@ -28,7 +28,10 @@
     </li>
   </ul>
 
-  <div id="gridContainer">
+  <br />
+
+  <div class="container">
+    <h2>My Grid Report</h2>
     <div id="myGrid"></div>
   </div>
 
@@ -89,7 +92,7 @@
       // create the Resizer plugin
       // you need to provide a DOM element container for the plugin to calculate available space
       resizer = new Slick.Plugins.Resizer({
-        container: '#gridContainer', // DOM element selector, can be an ID or a class
+        container: '.container', // DOM element selector, can be an ID or a class name
 
         // optionally define some padding and dimensions
         rightPadding: 5,    // defaults to 0
