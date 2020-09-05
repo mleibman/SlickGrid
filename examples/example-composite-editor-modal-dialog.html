@@ -1,0 +1,536 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+  <title>SlickGrid example: CompositeEditor</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui.css" type="text/css" />
+  <link rel="stylesheet" href="examples.css" type="text/css" />
+  <style>
+    .cell-title {
+      font-weight: bold;
+    }
+
+    .cell-effort-driven {
+      text-align: center;
+    }
+
+    .close {
+      float: right;
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1;
+      color: #000;
+      text-shadow: 0 1px 0 #fff;
+      opacity: .5;
+    }
+
+    .modal {
+      z-index: 10000;
+      display: inline-block;
+      border: 1px solid black;
+      margin: 8px;
+      background: #efefef;
+      box-shadow: 0px 0px 15px black;
+      position: absolute;
+      top: 10px;
+      left: 150px;
+      width: 300px;
+    }
+
+    .modal h5 {
+      font-size: 18px;
+      margin: 0;
+      line-height: 20px;
+    }
+
+    .modal-body {
+      padding: 8px;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 8px;
+      height: 25px;
+      border-bottom: 1px solid #c9c9c9;
+    }
+
+    .modal-footer {
+      margin-top: 5px;
+      border-top: 1px solid #c9c9c9;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 8px;
+    }
+
+    .modal-footer button {
+      margin-right: 5px;
+    }
+
+    .item-details-label {
+      margin-left: 10px;
+      margin-top: 15px;
+      display: block;
+      font-weight: bold;
+    }
+
+    .item-details-editor-container {
+      border: 1px solid silver;
+      background: white;
+      display: block;
+      margin: 4px 10px;
+      margin-top: 4px;
+      padding: 0;
+      padding-left: 4px;
+      padding-right: 4px;
+      line-height: 20px;
+    }
+
+    .item-details-editor-container textarea {
+      height: inherit;
+    }
+
+    .invalid {
+      color: red;
+    }
+
+    .item-details-editor-container.invalid {
+      border: 1px solid red;
+    }
+
+    .item-details-validation {
+      color: red;
+      font-style: italic;
+      margin-left: 12px;
+    }
+
+    .item-details-editor-container.modified {
+      border: 1px solid orange;
+    }
+
+    .slick-large-editor-text {
+      border: 1px solid #d2d2d2;
+      padding: 6px;
+
+    }
+
+    .slick-large-editor-text textarea {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div style="position:relative">
+    <div style="width:625px;">
+      <div id="myGrid" style="width:100%;height:500px;"></div>
+    </div>
+
+    <div class="options-panel">
+      <h2>Demonstrates:</h2>
+      <ul>
+        <li>Composite Editor Modal - Edit Form</li>
+        <li>Composite Editor Modal - Insert New Row</li>
+        <li>Composite Editor Modal - Mass Update Change (all rows)</li>
+        <li>Composite Editor Modal - Mass Change on Current Selection</li>
+        <li>use "onCompositeEditorChange" event to add extra form validation logic</li>
+      </ul>
+
+      <h2>Options:</h2>
+      <li>Choose any of the 4 possible options</li>
+      <li>1. Create New Item</li>
+      <li>2. Edit Current Item</li>
+      <li>3. Mass Update</li>
+      <li>4. Mass Selection Change</li>
+      <br />
+      <button onclick="openDetails('edit')" data-test="edit-button">Open Item Edit for active row</button>
+      <button onclick="openDetails('create')" data-test="create-button">Open Add New Row Detail</button>
+      <button onclick="openDetails('mass-update')" data-test="mass-update-button">Open Mass Update Detail</button>
+      <button onclick="openDetails('mass-selection')" data-test="mass-selection-button">Open Mass Selection
+        Change</button>
+
+      <h2>View Source:</h2>
+      <ul>
+        <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-composite-editor-modal-dialog.html"
+            target="_sourcewindow"> View the source for this example on Github</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <script src="../lib/firebugx.js"></script>
+
+  <script src="../lib/jquery-1.12.4.min.js"></script>
+  <script src="../lib/jquery-ui.min.js"></script>
+  <script src="../lib/jquery.event.drag-2.3.0.js"></script>
+
+  <script src="../slick.core.js"></script>
+  <script src="../plugins/slick.checkboxselectcolumn.js"></script>
+  <script src="../plugins/slick.cellrangeselector.js"></script>
+  <script src="../plugins/slick.cellselectionmodel.js"></script>
+  <script src="../plugins/slick.rowselectionmodel.js"></script>
+  <script src="../slick.formatters.js"></script>
+  <script src="../slick.editors.js"></script>
+  <script src="../slick.grid.js"></script>
+  <script src="../slick.compositeeditor.js"></script>
+
+  <script>
+    function taskValidator(newValue, args) {
+      if ((newValue === null || newValue === undefined || !newValue.length) && (args.compositeEditorOptions && args.compositeEditorOptions.modalType === "create" || args.compositeEditorOptions.modalType === "edit")) {
+        // we will only check if the field is supplied when it's an inline editing OR a composite editor of type create/edit
+        return { valid: false, msg: 'This is a required field' };
+      } else if (!/^(task\s\d+)*$/i.test(newValue)) {
+        return { valid: false, msg: 'Your title is invalid, it must start with "Task" followed by a number' };
+      }
+      return { valid: true, msg: '' };
+    }
+
+    function durationValidator(newValue, args) {
+      var dataContext = args && args.item;
+      if (dataContext && (dataContext.effortDriven && (newValue < 5 || !newValue))) {
+        return { valid: false, msg: 'Duration must be at least 5 days when "Effort-Driven" is enabled' };
+      }
+      return { valid: true, msg: '' };
+    }
+
+    function durationFormatter(row, cell, value) {
+      return value > 1 ? (value + " days") : (value + " day");
+    }
+
+    var lastCompositeEditor = null;
+    var lastActiveRowNumber = 0;
+    var grid;
+    var data = [];
+    var columns = [
+      // we use a "massUpdate" flag to know which field(s) will be added to the MassUpdate/MassSelection form in the composite modal window
+      { id: "title", name: "Title", field: "title", width: 70, cssClass: "cell-title", editor: Slick.Editors.Text, validator: taskValidator, massUpdate: false, },
+      { id: "desc", name: "Description", field: "description", width: 100, editor: Slick.Editors.LongText, massUpdate: false, },
+      { id: "duration", name: "Duration", field: "duration", editor: Slick.Editors.Integer, massUpdate: true, validator: durationValidator, formatter: durationFormatter },
+      { id: "percent", name: "% Complete", field: "percentComplete", width: 80, resizable: false, formatter: Slick.Formatters.PercentCompleteBar, editor: Slick.Editors.PercentComplete },
+      { id: "start", name: "Start", field: "start", minWidth: 60, editor: Slick.Editors.Date, massUpdate: true, },
+      { id: "finish", name: "Finish", field: "finish", minWidth: 60, editor: Slick.Editors.Date, massUpdate: false, },
+      { id: "effort-driven", name: "Effort Driven", width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark, editor: Slick.Editors.Checkbox, massUpdate: true, }
+    ];
+    var options = {
+      editable: true,
+      enableAddRow: true, // <-- this flag is required to work with these modal types (create/mass-update/mass-selection)
+      enableCellNavigation: true,
+      asyncEditorLoading: false,
+      autoEdit: false
+    };
+
+    function validateCompositeEditors($targetElm) {
+      var validationResults = { valid: true, msg: "" };
+      var currentEditor = grid.getCellEditor();
+
+      if (currentEditor) {
+        validationResults = currentEditor.validate($targetElm);
+      }
+      return validationResults;
+    }
+
+    // For the Composite Editor to work, the current active cell must have an Editor (because it calls editActiveCell() and that only works with a cell with an Editor)
+    // so if current active cell doesn't have an Editor, we'll find the first column with an Editor and focus on it (from left to right starting at index 0)
+    function focusOnFirstCellWithEditor(columns, rowIndex, isWithMassUpdate) {
+      var columnIndexWithEditor = 0;
+
+      const hasEditor = columns[columnIndexWithEditor].editor;
+      if (!hasEditor) {
+        if (isWithMassUpdate) {
+          columnIndexWithEditor = columns.findIndex(function (col) { return col.editor && col.massUpdate });
+        } else {
+          columnIndexWithEditor = columns.findIndex(function (col) { return col.editor });
+        }
+        if (columnIndexWithEditor === -1) {
+          throw new Error('We could not find any Editor in your Column Definition');
+        } else {
+          grid.setActiveCell(rowIndex, columnIndexWithEditor, false);
+          if (isWithMassUpdate) {
+            // when it's a mass change, we'll activate the last row without scrolling to it
+            // that is possible via the 3rd argument "suppressScrollIntoView" set to "true"
+            grid.setActiveRow(data.length, columnIndexWithEditor, true);
+          }
+        }
+      }
+    }
+
+    function openDetails(modalType) {
+      if (grid.getEditorLock().isActive() && !grid.getEditorLock().commitCurrentEdit()) {
+        return;
+      }
+
+      var activeCell = this.grid.getActiveCell();
+      var activeRow = activeCell && activeCell.row || 0;
+
+      if (!options.enableCellNavigation) {
+        throw new Error('Composite Editor requires the flag "enableCellNavigation" to be set to True in your Grid Options.');
+      } else if (!activeCell && modalType === "edit") {
+        throw new Error('No records selected for edit operation');
+      } else {
+        var dataContext = grid.getDataItem(activeRow);
+        var isWithMassUpdate = (modalType === "mass-update" || modalType === "mass-selection");
+        lastActiveRowNumber = activeRow;
+
+        // focus on a first cell with an Editor (unless current cell already has an Editor then do nothing)
+        // also when it's a "Create" modal, we'll scroll to the end of the grid
+        var rowIndex = modalType === "create" ? data.length : activeRow;
+        focusOnFirstCellWithEditor(columns, rowIndex, isWithMassUpdate);
+
+        if (modalType === "edit" && !dataContext) {
+          alert("Current row is not editable");
+          return;
+        } else if (modalType === "mass-selection") {
+          var selectedRowsIndexes = grid.getSelectedRows();
+          if (selectedRowsIndexes.length < 1) {
+            alert("You must select some rows before trying to apply new value(s)");
+            return;
+          }
+        }
+
+        var modalColumns;
+
+        if (isWithMassUpdate) {
+          // when using Mass Update, we only care about the columns that have the "massUpdate: true", we disregard anything else
+          modalColumns = columns.filter(function (col) { return col && col.massUpdate && col.editor });
+        } else {
+          modalColumns = columns.filter(function (col) { return col && col.editor });
+        }
+
+        let headerTitle = "";
+        switch (modalType) {
+          case "create":
+            headerTitle = "Inserting New Task";
+            break;
+          case "edit":
+            headerTitle = `Editing ${dataContext.title}`;
+            break;
+          case "mass-update":
+            headerTitle = "Mass Update (all rows)";
+            break;
+          case "mass-selection":
+            headerTitle = "Update on Current Selection";
+            break;
+        }
+
+        var $modal = $(`<div class="modal"></div>`);
+        var $modalHeader = $(`<div class="modal-header"><h5>${headerTitle}</h5>
+          <button type="button" class="close" data-action="cancel" aria-label="Close">
+            <span aria-hidden="true">X</span>
+          </button></div>`);
+        var $modalBody = $(`<div class="modal-body"></div>`);
+
+        for (const column of modalColumns) {
+          if (column.editor) {
+            var $templateItem = $(`<div class="item-details-label editor-${column.id}">${column.name}</div>
+              <div class="item-details-editor-container" data-editorid="${column.id}" style="height: ${column.id === 'desc' ? 'inherit' : '20px'}"></div>
+              <div class="item-details-validation editor-${column.id}"></div>`);
+            $templateItem.appendTo($modalBody);
+          }
+        }
+        let saveActionType = (modalType === "create" || modalType === "edit") ? "save" : modalType;
+        let saveButtonText = (modalType === "create" || modalType === "edit")
+          ? "Save"
+          : (modalType === "mass-update")
+            ? "Apply Mass Update"
+            : "Apply Update to Current Selection";
+
+        const $modalFooter = $(`<div class="modal-footer"></div>`);
+        const $saveBtn = $(`<button data-action="${saveActionType}">${saveButtonText}</button>`);
+        const $cancelBtn = $(`<button data-action="cancel">Cancel</button>`);
+        $saveBtn.appendTo($modalFooter);
+        $cancelBtn.appendTo($modalFooter);
+
+
+        $modalHeader.appendTo($modal);
+        $modalBody.appendTo($modal);
+        $modalFooter.appendTo($modal);
+        $modal.appendTo("body");
+
+        $modal.on('focusout', function (e) {
+          validateCompositeEditors(e.target);
+        });
+        $modal.on('keydown', (function (e) {
+          if (e.which == Slick.keyCode.ESCAPE) {
+            grid.getEditController().cancelCurrentEdit();
+            grid.setActiveRow(lastActiveRowNumber);
+            e.stopPropagation();
+            e.preventDefault();
+          } else if (e.which === Slick.keyCode.TAB) {
+            validateCompositeEditors(e.target);
+          }
+        }));
+
+        $modal.find("[data-action=save]").click(function () {
+          grid.getEditController().commitCurrentEdit();
+        });
+
+        // Apply a Mass Update change (apply changes to all items in the dataset)
+        $modal.find("[data-action=mass-update]").click(function () {
+          var validationResults = validateCompositeEditors();
+          var isFormValid = validationResults.valid;
+
+          if (isFormValid && lastCompositeEditor && lastCompositeEditor.formValues) {
+            // from the "lastCompositeEditor" object that we kept as reference, it contains all the changes inside the "formValues" property
+            // we can loop through these changes and apply them on the selected row indexes
+            for (const itemProp in lastCompositeEditor.formValues) {
+              if (lastCompositeEditor.formValues.hasOwnProperty(itemProp)) {
+                data.forEach(function (item) {
+                  if (item.hasOwnProperty(itemProp) && lastCompositeEditor.formValues.hasOwnProperty(itemProp)) {
+                    item[itemProp] = lastCompositeEditor.formValues[itemProp];
+                  }
+                });
+              }
+            }
+
+            // change the entire dataset with our updated dataset
+            grid.setData(data, true);
+            grid.invalidate();
+
+            // once we're done doing the mass update, we can cancel the current editor since we don't want to add any new row
+            // that will also destroy/close the modal window
+            grid.getEditController().cancelCurrentEdit();
+            grid.setActiveCell(0, 0, false);
+          }
+        });
+
+        // Similar to Mass Update except that we apply changes only to the selected items in the grid
+        $modal.find("[data-action=mass-selection]").click(function () {
+          var validationResults = validateCompositeEditors();
+          var isFormValid = validationResults.valid;
+          var selectedRowsIndexes = grid.getSelectedRows();
+
+          if (isFormValid && lastCompositeEditor && lastCompositeEditor.formValues) {
+            // from the "lastCompositeEditor" object that we kept as reference, it contains all the changes inside the "formValues" property
+            // we can loop through these changes and apply them on the selected row indexes
+            for (const itemProp in lastCompositeEditor.formValues) {
+              if (lastCompositeEditor.formValues.hasOwnProperty(itemProp)) {
+                selectedRowsIndexes.forEach(function (rowIndex) {
+                  if (data[rowIndex] && data[rowIndex].hasOwnProperty(itemProp) && lastCompositeEditor.formValues.hasOwnProperty(itemProp)) {
+                    data[rowIndex][itemProp] = lastCompositeEditor.formValues[itemProp];
+                    grid.updateRow(rowIndex);
+                  }
+                });
+              }
+            }
+
+            // once we're done doing the mass update, we can cancel the current editor since we don't want to add any new row
+            // that will also destroy/close the modal window
+            grid.getEditController().cancelCurrentEdit();
+            grid.setActiveRow(lastActiveRowNumber);
+          }
+        });
+
+        $modal.find("[data-action=cancel]").click(function () {
+          grid.getEditController().cancelCurrentEdit();
+          grid.setActiveRow(lastActiveRowNumber);
+        });
+
+        $modal.find("[data-action=close]").click(function () {
+          grid.getEditController().cancelCurrentEdit();
+          grid.setActiveRow(lastActiveRowNumber);
+        });
+
+        var containers = $.map(modalColumns, function (c) {
+          return $modal.find("[data-editorid=" + c.id + "]");
+        });
+
+        var compositeEditor = new Slick.CompositeEditor(
+          modalColumns,
+          containers,
+          {
+            destroy: function () {
+              $modal.remove();
+            },
+            modalType: modalType,
+            // validationMsgPrefix: '* '
+          }
+        );
+
+        grid.editActiveCell(compositeEditor);
+      }
+    }
+
+    $(function () {
+      for (var i = 0; i < 500; i++) {
+        var d = (data[i] = {});
+
+        d["title"] = "Task " + i;
+        d["description"] = "This is a sample task description.\n  It can be multiline";
+        d["duration"] = 5;
+        d["percentComplete"] = Math.round(Math.random() * 100);
+        d["start"] = "01/01/2009";
+        d["finish"] = "01/05/2009";
+        d["effortDriven"] = (i % 5 == 0);
+      }
+
+      var checkboxSelectorPlugin = new Slick.CheckboxSelectColumn({ cssClass: "slick-cell-checkboxsel" });
+      columns.unshift(checkboxSelectorPlugin.getColumnDefinition());
+      grid = new Slick.Grid("#myGrid", data, columns, options);
+      grid.setSelectionModel(new Slick.RowSelectionModel({ selectActiveRow: false }));
+      grid.registerPlugin(checkboxSelectorPlugin);
+
+      grid.onAddNewRow.subscribe(function (e, args) {
+        var item = args.item;
+        var column = args.column;
+        grid.invalidateRow(data.length);
+        data.push(item);
+        grid.updateRowCount();
+        grid.render();
+        grid.onAddNewRow.unsubscribe(); // unsubscribe after closing the modal to avoid multiple entries
+      });
+
+      grid.onCompositeEditorChange.subscribe(function (e, args) {
+        console.log('composite editor input changed', args.formValues);
+
+        // keep reference to the last composite editor, we'll need it when doing a MassUpdate or UpdateSelection
+        lastCompositeEditor = {
+          item: args.item,
+          formValues: args.formValues
+        };
+
+        // add extra css styling to the composite editor input(s) that got modified
+        var $editorElm = $("[data-editorid=" + args.column.id + "]");
+        $editorElm.addClass("modified");
+
+        // make sure "Duration" is valid (higher or equal to 5 days) when changing the "Effort-Driven"
+        // force a form validation whenever the composite editor input "Effort Driven" changes
+        if (args.column.id === "effort-driven") {
+          validateCompositeEditors();
+        }
+      });
+
+      grid.onCellChange.subscribe(function (e, args) {
+        console.log('cell changed', args);
+      });
+
+      grid.onValidationError.subscribe(function (e, args) {
+        // handle validation errors originating from the CompositeEditor
+        if (args.validationResults) {
+          let errorMsg = args.validationResults.msg || '';
+          if (args.editor && (args.editor instanceof Slick.CompositeEditor)) {
+            if (args.validationResults.errors) {
+              errorMsg += '\n';
+              args.validationResults.errors.forEach(function (error, errorIndex) {
+                const columnName = error.editor.args.column.id;
+                errorMsg += `${columnName.toUpperCase()}: ${error.msg}`;
+              });
+            }
+            console.log(errorMsg);
+          }
+        } else {
+          alert(errorMessages);
+        }
+      });
+
+      grid.setActiveCell(0, 0);
+    });
+  </script>
+</body>
+
+</html>

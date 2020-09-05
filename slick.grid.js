@@ -1816,9 +1816,9 @@ if (typeof Slick === "undefined") {
               if (options.syncColumnCellResize) {
                 applyColumnWidths();
               }
-              trigger(self.onColumnsDrag, { 
-                triggeredByColumn: $(this).parent().attr("id").replace(uid, ""), 
-                resizeHandle: $(this) 
+              trigger(self.onColumnsDrag, {
+                triggeredByColumn: $(this).parent().attr("id").replace(uid, ""),
+                resizeHandle: $(this)
               });
             })
             .on("dragend", function (e, dd) {
@@ -5573,6 +5573,18 @@ if (typeof Slick === "undefined") {
       setActiveCellInternal(getCellNode(row, cell), opt_editMode, preClickModeOn, suppressActiveCellChangedEvent);
     }
 
+    function setActiveRow(row, cell, suppressScrollIntoView) {
+      if (!initialized) { return; }
+      if (row > getDataLength() || row < 0 || cell >= columns.length || cell < 0) {
+        return;
+      }
+
+      activeRow = row;
+      if (!suppressScrollIntoView) {
+        scrollCellIntoView(row, cell || 0, false);
+      }
+    }
+
     function canCellBeActive(row, cell) {
       if (!options.enableCellNavigation || row >= getDataLengthIncludingAddNew() ||
           row < 0 || cell >= columns.length || cell < 0) {
@@ -5811,6 +5823,7 @@ if (typeof Slick === "undefined") {
       "onColumnsResized": new Slick.Event(),
       "onBeforeColumnsResize": new Slick.Event(),
       "onCellChange": new Slick.Event(),
+      "onCompositeEditorChange": new Slick.Event(),
       "onBeforeEditCell": new Slick.Event(),
       "onBeforeCellEditorDestroy": new Slick.Event(),
       "onBeforeDestroy": new Slick.Event(),
@@ -5887,6 +5900,7 @@ if (typeof Slick === "undefined") {
       "getCellFromEvent": getCellFromEvent,
       "getActiveCell": getActiveCell,
       "setActiveCell": setActiveCell,
+      "setActiveRow": setActiveRow,
       "getActiveCellNode": getActiveCellNode,
       "getActiveCellPosition": getActiveCellPosition,
       "resetActiveCell": resetActiveCell,

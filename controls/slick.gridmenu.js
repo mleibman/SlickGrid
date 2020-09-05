@@ -19,7 +19,7 @@
  *      iconCssClass: "fa fa-bars",                 // you can provide iconImage OR iconCssClass
  *      leaveOpen: false,                           // do we want to leave the Grid Menu open after a command execution? (false by default)
  *      menuWidth: 18,                              // width (icon) that will be use to resize the column header container (18 by default)
- *      contentMinWidth: 0,							            // defaults to 0 (auto), minimum width of grid menu content (command, column list) 
+ *      contentMinWidth: 0,							            // defaults to 0 (auto), minimum width of grid menu content (command, column list)
  *      marginBottom: 15,                           // defaults to 15, margin to use at the bottom of the grid when using max-height (default)
  *      resizeOnShowHeaderRow: false,               // false by default
  *      useClickToRepositionMenu: true,             // true by default
@@ -78,7 +78,7 @@
  *            grid:     Reference to the grid.
  *            column:   Column definition.
  *            menu:     Menu options.  Note that you can change the menu items here.
- * 
+ *
  *    onBeforeMenuShow:   Fired before the menu is shown.  You can customize the menu or dismiss it by returning false.
  *      * ONLY works with a jQuery event (as per slick.core code), so we cannot notify when it's a button event (when grid menu is attached to an external button, not the hamburger menu)
  *        Event args:
@@ -391,9 +391,9 @@
 
         // get the column label from the picker value extractor (user can optionally provide a custom extractor)
         if (_options && _options.gridMenu && _options.gridMenu.headerColumnValueExtractor) {
-          columnLabel = _options.gridMenu.headerColumnValueExtractor(columns[i]);
+          columnLabel = _options.gridMenu.headerColumnValueExtractor(columns[i], _gridOptions);
         } else {
-          columnLabel = _defaults.headerColumnValueExtractor(columns[i]);
+          columnLabel = _defaults.headerColumnValueExtractor(columns[i], _gridOptions);
         }
 
         $("<label for='" + _gridUid + "-gridmenu-colpicker-" + columnId + "' />")
@@ -559,7 +559,7 @@
     function updateColumn(e) {
       if ($(e.target).data("option") == "autoresize") {
         // when calling setOptions, it will resize with ALL Columns (even the hidden ones)
-        // we can avoid this problem by keeping a reference to the visibleColumns before setOptions and then setColumns after 
+        // we can avoid this problem by keeping a reference to the visibleColumns before setOptions and then setColumns after
         var previousVisibleColumns = getVisibleColumns();
         var isChecked = e.target.checked;
         _grid.setOptions({ forceFitColumns: isChecked });

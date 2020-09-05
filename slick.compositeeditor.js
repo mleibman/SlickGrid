@@ -1,4 +1,3 @@
-;
 (function ($) {
   $.extend(true, window, {
     Slick: {
@@ -27,6 +26,8 @@
    * @param containers {Array} Container HTMLElements in which editors will be placed.
    * @param options {Object} Options hash:
    *  validationFailedMsg     -   A generic failed validation message set on the aggregated validation resuls.
+   *  validationMsgPrefix     -   Add an optional prefix to each validation message (only the ones shown in the modal form, not the ones in the "errors")
+   *  modalType               -   Defaults to "edit", modal type can 1 of these 3: (create, edit, mass, mass-selection)
    *  hide                    -   A function to be called when the grid asks the editor to hide itself.
    *  show                    -   A function to be called when the grid asks the editor to show itself.
    *  position                -   A function to be called when the grid asks the editor to reposition itself.
@@ -34,11 +35,14 @@
    */
   function CompositeEditor(columns, containers, options) {
     var defaultOptions = {
+      modalType: 'edit', // available type (create, edit, mass)
       validationFailedMsg: "Some of the fields have failed validation",
+      validationMsgPrefix: null,
       show: null,
       hide: null,
       position: null,
-      destroy: null
+      destroy: null,
+      formValues: {},
     };
 
     var noop = function () {
@@ -52,14 +56,14 @@
     function getContainerBox(i) {
       var c = containers[i];
       var offset = $(c).offset();
-      var w = $(c).width();
-      var h = $(c).height();
+      var w = $(c).width() || 0;
+      var h = $(c).height() || 0;
 
       return {
-        top: offset.top,
-        left: offset.left,
-        bottom: offset.top + h,
-        right: offset.left + w,
+        top: offset && offset.top,
+        left: offset && offset.left,
+        bottom: offset && offset.top + h,
+        right: offset && offset.left + w,
         width: w,
         height: h,
         visible: true
@@ -73,26 +77,34 @@
 
       function init() {
         var newArgs = {};
-        var idx = columns.length;
-        while (idx--) {
+        var idx = 0;
+        while (idx < columns.length) {
           if (columns[idx].editor) {
+            var column = columns[idx];
             newArgs = $.extend({}, args);
             newArgs.container = containers[idx];
-            newArgs.column = columns[idx];
+            newArgs.column = column;
             newArgs.position = getContainerBox(idx);
             newArgs.commitChanges = noop;
             newArgs.cancelChanges = noop;
+            newArgs.compositeEditorOptions = options;
+            newArgs.formValues = {};
 
-            editors[idx] = new (columns[idx].editor)(newArgs);
+            editors.push(new (column.editor)(newArgs));
           }
+          idx++;
         }
+
+        // focus on first input
+        setTimeout(function () { editors[0].focus(); }, 0);
       }
 
 
       this.destroy = function () {
-        var idx = editors.length;
-        while (idx--) {
+        var idx = 0;
+        while (idx < editors.length) {
           editors[idx].destroy();
+          idx++;
         }
 
         options.destroy && options.destroy();
@@ -106,11 +118,12 @@
 
 
       this.isValueChanged = function () {
-        var idx = editors.length;
-        while (idx--) {
+        var idx = 0;
+        while (idx < editors.length) {
           if (editors[idx].isValueChanged()) {
             return true;
           }
+          idx++;
         }
         return false;
       };
@@ -118,49 +131,76 @@
 
       this.serializeValue = function () {
         var serializedValue = [];
-        var idx = editors.length;
-        while (idx--) {
+        var idx = 0;
+        while (idx < editors.length) {
           serializedValue[idx] = editors[idx].serializeValue();
+          idx++;
         }
         return serializedValue;
       };
 
 
       this.applyValue = function (item, state) {
-        var idx = editors.length;
-        while (idx--) {
+        var idx = 0;
+        while (idx < editors.length) {
           editors[idx].applyValue(item, state[idx]);
+          idx++;
         }
       };
-
 
       this.loadValue = function (item) {
-        var idx = editors.length;
-        while (idx--) {
+        var idx = 0;
+
+        while (idx < editors.length) {
           editors[idx].loadValue(item);
+          idx++;
         }
       };
 
 
-      this.validate = function () {
+      this.validate = function (targetElm) {
         var validationResults;
         var errors = [];
+        var $targetElm = targetElm ? $(targetElm) : null;
 
         firstInvalidEditor = null;
 
-        var idx = editors.length;
-        while (idx--) {
-          validationResults = editors[idx].validate();
-          if (!validationResults.valid) {
-            firstInvalidEditor = editors[idx];
-            errors.push({
-              index: idx,
-              editor: editors[idx],
-              container: containers[idx],
-              msg: validationResults.msg
-            });
+        var idx = 0;
+        while (idx < editors.length) {
+          var columnDef = editors[idx].args && editors[idx].args.column || {};
+          if (columnDef) {
+            var $validationElm = $(".item-details-validation.editor-" + columnDef.id);
+            var $labelElm = $(".item-details-label.editor-" + columnDef.id);
+            var $editorElm = $("[data-editorid=" + columnDef.id + "]");
+            var validationMsgPrefix = options && options.validationMsgPrefix || "";
+
+            if (!$targetElm || ($editorElm.has($targetElm).length > 0)) {
+              validationResults = editors[idx].validate();
+
+              if (!validationResults.valid) {
+                firstInvalidEditor = editors[idx];
+                errors.push({
+                  index: idx,
+                  editor: editors[idx],
+                  container: containers[idx],
+                  msg: validationResults.msg
+                });
+
+                if ($validationElm) {
+                  $validationElm.text(validationMsgPrefix + validationResults.msg);
+                  $labelElm.addClass("invalid");
+                  $editorElm.addClass("invalid");
+                }
+              } else if ($validationElm) {
+                $validationElm.text("");
+                $editorElm.removeClass("invalid");
+                $labelElm.removeClass("invalid");
+              }
+            }
           }
+          idx++;
         }
+
 
         if (errors.length) {
           return {
@@ -178,18 +218,20 @@
 
 
       this.hide = function () {
-        var idx = editors.length;
-        while (idx--) {
+        var idx = 0;
+        while (idx < editors.length) {
           editors[idx].hide && editors[idx].hide();
+          idx++;
         }
         options.hide && options.hide();
       };
 
 
       this.show = function () {
-        var idx = editors.length;
-        while (idx--) {
+        var idx = 0;
+        while (idx < editors.length) {
           editors[idx].show && editors[idx].show();
+          idx++;
         }
         options.show && options.show();
       };
@@ -205,7 +247,6 @@
 
     // so we can do "editor instanceof Slick.CompositeEditor
     editor.prototype = this;
-
     return editor;
   }
 })(jQuery);

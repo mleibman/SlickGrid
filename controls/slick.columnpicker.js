@@ -110,9 +110,9 @@
         }
 
         if (_options && _options.columnPicker && _options.columnPicker.headerColumnValueExtractor) {
-          columnLabel = _options.columnPicker.headerColumnValueExtractor(columns[i]);
+          columnLabel = _options.columnPicker.headerColumnValueExtractor(columns[i], _options);
         } else {
-          columnLabel = defaults.headerColumnValueExtractor(columns[i]);
+          columnLabel = defaults.headerColumnValueExtractor(columns[i], _options);
         }
 
         $("<label for='" + _gridUid + "colpicker-" + columnId + "' />")
@@ -185,7 +185,7 @@
     function updateColumn(e) {
       if ($(e.target).data("option") == "autoresize") {
         // when calling setOptions, it will resize with ALL Columns (even the hidden ones)
-        // we can avoid this problem by keeping a reference to the visibleColumns before setOptions and then setColumns after 
+        // we can avoid this problem by keeping a reference to the visibleColumns before setOptions and then setColumns after
         var previousVisibleColumns = getVisibleColumns();
         var isChecked = e.target.checked;
         _grid.setOptions({ forceFitColumns: isChecked });
