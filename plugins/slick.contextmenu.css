@@ -116,6 +116,11 @@
   color: silver;
 }
 
+/* Hidden */
+.slick-context-menu-item-hidden {
+  display: none;
+}
+
 /* Excluded item from Grid Menu will be hidden */
 .slick-context-menu-list li.hidden {
   display: none;

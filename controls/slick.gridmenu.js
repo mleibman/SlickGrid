@@ -59,7 +59,8 @@
  *    action:                     Optionally define a callback function that gets executed when item is chosen (and/or use the onCommand event)
  *    title:                      Menu item text.
  *    divider:                    Whether the current item is a divider, not an actual command.
- *    disabled:                   Whether the item is disabled.
+ *    disabled:                   Whether the item/command is disabled.
+ *    hidden:                     Whether the item/command is hidden.
  *    tooltip:                    Item tooltip.
  *    command:                    A command identifier to be passed to the onCommand event handlers.
  *    cssClass:                   A CSS class to be added to the menu item container.
@@ -154,7 +155,7 @@
 
     // when a grid changes from a regular grid to a frozen grid, we need to destroy & recreate the grid menu
     // we do this change because the Grid Menu is on the left container on a regular grid but is on the right container on a frozen grid
-    grid.onSetOptions.subscribe(function(e, args) {
+    grid.onSetOptions.subscribe(function (e, args) {
       if (args && args.optionsBefore && args.optionsAfter) {
         var switchedFromRegularToFrozen = args.optionsBefore.frozenColumn >= 0 && args.optionsAfter.frozenColumn === -1;
         var switchedFromFrozenToRegular = args.optionsBefore.frozenColumn === -1 && args.optionsAfter.frozenColumn >= 0;
@@ -293,6 +294,10 @@
         }
         if (item.disabled) {
           $li.addClass("slick-gridmenu-item-disabled");
+        }
+
+        if (item.hidden) {
+          $li.addClass("slick-header-menuitem-hidden");
         }
 
         if (item.cssClass) {

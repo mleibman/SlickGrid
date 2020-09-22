@@ -72,7 +72,8 @@
    *    option:                     An option to be passed to the onOptionSelected event handlers (when using "optionItems").
    *    title:                      Menu item text label.
    *    divider:                    Boolean which tells if the current item is a divider, not an actual command. You could also pass "divider" instead of an object
-   *    disabled:                   Whether the item is disabled.
+   *    disabled:                   Whether the item/command is disabled.
+   *    hidden:                     Whether the item/command is hidden.
    *    tooltip:                    Item tooltip.
    *    cssClass:                   A CSS class to be added to the menu item container.
    *    iconCssClass:               A CSS class to be added to the menu item icon.
@@ -89,7 +90,7 @@
    *            cell:         Cell or column index
    *            row:          Row index
    *            grid:         Reference to the grid.
-   * 
+   *
    *    onBeforeMenuShow: Fired before the menu is shown.  You can customize the menu or dismiss it by returning false.
    *        Event args:
    *            cell:         Cell or column index
@@ -462,6 +463,11 @@
           $li.addClass("slick-cell-menu-item-disabled");
         }
 
+        // if the item is hidden then add the hidden css class
+        if (item.hidden) {
+          $li.addClass("slick-cell-menu-item-hidden");
+        }
+
         if (item.cssClass) {
           $li.addClass(item.cssClass);
         }
@@ -535,6 +541,11 @@
         // if the item is disabled then add the disabled css class
         if (item.disabled || !isItemUsable) {
           $li.addClass("slick-cell-menu-item-disabled");
+        }
+
+        // if the item is hidden then add the hidden css class
+        if (item.hidden) {
+          $li.addClass("slick-cell-menu-item-hidden");
         }
 
         if (item.cssClass) {

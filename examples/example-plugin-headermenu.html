@@ -37,8 +37,7 @@
       border: 1px solid #718BB7;
       background: #f0f0f0;
       padding: 2px;
-      -moz-box-shadow: 2px 2px 2px silver;
-      -webkit-box-shadow: 2px 2px 2px silver;
+      box-shadow: 2px 2px 2px silver;
       z-index: 20;
     }
 
@@ -47,6 +46,7 @@
       padding: 2px 4px;
       border: 1px solid transparent;
       border-radius: 3px;
+      display: block;
     }
 
     .slick-header-menuitem:hover {
@@ -57,6 +57,9 @@
     .slick-header-menuitem-disabled {
       border-color: transparent !important;
       background: inherit !important;
+    }
+    .slick-header-menuitem-hidden {
+      display: none;
     }
 
     .icon-help {
@@ -127,12 +130,14 @@
               iconImage: "../images/sort-asc.gif",
               title: "Sort Ascending",
               disabled: !columns[i].sortable,
+              // hidden: !columns[i].sortable, // you could disable or hide the command completely
               command: "sort-asc"
             },
             {
               iconImage: "../images/sort-desc.gif",
               title: "Sort Descending",
               disabled: !columns[i].sortable,
+              // hidden: !columns[i].sortable, // you could disable or hide the command completely
               cssClass: !columns[i].sortable ? 'italic' : '',
               command: "sort-desc"
             },

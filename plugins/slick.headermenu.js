@@ -52,7 +52,8 @@
    *    action:                   Optionally define a callback function that gets executed when item is chosen (and/or use the onCommand event)
    *    title:                    Menu item text.
    *    divider:                  Whether the current item is a divider, not an actual command.
-   *    disabled:                 Whether the item is disabled.
+   *    disabled:                 Whether the item/command is disabled.
+   *    hidden:                   Whether the item/command is hidden.
    *    tooltip:                  Item tooltip.
    *    command:                  A command identifier to be passed to the onCommand event handlers.
    *    cssClass:                 A CSS class to be added to the menu item container.
@@ -70,7 +71,7 @@
    *            grid:     Reference to the grid.
    *            column:   Column definition.
    *            menu:     Menu options.  Note that you can change the menu items here.
-   * 
+   *
    *    onBeforeMenuShow:   Fired before the menu is shown.  You can customize the menu or dismiss it by returning false.
    *        Event args:
    *            grid:     Reference to the grid.
@@ -250,6 +251,10 @@
 
         if (item.disabled) {
           $li.addClass("slick-header-menuitem-disabled");
+        }
+
+        if (item.hidden) {
+          $li.addClass("slick-header-menuitem-hidden");
         }
 
         if (item.cssClass) {

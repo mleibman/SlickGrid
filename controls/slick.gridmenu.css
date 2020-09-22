@@ -81,6 +81,7 @@
   padding: 2px 4px;
   border: 1px solid transparent;
   border-radius: 3px;
+  display: block;
 }
 .slick-gridmenu-item:hover {
   border-color: silver;
@@ -109,6 +110,11 @@
 /* Disabled */
 .slick-gridmenu-item-disabled {
   color: silver;
+}
+
+/* Hidden */
+.slick-gridmenu-item-hidden {
+  display: none;
 }
 
 /* Excluded item from Grid Menu will be hidden */

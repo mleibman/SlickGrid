@@ -35,6 +35,7 @@
   margin: 0;
   padding: 0;
   cursor: pointer;
+  display: block;
 }
 
 .slick-header-menuicon {
@@ -56,6 +57,11 @@
 /* Disabled */
 .slick-header-menuitem-disabled {
   color: silver;
+}
+
+/* Hidden */
+.slick-header-menuitem-hidden {
+  display: none;
 }
 
 /* Divider */
