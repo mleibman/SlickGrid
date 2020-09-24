@@ -1,5 +1,5 @@
 /**
- * Row Move Manager options: 
+ * Row Move Manager options:
  *    cssClass:             A CSS class to be added to the menu item container.
  *    columnId:             Column definition id (defaults to "_move")
  *    cancelEditOnDrag:     Do we want to cancel any Editing while dragging a row (defaults to false)
@@ -193,7 +193,7 @@
       if (!checkUsabilityOverride(row, dataContext, grid)) {
         return null;
       } else {
-        return { addClasses: "cell-reorder dnd" };
+        return { addClasses: "cell-reorder dnd", text: "" };
       }
     }
 
