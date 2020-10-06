@@ -43,6 +43,7 @@
       position: null,
       destroy: null,
       formValues: {},
+      editors: {}
     };
 
     var noop = function () {
@@ -90,7 +91,9 @@
             newArgs.compositeEditorOptions = options;
             newArgs.formValues = {};
 
-            editors.push(new (column.editor)(newArgs));
+            var currentEditor = new (column.editor)(newArgs);
+            options.editors[column.id] = currentEditor; // add every Editor instance refs
+            editors.push(currentEditor);
           }
           idx++;
         }
