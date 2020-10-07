@@ -5680,7 +5680,8 @@ if (typeof Slick === "undefined") {
                   trigger(self.onCellChange, {
                     row: this.row,
                     cell: this.cell,
-                    item: item
+                    item: item,
+                    column: column
                   });
                 },
                 undo: function () {
@@ -5689,7 +5690,8 @@ if (typeof Slick === "undefined") {
                   trigger(self.onCellChange, {
                     row: this.row,
                     cell: this.cell,
-                    item: item
+                    item: item,
+                    column: column
                   });
                 }
               };
