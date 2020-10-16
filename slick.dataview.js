@@ -1122,8 +1122,19 @@
       return onSelectedRowIdsChanged;
     }
 
-    function getAllSelectedRows(){
+    /** Get all selected IDs */
+    function getAllSelectedIds(){
       return selectedRowIds;
+    }
+
+    /** Get all selected dataContext items */
+    function getAllSelectedItems() {
+      var selectedData = [];
+      var selectedIds = getAllSelectedIds();
+      selectedIds.forEach(function (id) {
+          selectedData.push(self.getItemById(id));
+      });
+      return selectedData;
     }
 
     function syncGridCellCssStyles(grid, key) {
@@ -1196,6 +1207,8 @@
       "collapseGroup": collapseGroup,
       "expandGroup": expandGroup,
       "getGroups": getGroups,
+      "getAllSelectedIds": getAllSelectedIds,
+      "getAllSelectedItems": getAllSelectedItems,
       "getIdxById": getIdxById,
       "getRowByItem": getRowByItem,
       "getRowById": getRowById,
@@ -1230,8 +1243,6 @@
       "onPagingInfoChanged": onPagingInfoChanged,
       "onGroupExpanded": onGroupExpanded,
       "onGroupCollapsed": onGroupCollapsed,
-
-      "getAllSelectedRows": getAllSelectedRows
     });
   }
 
