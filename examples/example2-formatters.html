@@ -69,7 +69,7 @@
   // the classes are removed and then added during an update, or just added on cell creation
   function statusFormatter(row, cell, value, columnDef, dataContext) {
       var rtn = { text: value, removeClasses: 'red orange green' };
-      if (value !== null || value !== "") {
+      if (value !== null && value !== "") {
         if (value < 33) {
           rtn.addClasses = "red";
           rtn.toolTip = "danger zone";
