@@ -132,6 +132,12 @@
     function destroy() {
       _handler.unsubscribeAll();
       $(document.body).off("mousedown", handleBodyMouseDown);
+      if ($menu) {
+        $menu.remove();
+      }
+      $menu = null;
+      $activeHeaderColumn = null;
+      $menu = null;
     }
 
 
@@ -181,6 +187,7 @@
         $el
           .on("click", showMenu)
           .appendTo(args.node);
+		    $el = null;
       }
     }
 
@@ -283,6 +290,9 @@
         if (item.textCssClass) {
           $text.addClass(item.textCssClass);
         }
+        $icon = null;
+        $text = null;
+        $li = null;
       }
 
       var leftPos = $(this).offset().left;
@@ -313,6 +323,7 @@
       // Stop propagation so that it doesn't register as a header click event.
       e.preventDefault();
       e.stopPropagation();
+	    $menuButton = null;
     }
 
 

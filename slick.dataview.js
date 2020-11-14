@@ -49,6 +49,7 @@
     var compiledFilter;
     var compiledFilterWithCaching;
     var filterCache = [];
+    var _grid = null;
 
     // grouping
     var groupingInfoDefaults = {
@@ -98,6 +99,27 @@
     function endUpdate() {
       suspend = false;
       refresh();
+    }
+	
+    function destroy() {
+      items = [];
+      idxById = null;
+      rowsById = null;
+      filter = null;
+      updated = null;
+      sortComparer = null;
+      filterCache = [];
+      filteredItems = [];
+      compiledFilter = null;
+      compiledFilterWithCaching = null;
+
+      if (_grid && _grid.onSelectedRowsChanged && _grid.onCellCssStylesChanged) {
+        _grid.onSelectedRowsChanged.unsubscribe();
+        _grid.onCellCssStylesChanged.unsubscribe();
+      }
+      if (self.onRowsOrCountChanged) {
+        self.onRowsOrCountChanged.unsubscribe();
+      }
     }
 
     function setRefreshHints(hints) {
@@ -1074,6 +1096,7 @@
      */
     function syncGridSelection(grid, preserveHidden, preserveHiddenOnSelectionChange) {
       var self = this;
+      _grid = grid;
       var inHandler;
       selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());
       var onSelectedRowIdsChanged = new Slick.Event();
@@ -1187,6 +1210,7 @@
       // methods
       "beginUpdate": beginUpdate,
       "endUpdate": endUpdate,
+      "destroy": destroy,
       "setPagingOptions": setPagingOptions,
       "getPagingInfo": getPagingInfo,
       "getIdPropertyName": getIdPropertyName,

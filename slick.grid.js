@@ -2072,7 +2072,7 @@ if (typeof Slick === "undefined") {
       stylesheet = null;
     }
 
-    function destroy() {
+    function destroy(shouldDestroyAllElements) {
       getEditorLock().cancelCurrentEdit();
 
       trigger(self.onBeforeDestroy, {});
@@ -2092,6 +2092,78 @@ if (typeof Slick === "undefined") {
 
       $canvas.off("draginit dragstart dragend drag");
       $container.empty().removeClass(uid);
+      if (shouldDestroyAllElements) {
+        destroyAllElements();
+      }
+    }
+
+    function destroyAllElements() {
+      $activeCanvasNode = null;
+      $activeViewportNode = null;
+      $boundAncestors = null;
+      $canvas = null;
+      $canvasTopL = null;
+      $canvasTopR = null;
+      $canvasBottomL = null;
+      $canvasBottomR = null;
+      $container = null;
+      $focusSink = null;
+      $focusSink2 = null;
+      $groupHeaders = null;
+      $groupHeadersL = null;
+      $groupHeadersR = null;
+      $headerL = null;
+      $headerR = null;
+      $headers = null;
+      $headerRow = null;
+      $headerRowL = null;
+      $headerRowR = null;
+      $headerRowSpacerL = null;
+      $headerRowSpacerR = null;
+      $headerRowScrollContainer = null;
+      $headerRowScroller = null;
+      $headerRowScrollerL = null;
+      $headerRowScrollerR = null;
+      $headerScrollContainer = null;
+      $headerScroller = null;
+      $headerScrollerL = null;
+      $headerScrollerR = null;
+      $hiddenParents = null;
+      $footerRow = null;
+      $footerRowL = null;
+      $footerRowR = null;
+      $footerRowSpacerL = null;
+      $footerRowSpacerR = null;
+      $footerRowScroller = null;
+      $footerRowScrollerL = null;
+      $footerRowScrollerR = null;
+      $footerRowScrollContainer = null;
+      $preHeaderPanel = null;
+      $preHeaderPanelR = null;
+      $preHeaderPanelScroller = null;
+      $preHeaderPanelScrollerR = null;
+      $preHeaderPanelSpacer = null;
+      $preHeaderPanelSpacerR = null;
+      $topPanel = null;
+      $topPanelScroller = null;
+      $style = null;
+      $topPanelScrollerL = null;
+      $topPanelScrollerR = null;
+      $topPanelL = null;
+      $topPanelR = null;
+      $paneHeaderL = null;
+      $paneHeaderR = null;
+      $paneTopL = null;
+      $paneTopR = null;
+      $paneBottomL = null;
+      $paneBottomR = null;
+      $viewport = null;
+      $viewportTopL = null;
+      $viewportTopR = null;
+      $viewportBottomL = null;
+      $viewportBottomR = null;
+      $viewportScrollContainerX = null;
+      $viewportScrollContainerY = null;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -2416,6 +2488,7 @@ if (typeof Slick === "undefined") {
           len = $cellEl.outerWidth();
 
           $rowEl.remove();
+          $cellEl = null;
           return len;
         }
 
@@ -2437,6 +2510,7 @@ if (typeof Slick === "undefined") {
          });
 
         $rowEl.remove();
+        $cellEl = null;
         return max;
     }
 

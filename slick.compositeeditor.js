@@ -111,6 +111,7 @@
         }
 
         options.destroy && options.destroy();
+		    editors = [];
       };
 
 
@@ -200,10 +201,13 @@
                 $labelElm.removeClass("invalid");
               }
             }
+            $validationElm = null;
+            $labelElm = null;
+            $editorElm = null;
           }
           idx++;
         }
-
+		    $targetElm = null;
 
         if (errors.length) {
           return {
