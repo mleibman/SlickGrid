@@ -99,7 +99,11 @@
         }
 
         // focus on first input
-        setTimeout(function () { editors[0].focus(); }, 0);
+        setTimeout(function () {
+          if (Array.isArray(editors) && editors.length > 0 && editors[0].focus) {
+            editors[0].focus();
+          }
+        }, 0);
       }
 
 

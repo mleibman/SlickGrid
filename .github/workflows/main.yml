@@ -1,5 +1,5 @@
 name: Cypress E2E Tests
-on: 
+on:
   # Trigger the workflow on push or pull request,
   # but only for the master branch on Push and any branches on PR
   push:
@@ -47,7 +47,7 @@ jobs:
         run: npm install
 
       - name: Run Cypress E2E tests
-        uses: cypress-io/github-action@v1
+        uses: cypress-io/github-action@v2
         with:
           start: npm run serve
           wait-on: 'http://localhost:8080'
