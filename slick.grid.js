@@ -2090,7 +2090,22 @@ if (typeof Slick === "undefined") {
       $container.off(".slickgrid");
       removeCssRules();
 
-      $canvas.off("draginit dragstart dragend drag");
+      $canvas.off();
+      $viewport.off();
+      $headerScroller.off();
+      $headerRowScroller.off();
+      if ($footerRow) {
+        $footerRow.off();
+      }
+      if ($footerRowScroller) {
+        $footerRowScroller.off();
+      }
+      if ($preHeaderPanelScroller) {
+        $preHeaderPanelScroller.off();
+      }
+      $focusSink.off();
+      $(".slick-resizable-handle").off();
+      $(".slick-header-column").off();
       $container.empty().removeClass(uid);
       if (shouldDestroyAllElements) {
         destroyAllElements();
