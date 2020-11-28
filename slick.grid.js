@@ -2928,6 +2928,8 @@ if (typeof Slick === "undefined") {
         if (!viewportEvents || !viewportEvents.mousewheel) {
           $viewport.on("mousewheel", handleMouseWheel);
         }
+      } else if (options.enableMouseWheelScrollHandler === false) {
+        $viewport.off("mousewheel"); // remove scroll handler when option is disable
       }
     }
 
