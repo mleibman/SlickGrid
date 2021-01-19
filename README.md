@@ -15,8 +15,8 @@ We are now starting to add E2E (end to end) tests in the browser with [Cypress](
 
 We also welcome any new contributions (tests or fixes) and if you wish to add Cypress E2E tests, all you need to do is to clone the repo and then run the following commands
 ```bash
-npm install             # install all npm packages
-npm run serve           # run a local http server on port 8080
-npm run cypress:open    # open Cypress tool
+npm install         # install all npm packages
+npm run serve       # run a local http server on port 8080
+npm run cypress     # open Cypress tool
 ```
 Once the Cypress UI is open, you can then click on "Run all Specs" to execute all E2E browser tests.

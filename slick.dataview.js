@@ -100,7 +100,7 @@
       suspend = false;
       refresh();
     }
-	
+
     function destroy() {
       items = [];
       idxById = null;
@@ -491,6 +491,10 @@
         }
       }
       return low;
+    }
+
+    function getItemsCount() {
+      return items.length;
     }
 
     function getLength() {
@@ -1254,6 +1258,7 @@
       "syncGridCellCssStyles": syncGridCellCssStyles,
 
       // data provider methods
+      "getItemsCount": getItemsCount,
       "getLength": getLength,
       "getItem": getItem,
       "getItemMetadata": getItemMetadata,

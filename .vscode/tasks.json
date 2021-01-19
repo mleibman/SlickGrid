@@ -4,7 +4,7 @@
     {
       "label": "Cypress Open GUI",
       "type": "shell",
-      "command": "npm run cypress:open",
+      "command": "npm run cypress",
       "problemMatcher": []
     },
     {
