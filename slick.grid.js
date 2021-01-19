@@ -120,7 +120,8 @@ if (typeof Slick === "undefined") {
       autosizeTextAvgToMWidthRatio: 0.75,
       viewportSwitchToScrollModeWidthPercent: undefined,
       viewportMinWidthPx: undefined,
-      viewportMaxWidthPx: undefined
+      viewportMaxWidthPx: undefined,
+      suppressCssChangesOnHiddenInit: false
     };
 
     var columnDefaults = {
@@ -329,7 +330,7 @@ if (typeof Slick === "undefined") {
         throw new Error("SlickGrid requires a valid container, " + container + " does not exist in the DOM.");
       }
 
-      cacheCssForHiddenInit();
+      if (!options.suppressCssChangesOnHiddenInit) { cacheCssForHiddenInit(); }
 
       // calculate these only once and share between grid instances
       maxSupportedCssHeight = maxSupportedCssHeight || getMaxSupportedCssHeight();
@@ -609,7 +610,7 @@ if (typeof Slick === "undefined") {
             .on("mouseenter", ".slick-cell", handleMouseEnter)
             .on("mouseleave", ".slick-cell", handleMouseLeave);
 
-        restoreCssFromHiddenInit();
+        if (!options.suppressCssChangesOnHiddenInit) { restoreCssFromHiddenInit(); }
       }
     }
 
@@ -5981,6 +5982,8 @@ if (typeof Slick === "undefined") {
       "setActiveViewportNode": setActiveViewportNode,
       "focus": setFocus,
       "scrollTo": scrollTo,
+      "cacheCssForHiddenInit": cacheCssForHiddenInit,
+      "restoreCssFromHiddenInit": restoreCssFromHiddenInit,
 
       "getCellFromPoint": getCellFromPoint,
       "getCellFromEvent": getCellFromEvent,
