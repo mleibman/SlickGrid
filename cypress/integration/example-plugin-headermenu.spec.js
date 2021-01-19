@@ -148,7 +148,7 @@ describe('Example - Header Menu', () => {
     cy.get('#myGrid')
       .find('.slick-row .slick-cell:nth(2)')
       .each($row => {
-        expect(+$row.text()).to.be.greaterThan(80);
+        expect(+$row.text()).to.be.greaterThan(60);
       });
   });
 
