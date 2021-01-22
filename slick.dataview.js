@@ -165,11 +165,11 @@
         idProperty = objectIdProperty;
       }
       items = filteredItems = data;
+      onSetItemsCalled.notify({ idProperty: objectIdProperty, itemCount: items.length }, null, self);
       idxById = {};
       updateIdxById();
       ensureIdUniqueness();
       refresh();
-      onSetItemsCalled.notify({ idProperty: objectIdProperty }, null, self);
     }
 
     function setPagingOptions(args) {
@@ -493,7 +493,7 @@
       return low;
     }
 
-    function getItemsCount() {
+    function getItemCount() {
       return items.length;
     }
 
@@ -1067,14 +1067,14 @@
         onPagingInfoChanged.notify(getPagingInfo(), null, self);
       }
       if (countBefore !== rows.length) {
-        onRowCountChanged.notify({ previous: countBefore, current: rows.length, dataView: self, callingOnRowsChanged: (diff.length > 0) }, null, self);
+        onRowCountChanged.notify({ previous: countBefore, current: rows.length, itemCount: items.length, dataView: self, callingOnRowsChanged: (diff.length > 0) }, null, self);
       }
       if (diff.length > 0) {
-        onRowsChanged.notify({ rows: diff, dataView: self, calledOnRowCountChanged: (countBefore !== rows.length) }, null, self);
+        onRowsChanged.notify({ rows: diff, itemCount: items.length, dataView: self, calledOnRowCountChanged: (countBefore !== rows.length) }, null, self);
       }
       if (countBefore !== rows.length || diff.length > 0) {
         onRowsOrCountChanged.notify({
-          rowsDiff: diff, previousRowCount: countBefore, currentRowCount: rows.length,
+          rowsDiff: diff, previousRowCount: countBefore, currentRowCount: rows.length, itemCount: items.length,
           rowCountChanged: countBefore !== rows.length, rowsChanged: diff.length > 0, dataView: self
         }, null, self);
       }
@@ -1258,7 +1258,7 @@
       "syncGridCellCssStyles": syncGridCellCssStyles,
 
       // data provider methods
-      "getItemsCount": getItemsCount,
+      "getItemCount": getItemCount,
       "getLength": getLength,
       "getItem": getItem,
       "getItemMetadata": getItemMetadata,
