@@ -201,6 +201,12 @@
     };
   }
 
-  // Slick.Data.RemoteModel
-  $.extend(true, window, { Slick: { Data: { RemoteModel: RemoteModel }}});
+  // exports
+  $.extend(true, window, { 
+    Slick: { 
+      Data: { 
+        RemoteModel: RemoteModel 
+      }
+    }
+  });
 })(jQuery);

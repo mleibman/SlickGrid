@@ -161,7 +161,7 @@ test("refresh fires after resume", function() {
     var count = 0;
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, {rows:[0,1]}, "args");
+        same(args.rows, [0,1], "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -243,7 +243,7 @@ test("applied immediately", function() {
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, {rows:[0]}, "args");
+        same(args.rows, [0,1,2], "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -277,7 +277,7 @@ test("re-applied on refresh", function() {
 
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, {rows:[0]}, "args");
+        same(args.rows, [0,1,2], "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -321,7 +321,8 @@ test("all", function() {
     var dv = new Slick.Data.DataView();
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
     dv.onRowsChanged.subscribe(function(e,args) {
-        ok(false, "onRowsChanged called");
+        ok(true, "onRowsChanged called");
+        same(args.rows, [0,1,2], "args");
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
         ok(true, "onRowCountChanged called");
@@ -353,7 +354,7 @@ test("all then none", function() {
 
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, {rows:[0,1,2]}, "args");
+        same(args.rows, [0,1,2], "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -420,7 +421,7 @@ test("basic", function() {
 
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, {rows:[1]}, "args");
+        same(args.rows, [1], "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -461,7 +462,7 @@ test("updating an item to pass the filter", function() {
     dv.setFilter(function(o) { return o["val"] !== 1337; });
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, {rows:[3]}, "args");
+        same(args.rows, [3], "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -475,7 +476,7 @@ test("updating an item to pass the filter", function() {
         same(args.pageSize, 0, "pageSize arg");
         same(args.pageNum, 0, "pageNum arg");
         same(args.totalRows, 4, "totalRows arg");
-        count++;        
+        count++;
     });
     dv.updateItem(3,{id:3,val:3});
     equal(count, 3, "events fired");
@@ -489,8 +490,9 @@ test("updating an item to not pass the filter", function() {
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2},{id:3,val:3}]);
     dv.setFilter(function(o) { return o["val"] !== 1337; });
     dv.onRowsChanged.subscribe(function(e,args) {
-        console.log(args);
-        ok(false, "onRowsChanged called");
+        ok(true, "onRowsChanged called");
+        same(args.rows, [3], "args");
+        count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
         ok(true, "onRowCountChanged called");
@@ -506,8 +508,183 @@ test("updating an item to not pass the filter", function() {
         count++;
     });
     dv.updateItem(3,{id:3,val:1337});
-    equal(count, 2, "events fired");
+    equal(count, 3, "events fired");
     same(dv.getItems()[3], {id:3,val:1337}, "item updated");
+    assertConsistency(dv);
+});
+
+test("with bulk suspend", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
+
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [1], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(false, "onRowCountChanged called");
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(false, "onPagingInfoChanged called");
+    });
+    dv.beginUpdate(true);
+    debugger;
+    dv.updateItem(1,{id:1,val:1337});
+    equal(count, 0, "events fired");
+    same(dv.getItem(1), {id:1,val:1}, "item updated");
+    dv.endUpdate();
+    same(dv.getItem(1), {id:1,val:1337}, "item updated");
+    equal(count, 1, "events fired");
+    assertConsistency(dv);
+});
+
+module("updateItems");
+
+test("basic", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2},{id:3,val:3},{id:4,val:4}]);
+
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [1,2], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(false, "onRowCountChanged called");
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(false, "onPagingInfoChanged called");
+    });
+    var newItems = [{id:1,val:1337},{id:2,val:4711}];
+    dv.updateItems([1,2], newItems);
+    equal(count, 1, "events fired");
+    same(dv.getItem(1), newItems[0], "item updated");
+    same(dv.getItem(2), newItems[1], "item updated");
+    assertConsistency(dv);
+});
+
+test("length mismatch", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2},{id:3,val:3},{id:4,val:4}]);
+    try {
+        dv.updateItems([1], [{id:1,val:1337},{id:1,val:4711}]);
+        ok(false, "exception thrown");
+    }
+    catch (ex) {}
+});
+
+test("updating an item not passing the filter", function() {
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2},{id:3,val:1337},{id:4,val:4711},{id:5,val:5}]);
+    dv.setFilter(function(o) { return o["val"] !== 1337 && o["val"] !== 4711; });
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(false, "onRowsChanged called");
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(false, "onRowCountChanged called");
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(false, "onPagingInfoChanged called");
+    });
+    var newItems = [{id:3,val:1337},{id:4,val:4711}];
+    dv.updateItems([3,4], newItems);
+    same(dv.getItems()[3], newItems[0], "item updated");
+    same(dv.getItems()[4], newItems[1], "item updated");
+    assertConsistency(dv);
+});
+
+test("updating an item to pass the filter", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2},{id:3,val:1337},{id:4,val:4711},{id:5,val:5}]);
+    dv.setFilter(function(o) { return o["val"] !== 1337 && o["val"] !== 4711; });
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [3,4,5], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 4, "previous arg");
+        equal(args.current, 6, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        same(args.pageSize, 0, "pageSize arg");
+        same(args.pageNum, 0, "pageNum arg");
+        same(args.totalRows, 6, "totalRows arg");
+        count++;
+    });
+    var newItems = [{id:3,val:3},{id:4,val:4}];
+    dv.updateItems([3,4],newItems);
+    equal(count, 3, "events fired");
+    same(dv.getItems()[3], newItems[0], "item updated");
+    same(dv.getItems()[4], newItems[1], "item updated");
+    assertConsistency(dv);
+});
+
+test("updating an item to not pass the filter", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2},{id:3,val:3},{id:4,val:4},{id:5,val:5}]);
+    dv.setFilter(function(o) { return o["val"] !== 1337 && o["val"] !== 4711; });
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [3,4,5], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 6, "previous arg");
+        equal(args.current, 4, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        same(args.pageSize, 0, "pageSize arg");
+        same(args.pageNum, 0, "pageNum arg");
+        same(args.totalRows, 4, "totalRows arg");
+        count++;
+    });
+    var newItems = [{id:3,val:1337},{id:4,val:4711}];
+    dv.updateItems([3,4],newItems);
+    equal(count, 3, "events fired");
+    same(dv.getItems()[3], newItems[0], "item updated");
+    same(dv.getItems()[4], newItems[1], "item updated");
+    assertConsistency(dv);
+});
+
+test("with bulk suspend", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2},{id:3,val:3},{id:4,val:4}]);
+
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [1,2], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(false, "onRowCountChanged called");
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(false, "onPagingInfoChanged called");
+    });
+    dv.beginUpdate(true);
+    var newItems = [{id:1,val:1337},{id:2,val:4711}];
+    dv.updateItems([1,2], newItems);
+    equal(count, 0, "events fired");
+    same(dv.getItem(1), {id:1,val:1}, "item updated");
+    same(dv.getItem(2), {id:2,val:2}, "item updated");
+    dv.endUpdate();
+    equal(count, 1, "events fired");
+    same(dv.getItem(1), newItems[0], "item updated");
+    same(dv.getItem(2), newItems[1], "item updated");
     assertConsistency(dv);
 });
 
@@ -542,7 +719,7 @@ test("basic", function() {
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, {rows:[3]}, "args");
+        same(args.rows, [3], "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -583,6 +760,147 @@ test("add an item not passing the filter", function() {
     assertConsistency(dv);
 });
 
+
+test("with bulk suspend", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [3], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 3, "previous arg");
+        equal(args.current, 4, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 4, "totalRows arg");
+        count++;
+    });
+    dv.beginUpdate(true);
+    dv.addItem({id:3,val:1337});
+    equal(count, 0, "events fired");
+    same(dv.getItems()[3], {id:3,val:1337}, "item updated");
+    same(dv.getItem(3), undefined, "item updated");
+    same(dv.getIdxById(3), undefined, "index updated");
+    dv.endUpdate();
+    equal(count, 3, "events fired");
+    same(dv.getItem(3), {id:3,val:1337}, "item updated");
+    same(dv.getIdxById(3), 3, "index updated");
+    assertConsistency(dv);
+});
+
+
+module("addItems");
+
+test("must have id", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
+    try {
+        dv.addItems([{id:3,val:3}, {val:1337}]);
+        ok(false, "exception thrown");
+    }
+    catch (ex) {}
+});
+
+test("must have id (custom)", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{uid:0,val:0},{uid:1,val:1},{uid:2,val:2}], "uid");
+    try {
+        dv.addItems([{uid:3,val:3},{id:3,val:1337}]);
+        ok(false, "exception thrown");
+    }
+    catch (ex) {}
+});
+
+test("basic", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [3,4,5], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 3, "previous arg");
+        equal(args.current, 6, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 6, "totalRows arg");
+        count++;
+    });
+    var newItems = [{id:3,val:1337},{id:4,val:4711},{id:5,val:8080}];
+    dv.addItems(newItems);
+    equal(count, 3, "events fired");
+    same(dv.getItems()[3], newItems[0], "item updated");
+    same(dv.getItems()[4], newItems[1], "item updated");
+    same(dv.getItems()[5], newItems[2], "item updated");
+    same(dv.getItem(3), newItems[0], "item updated");
+    same(dv.getItem(4), newItems[1], "item updated");
+    same(dv.getItem(5), newItems[2], "item updated");
+    assertConsistency(dv);
+});
+
+test("with bulk suspend", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [3,4,5], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 3, "previous arg");
+        equal(args.current, 6, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 6, "totalRows arg");
+        count++;
+    });
+    dv.beginUpdate(true);
+    var newItems = [{id:3,val:1337},{id:4,val:4711},{id:5,val:8080}];
+    dv.addItems(newItems);
+    equal(count, 0, "events fired");
+    same(dv.getItems()[3], newItems[0], "item updated");
+    same(dv.getItems()[4], newItems[1], "item updated");
+    same(dv.getItems()[5], newItems[2], "item updated");
+    same(dv.getItem(3), undefined, "item updated");
+    same(dv.getItem(4), undefined, "item updated");
+    same(dv.getItem(5), undefined, "item updated");
+    same(dv.getIdxById(3), undefined, "index updated");
+    same(dv.getIdxById(4), undefined, "index updated");
+    same(dv.getIdxById(5), undefined, "index updated");
+    dv.endUpdate();
+    equal(count, 3, "events fired");
+    same(dv.getItem(3), newItems[0], "item updated");
+    same(dv.getItem(4), newItems[1], "item updated");
+    same(dv.getItem(5), newItems[2], "item updated");
+    same(dv.getIdxById(3), 3, "index updated");
+    same(dv.getIdxById(4), 4, "index updated");
+    same(dv.getIdxById(5), 5, "index updated");
+    assertConsistency(dv);
+});
+
 module("insertItem");
 
 test("must have id", function() {
@@ -613,7 +931,7 @@ test("insert at the beginning", function() {
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, {rows:[0,1,2,3]}, "args");
+        same(args.rows, [0,1,2,3], "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -637,13 +955,48 @@ test("insert at the beginning", function() {
     assertConsistency(dv);
 });
 
+test("insert at the beginning bulk", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [0,1,2,3], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 3, "previous arg");
+        equal(args.current, 4, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 4, "totalRows arg");
+        count++;
+    });
+    dv.beginUpdate(true);
+    dv.insertItem(0, {id:3,val:1337});
+    equal(count, 0, "events fired");
+    same(dv.getItem(0), {id:0,val:0}, "item updated");
+    equal(dv.getItems().length, 4, "items updated");
+    equal(dv.getLength(), 3, "rows updated");
+    dv.endUpdate();
+    equal(count, 3, "events fired");
+    same(dv.getItem(0), {id:3,val:1337}, "item updated");
+    equal(dv.getLength(), 4, "rows updated");
+    assertConsistency(dv);
+});
+
 test("insert in the middle", function() {
     var count = 0;
     var dv = new Slick.Data.DataView();
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, {rows:[2,3]}, "args");
+        same(args.rows, [2,3], "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -667,13 +1020,48 @@ test("insert in the middle", function() {
     assertConsistency(dv);
 });
 
+test("insert in the middle with bulk", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [2,3], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 3, "previous arg");
+        equal(args.current, 4, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 4, "totalRows arg");
+        count++;
+    });
+    dv.beginUpdate(true);
+    dv.insertItem(2,{id:3,val:1337});
+    equal(count, 0, "events fired");
+    same(dv.getItem(2), {id:2,val:2}, "item updated");
+    equal(dv.getItems().length, 4, "items updated");
+    equal(dv.getLength(), 3, "rows updated");
+    dv.endUpdate();
+    equal(count, 3, "events fired");
+    same(dv.getItem(2), {id:3,val:1337}, "item updated");
+    equal(dv.getLength(), 4, "rows updated");
+    assertConsistency(dv);
+});
+
 test("insert at the end", function() {
     var count = 0;
     var dv = new Slick.Data.DataView();
     dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, {rows:[3]}, "args");
+        same(args.rows, [3], "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -694,6 +1082,294 @@ test("insert at the end", function() {
     same(dv.getItem(3), {id:3,val:1337}, "item updated");
     equal(dv.getItems().length, 4, "items updated");
     equal(dv.getLength(), 4, "rows updated");
+    assertConsistency(dv);
+});
+
+test("insert at the end bulk", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [3], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 3, "previous arg");
+        equal(args.current, 4, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 4, "totalRows arg");
+        count++;
+    });
+    dv.beginUpdate(true);
+    dv.insertItem(3,{id:3,val:1337});
+    equal(count, 0, "events fired");
+    same(dv.getItem(3), undefined, "item updated");
+    equal(dv.getItems().length, 4, "items updated");
+    equal(dv.getLength(), 3, "rows updated");
+    dv.endUpdate();
+    equal(count, 3, "events fired");
+    same(dv.getItem(3), {id:3,val:1337}, "item updated");
+    equal(dv.getLength(), 4, "rows updated");
+    assertConsistency(dv);
+});
+
+module("insertItems");
+
+test("must have id", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
+    try {
+        dv.insertItems(0,[{id:3,val:1337},{val:4711}]);
+        ok(false, "exception thrown");
+    }
+    catch (ex) {}
+});
+
+test("must have id (custom)", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{uid:0,val:0},{uid:1,val:1},{uid:2,val:2}], "uid");
+    try {
+        dv.insertItems(0,[{uid:3,val:1337},{id:4,val:4711}]);
+        ok(false, "exception thrown");
+    }
+    catch (ex) {}
+});
+
+test("insert at the beginning", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [0,1,2,3,4,5], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 3, "previous arg");
+        equal(args.current, 6, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 6, "totalRows arg");
+        count++;
+    });
+    var newItems = [{id:3,val:1337},{id:4,val:4711},{id:5,val:8080}];
+    dv.insertItems(0, newItems);
+    equal(count, 3, "events fired");
+    same(dv.getItem(0), newItems[0], "item updated");
+    same(dv.getItem(1), newItems[1], "item updated");
+    same(dv.getItem(2), newItems[2], "item updated");
+    equal(dv.getItems().length, 6, "items updated");
+    equal(dv.getLength(), 6, "rows updated");
+    assertConsistency(dv);
+});
+
+test("insert at the beginning bulk", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [0,1,2,3,4,5], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 3, "previous arg");
+        equal(args.current, 6, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 6, "totalRows arg");
+        count++;
+    });
+    dv.beginUpdate(true);
+    var newItems = [{id:3,val:1337},{id:4,val:4711},{id:5,val:8080}];
+    dv.insertItems(0, newItems);
+    equal(count, 0, "events fired");
+    same(dv.getItem(0), {id:0,val:0}, "item updated");
+    same(dv.getItem(1), {id:1,val:1}, "item updated");
+    same(dv.getItem(2), {id:2,val:2}, "item updated");
+    same(dv.getItem(4), undefined, "item updated");
+    same(dv.getItem(5), undefined, "item updated");
+    same(dv.getItem(6), undefined, "item updated");
+    equal(dv.getItems().length, 6, "items updated");
+    equal(dv.getLength(), 3, "rows updated");
+    dv.endUpdate();
+    equal(count, 3, "events fired");
+    same(dv.getItem(0), newItems[0], "item updated");
+    same(dv.getItem(1), newItems[1], "item updated");
+    same(dv.getItem(2), newItems[2], "item updated");
+    same(dv.getItem(3), {id:0,val:0}, "item updated");
+    same(dv.getItem(4), {id:1,val:1}, "item updated");
+    same(dv.getItem(5), {id:2,val:2}, "item updated");
+    equal(dv.getLength(), 6, "rows updated");
+
+    assertConsistency(dv);
+});
+
+test("insert in the middle", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [2,3,4,5], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 3, "previous arg");
+        equal(args.current, 6, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 6, "totalRows arg");
+        count++;
+    });
+    var newItems = [{id:3,val:1337},{id:4,val:4711},{id:5,val:8080}];
+    dv.insertItems(2, newItems);
+    equal(count, 3, "events fired");
+    same(dv.getItem(2), newItems[0], "item updated");
+    same(dv.getItem(3), newItems[1], "item updated");
+    same(dv.getItem(4), newItems[2], "item updated");
+    same(dv.getItem(5), {id:2,val:2}, "item updated");
+    equal(dv.getItems().length, 6, "items updated");
+    equal(dv.getLength(), 6, "rows updated");
+    assertConsistency(dv);
+});
+
+test("insert in the middle bulk", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [2,3,4,5], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 3, "previous arg");
+        equal(args.current, 6, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 6, "totalRows arg");
+        count++;
+    });
+    dv.beginUpdate(true);
+    var newItems = [{id:3,val:1337},{id:4,val:4711},{id:5,val:8080}];
+    dv.insertItems(2, newItems);
+    equal(count, 0, "events fired");
+    same(dv.getItem(2), {id:2,val:2}, "item updated");
+    same(dv.getItem(3), undefined, "item updated");
+    equal(dv.getItems().length, 6, "items updated");
+    equal(dv.getLength(), 3, "rows updated");
+    dv.endUpdate();
+    equal(count, 3, "events fired");
+    same(dv.getItem(2), newItems[0], "item updated");
+    same(dv.getItem(3), newItems[1], "item updated");
+    same(dv.getItem(4), newItems[2], "item updated");
+    same(dv.getItem(5), {id:2,val:2}, "item updated");
+    equal(dv.getItems().length, 6, "items updated");
+    equal(dv.getLength(), 6, "rows updated");
+    assertConsistency(dv);
+});
+
+test("insert at the end", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [3,4,5], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 3, "previous arg");
+        equal(args.current, 6, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 6, "totalRows arg");
+        count++;
+    });
+    var newItems = [{id:3,val:1337},{id:4,val:4711},{id:5,val:8080}];
+    dv.insertItems(3, newItems);
+    equal(count, 3, "events fired");
+    same(dv.getItem(3), newItems[0], "item updated");
+    same(dv.getItem(4), newItems[1], "item updated");
+    same(dv.getItem(5), newItems[2], "item updated");
+    equal(dv.getItems().length, 6, "items updated");
+    equal(dv.getLength(), 6, "rows updated");
+    assertConsistency(dv);
+});
+
+test("insert at the end bulk", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [3,4,5], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 3, "previous arg");
+        equal(args.current, 6, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 6, "totalRows arg");
+        count++;
+    });
+    dv.beginUpdate(true);
+    var newItems = [{id:3,val:1337},{id:4,val:4711},{id:5,val:8080}];
+    dv.insertItems(3, newItems);
+    equal(count, 0, "events fired");
+    same(dv.getItem(3), undefined, "item updated");
+    same(dv.getItem(4), undefined, "item updated");
+    same(dv.getItem(5), undefined, "item updated");
+    equal(dv.getItems().length, 6, "items updated");
+    equal(dv.getLength(), 3, "rows updated");
+    dv.endUpdate();
+    equal(count, 3, "events fired");
+    same(dv.getItem(3), newItems[0], "item updated");
+    same(dv.getItem(4), newItems[1], "item updated");
+    same(dv.getItem(5), newItems[2], "item updated");
+    equal(dv.getItems().length, 6, "items updated");
+    equal(dv.getLength(), 6, "rows updated");
     assertConsistency(dv);
 });
 
@@ -757,7 +1433,7 @@ test("delete at the beginning", function() {
     dv.setItems([{id:05,val:0},{id:15,val:1},{id:25,val:2}]);
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, {rows:[0,1]}, "args");
+        same(args.rows, [0,1,2], "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -780,13 +1456,49 @@ test("delete at the beginning", function() {
     assertConsistency(dv);
 });
 
+test("delete at the beginning bulk", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:05,val:0},{id:15,val:1},{id:25,val:2}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [0,1,2], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 3, "previous arg");
+        equal(args.current, 2, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 2, "totalRows arg");
+        count++;
+    });
+    dv.beginUpdate(true);
+    dv.deleteItem(05);
+    equal(count, 0, "events fired");
+    equal(dv.getItems().length, 3, "items updated");
+    equal(dv.getLength(), 3, "rows updated");
+    same(dv.getItem(0), {id:05,val:0}, "rows updated");
+    dv.endUpdate();
+    equal(count, 3, "events fired");
+    equal(dv.getItems().length, 2, "items updated");
+    equal(dv.getLength(), 2, "rows updated");
+    same(dv.getItem(0), {id:15,val:1}, "rows updated");
+    assertConsistency(dv);
+});
+
 test("delete in the middle", function() {
     var count = 0;
     var dv = new Slick.Data.DataView();
     dv.setItems([{id:05,val:0},{id:15,val:1},{id:25,val:2}]);
     dv.onRowsChanged.subscribe(function(e,args) {
         ok(true, "onRowsChanged called");
-        same(args, {rows:[1]}, "args");
+        same(args.rows, [1, 2], "args");
         count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
@@ -809,12 +1521,50 @@ test("delete in the middle", function() {
     assertConsistency(dv);
 });
 
+test("delete in the middle bulk", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:05,val:0},{id:15,val:1},{id:25,val:2}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [1, 2], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 3, "previous arg");
+        equal(args.current, 2, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 2, "totalRows arg");
+        count++;
+    });
+    dv.beginUpdate(true);
+    dv.deleteItem(15);
+    equal(count, 0, "events fired");
+    equal(dv.getItems().length, 3, "items updated");
+    equal(dv.getLength(), 3, "rows updated");
+    same(dv.getItem(1), {id:15,val:1}, "rows updated");
+    dv.endUpdate();
+    equal(count, 3, "events fired");
+    equal(dv.getItems().length, 2, "items updated");
+    equal(dv.getLength(), 2, "rows updated");
+    same(dv.getItem(1), {id:25,val:2}, "rows updated");
+    assertConsistency(dv);
+});
+
 test("delete at the end", function() {
     var count = 0;
     var dv = new Slick.Data.DataView();
     dv.setItems([{id:05,val:0},{id:15,val:1},{id:25,val:2}]);
     dv.onRowsChanged.subscribe(function(e,args) {
-        ok(false, "onRowsChanged called");
+        ok(true, "onRowsChanged called");
+        same(args.rows, [2], "args");
+        count++;
     });
     dv.onRowCountChanged.subscribe(function(e,args) {
         ok(true, "onRowCountChanged called");
@@ -830,9 +1580,405 @@ test("delete at the end", function() {
         count++;
     });
     dv.deleteItem(25);
-    equal(count, 2, "events fired");
+    equal(count, 3, "events fired");
     equal(dv.getItems().length, 2, "items updated");
     equal(dv.getLength(), 2, "rows updated");
+    assertConsistency(dv);
+});
+
+test("delete at the end bulk", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:05,val:0},{id:15,val:1},{id:25,val:2}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [2], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 3, "previous arg");
+        equal(args.current, 2, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 2, "totalRows arg");
+        count++;
+    });
+    dv.beginUpdate(true);
+    dv.deleteItem(25);
+    equal(count, 0, "events fired");
+    equal(dv.getItems().length, 3, "items updated");
+    equal(dv.getLength(), 3, "rows updated");
+    same(dv.getItem(2), {id: 25, val: 2}, "rows updated");
+    dv.endUpdate();
+    equal(count, 3, "events fired");
+    equal(dv.getItems().length, 2, "items updated");
+    equal(dv.getLength(), 2, "rows updated");
+    same(dv.getItem(2), undefined, "rows updated");
+    assertConsistency(dv);
+});
+
+module("deleteItems");
+
+test("must have id", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:0,val:0},{id:1,val:1},{id:2,val:2}]);
+    try {
+        dv.deleteItems([0, -1]);
+        ok(false, "exception thrown");
+    }
+    catch (ex) {}
+    try {
+        dv.deleteItems([undefined]);
+        ok(false, "exception thrown");
+    }
+    catch (ex) {}
+    try {
+        dv.deleteItems([null]);
+        ok(false, "exception thrown");
+    }
+    catch (ex) {}
+    try {
+        dv.deleteItems([3]);
+        ok(false, "exception thrown");
+    }
+    catch (ex) {}
+});
+
+test("must have id (custom)", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{uid:0,id:-1,val:0},{uid:1,id:3,val:1},{uid:2,id:null,val:2}], "uid");
+    try {
+        dv.deleteItems([0, -1]);
+        ok(false, "exception thrown");
+    }
+    catch (ex) {}
+    try {
+        dv.deleteItems([undefined]);
+        ok(false, "exception thrown");
+    }
+    catch (ex) {}
+    try {
+        dv.deleteItems([null]);
+        ok(false, "exception thrown");
+    }
+    catch (ex) {}
+    try {
+        dv.deleteItems([3]);
+        ok(false, "exception thrown");
+    }
+    catch (ex) {}
+});
+
+test("delete at the beginning", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:05,val:0},{id:15,val:1},{id:25,val:2},{id:35,val:3},{id:45,val:4}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [0,1,2,3,4], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 5, "previous arg");
+        equal(args.current, 3, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 3, "totalRows arg");
+        count++;
+    });
+    dv.deleteItems([05,15]);
+    equal(count, 3, "events fired");
+    equal(dv.getItems().length, 3, "items updated");
+    equal(dv.getLength(), 3, "rows updated");
+    assertConsistency(dv);
+});
+
+test("delete at the beginning bulk", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:05,val:0},{id:15,val:1},{id:25,val:2},{id:35,val:3},{id:45,val:4}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [0,1,2,3,4], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 5, "previous arg");
+        equal(args.current, 3, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 3, "totalRows arg");
+        count++;
+    });
+    dv.beginUpdate(true);
+    dv.deleteItems([05,15]);
+    equal(count, 0, "events fired");
+    equal(dv.getItems().length, 5, "items updated");
+    equal(dv.getLength(), 5, "rows updated");
+    same(dv.getItem(0), {id:05,val:0}, "rows updated");
+    same(dv.getItem(1), {id:15,val:1}, "rows updated");
+    dv.endUpdate();
+    equal(count, 3, "events fired");
+    equal(dv.getItems().length, 3, "items updated");
+    equal(dv.getLength(), 3, "rows updated");
+    same(dv.getItem(0), {id:25,val:2}, "rows updated");
+    same(dv.getItem(1), {id:35,val:3}, "rows updated");
+    assertConsistency(dv);
+});
+
+test("delete in the middle bulk", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:05,val:0},{id:15,val:1},{id:25,val:2},{id:35,val:3},{id:45,val:4}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [1,2,3,4], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 5, "previous arg");
+        equal(args.current, 3, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 3, "totalRows arg");
+        count++;
+    });
+    dv.beginUpdate(true);
+    dv.deleteItems([15,25]);
+    equal(count, 0, "events fired");
+    equal(dv.getItems().length, 5, "items updated");
+    equal(dv.getLength(), 5, "rows updated");
+    same(dv.getItem(1), {id:15,val:1}, "rows updated");
+    same(dv.getItem(2), {id:25,val:2}, "rows updated");
+    dv.endUpdate();
+    equal(count, 3, "events fired");
+    equal(dv.getItems().length, 3, "items updated");
+    equal(dv.getLength(), 3, "rows updated");
+    same(dv.getItem(1), {id:35,val:3}, "rows updated");
+    same(dv.getItem(2), {id:45,val:4}, "rows updated");
+    assertConsistency(dv);
+});
+
+test("delete in the middle", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:05,val:0},{id:15,val:1},{id:25,val:2},{id:35,val:3},{id:45,val:4}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [1,2,3,4], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 5, "previous arg");
+        equal(args.current, 3, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 3, "totalRows arg");
+        count++;
+    });
+    dv.deleteItems([15,25]);
+    equal(count, 3, "events fired");
+    equal(dv.getItems().length, 3, "items updated");
+    equal(dv.getLength(), 3, "rows updated");
+    assertConsistency(dv);
+});
+
+test("delete in the middle bulk", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:05,val:0},{id:15,val:1},{id:25,val:2},{id:35,val:3},{id:45,val:4}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [1,2,3,4], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 5, "previous arg");
+        equal(args.current, 3, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 3, "totalRows arg");
+        count++;
+    });
+    dv.beginUpdate(true);
+    dv.deleteItems([15,25]);
+    equal(count, 0, "events fired");
+    equal(dv.getItems().length, 5, "items updated");
+    equal(dv.getLength(), 5, "rows updated");
+    same(dv.getItem(3), {id:35,val:3}, "rows updated");
+    same(dv.getItem(4), {id:45,val:4}, "rows updated");
+    dv.endUpdate();
+    equal(count, 3, "events fired");
+    equal(dv.getItems().length, 3, "items updated");
+    equal(dv.getLength(), 3, "rows updated");
+    same(dv.getItem(3), undefined, "rows updated");
+    same(dv.getItem(4), undefined, "rows updated");
+    assertConsistency(dv);
+});
+
+test("delete in the middle mixed", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:05,val:0},{id:15,val:1},{id:25,val:2},{id:35,val:3},{id:45,val:4}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [1,2,3,4], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 5, "previous arg");
+        equal(args.current, 3, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 3, "totalRows arg");
+        count++;
+    });
+    dv.deleteItems([15,35]);
+    equal(count, 3, "events fired");
+    equal(dv.getItems().length, 3, "items updated");
+    equal(dv.getLength(), 3, "rows updated");
+    assertConsistency(dv);
+});
+
+test("delete in the middle mixed bulk", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:05,val:0},{id:15,val:1},{id:25,val:2},{id:35,val:3},{id:45,val:4}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [1,2,3,4], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 5, "previous arg");
+        equal(args.current, 3, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 3, "totalRows arg");
+        count++;
+    });
+    dv.beginUpdate(true);
+    dv.deleteItems([15,35]);
+    equal(count, 0, "events fired");
+    equal(dv.getItems().length, 5, "items updated");
+    equal(dv.getLength(), 5, "rows updated");
+    same(dv.getItem(1), {id:15,val:1}, "rows updated");
+    same(dv.getItem(3), {id:35,val:3}, "rows updated");
+    dv.endUpdate();
+    equal(count, 3, "events fired");
+    equal(dv.getItems().length, 3, "items updated");
+    equal(dv.getLength(), 3, "rows updated");
+    same(dv.getItem(1), {id:25,val:2}, "rows updated");
+    same(dv.getItem(3), undefined, "rows updated");
+    assertConsistency(dv);
+});
+
+test("delete at the end", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:05,val:0},{id:15,val:1},{id:25,val:2},{id:35,val:3},{id:45,val:4}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [3,4], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 5, "previous arg");
+        equal(args.current, 3, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 3, "totalRows arg");
+        count++;
+    });
+    dv.deleteItems([35,45]);
+    equal(count, 3, "events fired");
+    equal(dv.getItems().length, 3, "items updated");
+    equal(dv.getLength(), 3, "rows updated");
+    assertConsistency(dv);
+});
+
+test("delete at the end bulk", function() {
+    var count = 0;
+    var dv = new Slick.Data.DataView();
+    dv.setItems([{id:05,val:0},{id:15,val:1},{id:25,val:2},{id:35,val:3},{id:45,val:4}]);
+    dv.onRowsChanged.subscribe(function(e,args) {
+        ok(true, "onRowsChanged called");
+        same(args.rows, [3,4], "args");
+        count++;
+    });
+    dv.onRowCountChanged.subscribe(function(e,args) {
+        ok(true, "onRowCountChanged called");
+        equal(args.previous, 5, "previous arg");
+        equal(args.current, 3, "current arg");
+        count++;
+    });
+    dv.onPagingInfoChanged.subscribe(function(e,args) {
+        ok(true, "onPagingInfoChanged called");
+        equal(args.pageSize, 0, "pageSize arg");
+        equal(args.pageNum, 0, "pageNum arg");
+        equal(args.totalRows, 3, "totalRows arg");
+        count++;
+    });
+    dv.beginUpdate(true);
+    dv.deleteItems([35,45]);
+    equal(count, 0, "events fired");
+    equal(dv.getItems().length, 5, "items updated");
+    equal(dv.getLength(), 5, "rows updated");
+    same(dv.getItem(3), {id:35,val:3}, "rows updated");
+    same(dv.getItem(4), {id:45,val:4}, "rows updated");
+    dv.endUpdate();
+    equal(count, 3, "events fired");
+    equal(dv.getItems().length, 3, "items updated");
+    equal(dv.getLength(), 3, "rows updated");
+    same(dv.getItem(3), undefined, "rows updated");
+    same(dv.getItem(4), undefined, "rows updated");
     assertConsistency(dv);
 });
 

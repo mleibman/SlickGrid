@@ -30,14 +30,6 @@ if (typeof Slick === "undefined") {
 
 (function ($) {
   "use strict";
-
-  // Slick.Grid
-  $.extend(true, window, {
-    Slick: {
-      Grid: SlickGrid
-    }
-  });
-
   // shared across all grids on the page
   var scrollbarDimensions;
   var maxSupportedCssHeight;  // browser's breaking point
@@ -6045,4 +6037,11 @@ if (typeof Slick === "undefined") {
 
     init();
   }
+
+  // exports
+  $.extend(true, window, {
+    Slick: {
+      Grid: SlickGrid
+    }
+  });
 }(jQuery));

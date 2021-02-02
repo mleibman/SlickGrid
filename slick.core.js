@@ -5,85 +5,6 @@
  */
 
 (function ($) {
-  // register namespace
-  $.extend(true, window, {
-    "Slick": {
-      "Event": Event,
-      "EventData": EventData,
-      "EventHandler": EventHandler,
-      "Range": Range,
-      "NonDataRow": NonDataItem,
-      "Group": Group,
-      "GroupTotals": GroupTotals,
-      "EditorLock": EditorLock,
-  
-      /***
-       * A global singleton editor lock.
-       * @class GlobalEditorLock
-       * @static
-       * @constructor
-       */
-      "GlobalEditorLock": new EditorLock(),
-      "TreeColumns": TreeColumns,
-
-      "keyCode": {
-        SPACE: 8,
-        BACKSPACE: 8,
-        DELETE: 46,
-        DOWN: 40,
-        END: 35,
-        ENTER: 13,
-        ESCAPE: 27,
-        HOME: 36,
-        INSERT: 45,
-        LEFT: 37,
-        PAGE_DOWN: 34,
-        PAGE_UP: 33,
-        RIGHT: 39,
-        TAB: 9,
-        UP: 38,
-        A: 65
-      },
-      "preClickClassName" : "slick-edit-preclick",
-      
-      "GridAutosizeColsMode": {
-        None: 'NOA',
-        LegacyOff: 'LOF',
-        LegacyForceFit: 'LFF',
-        IgnoreViewport: 'IGV',
-        FitColsToViewport: 'FCV',
-        FitViewportToCols: 'FVC'
-      },
-      
-      "ColAutosizeMode": {
-          Locked: 'LCK',
-          Guide: 'GUI',
-          Content: 'CON',
-          ContentIntelligent: 'CTI'
-      },
-      
-      "RowSelectionMode": {
-          FirstRow: 'FS1',
-          FirstNRows: 'FSN',
-          AllRows: 'ALL',
-          LastRow: 'LS1'
-      },
-      
-      "ValueFilterMode": {
-          None: 'NONE',
-          DeDuplicate: 'DEDP',
-          GetGreatestAndSub: 'GR8T',
-          GetLongestTextAndSub: 'LNSB',
-          GetLongestText: 'LNSC'
-      },
-      
-      "WidthEvalMode": {
-          CanvasTextSize: 'CANV',
-          HTML: 'HTML'
-      }      
-    }
-  });
-    
   /***
    * An event object for passing data to event handlers and letting them control propagation.
    * <p>This is pretty much identical to how W3C and jQuery implement events.</p>
@@ -698,6 +619,135 @@
       });
     };
   }
+  
+  /***
+   * Polyfill for Map to support old browsers but
+   * benefit of the Map speed in modern browsers.
+   * @class Map
+   * @constructor
+   */
+  var Map = 'Map' in window ? window.Map : function Map() {
+    var data = {};
+    
+    /***
+     * Gets the item with the given key from the map or undefined if
+     * the map does not contain the item. 
+     * @method get
+     * @param key {Map} The key of the item in the map.
+     */
+    this.get = function(key) {
+      return data[key];
+    };
+
+    /***
+     * Adds or updates the item with the given key in the map. 
+     * @method set
+     * @param key The key of the item in the map.
+     * @param value The value to insert into the map of the item in the map.
+     */
+    this.set = function(key, value) {
+      data[key] = value;
+    };
+    
+    /***
+     * Gets a value indicating whether the given key is present in the map.
+     * @method has
+     * @param key The key of the item in the map.
+     * @return {Boolean}
+     */    
+    this.has = function(key) {
+      return key in data;
+    };
+    
+    /***
+     * Removes the item with the given key from the map. 
+     * @method delete
+     * @param key The key of the item in the map.
+     */
+    this.delete = function(key) {
+      delete data[key];
+    };
+  };
+  
+  // exports
+  $.extend(true, window, {
+    "Slick": {
+      "Event": Event,
+      "EventData": EventData,
+      "EventHandler": EventHandler,
+      "Range": Range,
+      "Map": Map,      
+      "NonDataRow": NonDataItem,
+      "Group": Group,
+      "GroupTotals": GroupTotals,
+      "EditorLock": EditorLock,
+  
+      /***
+       * A global singleton editor lock.
+       * @class GlobalEditorLock
+       * @static
+       * @constructor
+       */
+      "GlobalEditorLock": new EditorLock(),
+      "TreeColumns": TreeColumns,
+
+      "keyCode": {
+        SPACE: 8,
+        BACKSPACE: 8,
+        DELETE: 46,
+        DOWN: 40,
+        END: 35,
+        ENTER: 13,
+        ESCAPE: 27,
+        HOME: 36,
+        INSERT: 45,
+        LEFT: 37,
+        PAGE_DOWN: 34,
+        PAGE_UP: 33,
+        RIGHT: 39,
+        TAB: 9,
+        UP: 38,
+        A: 65
+      },
+      "preClickClassName" : "slick-edit-preclick",
+      
+      "GridAutosizeColsMode": {
+        None: 'NOA',
+        LegacyOff: 'LOF',
+        LegacyForceFit: 'LFF',
+        IgnoreViewport: 'IGV',
+        FitColsToViewport: 'FCV',
+        FitViewportToCols: 'FVC'
+      },
+      
+      "ColAutosizeMode": {
+          Locked: 'LCK',
+          Guide: 'GUI',
+          Content: 'CON',
+          ContentIntelligent: 'CTI'
+      },
+      
+      "RowSelectionMode": {
+          FirstRow: 'FS1',
+          FirstNRows: 'FSN',
+          AllRows: 'ALL',
+          LastRow: 'LS1'
+      },
+      
+      "ValueFilterMode": {
+          None: 'NONE',
+          DeDuplicate: 'DEDP',
+          GetGreatestAndSub: 'GR8T',
+          GetLongestTextAndSub: 'LNSB',
+          GetLongestText: 'LNSC'
+      },
+      
+      "WidthEvalMode": {
+          CanvasTextSize: 'CANV',
+          HTML: 'HTML'
+      }      
+    }
+  });
 })(jQuery);
 
 

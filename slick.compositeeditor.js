@@ -1,11 +1,4 @@
 (function ($) {
-  $.extend(true, window, {
-    Slick: {
-      CompositeEditor: CompositeEditor
-    }
-  });
-
-
   /***
    * A composite SlickGrid editor factory.
    * Generates an editor that is composed of multiple editors for given columns.
@@ -260,4 +253,11 @@
     editor.prototype = this;
     return editor;
   }
+  
+  // exports
+  $.extend(true, window, {
+    Slick: {
+      CompositeEditor: CompositeEditor
+    }
+  });  
 })(jQuery);
