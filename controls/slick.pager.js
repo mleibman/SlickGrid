@@ -4,7 +4,9 @@
     var _options;
     var _defaults = {
       showAllText: "Showing all {rowCount} rows",
-      showPageText: "Showing page {pageNum} of {pageCount}"
+      showPageText: "Showing page {pageNum} of {pageCount}",
+      showCountText: "From {countBegin} to {countEnd} of {rowCount} rows",
+      showCount: false
     };
     
     function init() {
@@ -143,6 +145,25 @@
         $status.text(_options.showAllText.replace('{rowCount}', pagingInfo.totalRows + "").replace('{pageCount}', pagingInfo.totalPages + ""));
       } else {
         $status.text(_options.showPageText.replace('{pageNum}', pagingInfo.pageNum + 1 + "").replace('{pageCount}', pagingInfo.totalPages + ""));
+      }
+
+      if (_options.showCount && pagingInfo.pageSize!==0)
+      {
+        var pageBegin = pagingInfo.pageNum * pagingInfo.pageSize;
+        var currentText = $status.text();
+
+        if (currentText)
+        {
+          currentText += " - ";
+        }
+
+        $status.text(
+            currentText +
+            _options.showCountText
+                .replace('{rowCount}', pagingInfo.totalRows + "")
+                .replace("{countBegin}", pageBegin + 1)
+                .replace("{countEnd}", Math.min(pageBegin + pagingInfo.pageSize, pagingInfo.totalRows))
+        );
       }
     }
 
