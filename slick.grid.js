@@ -5946,6 +5946,7 @@ if (typeof Slick === "undefined") {
       "applyFormatResultToCellNode": applyFormatResultToCellNode,
 
       "render": render,
+      "reRenderColumns": reRenderColumns,
       "invalidate": invalidate,
       "invalidateRow": invalidateRow,
       "invalidateRows": invalidateRows,
