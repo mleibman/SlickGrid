@@ -202,7 +202,7 @@
     }
 
     // Copy text to clipboard, on IE it's easy to copy a text, we can just call the clipboard
-    // but on other browsers this is insecure and we need to use the following trick to copy a cell, 
+    // but on other browsers this is insecure and we need to use the following trick to copy a cell,
     // by creating a temp div and change the text value, we can then call the execCommand to copy which only works with dom element
     function copyCellValue(textToCopy) {
       try {
@@ -481,11 +481,13 @@
 
       // subscribe to Context Menu onCommand event (or use the action callback on each command)
       contextMenuPlugin.onCommand.subscribe(function (e, args) {
+        // e.preventDefault(); // you could do if you wish to keep the menu open
         executeCommand(e, args);
       });
 
       // subscribe to Context Menu onOptionSelected event (or use the action callback on each option)
       contextMenuPlugin.onOptionSelected.subscribe(function (e, args) {
+        // e.preventDefault(); // you could do if you wish to keep the menu open
         var dataContext = args && args.dataContext;
 
         // change Priority
@@ -518,11 +520,13 @@
 
       // subscribe to Cell Menu onCommand event (or use the action callback on each command)
       cellMenuPlugin.onCommand.subscribe(function (e, args) {
+        // e.preventDefault(); // you could do if you wish to keep the menu open
         executeCommand(e, args);
       });
 
       // subscribe to Cell Menu onOptionSelected event (or use the action callback on each option)
       cellMenuPlugin.onOptionSelected.subscribe(function (e, args) {
+        // e.preventDefault(); // you could do if you wish to keep the menu open
         var dataContext = args && args.dataContext;
 
         // change Effort Driven column

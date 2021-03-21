@@ -503,12 +503,6 @@
         return;
       }
 
-      // does the user want to leave open the Grid Menu after executing a command?
-      var leaveOpen = (_options.gridMenu && _options.gridMenu.leaveOpen) ? true : false;
-      if (!leaveOpen) {
-        hideMenu(e);
-      }
-
       if (command != null && command != '') {
         var callbackArgs = {
           "grid": _grid,
@@ -523,6 +517,12 @@
         if (typeof item.action === "function") {
           item.action.call(this, e, callbackArgs);
         }
+      }
+
+      // does the user want to leave open the Grid Menu after executing a command?
+      var leaveOpen = (_options.gridMenu && _options.gridMenu.leaveOpen) ? true : false;
+      if (!leaveOpen && !e.isDefaultPrevented()) {
+        hideMenu(e);
       }
 
       // Stop propagation so that it doesn't register as a header click event.

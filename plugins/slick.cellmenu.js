@@ -226,7 +226,7 @@
       if (!_cellMenuProperties.hideOptionSection && optionItems.length > 0) {
         var $optionMenu = $('<div class="slick-cell-menu-option-list" />');
         if (!_cellMenuProperties.hideCloseButton) {
-          $(closeButtonHtml).on("click", destroyMenu).appendTo(menu);
+          $(closeButtonHtml).on("click", handleCloseButtonClicked).appendTo(menu);
         }
         $optionMenu.appendTo(menu);
         populateOptionItems(
@@ -241,7 +241,7 @@
       if (!_cellMenuProperties.hideCommandSection && commandItems.length > 0) {
         var $commandMenu = $('<div class="slick-cell-menu-command-list" />');
         if (!_cellMenuProperties.hideCloseButton && (optionItems.length === 0 || _cellMenuProperties.hideOptionSection)) {
-          $(closeButtonHtml).on("click", destroyMenu).appendTo(menu);
+          $(closeButtonHtml).on("click", handleCloseButtonClicked).appendTo(menu);
         }
         $commandMenu.appendTo(menu);
         populateCommandItems(
@@ -283,6 +283,12 @@
         return elementOffsetTop - pageScroll;
       }
       return 0;
+    }
+
+    function handleCloseButtonClicked(e) {
+      if(!e.isDefaultPrevented()) {
+        destroyMenu(e);
+      }
     }
 
     function destroyMenu(e, args) {
@@ -399,7 +405,9 @@
 
     function handleBodyMouseDown(e) {
       if ($menu && $menu[0] != e.target && !$.contains($menu[0], e.target)) {
-        closeMenu(e, { cell: _currentCell, row: _currentRow });
+        if(!e.isDefaultPrevented()) {
+          closeMenu(e, { cell: _currentCell, row: _currentRow });
+        }
       }
     }
 
@@ -595,8 +603,6 @@
       var dataContext = _grid.getDataItem(row);
 
       if (command !== null && command !== "") {
-        closeMenu(e, { cell: cell, row: row });
-
         // user could execute a callback through 2 ways
         // via the onCommand event and/or an action callback
         var callbackArgs = {
@@ -613,6 +619,10 @@
         // execute action callback when defined
         if (typeof item.action === "function") {
           item.action.call(this, e, callbackArgs);
+        }
+
+        if(!e.isDefaultPrevented()) {
+          closeMenu(e, { cell: cell, row: row });
         }
       }
     }
@@ -635,8 +645,6 @@
       var dataContext = _grid.getDataItem(row);
 
       if (option !== undefined) {
-        closeMenu(e, { cell: cell, row: row });
-
         // user could execute a callback through 2 ways
         // via the onOptionSelected event and/or an action callback
         var callbackArgs = {
@@ -653,6 +661,10 @@
         // execute action callback when defined
         if (typeof item.action === "function") {
           item.action.call(this, e, callbackArgs);
+        }
+
+        if(!e.isDefaultPrevented()) {
+          closeMenu(e, { cell: cell, row: row });
         }
       }
     }

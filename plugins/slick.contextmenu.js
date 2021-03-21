@@ -245,7 +245,7 @@
       if (!_contextMenuProperties.hideOptionSection && isColumnOptionAllowed && optionItems.length > 0) {
         var $optionMenu = $('<div class="slick-context-menu-option-list" />');
         if (!_contextMenuProperties.hideCloseButton) {
-          $(closeButtonHtml).on("click", destroyMenu).appendTo(menu);
+          $(closeButtonHtml).on("click", handleCloseButtonClicked).appendTo(menu);
         }
         $optionMenu.appendTo(menu);
         populateOptionItems(
@@ -260,7 +260,7 @@
       if (!_contextMenuProperties.hideCommandSection && isColumnCommandAllowed && commandItems.length > 0) {
         var $commandMenu = $('<div class="slick-context-menu-command-list" />');
         if (!_contextMenuProperties.hideCloseButton && (!isColumnOptionAllowed || optionItems.length === 0 || _contextMenuProperties.hideOptionSection)) {
-          $(closeButtonHtml).on("click", destroyMenu).appendTo(menu);
+          $(closeButtonHtml).on("click", handleCloseButtonClicked).appendTo(menu);
         }
         $commandMenu.appendTo(menu);
         populateCommandItems(
@@ -283,6 +283,12 @@
       }
 
       return menu;
+    }
+
+    function handleCloseButtonClicked(e) {
+      if(!e.isDefaultPrevented()) {
+        destroyMenu(e);
+      }
     }
 
     function destroyMenu(e, args) {
@@ -372,7 +378,9 @@
       }
 
       $("body").one("click", function (e) {
-        destroyMenu(e, { cell: _currentCell, row: _currentRow });
+        if(!e.isDefaultPrevented()) {
+          destroyMenu(e, { cell: _currentCell, row: _currentRow });
+        }
       });
     }
 

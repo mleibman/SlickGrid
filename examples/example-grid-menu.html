@@ -56,12 +56,12 @@
       display: block;
       cursor: pointer;
     }
-    
-    #myGrid input[type=checkbox], 
+
+    #myGrid input[type=checkbox],
     .slick-gridmenu-list input[type=checkbox],
-    .slick-columnpicker-list input[type=checkbox] { 
+    .slick-columnpicker-list input[type=checkbox] {
       display:none; /* to hide the checkbox itself */
-    } 
+    }
     #myGrid input[type=checkbox] + label:before,
     .slick-gridmenu-list input[type=checkbox] + label:before,
     .slick-columnpicker-list input[type=checkbox] + label:before {
@@ -76,14 +76,14 @@
     }
     #myGrid input[type=checkbox] + label:before,
     .slick-gridmenu-list input[type=checkbox] + label:before,
-    .slick-columnpicker-list input[type=checkbox] + label:before { 
+    .slick-columnpicker-list input[type=checkbox] + label:before {
       opacity: 0.2; /* unchecked icon */
-    } 
+    }
     #myGrid input[type=checkbox]:checked + label:before,
     .slick-gridmenu-list input[type=checkbox]:checked + label:before,
-    .slick-columnpicker-list input[type=checkbox]:checked + label:before { 
+    .slick-columnpicker-list input[type=checkbox]:checked + label:before {
       opacity: 1; /* checked icon */
-    } 
+    }
   </style>
 </head>
 <body>
@@ -320,7 +320,10 @@
     dataView.endUpdate();
 
     // subscribe to Grid Menu event(s)
+
     gridMenuControl.onCommand.subscribe(function(e, args) {
+      // e.preventDefault(); // you could do if you wish to keep the menu open
+
       if(args.command === "toggle-filter") {
         grid.setHeaderRowVisibility(!grid.getOptions().showHeaderRow);
       }
@@ -339,7 +342,6 @@
     });
 
     // subscribe to some events
-    
     gridMenuControl.onBeforeMenuShow.subscribe(function(e, args) {
       console.log('Before the Grid Menu is shown');
     });

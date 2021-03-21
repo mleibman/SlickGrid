@@ -336,8 +336,6 @@
         return;
       }
 
-      hideMenu();
-
       if (command != null && command !== '') {
         var callbackArgs = {
           "grid": _grid,
@@ -351,6 +349,10 @@
         if (typeof item.action === "function") {
           item.action.call(this, e, callbackArgs);
         }
+      }
+
+      if(!e.isDefaultPrevented()) {
+        hideMenu();
       }
 
       // Stop propagation so that it doesn't register as a header click event.

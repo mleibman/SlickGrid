@@ -265,6 +265,8 @@
       });
 
       headerMenuPlugin.onCommand.subscribe(function (e, args) {
+        // e.preventDefault(); // you could do if you wish to keep the menu open
+
         if (args.command === "hide") {
           // hide column
           visibleColumns = removeColumnById(visibleColumns, args.column.id);
