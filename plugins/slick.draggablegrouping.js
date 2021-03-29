@@ -125,6 +125,20 @@
               return;
             }
             var reorderedIds = $headers.sortable("toArray");
+            // If frozen columns are used, headers has more than one entry and we need the ids from all of them.
+            // though there is only really a left and right header, this will work even if that should change.
+            if($headers.length > 1) {
+              for(var headerI=1,l=$headers.length; headerI < l; headerI+=1) {
+                var $header = $($headers[headerI]);
+                var ids = $header.sortable("toArray");
+                // Note: the loop below could be simplified with:
+                // reorderedIds.push.apply(reorderedIds,ids);
+                // However, the loop is more in keeping with way-backward compatibility 
+                for(var idI=0,idL=ids.length; idI< idL; idI+=1) {
+                    reorderedIds.push(ids[idI]);
+                }                
+              }
+            }
             var reorderedColumns = [];
             for (var i = 0; i < reorderedIds.length; i++) {
               reorderedColumns.push(columns[getColumnIndex(reorderedIds[i].replace(uid, ""))]);
