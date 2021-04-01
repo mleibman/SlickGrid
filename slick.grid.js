@@ -367,7 +367,7 @@ if (typeof Slick === "undefined") {
       $paneTopR = $("<div class='slick-pane slick-pane-top slick-pane-right' tabIndex='0' />").appendTo($container);
       $paneBottomL = $("<div class='slick-pane slick-pane-bottom slick-pane-left' tabIndex='0' />").appendTo($container);
       $paneBottomR = $("<div class='slick-pane slick-pane-bottom slick-pane-right' tabIndex='0' />").appendTo($container);
-      
+
       if (options.createPreHeaderPanel) {
         $preHeaderPanelScroller = $("<div class='slick-preheader-panel ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($paneHeaderL);
         $preHeaderPanel = $("<div />").appendTo($preHeaderPanelScroller);
@@ -3074,7 +3074,6 @@ if (typeof Slick === "undefined") {
           if (animated) {
             $preHeaderPanelScroller.slideDown("fast", resizeCanvas);
             $preHeaderPanelScrollerR.slideDown("fast", resizeCanvas);
-            
           } else {
             $preHeaderPanelScroller.show();
             $preHeaderPanelScrollerR.show();
@@ -5033,7 +5032,7 @@ if (typeof Slick === "undefined") {
       var columnDef = columns[activeCell];
       var item = getDataItem(activeRow);
 
-      if (trigger(self.onBeforeEditCell, {row: activeRow, cell: activeCell, item: item, column: columnDef}) === false) {
+      if (trigger(self.onBeforeEditCell, {row: activeRow, cell: activeCell, item: item, column: columnDef, target: 'grid' }) === false) {
         setFocus();
         return;
       }
