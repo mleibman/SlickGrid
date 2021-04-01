@@ -76,13 +76,13 @@
       _isBottomCanvas = _$activeCanvas.hasClass('grid-canvas-bottom');
 
       if (_gridOptions.frozenRow > -1 && _isBottomCanvas) {
-        _rowOffset = (_gridOptions.frozenBottom) ? $('.grid-canvas-bottom').height() : $('.grid-canvas-top').height();
+        _rowOffset = (_gridOptions.frozenBottom) ? $('.'+_grid.getUID()+' .grid-canvas-bottom').height() : $('.'+_grid.getUID()+' .grid-canvas-top').height();
       }
 
       _isRightCanvas = _$activeCanvas.hasClass('grid-canvas-right');
 
       if (_gridOptions.frozenColumn > -1 && _isRightCanvas) {
-        _columnOffset = $('.grid-canvas-left').width();
+        _columnOffset = $('.'+_grid.getUID()+' .grid-canvas-left').width();
       }
 
       // prevent the grid from cancelling drag'n'drop by default
