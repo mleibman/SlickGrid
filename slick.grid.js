@@ -2035,7 +2035,7 @@ if (typeof Slick === "undefined") {
         }
 
         if (!stylesheet) {
-          throw new Error("Cannot find stylesheet.");
+          throw new Error("SlickGrid Cannot find stylesheet.");
         }
 
         // find and cache column CSS rules
@@ -4408,7 +4408,7 @@ if (typeof Slick === "undefined") {
 
     function addCellCssStyles(key, hash) {
       if (cellCssClasses[key]) {
-        throw new Error("addCellCssStyles: cell CSS hash with key '" + key + "' already exists.");
+        throw new Error("SlickGrid addCellCssStyles: cell CSS hash with key '" + key + "' already exists.");
       }
 
       cellCssClasses[key] = hash;
@@ -4751,7 +4751,7 @@ if (typeof Slick === "undefined") {
       // read column number from .l<columnNumber> CSS class
       var cls = /l\d+/.exec(cellNode.className);
       if (!cls) {
-        throw new Error("getCellFromNode: cannot get cell - " + cellNode.className);
+        throw new Error("SlickGrid getCellFromNode: cannot get cell - " + cellNode.className);
       }
       return parseInt(cls[0].substr(1, cls[0].length - 1), 10);
     }
@@ -5019,7 +5019,7 @@ if (typeof Slick === "undefined") {
         return;
       }
       if (!options.editable) {
-        throw new Error("Grid : makeActiveCellEditable : should never get called when options.editable is false");
+        throw new Error("SlickGrid makeActiveCellEditable : should never get called when options.editable is false");
       }
 
       // cancel pending async call if there is one
@@ -5831,14 +5831,14 @@ if (typeof Slick === "undefined") {
 
     function getSelectedRows() {
       if (!selectionModel) {
-        throw new Error("Selection model is not set");
+        throw new Error("SlickGrid Selection model is not set");
       }
       return selectedRows.slice(0);
     }
 
     function setSelectedRows(rows) {
       if (!selectionModel) {
-        throw new Error("Selection model is not set");
+        throw new Error("SlickGrid Selection model is not set");
       }
       if (self && self.getEditorLock && !self.getEditorLock().isActive()) {
         selectionModel.setSelectedRanges(rowsToRanges(rows));

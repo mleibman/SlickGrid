@@ -79,10 +79,10 @@
     options = $.extend(true, {}, defaults, options);
 
     /***
-     * Begins a bached update of the items in the data view. 
-     * @param bulkUpdate {Boolean} if set to true, most data view modifications 
+     * Begins a bached update of the items in the data view.
+     * @param bulkUpdate {Boolean} if set to true, most data view modifications
      * including deletes and the related events are postponed to the endUpdate call.
-     * As certain operations are postponed during this update, some methods might not 
+     * As certain operations are postponed during this update, some methods might not
      * deliver fully consistent information.
      */
     function beginUpdate(bulkUpdate) {
@@ -133,23 +133,23 @@
      * by recomputing the items and idxById members.
      */
     function processBulkDelete() {
-      // the bulk update is processed by 
+      // the bulk update is processed by
       // recomputing the whole items array and the index lookup in one go.
-      // this is done by placing the not-deleted items 
-      // from left to right into the array and shrink the array the the new 
+      // this is done by placing the not-deleted items
+      // from left to right into the array and shrink the array the the new
       // size afterwards.
-      // see https://github.com/6pac/SlickGrid/issues/571 for further details. 
-      
+      // see https://github.com/6pac/SlickGrid/issues/571 for further details.
+
       var id, item, newIdx = 0;
       for (var i = 0, l = items.length; i < l; i++) {
         item = items[i];
         id = item[idProperty];
         if (id === undefined) {
-          throw new Error("Each data element must implement a unique 'id' property");
+          throw new Error("[SlickGrid DataView] Each data element must implement a unique 'id' property");
         }
-        
+
         // if items have been marked as deleted we skip them for the new final items array
-        // and we remove them from the lookup table. 
+        // and we remove them from the lookup table.
         if(bulkDeleteIds.has(id)) {
           idxById.delete(id);
         } else {
@@ -160,9 +160,9 @@
           ++newIdx;
         }
       }
-      
-      // here we shrink down the full item array to the ones actually 
-      // inserted in the cleanup loop above. 
+
+      // here we shrink down the full item array to the ones actually
+      // inserted in the cleanup loop above.
       items.length = newIdx;
       // and finally cleanup the deleted ids to start cleanly on the next update.
       bulkDeleteIds = new Slick.Map();
@@ -177,7 +177,7 @@
       for (var i = startingIndex, l = items.length; i < l; i++) {
         id = items[i][idProperty];
         if (id === undefined) {
-          throw new Error("Each data element must implement a unique 'id' property");
+          throw new Error("[SlickGrid DataView] Each data element must implement a unique 'id' property");
         }
         idxById.set(id, i);
       }
@@ -188,7 +188,7 @@
       for (var i = 0, l = items.length; i < l; i++) {
         id = items[i][idProperty];
         if (id === undefined || idxById.get(id) !== i) {
-          throw new Error("Each data element must implement a unique 'id' property");
+          throw new Error("[SlickGrid DataView] Each data element must implement a unique 'id' property");
         }
       }
     }
@@ -357,7 +357,7 @@
      */
     function setAggregators(groupAggregators, includeCollapsed) {
       if (!groupingInfos.length) {
-        throw new Error("At least one grouping must be specified before calling setAggregators().");
+        throw new Error("[SlickGrid DataView] At least one grouping must be specified before calling setAggregators().");
       }
 
       groupingInfos[0].aggregators = groupAggregators;
@@ -432,15 +432,15 @@
     }
 
     /***
-     * Performs the update operations of a single item by id without 
+     * Performs the update operations of a single item by id without
      * triggering any events or refresh operations.
-     * @param id The new id of the item. 
-     * @param item The item which should be the new value for the given id. 
+     * @param id The new id of the item.
+     * @param item The item which should be the new value for the given id.
      */
     function updateSingleItem(id, item) {
       // see also https://github.com/mleibman/SlickGrid/issues/1082
       if (!idxById.has(id)) {
-        throw new Error("Invalid id");
+        throw new Error("[SlickGrid DataView] Invalid id");
       }
 
       // What if the specified item also has an updated idProperty?
@@ -449,10 +449,10 @@
         // make sure the new id is unique:
         var newId = item[idProperty];
         if (newId == null) {
-          throw new Error("Cannot update item to associate with a null id");
+          throw new Error("[SlickGrid DataView] Cannot update item to associate with a null id");
         }
         if (idxById.has(newId)) {
-          throw new Error("Cannot update item to associate with a non-unique id");
+          throw new Error("[SlickGrid DataView] Cannot update item to associate with a non-unique id");
         }
         idxById.set(newId, idxById.get(id));
         idxById.delete(id);
@@ -475,37 +475,37 @@
       }
       updated[id] = true;
     }
-    
+
     /***
-     * Updates a single item in the data view given the id and new value. 
-     * @param id The new id of the item. 
-     * @param item The item which should be the new value for the given id. 
-     */    
+     * Updates a single item in the data view given the id and new value.
+     * @param id The new id of the item.
+     * @param item The item which should be the new value for the given id.
+     */
     function updateItem(id, item) {
       updateSingleItem(id, item);
       refresh();
     }
-    
+
     /***
-     * Updates multiple items in the data view given the new ids and new values. 
+     * Updates multiple items in the data view given the new ids and new values.
      * @param id {Array} The array of new ids which is in the same order as the items.
-     * @param newItems {Array} The new items that should be set in the data view for the given ids. 
-     */    
+     * @param newItems {Array} The new items that should be set in the data view for the given ids.
+     */
     function updateItems(ids, newItems) {
       if(ids.length !== newItems.length) {
-        throw new Error("Mismatch on the length of ids and items provided to update");
-      }          
+        throw new Error("[SlickGrid DataView] Mismatch on the length of ids and items provided to update");
+      }
       for (var i = 0, l = newItems.length; i < l; i++) {
         updateSingleItem(ids[i], newItems[i]);
       }
       refresh();
     }
-    
+
     /***
-     * Inserts a single item into the data view at the given position. 
-     * @param insertBefore {Number} The 0-based index before which the item should be inserted. 
+     * Inserts a single item into the data view at the given position.
+     * @param insertBefore {Number} The 0-based index before which the item should be inserted.
      * @param item The item to insert.
-     */      
+     */
     function insertItem(insertBefore, item) {
       items.splice(insertBefore, 0, item);
       updateIdxById(insertBefore);
@@ -513,8 +513,8 @@
     }
 
     /***
-     * Inserts multiple items into the data view at the given position. 
-     * @param insertBefore {Number} The 0-based index before which the items should be inserted. 
+     * Inserts multiple items into the data view at the given position.
+     * @param insertBefore {Number} The 0-based index before which the items should be inserted.
      * @param newItems {Array}  The items to insert.
      */
     function insertItems(insertBefore, newItems) {
@@ -524,7 +524,7 @@
     }
 
     /***
-     * Adds a single item at the end of the data view. 
+     * Adds a single item at the end of the data view.
      * @param item The item to add at the end.
      */
     function addItem(item) {
@@ -534,7 +534,7 @@
     }
 
     /***
-     * Adds multiple items at the end of the data view. 
+     * Adds multiple items at the end of the data view.
      * @param newItems {Array} The items to add at the end.
      */
     function addItems(newItems) {
@@ -544,8 +544,8 @@
     }
 
     /***
-     * Deletes a single item identified by the given id from the data view. 
-     * @param id The id identifying the object to delete. 
+     * Deletes a single item identified by the given id from the data view.
+     * @param id The id identifying the object to delete.
      */
     function deleteItem(id) {
       if (isBulkSuspend) {
@@ -553,7 +553,7 @@
       } else {
         var idx = idxById.get(id);
         if (idx === undefined) {
-          throw new Error("Invalid id");
+          throw new Error("[SlickGrid DataView] Invalid id");
         }
         idxById.delete(id);
         items.splice(idx, 1);
@@ -563,42 +563,42 @@
     }
 
     /***
-     * Deletes multiple item identified by the given ids from the data view. 
+     * Deletes multiple item identified by the given ids from the data view.
      * @param ids {Array} The ids of the items to delete.
      */
     function deleteItems(ids) {
       if (ids.length === 0) {
         return;
       }
-      
+
       if (isBulkSuspend) {
         for (var i = 0, l = ids.length; i < l; i++) {
           var id = ids[i];
           var idx = idxById.get(id);
           if (idx === undefined) {
-            throw new Error("Invalid id");
+            throw new Error("[SlickGrid DataView] Invalid id");
           }
           bulkDeleteIds.set(id, true);
         }
-      } else {      
+      } else {
         // collect all indexes
         var indexesToDelete = [];
         for (var i = 0, l = ids.length; i < l; i++) {
           var id = ids[i];
           var idx = idxById.get(id);
           if (idx === undefined) {
-            throw new Error("Invalid id");
+            throw new Error("[SlickGrid DataView] Invalid id");
           }
           idxById.delete(id);
           indexesToDelete.push(idx);
         }
-        
+
         // Remove from back to front
         indexesToDelete.sort();
         for (var i = indexesToDelete.length - 1; i >= 0; --i) {
           items.splice(indexesToDelete[i], 1);
         }
-        
+
         // update lookup from front to back
         updateIdxById(indexesToDelete[0]);
         refresh();
@@ -607,17 +607,17 @@
 
     function sortedAddItem(item) {
       if (!sortComparer) {
-        throw new Error("sortedAddItem() requires a sort comparer, use sort()");
+        throw new Error("[SlickGrid DataView] sortedAddItem() requires a sort comparer, use sort()");
       }
       insertItem(sortedIndex(item), item);
     }
 
     function sortedUpdateItem(id, item) {
       if (!idxById.has(id) || id !== item[idProperty]) {
-        throw new Error("Invalid or non-matching id " + idxById.get(id));
+        throw new Error("[SlickGrid DataView] Invalid or non-matching id " + idxById.get(id));
       }
       if (!sortComparer) {
-        throw new Error("sortedUpdateItem() requires a sort comparer, use sort()");
+        throw new Error("[SlickGrid DataView] sortedUpdateItem() requires a sort comparer, use sort()");
       }
       var oldItem = getItemById(id);
       if (sortComparer(oldItem, item) !== 0) {
