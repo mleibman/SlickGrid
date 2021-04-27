@@ -680,15 +680,7 @@ if (typeof Slick === "undefined") {
     }
 
     function getCanvasNode(columnIdOrIdx, rowIndex) {
-      if (!columnIdOrIdx) { columnIdOrIdx = 0; }
-      if (!rowIndex) { rowIndex = 0; }
-
-      var idx = (typeof columnIdOrIdx === "number" ? columnIdOrIdx : getColumnIndex(columnIdOrIdx));
-
-      return (hasFrozenRows && rowIndex >= actualFrozenRow + (options.frozenBottom ? 0 : 1) )
-          ?  ((hasFrozenColumns() && idx > options.frozenColumn) ? $canvasBottomR[0] : $canvasBottomL[0])
-          :  ((hasFrozenColumns() && idx > options.frozenColumn) ? $canvasTopR[0] : $canvasTopL[0])
-          ;
+      return _getContainerElement(getCanvases(), columnIdOrIdx, rowIndex);
     }
 
     function getActiveCanvasNode(element) {
@@ -707,12 +699,16 @@ if (typeof Slick === "undefined") {
       }
     }
 
-    function getViewportNode() {
-      return $viewport[0];
+    function getViewportNode(columnIdOrIdx, rowIndex) {
+      return _getContainerElement(getViewports(), columnIdOrIdx, rowIndex);
+    }
+
+    function getViewports() {
+      return $viewport;
     }
 
     function getActiveViewportNode(element) {
-      setActiveViewPortNode(element);
+      setActiveViewportNode(element);
 
       return $activeViewportNode[0];
     }
@@ -721,6 +717,19 @@ if (typeof Slick === "undefined") {
       if (element) {
         $activeViewportNode = $(element.target).closest('.slick-viewport');
       }
+    }
+
+    function _getContainerElement($targetContainers, columnIdOrIdx, rowIndex) {
+      if (!$targetContainers) { return }
+      if (!columnIdOrIdx) { columnIdOrIdx = 0; }
+      if (!rowIndex) { rowIndex = 0; }
+
+      var idx = (typeof columnIdOrIdx === "number" ? columnIdOrIdx : getColumnIndex(columnIdOrIdx));
+
+      var isBottomSide = hasFrozenRows && rowIndex >= actualFrozenRow + (options.frozenBottom ? 0 : 1);
+      var isRightSide = hasFrozenColumns() && idx > options.frozenColumn;
+
+      return $targetContainers[(isBottomSide ? 2 : 0) + (isRightSide ? 1 : 0)];
     }
 
     function measureScrollbar() {
@@ -5975,6 +5984,7 @@ if (typeof Slick === "undefined") {
       "getActiveCanvasNode": getActiveCanvasNode,
       "setActiveCanvasNode": setActiveCanvasNode,
       "getViewportNode": getViewportNode,
+      "getViewports": getViewports,
       "getActiveViewportNode": getActiveViewportNode,
       "setActiveViewportNode": setActiveViewportNode,
       "focus": setFocus,
