@@ -418,6 +418,9 @@
      * @param editController {EditController} edit controller releasing the lock
      */
     this.deactivate = function (editController) {
+      if (!activeEditController) {
+        return;
+      }
       if (activeEditController !== editController) {
         throw new Error("SlickGrid.EditorLock.deactivate: specified editController is not the currently active one");
       }
