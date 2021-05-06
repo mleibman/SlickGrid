@@ -1845,6 +1845,10 @@ if (typeof Slick === "undefined") {
               render();
               trigger(self.onColumnsResized, { triggeredByColumn: triggeredByColumn });
               setTimeout(function () { columnResizeDragging = false; }, 300);
+            })
+            .on("dblclick", function () {
+              var triggeredByColumn = $(this).parent().attr("id").replace(uid, "");
+              trigger(self.onColumnsResizeDblClick, { triggeredByColumn: triggeredByColumn });
             });
       });
     }
@@ -5913,6 +5917,7 @@ if (typeof Slick === "undefined") {
       "onColumnsReordered": new Slick.Event(),
       "onColumnsDrag": new Slick.Event(),
       "onColumnsResized": new Slick.Event(),
+      "onColumnsResizeDblClick": new Slick.Event(),
       "onBeforeColumnsResize": new Slick.Event(),
       "onCellChange": new Slick.Event(),
       "onCompositeEditorChange": new Slick.Event(),
