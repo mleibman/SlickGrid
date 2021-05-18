@@ -2910,7 +2910,7 @@ if (typeof Slick === "undefined") {
       return options;
     }
 
-    function setOptions(args, suppressRender, suppressColumnSet) {
+    function setOptions(args, suppressRender, suppressColumnSet, suppressSetOverflow) {
       if (!getEditorLock().commitCurrentEdit()) {
         return;
       }
@@ -2938,6 +2938,9 @@ if (typeof Slick === "undefined") {
 
       setFrozenOptions();
       setScroller();
+      if (!suppressSetOverflow) {
+        setOverflow();
+      }
       zombieRowNodeFromLastMouseWheelEvent = null;
 
       if (!suppressColumnSet) {
