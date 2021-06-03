@@ -139,6 +139,9 @@
       return sortCols;
     }
 
+    function reset(){
+      _store.set(options.key_prefix + _cid, {});
+    }
     /*
      *  API
      */
@@ -147,7 +150,8 @@
       "destroy": destroy,
       "save": save,
       "restore": restore,
-      "onStateChanged": onStateChanged
+      "onStateChanged": onStateChanged,
+      "reset": reset
     });
   }
 })(jQuery);
