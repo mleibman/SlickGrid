@@ -137,7 +137,7 @@
         }
 
         // if there's a UsabilityOverride defined, we also need to verify that the condition is valid
-        if (_usabilityOverride) {
+        if (_usabilityOverride && dd.canMove) {
           var insertBeforeDataContext = _grid.getDataItem(insertBefore);
           dd.canMove = checkUsabilityOverride(insertBefore, insertBeforeDataContext, _grid);
         }
