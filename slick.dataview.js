@@ -291,6 +291,9 @@
       return filteredItems;
     }
 
+    function getFilteredItemCount() {
+      return filteredItems.length;
+    }
 
     function getFilter() {
       return filter;
@@ -1375,6 +1378,7 @@
       "setFilter": setFilter,
       "getFilter": getFilter,
       "getFilteredItems": getFilteredItems,
+      "getFilteredItemCount": getFilteredItemCount,
       "sort": sort,
       "fastSort": fastSort,
       "reSort": reSort,
