@@ -3618,7 +3618,8 @@ if (typeof Slick === "undefined") {
       }
 
       $paneTopL.css({
-        'top': $paneHeaderL.height(), 'height': paneTopH
+        'top': $paneHeaderL.height() || (options.showHeaderRow ? options.headerRowHeight : 0) + (options.showPreHeaderPanel ? options.preHeaderPanelHeight : 0),
+        'height': paneTopH
       });
 
       var paneBottomTop = $paneTopL.position().top
