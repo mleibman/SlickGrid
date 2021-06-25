@@ -25,6 +25,9 @@
     .italic {
       font-style: italic;
     }
+    .slick-gridmenu-item-hidden {
+      display: none;
+    }
     .slick-headerrow-column {
       background: #BDD8E0;
       text-overflow: clip;
@@ -113,6 +116,7 @@
       <div style="margin-bottom:10px">
         <button onclick="loadData(15)">15 rows</button>
         <button onclick="loadData(5000)">5000 rows</button>
+        <button id="toggle-sorting" onclick="toggleSorting(event)">Toggle Sorting</button>
       </div>
       <h2>View Source:</h2>
       <ul>
@@ -141,6 +145,7 @@
   var data = [];
   var columnpicker;
   var gridMenuControl;
+  var isSortingDisabled = false;
 
   function isObjectEmpty(obj) {
     for(var key in obj) {
@@ -166,7 +171,6 @@
       forceFitTitle: "Force fit columns",
       syncResizeTitle: "Synchronous resize",
     },
-
     // gridMenu Object is optional
     // when not passed, it will act as a regular Column Picker (with default Grid Menu image of drag-handle.png)
     gridMenu: {
@@ -191,6 +195,13 @@
           disabled: false,
           command: "clear-filter",
           cssClass: 'bold',     // container css class
+          textCssClass: 'red'   // just the text css class
+        },
+        {
+          iconImage: "../images/delete.png",
+          title: "Clear Sorting",
+          disabled: false,
+          command: "clear-sorting",
           textCssClass: 'red'   // just the text css class
         },
         {
@@ -240,15 +251,23 @@
   };
   var columns = [{ id: 'id', field: 'id', name: '#', width: 40, excludeFromGridMenu: true }];
   var columnFilters = {};
+  var sortcol = "id";
+  var sortdir = 1;
 
   for (var i = 0; i < 10; i++) {
     columns.push({
       id: i,
       name: String.fromCharCode("A".charCodeAt(0) + i),
       field: i,
-      width: 60
+      width: 60,
+      sortable: true,
     });
   }
+
+  function comparer(a, b) {
+      var x = a[sortcol], y = b[sortcol];
+      return (x == y ? 0 : (x > y ? 1 : -1));
+    }
 
   function loadData(count) {
     data = [];
@@ -276,6 +295,19 @@
 
   function toggleGridMenu(e) {
     gridMenuControl.showGridMenu(e);
+  }
+
+  function toggleSorting(e) {
+    isSortingDisabled = !isSortingDisabled;
+    options.gridMenu.customItems.forEach(function(menuItem) {
+        if (menuItem && typeof menuItem !== 'string') {
+          const menuCommand = menuItem.command;
+          if (menuCommand === 'clear-sorting') {
+            console.log(menuItem)
+            menuItem.hidden = isSortingDisabled;
+          }
+        }
+      });
   }
 
   $(function () {
@@ -336,6 +368,9 @@
           columnFilters[columnId] = "";
         }
         dataView.refresh();
+      } else if(args.command === "clear-sorting") {
+        grid.setSortColumns([]);
+        dataView.refresh();
       } else {
         alert("Command: " + args.command);
       }
@@ -362,6 +397,12 @@
 
     grid.onAutosizeColumns.subscribe(function(e, args) {
       console.log('onAutosize called')
+    });
+
+    grid.onSort.subscribe(function (e, args) {
+      sortdir = args.sortAsc ? 1 : -1;
+      sortcol = args.sortCol.field;
+      dataView.sort(comparer, args.sortAsc);
     });
   })
 </script>

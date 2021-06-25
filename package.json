@@ -34,8 +34,8 @@
     "jquery-ui": ">=1.8.0"
   },
   "devDependencies": {
-    "cypress": "^6.2.1",
-    "eslint": "^7.18.0",
+    "cypress": "^7.6.0",
+    "eslint": "^7.29.0",
     "http-server": "^0.12.3"
   }
 }

@@ -267,4 +267,32 @@ describe('Example - Grid Menu', () => {
       .find('.slick-headerrow')
       .should('not.be.hidden');
   });
+
+  it('should expect "Clear Sorting" command to become hidden from Grid Menu when disabling feature', () => {
+    cy.get('#toggle-sorting')
+    .click();
+
+    cy.get('#myGrid')
+      .find('button.slick-gridmenu-button')
+      .click({ force: true });
+
+    cy.get('.slick-gridmenu-item')
+      .contains('Clear Sorting')
+      .should('not.be.visible')
+      .click({ force: true });
+  });
+
+  it('should expect "Clear Sorting" command to become visible agaom in Grid Menu when toggling feature again', () => {
+    cy.get('#toggle-sorting')
+    .click();
+
+    cy.get('#myGrid')
+      .find('button.slick-gridmenu-button')
+      .click({ force: true });
+
+    cy.get('.slick-gridmenu-item')
+      .contains('Clear Sorting')
+      .should('be.visible')
+      .click({ force: true });
+  });
 });

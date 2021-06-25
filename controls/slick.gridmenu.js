@@ -131,6 +131,7 @@
     var _gridOptions;
     var _gridUid = (grid && grid.getUID) ? grid.getUID() : '';
     var _isMenuOpen = false;
+    var _options = options;
     var _self = this;
     var $customTitleElm;
     var $columnTitleElm;
@@ -155,7 +156,6 @@
         return columnDef.name;
       }
     };
-    var _options = $.extend(true, {}, {gridMenu: _defaults}, options);
 
     // when a grid changes from a regular grid to a frozen grid, we need to destroy & recreate the grid menu
     // we do this change because the Grid Menu is on the left container on a regular grid but is on the right container on a frozen grid
@@ -196,8 +196,8 @@
         $('.' + _gridUid + '.slick-headerrow').attr('style', 'width: calc(100% - ' + gridMenuWidth + 'px)');
       }
 
-      if(_options.gridMenu.showButton)
-      {
+      var showButton = (_options.gridMenu && _options.gridMenu.showButton !== undefined) ? _options.gridMenu.showButton : _defaults.showButton;
+      if (showButton) {
         $button = $('<button class="slick-gridmenu-button"/>');
         if (_options.gridMenu && _options.gridMenu.iconCssClass) {
           $button.addClass(_options.gridMenu.iconCssClass);
@@ -318,7 +318,7 @@
         }
 
         if (item.hidden) {
-          $li.addClass("slick-header-menuitem-hidden");
+          $li.addClass("slick-gridmenu-item-hidden");
         }
 
         if (item.cssClass) {
