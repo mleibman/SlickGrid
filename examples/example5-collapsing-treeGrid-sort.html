@@ -1,0 +1,701 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+  <title>SlickGrid example 5: Collapsing</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <style>
+    .cell-title {
+      font-weight: bold;
+    }
+
+    .cell-effort-driven {
+      text-align: center;
+    }
+
+    .toggle {
+      height: 9px;
+      width: 9px;
+      display: inline-block;
+    }
+
+    .toggle.expand {
+      background: url(../images/expand.gif) no-repeat center center;
+    }
+
+    .toggle.collapse {
+      background: url(../images/collapse.gif) no-repeat center center;
+    }
+
+  </style>
+</head>
+<body>
+<table width="100%">
+  <tr>
+    <td valign="top" width="50%">
+      <div style="border:1px solid gray;background:wheat;padding:6px;">
+        <label>Show tasks with % at least: </label>
+
+        <div style="padding:4px;">
+          <div style="width:100px;" id="pcSlider"></div>
+        </div>
+        <br/>
+        <label>And title including:</label>
+        <input type=text id="txtSearch">
+      </div>
+      <br/>
+
+      <div id="myGrid" style="width:700px;height:500px;"></div>
+    </td>
+    <td valign="top">
+      <h2>Demonstrates:</h2>
+      <ul>
+        <li>implementing expand/collapse as a filter for DataView</li>
+      </ul>
+
+        <h2>View Source:</h2>
+        <ul>
+            <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example5-collapsing.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+        </ul>
+    </td>
+  </tr>
+</table>
+
+<script src="../lib/firebugx.js"></script>
+
+<script src="../lib/jquery-1.12.4.min.js"></script>
+<script src="../lib/jquery-ui.min.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../slick.formatters.js"></script>
+<script src="../slick.editors.js"></script>
+<script src="../slick.grid.js"></script>
+<script src="../slick.dataview.js"></script>
+
+<script>
+function requiredFieldValidator(value) {
+  if (value == null || value == undefined || !value.length) {
+    return {valid: false, msg: "This is a required field"};
+  } else {
+    return {valid: true, msg: null};
+  }
+}
+
+
+var TaskNameFormatter = function (row, cell, value, columnDef, dataContext) {
+  if (value == null || value == undefined || dataContext === undefined) { return ""; }
+  
+  value = value.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  var spacer = "<span style='display:inline-block;height:1px;width:" + (15 * dataContext["indent"]) + "px'></span>";
+  var idx = dataView.getIdxById(dataContext.id);
+  if (data[idx + 1] && data[idx + 1].indent > data[idx].indent) {
+    if (dataContext._collapsed) {
+      return spacer + " <span class='toggle expand'></span>&nbsp;" + value;
+    } else {
+      return spacer + " <span class='toggle collapse'></span>&nbsp;" + value;
+    }
+  } else {
+    return spacer + " <span class='toggle'></span>&nbsp;" + value;
+  }
+};
+
+var dataView;
+var grid;
+var itemMap;
+var data=[];
+data = [
+    {
+         "id": "i_1",
+         "parentId": null,
+         "title": "Task 1",
+         "duration": 5,
+         "percentComplete": 87,
+         "start": "04/01/2005",
+         "finish": "07/05/2002",
+         "effortDriven": false
+     },{
+         "id": "i_5",
+         "parentId": "i_3",
+         "title": "Task 5",
+         "duration": 1,
+         "percentComplete": 58,
+         "start": "09/01/2001",
+         "finish": "06/05/2003",
+         "effortDriven": false
+     },{
+         "id": "i_45",
+         "parentId": "i_5",
+         "title": "Task 45",
+         "duration": 6,
+         "percentComplete": 38,
+         "start": "09/01/2001",
+         "finish": "06/05/2003",
+         "effortDriven": false
+     },{
+         "id": "i_76",
+         "parentId": "i_45",
+         "title": "Task 76",
+         "duration": 25,
+         "percentComplete": 71,
+         "start": "09/01/2001",
+         "finish": "06/05/2003",
+         "effortDriven": false
+     },{
+         "id": "i_77",
+         "parentId": "i_45",
+         "title": "Task 77",
+         "duration": 55,
+         "percentComplete": 71,
+         "start": "09/01/2001",
+         "finish": "06/05/2003",
+         "effortDriven": false
+     },{
+         "id": "i_55",
+         "parentId": "i_4",
+         "title": "Task 55",
+         "duration": 6,
+         "percentComplete": 18,
+         "start": "09/01/2001",
+         "finish": "06/05/2003",
+         "effortDriven": false
+     },{
+         "id": "i_64",
+         "parentId": "i_55",
+         "title": "Task 64",
+         "duration": 33,
+         "percentComplete": 28,
+         "start": "04/01/2001",
+         "finish": "03/05/2003",
+         "effortDriven": false
+     },{
+         "id": "i_85",
+         "parentId": "i_55",
+         "title": "Task 85",
+         "duration": 88,
+         "percentComplete": 28,
+         "start": "04/01/2001",
+         "finish": "03/05/2003",
+         "effortDriven": false
+     },{
+         "id": "i_3",
+         "parentId": null,
+         "title": "Task 3",
+         "duration": 4,
+         "percentComplete": 41,
+         "start": "02/01/2008",
+         "finish": "07/05/2005",
+         "effortDriven": false
+     },{
+         "id": "i_2",
+         "parentId": "i_1",
+         "title": "Task 2",
+         "duration": 2,
+         "percentComplete": 11,
+         "start": "02/01/2001",
+         "finish": "03/05/2003",
+         "effortDriven": false
+     }, {
+         "id": "i_19",
+         "parentId": "i_9",
+         "title": "Task 19",
+         "duration": 19,
+         "percentComplete": 51,
+         "start": "09/01/9001",
+         "finish": "03/05/9003",
+         "effortDriven": false
+     }, {
+         "id": "i_9",
+         "parentId": "i_1",
+         "title": "Task 9",
+         "duration": 2,
+         "percentComplete": 51,
+         "start": "09/01/9001",
+         "finish": "03/05/9003",
+         "effortDriven": false
+     }, {
+         "id": "i_8",
+         "parentId": "i_2",
+         "title": "Task 8",
+         "duration": 68,
+         "percentComplete": 31,
+         "start": "08/01/8001",
+         "finish": "03/05/8003",
+         "effortDriven": false
+     }, {
+         "id": "i_0",
+         "parentId": null,
+         "title": "Task 0",
+         "duration": 3,
+         "percentComplete": 56,
+         "start": "01/01/2109",
+         "finish": "01/05/2109",
+         "effortDriven": true
+     },{
+         "id": "i_4",
+         "parentId": "i_3",
+         "title": "Task 4",
+         "duration": 1,
+         "percentComplete": 42,
+         "start": "06/01/2019",
+         "finish": "05/05/2019",
+         "effortDriven": true
+     },{
+         "id": "i_11",
+         "parentId": null,
+         "title": "Task 11",
+         "duration": 14,
+         "percentComplete": 14,
+         "start": "05/01/2008",
+         "finish": "06/05/2005",
+         "effortDriven": false
+     },{
+         "id": "i_31",
+         "parentId": "i_21",
+         "title": "Task 31",
+         "duration": 34,
+         "percentComplete": 34,
+         "start": "05/01/2008",
+         "finish": "06/05/2005",
+         "effortDriven": true
+     },{
+         "id": "i_21",
+         "parentId": "i_11",
+         "title": "Task 21",
+         "duration": 24,
+         "percentComplete": 24,
+         "start": "05/01/2008",
+         "finish": "06/05/2005",
+         "effortDriven": false
+     }
+ ];
+
+var columns = [
+  {id: "title", sortable:true, name: "Title", field: "title", width: 220, cssClass: "cell-title", formatter: TaskNameFormatter, editor: Slick.Editors.Text, validator: requiredFieldValidator},
+  {id: "duration", sortable:true, name: "Duration", field: "duration", editor: Slick.Editors.Text},
+  {id: "%", sortable:true, name: "% Complete", field: "percentComplete", width: 80, resizable: false, formatter: Slick.Formatters.PercentCompleteBar, editor: Slick.Editors.PercentComplete},
+  {id: "start", sortable:true, name: "Start", field: "start", minWidth: 60, editor: Slick.Editors.Date},
+  {id: "finish", sortable:true, name: "Finish", field: "finish", minWidth: 60, editor: Slick.Editors.Date},
+  {id: "effort-driven", sortable:true, name: "Effort Driven", width: 120, minWidth: 20, maxWidth: 120, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark, editor: Slick.Editors.Checkbox, cannotTriggerInsert: true}
+];
+
+var options = {
+  editable: true,
+  enableAddRow: true,
+  enableCellNavigation: true,
+  asyncEditorLoading: false
+};
+
+var percentCompleteThreshold = 0;
+var searchString = "";
+
+function myFilter(item) {
+  if (item["percentComplete"] < percentCompleteThreshold) {
+    return false;
+  }
+
+  if (searchString != "" && item["title"].indexOf(searchString) == -1) {
+    return false;
+  }
+
+  if (item.parent != null) {
+    var parent = data[item.parent];
+
+    while (parent) {
+      if (parent._collapsed || (parent["percentComplete"] < percentCompleteThreshold) || (searchString != "" && parent["title"].indexOf(searchString) == -1)) {
+        return false;
+      }
+
+      parent = data[parent.parent];
+    }
+  }
+
+  return true;
+}
+
+function percentCompleteSort(a, b) {
+  return a["percentComplete"] - b["percentComplete"];
+}
+
+function groupBy(objectArray, property) {
+  if(!objectArray){
+    return {};
+  }
+  return objectArray.reduce(function (acc, obj) {
+    var key = obj[property];
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(obj);
+    return acc;
+  }, {});
+}
+
+function getDataMap(data, property){
+  var resultMap = {};
+  if(data){
+    resultMap = data.reduce(function(map, obj) {
+        map[obj.id] = obj[property];
+        return map;
+    }, {});
+  }
+  return resultMap;
+}
+
+function addChilder(currentList, itemMap, targetList){
+  if(!currentList){
+    return [];
+  }
+  if(!targetList || null==targetList){
+    targetList = [];
+  }
+
+  currentList.forEach(function(element){
+    targetList.push(element);
+    if(!itemMap || null==itemMap){
+      return;
+    }
+    
+    var id = element["id"];
+    if(!id || null==id){
+      return;
+    }
+    var list = itemMap[id];
+    if(!list || list.length<1){
+      return;
+    }
+    addChilder(list,itemMap,targetList);
+  });
+  return targetList;
+}
+
+function initIndexMap(data){
+  if(!data){
+    return;
+  }
+  let resultMap = data.reduce(function(mappedArray, currentValue, index, array){
+        mappedArray[currentValue.id] = index;
+        return mappedArray;
+    }, {});
+  return resultMap;
+}
+
+function getIndent(idMap,itemId,max){
+  if(!idMap || idMap.length<1){
+    return 0;
+  }
+  if(!itemId || null==itemId){
+    return 0;
+  }
+  let parentId = idMap[itemId];
+  if(!parentId || null==parentId){
+    return 0;
+  }
+  max--;
+  if(max<0){
+    return 0;
+  }
+  return 1+getIndent(idMap, parentId, max);
+}
+
+function addIndentInfo(currentData, indentMap, indexMap){
+  if(!currentData || !indentMap || !indexMap){
+    return;
+  }
+  currentData.forEach(function(element){
+      let id = element["id"];
+      if(!id || null==id){
+        return;
+      }
+      element["indent"]=getIndent(indentMap,id,100);
+      let parentId = element["parentId"];
+      if(!parentId || null==parentId){
+        element["parent"]=null;
+      }else{
+        element["parent"]=indexMap[parentId];
+      }
+  });
+}
+
+function getSubs(dRows,subs){
+  if(!subs){
+    subs=[];
+  }
+  if(!dRows || dRows.length<1){
+    return subs;
+  }
+  dRows.forEach(function(element){
+    var childs = itemMap[element["id"]];
+    if(childs && childs.length>0){
+      subs = subs.concat(childs)
+    }
+    // HACK may get childs enough
+    // subs = getSubs(childs, subs);
+  });
+  
+  return subs;
+}
+
+function initTree(gridData){
+  let indentMap = getDataMap(gridData,'parentId');
+  data = addChilder(itemMap["null"], itemMap);
+  let indexMap = initIndexMap(data);
+  addIndentInfo(data,indentMap,indexMap);
+  return data;
+}
+
+function sortTree(dataMap, args){
+  if(!dataMap || !args){
+    return;
+  }
+  for(item in dataMap){
+    dataMap[item].sort(function(dataRow1, dataRow2) {
+      return sortData(dataRow1, dataRow2, args);
+    });
+  };
+}
+
+function sortData(dataRow1, dataRow2, args){
+  if(!dataRow1 || !dataRow2 || !args){
+    return 0;
+  }
+  let field = args.sortCol.field;
+  let sign = args.sortAsc ? 1 : -1;
+
+  let value1 = dataRow1[field], value2 = dataRow2[field];
+  let parentId1 = dataRow1['parentId'], parentId2 = dataRow2['parentId'];
+  if( typeof value1 === "undefined") {
+    if( typeof value2 === "undefined") {
+      return 0;
+    } else {
+      return 1;
+    }
+  } else {
+    if( typeof value2 === "undefined") {
+      return -1;
+    } else {
+      
+      if(parentId1!==parentId2){
+        // no need to compare 
+        return 0;
+      }
+      var res =  (value1 === value2 ? 0 : (value1 > value2 ? 1 : -1)) * sign;
+      if(res===0){
+        // if row is equals, compare childs.
+        return comparerTree([dataRow1], [dataRow2], args);
+      }
+      return res;
+    }
+  }
+}
+/**
+ * dataRows1 and dataRows2 are Array
+ **/
+function comparerTree(dataRows1, dataRows2, args){
+  var nRows1 = getSubs(dataRows1,[]);
+  var nRows2 = getSubs(dataRows2,[]);
+  
+  if(nRows1.length<1) {
+    if(nRows2.length<1) {
+      return 0;
+    } else {
+      return 1;
+    }
+  } else {
+    if(nRows2.length<1) {
+      return -1;
+    } else {
+      nRows1.sort(function(r1, r2) {
+        return compareRow(r1, r2, args);
+      });
+      nRows2.sort(function(r1, r2) {
+        return compareRow(r1, r2, args);
+      });
+      let rs = 0;
+      if(args.sortAsc){
+        rs = compareRow(nRows1[nRows1.length-1], nRows2[nRows2.length-1], args);
+      }else{
+        rs = compareRow(nRows1[0], nRows2[0], args);
+      }
+
+      if(rs===0){
+        rs = comparerTree(nRows1, nRows2, args)
+      }
+      return rs;
+    }
+  }
+
+
+  // var subs = nRows1.concat(nRows2);
+  // if(!subs || subs.length<1){
+  //   return 0;
+  // }
+  // subs.sort(function(r1, r2) {
+  //   return compareRow(r1, r2, args);
+  // });
+  // var tId="";
+  // if(args.sortAsc){
+  //   tId=subs[subs.length-1]["id"];
+  // }else{
+  //   tId=subs[0]["id"];
+  // }
+  // var res = -1;
+  // var target = nRows1.find(el => el["id"]==tId);
+  // if((target && args.sortAsc) || (!target && !args.sortAsc)){
+  //   res=1;
+  // }
+  // return res;
+}
+
+function compareRow(dataRow1, dataRow2, args){
+  if(!dataRow1 || !dataRow2 || !args){
+    return 0;
+  }
+  let field = args.sortCol.field;
+  let sign = args.sortAsc ? 1 : -1;
+  
+  let value1 = dataRow1[field], value2 = dataRow2[field];
+  if( typeof value1 === "undefined") {
+    if( typeof value2 === "undefined") {
+      return 0;
+    } else {
+      return 1;
+    }
+  } else {
+    if( typeof value2 === "undefined") {
+      return -1;
+    } else {
+      var res =  (value1 === value2 ? 0 : (value1 > value2 ? 1 : -1)) * sign;
+      return res;
+    }
+  }
+}
+
+function bindGridEvents() {
+  grid.onSort.subscribe(function(e, args) {
+    if(!data){
+      return;
+    }
+    sortTree(itemMap, args);
+
+    data = initTree(data);
+    // console.info(data);
+    
+    dataView.setItems(data);
+    dataView.refresh();
+		grid.invalidate();
+		grid.render();
+    
+	});
+
+  grid.onCellChange.subscribe(function (e, args) {
+    dataView.updateItem(args.item.id, args.item);
+  });
+
+  grid.onAddNewRow.subscribe(function (e, args) {
+    var item = {
+      "id": "new_" + (Math.round(Math.random() * 10000)),
+      "indent": 0,
+      "title": "New task",
+      "duration": "1 day",
+      "percentComplete": 0,
+      "start": "01/01/2009",
+      "finish": "01/01/2009",
+      "effortDriven": false};
+    $.extend(item, args.item);
+    dataView.addItem(item);
+  });
+
+  grid.onClick.subscribe(function (e, args) {
+    if ($(e.target).hasClass("toggle")) {
+      var item = dataView.getItem(args.row);
+      if (item) {
+        if (!item._collapsed) {
+          item._collapsed = true;
+        } else {
+          item._collapsed = false;
+        }
+
+        dataView.updateItem(item.id, item);
+      }
+      e.stopImmediatePropagation();
+    }
+  });
+
+
+  // wire up model events to drive the grid
+  dataView.onRowCountChanged.subscribe(function (e, args) {
+    grid.updateRowCount();
+    grid.render();
+  });
+
+  dataView.onRowsChanged.subscribe(function (e, args) {
+    grid.invalidateRows(args.rows);
+    grid.render();
+  });
+
+
+  var h_runfilters = null;
+
+  // wire up the slider to apply the filter to the model
+  $("#pcSlider").slider({
+    "range": "min",
+    "slide": function (event, ui) {
+      Slick.GlobalEditorLock.cancelCurrentEdit();
+
+      if (percentCompleteThreshold != ui.value) {
+        window.clearTimeout(h_runfilters);
+        h_runfilters = window.setTimeout(dataView.refresh, 10);
+        percentCompleteThreshold = ui.value;
+      }
+    }
+  });
+
+
+  // wire up the search textbox to apply the filter to the model
+  $("#txtSearch").keyup(function (e) {
+    Slick.GlobalEditorLock.cancelCurrentEdit();
+
+    // clear on Esc
+    if (e.which == 27) {
+      this.value = "";
+    }
+
+    searchString = this.value;
+    dataView.refresh();
+  })
+}
+
+$(function () {
+  // $.ajaxSettings.async = false;
+  // $.getJSON("./data.json",function(content){
+  //   data = content;
+  // });
+  // $.ajaxSettings.async = true;
+  
+  let indent = 0;
+  let parents = [];
+
+  itemMap = groupBy(data, 'parentId');
+  data = initTree(data);
+
+  // initialize the model
+  dataView = new Slick.Data.DataView({ inlineFilters: true });
+  dataView.beginUpdate();
+  dataView.setItems(data);
+  dataView.setFilter(myFilter);
+  dataView.endUpdate();
+  
+
+  // initialize the grid
+  grid = new Slick.Grid("#myGrid", dataView, columns, options);
+
+  bindGridEvents();
+
+})
+</script>
+</body>
+</html>
