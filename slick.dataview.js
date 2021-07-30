@@ -91,11 +91,13 @@
     }
 
     function endUpdate() {
-      if (isBulkSuspend) {
-        processBulkDelete();
-      }
+      var wasBulkSuspend = isBulkSuspend;
       isBulkSuspend = false;
       suspend = false;
+      if (wasBulkSuspend) {
+        processBulkDelete();
+        ensureIdUniqueness();
+      }
       refresh();
     }
 
@@ -184,6 +186,9 @@
     }
 
     function ensureIdUniqueness() {
+      if (isBulkSuspend) { // during bulk update we do not reorganize
+        return;
+      }
       var id;
       for (var i = 0, l = items.length; i < l; i++) {
         id = items[i][idProperty];
