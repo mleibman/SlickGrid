@@ -5787,6 +5787,7 @@ if (typeof Slick === "undefined") {
                   this.editor.applyValue(item, this.serializedValue);
                   updateRow(this.row);
                   trigger(self.onCellChange, {
+                    command: 'execute',
                     row: this.row,
                     cell: this.cell,
                     item: item,
@@ -5797,6 +5798,7 @@ if (typeof Slick === "undefined") {
                   this.editor.applyValue(item, this.prevSerializedValue);
                   updateRow(this.row);
                   trigger(self.onCellChange, {
+                    command: 'undo',
                     row: this.row,
                     cell: this.cell,
                     item: item,
