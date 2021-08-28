@@ -180,8 +180,8 @@
           $el.css("background-image", "url(" + options.buttonImage + ")");
         }
 
-        if (menu.tooltip) {
-          $el.attr("title", menu.tooltip);
+        if (options.tooltip) {
+          $el.attr("title", options.tooltip);
         }
 
         $el
