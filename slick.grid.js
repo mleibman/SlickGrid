@@ -2877,6 +2877,8 @@ if (typeof Slick === "undefined") {
     }
 
     function setColumns(columnDefinitions) {
+      trigger(self.onBeforeSetColumns, { previousColumns: columns, newColumns: columnDefinitions, grid: self });
+
       var _treeColumns = new Slick.TreeColumns(columnDefinitions);
       if (_treeColumns.hasDepth()) {
         treeColumns = _treeColumns;
@@ -5960,6 +5962,7 @@ if (typeof Slick === "undefined") {
       "onSelectedRowsChanged": new Slick.Event(),
       "onCellCssStylesChanged": new Slick.Event(),
       "onAutosizeColumns": new Slick.Event(),
+      "onBeforeSetColumns": new Slick.Event(),
       "onRendered": new Slick.Event(),
       "onSetOptions": new Slick.Event(),
 
