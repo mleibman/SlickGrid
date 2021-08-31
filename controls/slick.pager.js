@@ -6,12 +6,35 @@
       showAllText: "Showing all {rowCount} rows",
       showPageText: "Showing page {pageNum} of {pageCount}",
       showCountText: "From {countBegin} to {countEnd} of {rowCount} rows",
-      showCount: false
+      showCount: false,
+      pagingOptions:[
+        {
+          data: 0,
+          name: "All"
+        },
+        {
+          data: -1,
+          name: "Auto"
+        },
+        {
+          data: 25,
+          name: "25"
+        },
+        {
+          data: 50,
+          name: "50"
+        },
+        {
+          data: 100,
+          name: "100"
+        }
+      ],
+      showPageSizes: false
     };
-    
+
     function init() {
       _options = $.extend(true, {}, _defaults, options);
-      
+
       dataView.onPagingInfoChanged.subscribe(function (e, pagingInfo) {
         updatePager(pagingInfo);
       });
@@ -75,8 +98,28 @@
       var $settings = $("<span class='slick-pager-settings' />").appendTo($container);
       $status = $("<span class='slick-pager-status' />").appendTo($container);
 
+      var pagingOptions = '';
+
+      for (var o = 0; o < _options.pagingOptions.length; o++)
+      {
+        var p = _options.pagingOptions[o];
+
+        pagingOptions += "<a data=" +p.data + ">" + p.name + "</a>";
+      }
+
+      pagingOptions = $("<span class='slick-pager-settings-expanded'>Show: " + pagingOptions + "</span>");
+
+      if (_options.showPageSizes)
+      {
+        pagingOptions.show();
+      }
+      else
+      {
+        pagingOptions.hide();
+      }
+
       $settings
-          .append("<span class='slick-pager-settings-expanded' style='display:none'>Show: <a data=0>All</a><a data='-1'>Auto</a><a data=25>25</a><a data=50>50</a><a data=100>100</a></span>");
+          .append(pagingOptions);
 
       $settings.find("a[data]").click(function (e) {
         var pagesize = $(e.target).attr("data");
