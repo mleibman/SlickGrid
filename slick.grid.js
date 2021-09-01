@@ -4662,8 +4662,10 @@ if (typeof Slick === "undefined") {
         // if this click resulted in some cell child node getting focus,
         // don't steal it back - keyboard events will still bubble up
         // IE9+ seems to default DIVs to tabIndex=0 instead of -1, so check for cell clicks directly.
-        if (e.target != document.activeElement || $(e.target).hasClass("slick-cell")) {
+	if (e.target != document.activeElement || $(e.target).hasClass("slick-cell")) {
+          var selection = getTextSelection(); //store text-selection and restore it after
           setFocus();
+          setTextSelection(selection);
         }
       }
 
@@ -5226,6 +5228,27 @@ if (typeof Slick === "undefined") {
 
     function getActiveCellNode() {
       return activeCellNode;
+    }
+	  
+    //This get/set methods are used for keeping text-selection. These don't consider IE because they don't loose text-selection.
+    //Fix for firefox selection. See https://github.com/mleibman/SlickGrid/pull/746/files
+    function getTextSelection(){
+      var textSelection = null;
+      if (window.getSelection) {
+        var selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+          textSelection = selection.getRangeAt(0);
+        }
+      }
+      return textSelection;
+    }
+
+    function setTextSelection(selection){
+      if (window.getSelection && selection) {
+        var target = window.getSelection();
+        target.removeAllRanges();
+        target.addRange(selection);
+      }
     }
 
     function scrollRowIntoView(row, doPaging) {
