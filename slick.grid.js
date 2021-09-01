@@ -1400,22 +1400,26 @@ if (typeof Slick === "undefined") {
               }
           }
 
-          setSortColumns(sortColumns);
-
+          var onSortArgs;
           if (!options.multiColumnSort) {
-            trigger(self.onSort, {
+            onSortArgs = {
               multiColumnSort: false,
               columnId: (sortColumns.length > 0 ? column.id : null),
               sortCol: (sortColumns.length > 0 ? column : null),
               sortAsc: (sortColumns.length > 0 ? sortColumns[0].sortAsc : true)
-            }, e);
+            };
           } else {
-            trigger(self.onSort, {
+            onSortArgs = {
               multiColumnSort: true,
               sortCols: $.map(sortColumns, function(col) {
                 return {columnId: columns[getColumnIndex(col.columnId)].id, sortCol: columns[getColumnIndex(col.columnId)], sortAsc: col.sortAsc };
               })
-            }, e);
+            };
+          }
+
+          if (trigger(self.onBeforeSort, onSortArgs) !== false) {
+            setSortColumns(sortColumns);
+            trigger(self.onSort, onSortArgs, e);
           }
         }
       });
@@ -5920,6 +5924,7 @@ if (typeof Slick === "undefined") {
 
       // Events
       "onScroll": new Slick.Event(),
+      "onBeforeSort": new Slick.Event(),
       "onSort": new Slick.Event(),
       "onHeaderMouseEnter": new Slick.Event(),
       "onHeaderMouseLeave": new Slick.Event(),

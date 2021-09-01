@@ -77,6 +77,11 @@
 
     grid = new Slick.Grid("#myGrid", data, columns, options);
 
+    // when "onBeforeSort" returns false, the "onSort" won't execute (for example a backend server error while calling backend query to sort)
+    grid.onBeforeSort.subscribe(function (e, args) {
+      return true;
+    });
+
     grid.onSort.subscribe(function (e, args) {
       var cols = args.sortCols;
 
