@@ -1417,7 +1417,7 @@ if (typeof Slick === "undefined") {
             };
           }
 
-          if (trigger(self.onBeforeSort, onSortArgs) !== false) {
+          if (trigger(self.onBeforeSort, onSortArgs, e) !== false) {
             setSortColumns(sortColumns);
             trigger(self.onSort, onSortArgs, e);
           }
