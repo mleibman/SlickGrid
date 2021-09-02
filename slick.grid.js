@@ -1355,6 +1355,7 @@ if (typeof Slick === "undefined") {
             return;
           }
 
+          var previousSortColumns = $.extend(true, [], sortColumns);
           var sortColumn = null;
           var i = 0;
           for (; i < sortColumns.length; i++) {
@@ -1404,6 +1405,7 @@ if (typeof Slick === "undefined") {
           if (!options.multiColumnSort) {
             onSortArgs = {
               multiColumnSort: false,
+              previousSortColumns: previousSortColumns,
               columnId: (sortColumns.length > 0 ? column.id : null),
               sortCol: (sortColumns.length > 0 ? column : null),
               sortAsc: (sortColumns.length > 0 ? sortColumns[0].sortAsc : true)
@@ -1411,6 +1413,7 @@ if (typeof Slick === "undefined") {
           } else {
             onSortArgs = {
               multiColumnSort: true,
+              previousSortColumns: previousSortColumns,
               sortCols: $.map(sortColumns, function(col) {
                 return {columnId: columns[getColumnIndex(col.columnId)].id, sortCol: columns[getColumnIndex(col.columnId)], sortAsc: col.sortAsc };
               })
