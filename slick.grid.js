@@ -1355,6 +1355,7 @@ if (typeof Slick === "undefined") {
             return;
           }
 
+          var previousSortColumns = $.extend(true, [], sortColumns);
           var sortColumn = null;
           var i = 0;
           for (; i < sortColumns.length; i++) {
@@ -1400,22 +1401,28 @@ if (typeof Slick === "undefined") {
               }
           }
 
-          setSortColumns(sortColumns);
-
+          var onSortArgs;
           if (!options.multiColumnSort) {
-            trigger(self.onSort, {
+            onSortArgs = {
               multiColumnSort: false,
+              previousSortColumns: previousSortColumns,
               columnId: (sortColumns.length > 0 ? column.id : null),
               sortCol: (sortColumns.length > 0 ? column : null),
               sortAsc: (sortColumns.length > 0 ? sortColumns[0].sortAsc : true)
-            }, e);
+            };
           } else {
-            trigger(self.onSort, {
+            onSortArgs = {
               multiColumnSort: true,
+              previousSortColumns: previousSortColumns,
               sortCols: $.map(sortColumns, function(col) {
                 return {columnId: columns[getColumnIndex(col.columnId)].id, sortCol: columns[getColumnIndex(col.columnId)], sortAsc: col.sortAsc };
               })
-            }, e);
+            };
+          }
+
+          if (trigger(self.onBeforeSort, onSortArgs, e) !== false) {
+            setSortColumns(sortColumns);
+            trigger(self.onSort, onSortArgs, e);
           }
         }
       });
@@ -2877,6 +2884,8 @@ if (typeof Slick === "undefined") {
     }
 
     function setColumns(columnDefinitions) {
+      trigger(self.onBeforeSetColumns, { previousColumns: columns, newColumns: columnDefinitions, grid: self });
+
       var _treeColumns = new Slick.TreeColumns(columnDefinitions);
       if (_treeColumns.hasDepth()) {
         treeColumns = _treeColumns;
@@ -4045,21 +4054,27 @@ if (typeof Slick === "undefined") {
 
       for (var i = 0, ii = rows.length; i < ii; i++) {
         if (( hasFrozenRows ) && ( rows[i] >= actualFrozenRow )) {
-          if (hasFrozenColumns()) {
-            rowsCache[rows[i]].rowNode = $()
-              .add($(x.firstChild).appendTo($canvasBottomL))
-              .add($(xRight.firstChild).appendTo($canvasBottomR));
-          } else {
-            rowsCache[rows[i]].rowNode = $()
-              .add($(x.firstChild).appendTo($canvasBottomL));
-          }
+            if (hasFrozenColumns()) {
+                rowsCache[rows[i]].rowNode = $()
+                    .add($(x.firstChild))
+                    .add($(xRight.firstChild));
+                $canvasBottomL.append(x.firstChild);
+                $canvasBottomR.append(xRight.firstChild);
+            } else {
+                rowsCache[rows[i]].rowNode = $()
+                    .add($(x.firstChild));
+                $canvasBottomL.append($(x.firstChild));
+            }
         } else if (hasFrozenColumns()) {
-          rowsCache[rows[i]].rowNode = $()
-            .add($(x.firstChild).appendTo($canvasTopL))
-            .add($(xRight.firstChild).appendTo($canvasTopR));
+            rowsCache[rows[i]].rowNode = $()
+                .add($(x.firstChild))
+                .add($(xRight.firstChild));
+            $canvasTopL.append(x.firstChild);
+            $canvasTopR.append(xRight.firstChild);
         } else {
-          rowsCache[rows[i]].rowNode = $()
-            .add($(x.firstChild).appendTo($canvasTopL));
+            rowsCache[rows[i]].rowNode = $()
+                .add($(x.firstChild));
+            $canvasTopL.append(x.firstChild);
         }
       }
 
@@ -4650,8 +4665,10 @@ if (typeof Slick === "undefined") {
         // if this click resulted in some cell child node getting focus,
         // don't steal it back - keyboard events will still bubble up
         // IE9+ seems to default DIVs to tabIndex=0 instead of -1, so check for cell clicks directly.
-        if (e.target != document.activeElement || $(e.target).hasClass("slick-cell")) {
+	if (e.target != document.activeElement || $(e.target).hasClass("slick-cell")) {
+          var selection = getTextSelection(); //store text-selection and restore it after
           setFocus();
+          setTextSelection(selection);
         }
       }
 
@@ -5214,6 +5231,27 @@ if (typeof Slick === "undefined") {
 
     function getActiveCellNode() {
       return activeCellNode;
+    }
+	  
+    //This get/set methods are used for keeping text-selection. These don't consider IE because they don't loose text-selection.
+    //Fix for firefox selection. See https://github.com/mleibman/SlickGrid/pull/746/files
+    function getTextSelection(){
+      var textSelection = null;
+      if (window.getSelection) {
+        var selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+          textSelection = selection.getRangeAt(0);
+        }
+      }
+      return textSelection;
+    }
+
+    function setTextSelection(selection){
+      if (window.getSelection && selection) {
+        var target = window.getSelection();
+        target.removeAllRanges();
+        target.addRange(selection);
+      }
     }
 
     function scrollRowIntoView(row, doPaging) {
@@ -5787,6 +5825,7 @@ if (typeof Slick === "undefined") {
                   this.editor.applyValue(item, this.serializedValue);
                   updateRow(this.row);
                   trigger(self.onCellChange, {
+                    command: 'execute',
                     row: this.row,
                     cell: this.cell,
                     item: item,
@@ -5797,6 +5836,7 @@ if (typeof Slick === "undefined") {
                   this.editor.applyValue(item, this.prevSerializedValue);
                   updateRow(this.row);
                   trigger(self.onCellChange, {
+                    command: 'undo',
                     row: this.row,
                     cell: this.cell,
                     item: item,
@@ -5910,6 +5950,7 @@ if (typeof Slick === "undefined") {
 
       // Events
       "onScroll": new Slick.Event(),
+      "onBeforeSort": new Slick.Event(),
       "onSort": new Slick.Event(),
       "onHeaderMouseEnter": new Slick.Event(),
       "onHeaderMouseLeave": new Slick.Event(),
@@ -5952,6 +5993,7 @@ if (typeof Slick === "undefined") {
       "onSelectedRowsChanged": new Slick.Event(),
       "onCellCssStylesChanged": new Slick.Event(),
       "onAutosizeColumns": new Slick.Event(),
+      "onBeforeSetColumns": new Slick.Event(),
       "onRendered": new Slick.Event(),
       "onSetOptions": new Slick.Event(),
 
