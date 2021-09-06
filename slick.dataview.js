@@ -219,20 +219,20 @@
     }
 
     function setPagingOptions(args) {
-      onBeforePagingInfoChanged.notify(getPagingInfo(), null, self);
+      if (onBeforePagingInfoChanged.notify(getPagingInfo(), null, self) !== false) {
+        if (args.pageSize != undefined) {
+          pagesize = args.pageSize;
+          pagenum = pagesize ? Math.min(pagenum, Math.max(0, Math.ceil(totalRows / pagesize) - 1)) : 0;
+        }
 
-      if (args.pageSize != undefined) {
-        pagesize = args.pageSize;
-        pagenum = pagesize ? Math.min(pagenum, Math.max(0, Math.ceil(totalRows / pagesize) - 1)) : 0;
+        if (args.pageNum != undefined) {
+          pagenum = Math.min(args.pageNum, Math.max(0, Math.ceil(totalRows / pagesize) - 1));
+        }
+
+        onPagingInfoChanged.notify(getPagingInfo(), null, self);
+
+        refresh();
       }
-
-      if (args.pageNum != undefined) {
-        pagenum = Math.min(args.pageNum, Math.max(0, Math.ceil(totalRows / pagesize) - 1));
-      }
-
-      onPagingInfoChanged.notify(getPagingInfo(), null, self);
-
-      refresh();
     }
 
     function getPagingInfo() {
@@ -1223,8 +1223,10 @@
       refreshHints = {};
 
       if (totalRowsBefore !== totalRows) {
-        onBeforePagingInfoChanged.notify(previousPagingInfo, null, self); // use the previously saved paging info
-        onPagingInfoChanged.notify(getPagingInfo(), null, self);
+        // use the previously saved paging info
+        if (onBeforePagingInfoChanged.notify(previousPagingInfo, null, self) !== false) {
+          onPagingInfoChanged.notify(getPagingInfo(), null, self);
+        }
       }
       if (countBefore !== rows.length) {
         onRowCountChanged.notify({ previous: countBefore, current: rows.length, itemCount: items.length, dataView: self, callingOnRowsChanged: (diff.length > 0) }, null, self);
