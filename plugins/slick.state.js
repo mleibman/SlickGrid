@@ -51,6 +51,11 @@
       _store = options.storage,
       onStateChanged = new Slick.Event();
 
+    var userData = {
+      state: null,
+      current: null
+    };
+
     function init(grid) {
       _grid = grid;
       _cid = grid.cid || options.cid;
@@ -75,8 +80,14 @@
         var state = {
           sortcols: getSortColumns(),
           viewport: _grid.getViewport(),
-          columns: getColumns()
+          columns: getColumns(),
+          userData: null
         };
+
+        state.userData = userData.current;
+        
+        setUserDataFromState(state.userData);
+
         onStateChanged.notify(state);
         return _store.set(options.key_prefix + _cid, state);
       }
@@ -89,7 +100,7 @@
 
         _store.get(options.key_prefix + _cid)
           .then(function success(state) {
-            if (state) {
+			if (state) {
               if (state.sortcols) {
                 _grid.setSortColumns(state.sortcols);
               }
@@ -119,10 +130,64 @@
 
                 _grid.setColumns(state.columns);
               }
+              setUserDataFromState(state.userData);
             }
             dfd.resolve(state);
           }, dfd.reject);
       });
+    }
+
+    /**
+     * allows users to add their own data to the grid state
+     * this function does not trigger the save() function, so the actual act of writing the state happens in save()
+     * therefore, it's necessary to call save() function after setting user-data
+     *
+     * @param data
+     * @return {State}
+     */
+    function setUserData(data){
+      userData.current = data;
+
+      return this;
+    }
+
+    /**
+     *
+     * @internal
+     * @param data
+     * @return {State}
+     */
+    function setUserDataFromState(data){
+      userData.state = data;
+      return setUserData(data);
+    }
+
+    /**
+     * returns current value of user-data
+     * @return {Object}
+     */
+    function getUserData(){
+      return userData.current;
+    }
+
+	  /**
+	   * returns user-data found in saved state
+	   *
+	   * @return {Object}
+	   */
+    function getStateUserData(){
+      return userData.state;
+    }
+
+    /**
+     * sets user-data to the value read from state
+     *
+     * @return {State}
+     */
+    function resetUserData(){
+      userData.current = userData.state;
+
+      return this;
     }
 
     function getColumns() {
@@ -141,6 +206,7 @@
 
     function reset(){
       _store.set(options.key_prefix + _cid, {});
+      setUserDataFromState(null);
     }
     /*
      *  API
@@ -149,6 +215,10 @@
       "init": init,
       "destroy": destroy,
       "save": save,
+      "setUserData": setUserData,
+      "resetUserData": resetUserData,
+      "getUserData": getUserData,
+      "getStateUserData": getStateUserData,
       "restore": restore,
       "onStateChanged": onStateChanged,
       "reset": reset
