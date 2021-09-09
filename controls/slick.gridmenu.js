@@ -157,8 +157,8 @@
       }
     };
 
-    // when a grid changes from a regular grid to a frozen grid, we need to destroy & recreate the grid menu
-    // we do this change because the Grid Menu is on the left container on a regular grid but is on the right container on a frozen grid
+    // when a grid optionally changes from a regular grid to a frozen grid, we need to destroy & recreate the grid menu
+    // we do this change because the Grid Menu is on the left container for a regular grid, it is however on the right container for a frozen grid
     grid.onSetOptions.subscribe(function (e, args) {
       if (args && args.optionsBefore && args.optionsAfter) {
         var switchedFromRegularToFrozen = args.optionsBefore.frozenColumn >= 0 && args.optionsAfter.frozenColumn === -1;
@@ -304,7 +304,7 @@
         }
 
         var $li = $("<div class='slick-gridmenu-item'></div>")
-          .data("command", item.command || '')
+          .data("command", item.command !== undefined ? item.command : "")
           .data("item", item)
           .on("click", handleMenuItemClick)
           .appendTo($customMenu);

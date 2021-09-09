@@ -245,7 +245,7 @@
         }
 
         var $li = $("<div class='slick-header-menuitem'></div>")
-          .data("command", item.command || '')
+          .data("command", item.command !== undefined ? item.command : "")
           .data("column", columnDef)
           .data("item", item)
           .on("click", handleMenuItemClick)

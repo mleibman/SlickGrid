@@ -193,7 +193,7 @@
       var optionItems = _cellMenuProperties.optionItems || [];
 
       // make sure there's at least something to show before creating the Cell Menu
-      if (!columnDef || !columnDef.cellMenu || (!commandItems.length && optionItems.length)) {
+      if (!columnDef || !columnDef.cellMenu || (!commandItems.length && !optionItems.length)) {
         return;
       }
 
@@ -459,7 +459,7 @@
         }
 
         var $li = $('<div class="slick-cell-menu-item"></div>')
-          .data("option", item.option || "")
+          .data("option", item.option !== undefined ? item.option : "")
           .data("item", item)
           .on("click", handleMenuItemOptionClick)
           .appendTo(optionMenuElm);
@@ -539,7 +539,7 @@
         }
 
         var $li = $('<div class="slick-cell-menu-item"></div>')
-          .data("command", item.command || "")
+          .data("command", item.command !== undefined ? item.command : "")
           .data("item", item)
           .on("click", handleMenuItemCommandClick)
           .appendTo(commandMenuElm);
