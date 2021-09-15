@@ -247,13 +247,6 @@ if (typeof Slick === "undefined") {
     var counter_rows_rendered = 0;
     var counter_rows_removed = 0;
 
-    // These two variables work around a bug with inertial scrolling in Webkit/Blink on Mac.
-    // See http://crbug.com/312427.
-    var rowNodeFromLastMouseWheelEvent;  // this node must not be deleted while inertial scrolling
-    var zombieRowNodeFromLastMouseWheelEvent;  // node that was hidden instead of getting deleted
-    var zombieRowCacheFromLastMouseWheelEvent;  // row cache for above node
-    var zombieRowPostProcessedFromLastMouseWheelEvent;  // post processing references for above node
-
     var $paneHeaderL;
     var $paneHeaderR;
     var $paneTopL;
@@ -2950,7 +2943,6 @@ if (typeof Slick === "undefined") {
       if (!suppressSetOverflow) {
         setOverflow();
       }
-      zombieRowNodeFromLastMouseWheelEvent = null;
 
       if (!suppressColumnSet) {
         setColumns(treeColumns.extractColumns());
@@ -3415,7 +3407,7 @@ if (typeof Slick === "undefined") {
         groupId: postProcessgroupId,
         node: cacheEntry.rowNode
       });
-      $(cacheEntry.rowNode).detach();
+      cacheEntry.rowNode.detach();
     }
 
     function queuePostProcessedCellForCleanup(cellnode, columnIdx, rowIdx) {
@@ -3435,19 +3427,9 @@ if (typeof Slick === "undefined") {
         return;
       }
 
-      if (rowNodeFromLastMouseWheelEvent == cacheEntry.rowNode[0]
-        || (hasFrozenColumns() && rowNodeFromLastMouseWheelEvent == cacheEntry.rowNode[1])) {
-
-        cacheEntry.rowNode.hide();
-
-        zombieRowNodeFromLastMouseWheelEvent = cacheEntry.rowNode;
-      } else {
-
-        cacheEntry.rowNode.each(function() {
-          this.parentElement.removeChild(this);
-        });
-
-      }
+      cacheEntry.rowNode.each(function() {
+        this.parentElement.removeChild(this);
+      });
 
       delete rowsCache[row];
       delete postProcessedRows[row];
@@ -4515,23 +4497,6 @@ if (typeof Slick === "undefined") {
     // Interactivity
 
     function handleMouseWheel(e, delta, deltaX, deltaY) {
-      var $rowNode = $(e.target).closest(".slick-row");
-      var rowNode = $rowNode[0];
-      if (rowNode != rowNodeFromLastMouseWheelEvent) {
-
-        var $gridCanvas = $rowNode.parents('.grid-canvas');
-        var left = $gridCanvas.hasClass('grid-canvas-left');
-
-        if (zombieRowNodeFromLastMouseWheelEvent && zombieRowNodeFromLastMouseWheelEvent[left? 0:1] != rowNode) {
-          var zombieRow = zombieRowNodeFromLastMouseWheelEvent[left || zombieRowNodeFromLastMouseWheelEvent.length == 1? 0:1];
-          zombieRow.parentElement.removeChild(zombieRow);
-
-          zombieRowNodeFromLastMouseWheelEvent = null;
-        }
-
-        rowNodeFromLastMouseWheelEvent = rowNode;
-      }
-
       scrollTop = Math.max(0, $viewportScrollContainerY[0].scrollTop - (deltaY * options.rowHeight));
       scrollLeft = $viewportScrollContainerX[0].scrollLeft + (deltaX * 10);
       var handled = _handleScroll(true);
@@ -4943,7 +4908,7 @@ if (typeof Slick === "undefined") {
         makeActiveCellNormal();
         $(activeCellNode).removeClass("active");
         if (rowsCache[activeRow]) {
-          $(rowsCache[activeRow].rowNode).removeClass("active");
+          rowsCache[activeRow].rowNode.removeClass("active");
         }
       }
 
@@ -4975,7 +4940,7 @@ if (typeof Slick === "undefined") {
         if (options.showCellSelection) {
           $activeCellNode.addClass("active");
           if (rowsCache[activeRow]) {
-            $(rowsCache[activeRow].rowNode).addClass("active");
+            rowsCache[activeRow].rowNode.addClass("active");
           }
         }
 
