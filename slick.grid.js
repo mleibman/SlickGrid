@@ -3427,9 +3427,13 @@ if (typeof Slick === "undefined") {
         return;
       }
 
-      cacheEntry.rowNode.each(function() {
-        this.parentElement.removeChild(this);
-      });
+      if (options.enableAsyncPostRenderCleanup && postProcessedRows[row]) {
+        queuePostProcessedRowForCleanup(cacheEntry, postProcessedRows[row], row);
+      } else {
+        cacheEntry.rowNode.each(function() {
+          this.parentElement.removeChild(this);
+        });
+      }
 
       delete rowsCache[row];
       delete postProcessedRows[row];
@@ -3886,9 +3890,15 @@ if (typeof Slick === "undefined") {
         }
       }
 
-      var cellToRemove;
+      var cellToRemove, cellNode;
       while ((cellToRemove = cellsToRemove.pop()) != null) {
-        cacheEntry.cellNodesByColumnIdx[cellToRemove][0].parentElement.removeChild(cacheEntry.cellNodesByColumnIdx[cellToRemove][0]);
+        cellNode = cacheEntry.cellNodesByColumnIdx[cellToRemove][0];
+
+        if (options.enableAsyncPostRenderCleanup && postProcessedRows[row] && postProcessedRows[row][cellToRemove]) {
+          queuePostProcessedCellForCleanup(cellNode, cellToRemove, row);
+        } else {
+          cellNode.parentElement.removeChild(cellNode);
+        }       
 
         delete cacheEntry.cellColSpans[cellToRemove];
         delete cacheEntry.cellNodesByColumnIdx[cellToRemove];
