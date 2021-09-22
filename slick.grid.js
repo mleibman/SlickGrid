@@ -4050,23 +4050,23 @@ if (typeof Slick === "undefined") {
                 rowsCache[rows[i]].rowNode = $()
                     .add($(x.firstChild))
                     .add($(xRight.firstChild));
-                $canvasBottomL.append(x.firstChild);
-                $canvasBottomR.append(xRight.firstChild);
+                $canvasBottomL[0].append(x.firstChild);
+                $canvasBottomR[0].append(xRight.firstChild);
             } else {
                 rowsCache[rows[i]].rowNode = $()
                     .add($(x.firstChild));
-                $canvasBottomL.append($(x.firstChild));
+                $canvasBottomL[0].append($(x.firstChild));
             }
         } else if (hasFrozenColumns()) {
             rowsCache[rows[i]].rowNode = $()
                 .add($(x.firstChild))
                 .add($(xRight.firstChild));
-            $canvasTopL.append(x.firstChild);
-            $canvasTopR.append(xRight.firstChild);
+            $canvasTopL[0].append(x.firstChild);
+            $canvasTopR[0].append(xRight.firstChild);
         } else {
             rowsCache[rows[i]].rowNode = $()
                 .add($(x.firstChild));
-            $canvasTopL.append(x.firstChild);
+            $canvasTopL[0].append(x.firstChild);
         }
       }
 
