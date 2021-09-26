@@ -41,7 +41,8 @@
 
   var defaults = {
     key_prefix: "slickgrid:",
-    storage: new localStorageWrapper()
+    storage: new localStorageWrapper(),
+    scrollRowIntoView: true
   };
 
   function State(options) {
@@ -104,7 +105,7 @@
               if (state.sortcols) {
                 _grid.setSortColumns(state.sortcols);
               }
-              if (state.viewport) {
+              if (state.viewport && options.scrollRowIntoView) {
                 _grid.scrollRowIntoView(state.viewport.top, true);
               }
               if (state.columns) {
