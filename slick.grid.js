@@ -3434,7 +3434,9 @@ if (typeof Slick === "undefined") {
         queuePostProcessedRowForCleanup(cacheEntry, postProcessedRows[row], row);
       } else {
         cacheEntry.rowNode.each(function() {
-          this.parentElement.removeChild(this);
+          if (this.parentElement) {
+            this.parentElement.removeChild(this);
+          }
         });
       }
 
@@ -3901,7 +3903,7 @@ if (typeof Slick === "undefined") {
           queuePostProcessedCellForCleanup(cellNode, cellToRemove, row);
         } else {
           cellNode.parentElement.removeChild(cellNode);
-        }       
+        }
 
         delete cacheEntry.cellColSpans[cellToRemove];
         delete cacheEntry.cellNodesByColumnIdx[cellToRemove];
@@ -4053,23 +4055,23 @@ if (typeof Slick === "undefined") {
                 rowsCache[rows[i]].rowNode = $()
                     .add($(x.firstChild))
                     .add($(xRight.firstChild));
-                $canvasBottomL[0].append(x.firstChild);
-                $canvasBottomR[0].append(xRight.firstChild);
+                $canvasBottomL[0].appendChild(x.firstChild);
+                $canvasBottomR[0].appendChild(xRight.firstChild);
             } else {
                 rowsCache[rows[i]].rowNode = $()
                     .add($(x.firstChild));
-                $canvasBottomL[0].append($(x.firstChild));
+                $canvasBottomL[0].appendChild(x.firstChild);
             }
         } else if (hasFrozenColumns()) {
             rowsCache[rows[i]].rowNode = $()
                 .add($(x.firstChild))
                 .add($(xRight.firstChild));
-            $canvasTopL[0].append(x.firstChild);
-            $canvasTopR[0].append(xRight.firstChild);
+            $canvasTopL[0].appendChild(x.firstChild);
+            $canvasTopR[0].appendChild(xRight.firstChild);
         } else {
             rowsCache[rows[i]].rowNode = $()
                 .add($(x.firstChild));
-            $canvasTopL[0].append(x.firstChild);
+            $canvasTopL[0].appendChild(x.firstChild);
         }
       }
 
@@ -5210,7 +5212,7 @@ if (typeof Slick === "undefined") {
     function getActiveCellNode() {
       return activeCellNode;
     }
-	  
+
     //This get/set methods are used for keeping text-selection. These don't consider IE because they don't loose text-selection.
     //Fix for firefox selection. See https://github.com/mleibman/SlickGrid/pull/746/files
     function getTextSelection(){
