@@ -794,9 +794,10 @@
 
   function CreateRandomText(words) {
     var amount = Math.round(Math.random() * 10)
-    var result = "";
+    var j, result = "";
     for(var i = 0; i < amount; i++){
-      result += " " + words[Math.round(Math.random() * words.length)];
+      j = Math.floor(Math.random() * words.length);
+      result += (result ? " " : "") + words[j];
     }
     return result;
   };  

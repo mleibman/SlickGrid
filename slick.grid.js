@@ -2417,7 +2417,14 @@ if (typeof Slick === "undefined") {
       if (!autoSize.ignoreHeaderText) {
         headerWidth = getColHeaderWidth(columnDef);
       }
-
+      if (headerWidth === 0) {
+        headerWidth = (columnDef.width ? columnDef.width 
+          : (columnDef.maxWidth ? columnDef.maxWidth 
+            : (columnDef.minWidth ? columnDef.minWidth : 20)
+            )
+        );
+      }
+      
       if (autoSize.colValueArray) {
         // if an array of values are specified, just pass them in instead of data
         maxColWidth = getColWidth(columnDef, $gridCanvas, autoSize.colValueArray);
@@ -2427,6 +2434,8 @@ if (typeof Slick === "undefined") {
       // select rows to evaluate using rowSelectionMode and rowSelectionCount
       var rows = getData();
       if (rows.getItems) { rows = rows.getItems(); }
+
+      if (rows.length === 0) { return headerWidth; }
 
       var rowSelectionMode = (isInit ? autoSize.rowSelectionModeOnInit : undefined) || autoSize.rowSelectionMode;
 
@@ -2450,7 +2459,7 @@ if (typeof Slick === "undefined") {
 
       if (autoSize.valueFilterMode === Slick.ValueFilterMode.GetGreatestAndSub) {
         // get greatest abs value in data
-        var tempVal, maxVal, maxAbsVal = 0;
+        var tempVal, maxVal = 0, maxAbsVal = 0;
         for (i = 0, ii = rows.length; i < ii; i++) {
           tempVal = rows[i][columnDef.field];
           if (Math.abs(tempVal) > maxAbsVal) { maxVal = tempVal; maxAbsVal = Math.abs(tempVal); }
@@ -2479,15 +2488,13 @@ if (typeof Slick === "undefined") {
 
       if (autoSize.valueFilterMode === Slick.ValueFilterMode.GetLongestText) {
         // get greatest abs value in data
-        var tempVal, maxLen = 0, maxIndex = 0;
-        if (row.length) {
-          for (i = 0, ii = rows.length; i < ii; i++) {
-            tempVal = rows[i][columnDef.field];
-            if ((tempVal || '').length > maxLen) { maxLen = tempVal.length; maxIndex = i; }
-          }
-          // now substitute a 'c' for all characters
-          tempVal = rows[maxIndex][columnDef.field];
+        var tempVal = '', maxLen = 0, maxIndex = 0;
+        for (i = 0, ii = rows.length; i < ii; i++) {
+          tempVal = rows[i][columnDef.field];
+          if ((tempVal || '').length > maxLen) { maxLen = tempVal.length; maxIndex = i; }
         }
+        // now substitute a 'c' for all characters
+        tempVal = rows[maxIndex][columnDef.field];
 
         rows = [ tempVal ];
       }
