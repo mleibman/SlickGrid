@@ -657,25 +657,25 @@
     };
 
     this.handleKeyDown = function (e) {
-      if (e.which == $.ui.keyCode.ENTER && e.ctrlKey) {
+      if (e.which == Slick.keyCode.ENTER && e.ctrlKey) {
         scope.save();
-      } else if (e.which == $.ui.keyCode.ESCAPE) {
+      } else if (e.which == Slick.keyCode.ESCAPE) {
         e.preventDefault();
         scope.cancel();
-      } else if (e.which == $.ui.keyCode.TAB && e.shiftKey) {
+      } else if (e.which == Slick.keyCode.TAB && e.shiftKey) {
         e.preventDefault();
         args.grid.navigatePrev();
-      } else if (e.which == $.ui.keyCode.TAB) {
+      } else if (e.which == Slick.keyCode.TAB) {
         e.preventDefault();
         args.grid.navigateNext();
-      } else if (e.which == $.ui.keyCode.LEFT || e.which == $.ui.keyCode.RIGHT) {
+      } else if (e.which == Slick.keyCode.LEFT || e.which == Slick.keyCode.RIGHT) {
         if (args.grid.getOptions().editorCellNavOnLRKeys) {
           var cursorPosition = this.selectionStart;
           var textLength = this.value.length;
-          if (e.keyCode === $.ui.keyCode.LEFT && cursorPosition === 0) {
+          if (e.keyCode === Slick.keyCode.LEFT && cursorPosition === 0) {
             args.grid.navigatePrev();
           }
-          if (e.keyCode === $.ui.keyCode.RIGHT && cursorPosition >= textLength - 1) {
+          if (e.keyCode === Slick.keyCode.RIGHT && cursorPosition >= textLength - 1) {
             args.grid.navigateNext();
           }
         }
@@ -755,14 +755,14 @@
   function handleKeydownLRNav(e) {
     var cursorPosition = this.selectionStart;
     var textLength = this.value.length;
-    if ((e.keyCode === $.ui.keyCode.LEFT && cursorPosition > 0) ||
-      e.keyCode === $.ui.keyCode.RIGHT && cursorPosition < textLength - 1) {
+    if ((e.keyCode === Slick.keyCode.LEFT && cursorPosition > 0) ||
+      e.keyCode === Slick.keyCode.RIGHT && cursorPosition < textLength - 1) {
       e.stopImmediatePropagation();
     }
   }
 
   function handleKeydownLRNoNav(e) {
-    if (e.keyCode === $.ui.keyCode.LEFT || e.keyCode === $.ui.keyCode.RIGHT) {
+    if (e.keyCode === Slick.keyCode.LEFT || e.keyCode === Slick.keyCode.RIGHT) {
       e.stopImmediatePropagation();
     }
   }
