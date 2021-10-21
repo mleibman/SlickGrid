@@ -568,6 +568,12 @@ if (typeof Slick === "undefined") {
         $headerRowScroller
             .on("scroll", handleHeaderRowScroll);
 
+        if (options.showHeaderRow) {
+          $headerRow
+            .on("mouseenter", ".slick-headerrow-column", handleHeaderRowMouseEnter)
+            .on("mouseleave", ".slick-headerrow-column", handleHeaderRowMouseLeave);
+        }
+
         if (options.createFooterRow) {
           $footerRow
             .on("contextmenu", handleFooterContextMenu)
@@ -4727,6 +4733,20 @@ if (typeof Slick === "undefined") {
       }, e);
     }
 
+    function handleHeaderRowMouseEnter(e) {
+      trigger(self.onHeaderRowMouseEnter, {
+        "column": $(this).data("column"),
+        "grid": self
+      }, e);
+    }
+
+    function handleHeaderRowMouseLeave(e) {
+      trigger(self.onHeaderRowMouseLeave, {
+        "column": $(this).data("column"),
+        "grid": self
+      }, e);
+    }
+
     function handleHeaderContextMenu(e) {
       var $header = $(e.target).closest(".slick-header-column", ".slick-header-columns");
       var column = $header && $header.data("column");
@@ -5941,6 +5961,8 @@ if (typeof Slick === "undefined") {
       "onSort": new Slick.Event(),
       "onHeaderMouseEnter": new Slick.Event(),
       "onHeaderMouseLeave": new Slick.Event(),
+      "onHeaderRowMouseEnter": new Slick.Event(),
+      "onHeaderRowMouseLeave": new Slick.Event(),
       "onHeaderContextMenu": new Slick.Event(),
       "onHeaderClick": new Slick.Event(),
       "onHeaderCellRendered": new Slick.Event(),

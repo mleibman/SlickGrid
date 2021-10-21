@@ -34,7 +34,7 @@
       color = "green";
     }
 
-    return "<span class='percent-complete-bar' style='background:" + color + ";width:" + value + "%'></span>";
+    return "<span class='percent-complete-bar' style='background:" + color + ";width:" + value + "%' title='" + value + "%'></span>";
   }
 
   function YesNoFormatter(row, cell, value, columnDef, dataContext) {

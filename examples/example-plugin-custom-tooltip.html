@@ -1,0 +1,378 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+  <title>SlickGrid example 3: Editing</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css" />
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui.css" type="text/css" />
+  <link rel="stylesheet" href="../plugins/slick.customtooltip.css" type="text/css" />
+  <link rel="stylesheet" href="examples.css" type="text/css" />
+  <style>
+    .cell-title, .bold {
+      font-weight: bold;
+    }
+
+    .cell-effort-driven {
+      text-align: center;
+    }
+    .slick-headerrow-column {
+      background: #c4ddc4;
+      text-overflow: clip;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+
+    .slick-headerrow-column input {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+    
+    .header-tooltip-title {
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .headerrow-tooltip-title {
+      color: #AD0041;
+      font-style: italic;
+      font-size: 13px;
+    }
+    .l3 .headerrow-tooltip-title {
+      color: #ffffff;
+    }
+    .tooltip-2cols-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr;
+      column-gap: 5px;
+      line-height: 20px;
+    }
+
+    /* change css of 3rd column (l3) */
+    .l3 .header-tooltip-title,
+    .l3 .headerrow-tooltip-title {
+      color: #ffffff;
+    }
+    .l3.slick-custom-tooltip {
+      background-color: #363636;
+      color: #ffffff;
+      border: 2px solid #252525;
+    }
+    .l3.slick-custom-tooltip.tooltip-arrow.arrow-down::after,
+    .l3.slick-custom-tooltip.tooltip-arrow.arrow-up::after {
+      border-width: 10px; /* arrow size */
+    }
+    .l3.slick-custom-tooltip.tooltip-arrow.arrow-down::after {
+      border-top-color: #252525; /* arrow down color */
+    }
+    .l3.slick-custom-tooltip.tooltip-arrow.arrow-up::after {
+      top: -20px; /* arrow size * 2 */
+      border-bottom-color: #252525; /* arrow up color */
+    }
+    .l3.slick-custom-tooltip.tooltip-arrow.arrow-left-align::after {
+      margin-left: 15px;
+    }
+    .l3.slick-custom-tooltip.tooltip-arrow.arrow-right-align::after {
+      margin-left: calc(100% - 20px - 15px); /* 20px is (arrow size * 2), 15px is your extra side margin */
+    }
+    .l5.slick-custom-tooltip.arrow-left-align::after {
+      margin-left: 5%;
+    }
+  </style>
+</head>
+
+<body>
+  <div style="position:relative">
+    <div style="width:718px;">
+      <div id="myGrid" style="width:100%;height:500px;"></div>
+    </div>
+
+    <div class="options-panel" style="margin-left: 100px">
+      <h2>Demonstrates: <code>Slick.Plugins.CustomTooltip</code></h2>
+      <ul>
+        <li>Custom Tooltip Plugin</li>
+        <li>1st column shows an async tooltip (could be an API with Promise), it demos a formatter which itself has a
+          formatter displaying percent complete bar
+        </li>
+        <li>2nd column is with "useRegularTooltip" which will parse your cell formatters in search of a "title" attribute to use as tooltip</li>
+        <li>Every other columns will show other info of the item data context</li>
+        <li>Tooltip gets auto-position depending on its available space</li>
+        <li>You can disable a tooltip via "usabilityOverride"</li>
+      </ul>
+
+      <h2>Options:</h2>
+      <button onclick="customTooltipPlugin.setOptions({hideArrow:true})">Hide Tooltip Arrow ON</button>
+      &nbsp;
+      <button onclick="customTooltipPlugin.setOptions({hideArrow:false})">Hide Tooltip Arrow OFF</button>
+      <br/>
+      <br/>
+      <button onclick="disableTooltip(true)">Disable Tooltip ON</button>
+      &nbsp;
+      <button onclick="disableTooltip(false)">Disable Tooltip OFF</button>
+      <h2>View Source:</h2>
+      <ul>
+        <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-plugin-custom-tooltip.html"
+            target="_sourcewindow"> View the source for this example on Github</a></li>
+      </ul>
+      <p>
+	      <input type="number" id="server-delay" value="500"/> <button id="set-delay-btn" onclick="changeServerDelay()">Change Server Delay Wait (ms)</button>
+	    </p>
+    </div>
+  </div>
+
+  <script src="../lib/firebugx.js"></script>
+
+  <script src="../lib/jquery-1.12.4.min.js"></script>
+  <script src="../lib/jquery-ui.min.js"></script>
+  <script src="../lib/jquery.event.drag-2.3.0.js"></script>
+
+  <script src="../slick.core.js"></script>
+  <script src="../plugins/slick.checkboxselectcolumn.js"></script>
+  <script src="../plugins/slick.cellrangedecorator.js"></script>
+  <script src="../plugins/slick.cellrangeselector.js"></script>
+  <script src="../plugins/slick.cellselectionmodel.js"></script>
+  <script src="../plugins/slick.rowselectionmodel.js"></script>
+  <script src="../plugins/slick.customtooltip.js"></script>
+  <script src="../slick.dataview.js"></script>
+  <script src="../slick.formatters.js"></script>
+  <script src="../slick.editors.js"></script>
+  <script src="../slick.grid.js"></script>
+
+  <script>
+    function requiredFieldValidator(value) {
+      if (value == null || value == undefined || !value.length) {
+        return { valid: false, msg: "This is a required field" };
+      } else {
+        return { valid: true, msg: null };
+      }
+    }
+
+    function disableTooltip(disable) {
+      if (disable) {
+        isTooltipDisabled = true;
+        // customTooltipPlugin.setOptions({ usabilityOverride: function (args) { return false;}});
+      } else {
+        isTooltipDisabled = false;
+        // customTooltipPlugin.setOptions({ usabilityOverride: function (args) { return args.cell !== 0;}});
+      }
+    }
+
+    function changeServerDelay(delay) {
+      serverApiDelay = $('#server-delay').val();
+    }
+
+    function filter(item) {
+      for (var columnId in columnFilters) {
+        if (columnId !== undefined && columnFilters[columnId] !== "") {
+          var column = grid.getColumns()[grid.getColumnIndex(columnId)];
+
+          if (item[column.field] !== undefined) {
+            var filterResult = typeof item[column.field].indexOf === 'function'
+              ? (item[column.field].indexOf(columnFilters[columnId]) === -1)
+              : (item[column.field] != columnFilters[columnId]);
+
+            if (filterResult) {
+              return false;
+            }
+          }
+        }
+      }
+      return true;
+    }
+
+    var isTooltipDisabled = false;
+    var columnFilters = {};
+    var grid;
+    var data = [];
+    var dataView;
+    var customTooltipPlugin;
+    var serverApiDelay = 500; // simulate API server call delay
+    var columns = [
+      {
+        id: "title", name: "Title", field: "title", width: 70, cssClass: "cell-title",
+        editor: Slick.Editors.Text, validator: requiredFieldValidator,
+        customTooltip: {
+          // position: 'bottom', // defaults to "auto", available options are: "auto", "top", "left", "bottom", "right"
+          // you can use the Custom Tooltip in 2 ways (synchronous or asynchronous)
+          // example 1 (sync):
+          // formatter: this.tooltipTaskFormatter.bind(this),
+
+          // example 2 (async):
+          // when using async, the `formatter` will contain the loading spinner
+          // you will need to provide an `asyncPost` function returning a Promise and also `asyncPostFormatter` formatter to display the result once the Promise resolves
+          formatter: () => `<div>loading...</div>`,
+          asyncProcess: () => new Promise(resolve => {
+            setTimeout(() => resolve({ ratio: Math.random() * 10 / 10, lifespan: Math.random() * 100 }), serverApiDelay);
+          }),
+          asyncPostFormatter: this.tooltipTaskFormatter.bind(this),
+
+          // optional conditional usability callback
+          // usabilityOverride: (args) => !!(args.dataContext?.id % 2) // show it only every second row
+        },
+      },
+      { 
+        id: "desc", name: '<span title="custom title tooltip text">Description</span>', field: "description", width: 100, editor: Slick.Editors.LongText,  
+        formatter: (row, cell, value, column, dataContext) => `<span title="regular tooltip (from title attribute)\r${dataContext.title} cell value:\r${value || ''}">${value || ''}</span>`,
+        // define tooltip options here OR for the entire grid via the grid options (cell tooltip options will have precedence over grid options)
+        customTooltip: {
+          useRegularTooltip: true, // note regular tooltip will try to find a "title" attribute in the cell formatter (it won't work without a cell formatter)
+        },
+      },
+      { 
+        id: "desc2", name: '<span title="custom title tooltip text">Description 2</span>', field: "description", width: 100, editor: Slick.Editors.LongText,  
+        formatter: (row, cell, value, column, dataContext) => `<span title="regular tooltip (from title attribute)\r${dataContext.title} cell value:\r${value || ''}">${value || ''}</span>`,
+        // define tooltip options here OR for the entire grid via the grid options (cell tooltip options will have precedence over grid options)
+        customTooltip: {
+          useRegularTooltip: true, // note regular tooltip will try to find a "title" attribute in the cell formatter (it won't work without a cell formatter)
+          useRegularTooltipFromFormatterOnly: true,
+          // renderRegularTooltipAsHtml: true, // defaults to false, regular "title" tooltip won't be rendered as html unless specified via this flag (also "\r\n" will be replaced by <br>)
+          // maxWidth: 75,
+          // maxHeight: 30,
+        },
+      },
+      { id: "duration", name: "Duration", field: "duration", editor: Slick.Editors.Text },
+      { 
+        id: "%", name: "% Complete", field: "percentComplete", width: 80, resizable: false, 
+        formatter: Slick.Formatters.PercentCompleteBar, 
+        editor: Slick.Editors.PercentComplete,
+        customTooltip: { useRegularTooltip: true },
+      },
+      { id: "start", name: "Start", field: "start", minWidth: 60, editor: Slick.Editors.Date },
+      { 
+        id: "finish", name: "Finish", field: "finish", minWidth: 60, editor: Slick.Editors.Date,
+        // you could disable the custom/regular tooltip via either of the following 2 options
+        disableTooltip: true,
+        // customTooltip: {
+        //   usabilityOverride: (args) => false,
+        // },
+      },
+      { id: "effortDriven", name: "Effort Driven", width: 80, minWidth: 20, maxWidth: 80, cssClass: "cell-effort-driven", field: "effortDriven", formatter: Slick.Formatters.Checkmark, editor: Slick.Editors.Checkbox }
+    ];
+
+    var gridOptions = {
+      editable: true,
+      enableAddRow: true,
+      enableCellNavigation: true,
+      explicitInitialization: true,
+      asyncEditorLoading: false,
+      autoEdit: false,
+      showHeaderRow: true,
+      headerRowHeight: 30,
+      multiSelect: true,
+      // Custom Tooltip options can be defined in a Column or Grid Options or a mixed of both (first options found wins)
+      customTooltip: {
+        formatter: tooltipFormatter,
+        headerFormatter: headerFormatter,
+        headerRowFormatter: headerRowFormatter,
+        usabilityOverride: function (args) {
+         return !isTooltipDisabled && args.cell !== 0; // don't show on first column (row selection column)
+        }
+        // hideArrow: true, // defaults to False
+      },
+    };
+
+    function headerFormatter(row, cell, value, column, dataContext) {
+      const tooltipTitle = 'Custom Tooltip - Header';
+      return '<div class="header-tooltip-title" style="font-weight: bold">' + tooltipTitle + '</div>'
+      + '<div class="tooltip-2cols-row"><div>Column:</div> <div>' + column.name + '</div></div>';
+    }
+
+    function headerRowFormatter(row, cell, value, column, dataContext) {
+      const tooltipTitle = 'Custom Tooltip - Header Row (filter)';
+      return '<div class="headerrow-tooltip-title" style="font-weight: bold">' + tooltipTitle + '</div>'
+      + '<div class="tooltip-2cols-row"><div>Column:</div> <div>' + column.field + '</div></div>';
+    }
+
+    function tooltipFormatter(row, cell, value, column, dataContext) {
+      const tooltipTitle = 'Custom Tooltip';
+      const effortDrivenHtml = Slick.Formatters.Checkmark(row, cell, dataContext.effortDriven, column, dataContext);
+      const completionBarHtml = Slick.Formatters.PercentCompleteBar(row, cell, dataContext.percentComplete, column, dataContext);
+      return '<div class="bold">' + tooltipTitle + '</div>'
+        + '<div class="tooltip-2cols-row"><div>Id:</div> <div>' + dataContext.id + '</div></div>'
+        + '<div class="tooltip-2cols-row"><div>Title:</div> <div>' + dataContext.title + '</div></div>'
+        + '<div class="tooltip-2cols-row"><div>Completion:</div> <div>' + completionBarHtml + '</div></div>'
+        + '<div class="tooltip-2cols-row"><div>Effort Driven:</div> <div>' + effortDrivenHtml + '</div></div>';
+    }
+
+    function tooltipTaskFormatter(row, cell, value, column, dataContext, grid) {
+      const tooltipTitle = 'Task ' + dataContext.id + ' - (async tooltip)';
+
+      // use a 2nd Formatter to get the percent completion
+      // any properies provided from the `asyncPost` will end up in the `__params` property (unless a different prop name is provided via `asyncParamsPropName`)
+      const completionBar = Slick.Formatters.PercentCompleteBar(row, cell, dataContext.percentComplete, column, dataContext);
+      const out = '<div class="bold">' + tooltipTitle + '</div>'
+        + '<div class="tooltip-2cols-row"><div>Completion:</div> <div>' + completionBar + '</div></div>'
+        + '<div class="tooltip-2cols-row"><div>Lifespan:</div> <div>' + dataContext.__params.lifespan.toFixed(2) + '</div></div>'
+        + '<div class="tooltip-2cols-row"><div>Ratio:</div> <div>'+dataContext.__params.ratio.toFixed(2) + '</div></div>';
+      return out;
+    }
+
+    $(function () {
+      for (var i = 0; i < 500; i++) {
+        var d = (data[i] = {});
+
+        d["id"] = i;
+        d["title"] = "Task " + i;
+        d["description"] = "This is a sample task description.\nIt can be multiline\r\rAnother line...";
+        d["duration"] = "5 days";
+        d["percentComplete"] = Math.round(Math.random() * 100);
+        d["start"] = "01/01/2009";
+        d["finish"] = "01/05/2009";
+        d["effortDriven"] = (i % 5 == 0);
+      }
+
+      var checkboxSelector = new Slick.CheckboxSelectColumn({
+        cssClass: "slick-cell-checkboxsel"
+      });
+      columns.unshift(checkboxSelector.getColumnDefinition());
+      dataView = new Slick.Data.DataView();
+      grid = new Slick.Grid("#myGrid", dataView, columns, gridOptions);
+      grid.setSelectionModel(new Slick.RowSelectionModel({ selectActiveRow: false }));
+      grid.registerPlugin(checkboxSelector);
+
+      customTooltipPlugin = new Slick.Plugins.CustomTooltip();
+      grid.setSelectionModel(new Slick.CellSelectionModel());
+      grid.registerPlugin(customTooltipPlugin);
+
+      $(grid.getHeaderRow()).on("change keyup", ":input", function (e) {
+        var columnId = $(this).data("columnId");
+        if (columnId != null) {
+          // keep filter in global variable & filter dataset by calling a refresh
+          columnFilters[columnId] = $.trim($(this).val());
+          dataView.refresh();
+        }
+      });
+
+      grid.onHeaderRowCellRendered.subscribe(function(e, args) {
+        $(args.node).empty();
+        $("<input type='text'>")
+            .data("columnId", args.column.id)
+            .val(columnFilters[args.column.id])
+            .appendTo(args.node);
+      });
+
+      dataView.onRowCountChanged.subscribe(function (e, args) {
+        grid.updateRowCount();
+        grid.render();
+      });
+
+      dataView.onRowsChanged.subscribe(function (e, args) {
+        grid.invalidateRows(args.rows);
+        grid.render();
+      });
+
+      grid.init();
+      dataView.beginUpdate();
+      dataView.setItems(data);
+      dataView.setFilter(filter);
+      dataView.endUpdate();
+    })
+  </script>
+</body>
+
+</html>

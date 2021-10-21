@@ -325,7 +325,7 @@ describe('Example - Composite Editor Modal with Create/Edit/Mass-Update/Mass-Sel
     cy.get(`[style="top:12500px"] > .slick-cell:nth(3)`).should('contain', '9 days');
     cy.get(`[style="top:12500px"] > .slick-cell:nth(4)`).each($cell => {
       const htmlText = $cell.html();
-      expect(htmlText).to.eq('<span class="percent-complete-bar" style="background:silver;width:44%"></span>');
+      expect(htmlText).to.eq('<span class="percent-complete-bar" style="background:silver;width:44%" title="44%"></span>');
     });
     cy.get(`[style="top:12500px"] > .slick-cell:nth(5)`).should('contain', '02/01/2020');
     cy.get(`[style="top:12500px"] > .slick-cell:nth(6)`).should('contain', '');
