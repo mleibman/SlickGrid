@@ -195,6 +195,12 @@ classes should alter those!
   filter: alpha(opacity = 70);
 }
 
+.slick-reorder-shadow-row {
+  position: absolute;
+  z-index: 999999;
+  box-shadow: rgb(0 0 0 / 20%) 8px 2px 8px 4px, rgb(0 0 0 / 19%) 2px 2px 0px 0px;
+}
+
 .slick-selection {
   z-index: 10;
   position: absolute;

@@ -1,12 +1,17 @@
 /**
  * Row Move Manager options:
- *    cssClass:             A CSS class to be added to the menu item container.
- *    columnId:             Column definition id (defaults to "_move")
- *    cancelEditOnDrag:     Do we want to cancel any Editing while dragging a row (defaults to false)
- *    disableRowSelection:  Do we want to disable the row selection? (defaults to false)
- *    singleRowMove:        Do we want a single row move? Setting this to false means that it's a multple row move (defaults to false)
- *    width:                Width of the column
- *    usabilityOverride:    Callback method that user can override the default behavior of the row being moveable or not
+ *    cssClass:                 A CSS class to be added to the menu item container.
+ *    columnId:                 Column definition id (defaults to "_move")
+ *    cancelEditOnDrag:         Do we want to cancel any Editing while dragging a row (defaults to false)
+ *    disableRowSelection:      Do we want to disable the row selection? (defaults to false)
+ *    hideRowMoveShadow:        Do we want to hide the row move shadow clone? (defaults to true)
+ *    rowMoveShadowMarginTop:   When row move shadow is shown, optional margin-top (defaults to 0)
+ *    rowMoveShadowMarginLeft:  When row move shadow is shown, optional margin-left (defaults to 0)
+ *    rowMoveShadowOpacity:     When row move shadow is shown, what is its opacity? (defaults to 0.95)
+ *    rowMoveShadowScale:       When row move shadow is shown, what is its size scale? (default to 0.75)
+ *    singleRowMove:            Do we want a single row move? Setting this to false means that it's a multple row move (defaults to false)
+ *    width:                    Width of the column
+ *    usabilityOverride:        Callback method that user can override the default behavior of the row being moveable or not
  *
  */
 (function ($) {
@@ -29,6 +34,11 @@
       cssClass: null,
       cancelEditOnDrag: false,
       disableRowSelection: false,
+      hideRowMoveShadow: true,
+      rowMoveShadowMarginTop: 0,
+      rowMoveShadowMarginLeft: 0,
+      rowMoveShadowOpacity: 0.95,
+      rowMoveShadowScale: 0.75,
       singleRowMove: false,
       width: 40,
     };
@@ -82,6 +92,21 @@
       _dragging = true;
       e.stopImmediatePropagation();
 
+      // optionally create a shadow element of the row so that we can see all the time which row exactly we're dragging
+      if (!options.hideRowMoveShadow) {
+        var $slickRowElm = $(_grid.getCellNode(cell.row, cell.cell)).closest('.slick-row');
+        if ($slickRowElm) {
+          dd.clonedSlickRow = $slickRowElm.clone();
+          dd.clonedSlickRow.addClass('slick-reorder-shadow-row')
+            .css("marginTop", options.rowMoveShadowMarginTop || 0)
+            .css("marginLeft", options.rowMoveShadowMarginLeft || 0)
+            .css("opacity", options.rowMoveShadowOpacity || 0.95)
+            .css("transform", "scale(" + options.rowMoveShadowScale + ")")
+            .hide()
+            .appendTo(_canvas);
+        }
+      }
+
       var selectedRows = options.singleRowMove ? [cell.row] : _grid.getSelectedRows();
 
       if (selectedRows.length === 0 || $.inArray(cell.row, selectedRows) == -1) {
@@ -100,6 +125,7 @@
         .css("zIndex", "99999")
         .css("width", $(_canvas).innerWidth())
         .css("height", rowHeight * selectedRows.length)
+        .hide()
         .appendTo(_canvas);
 
       dd.guide = $("<div class='slick-reorder-guide'/>")
@@ -120,7 +146,13 @@
       e.stopImmediatePropagation();
 
       var top = e.pageY - $(_canvas).offset().top;
-      dd.selectionProxy.css("top", top - 5);
+      dd.selectionProxy.css("top", top - 5).show();
+
+      // if the row move shadow is enabled, we'll also make it follow the mouse cursor
+      if (dd.clonedSlickRow) {
+        var offsetY = e.pageY - $(_canvas).offset().top;
+        dd.clonedSlickRow.css("top", offsetY - 6).show();
+      }
 
       var insertBefore = Math.max(0, Math.min(Math.round(top / _grid.getOptions().rowHeight), _grid.getDataLength()));
       if (insertBefore !== dd.insertBefore) {
@@ -163,6 +195,10 @@
 
       dd.guide.remove();
       dd.selectionProxy.remove();
+      if (dd.clonedSlickRow) {
+        dd.clonedSlickRow.remove();
+        dd.clonedSlickRow = null;
+      }
 
       if (dd.canMove) {
         var eventData = {
