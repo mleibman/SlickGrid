@@ -2424,13 +2424,13 @@ if (typeof Slick === "undefined") {
         headerWidth = getColHeaderWidth(columnDef);
       }
       if (headerWidth === 0) {
-        headerWidth = (columnDef.width ? columnDef.width 
-          : (columnDef.maxWidth ? columnDef.maxWidth 
+        headerWidth = (columnDef.width ? columnDef.width
+          : (columnDef.maxWidth ? columnDef.maxWidth
             : (columnDef.minWidth ? columnDef.minWidth : 20)
             )
         );
       }
-      
+
       if (autoSize.colValueArray) {
         // if an array of values are specified, just pass them in instead of data
         maxColWidth = getColWidth(columnDef, $gridCanvas, autoSize.colValueArray);
@@ -3485,10 +3485,10 @@ if (typeof Slick === "undefined") {
     function applyFormatResultToCellNode(formatterResult, cellNode, suppressRemove) {
         if (formatterResult === null || formatterResult === undefined) { formatterResult = ''; }
         if (Object.prototype.toString.call(formatterResult)  !== '[object Object]') {
-          cellNode.innerHTML = formatterResult;
+          cellNode.innerHTML = sanitizeHtmlString(formatterResult);
           return;
         }
-        cellNode.innerHTML = formatterResult.text;
+        cellNode.innerHTML = sanitizeHtmlString(formatterResult.text);
         if (formatterResult.removeClasses && !suppressRemove) {
           $(cellNode).removeClass(formatterResult.removeClasses);
         }
@@ -3995,7 +3995,7 @@ if (typeof Slick === "undefined") {
       }
 
       var x = document.createElement("div");
-      x.innerHTML = stringArray.join("");
+      x.innerHTML = sanitizeHtmlString(stringArray.join(""));
 
       var processedRow;
       var node;
@@ -4059,8 +4059,8 @@ if (typeof Slick === "undefined") {
       var x = document.createElement("div"),
         xRight = document.createElement("div");
 
-      x.innerHTML = stringArrayL.join("");
-      xRight.innerHTML = stringArrayR.join("");
+      x.innerHTML = sanitizeHtmlString(stringArrayL.join(""));
+      xRight.innerHTML = sanitizeHtmlString(stringArrayR.join(""));
 
       for (var i = 0, ii = rows.length; i < ii; i++) {
         if (( hasFrozenRows ) && ( rows[i] >= actualFrozenRow )) {
@@ -5924,6 +5924,10 @@ if (typeof Slick === "undefined") {
       }
     }
 
+    /** basic html sanitizer to avoid scripting attack */
+    function sanitizeHtmlString(dirtyHtml) {
+      return typeof dirtyHtml === 'string' ? dirtyHtml.replace(/(\b)(on\S+)(\s*)=|javascript:([^>]*)[^>]*|(<\s*)(\/*)script([<>]*).*(<\s*)(\/*)script(>*)|(&lt;)(\/*)(script|script defer)(.*)(&gt;|&gt;">)/gi, '') : dirtyHtml;
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Debug
@@ -6116,6 +6120,7 @@ if (typeof Slick === "undefined") {
       "getCellCssStyles": getCellCssStyles,
       "getFrozenRowOffset": getFrozenRowOffset,
       "setColumnHeaderVisibility": setColumnHeaderVisibility,
+      "sanitizeHtmlString": sanitizeHtmlString,
 
       "init": finishInitialization,
       "destroy": destroy,

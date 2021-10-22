@@ -10,7 +10,7 @@
  * var customTooltipPlugin = new Slick.Plugins.CustomTooltip(columns, grid options);
  *
  * Available plugin options (same options are available in both column definition and/or grid options)
- *  
+ *
  * Example 1  - via Column Definition
  *  var columns = [
  *    {
@@ -21,7 +21,7 @@
  *      }
  *    }
  *  ];
- * 
+ *
  *  OR Example 2 - via Grid Options (for all columns), NOTE: the column definition tooltip options will win over the options defined in the grid options
  *  var gridOptions = {
  *    enableCellNavigation: true,
@@ -466,9 +466,9 @@
       if (typeof formatterOrText === 'function') {
         var tooltipText = formatterOrText(cell.row, cell.cell, value, columnDef, item, _grid);
         var formatterText = (typeof tooltipText === 'object' && tooltipText && tooltipText.text) ? tooltipText.text : (typeof tooltipText === 'string' ? tooltipText : '');
-        return sanitizeHtmlString(formatterText);
+        return _grid.sanitizeHtmlString(formatterText);
       } else if (typeof formatterOrText === 'string') {
-        return sanitizeHtmlString(formatterOrText);
+        return _grid.sanitizeHtmlString(formatterOrText);
       }
       return '';
     }
@@ -485,7 +485,7 @@
       outputText = (_cellTooltipOptions.tooltipTextMaxLength && outputText.length > _cellTooltipOptions.tooltipTextMaxLength) ? outputText.substr(0, _cellTooltipOptions.tooltipTextMaxLength - 3) + '...' : outputText;
 
       if (!tooltipText || (_cellTooltipOptions && _cellTooltipOptions.renderRegularTooltipAsHtml)) {
-        _tooltipElm.innerHTML = sanitizeHtmlString(outputText);
+        _tooltipElm.innerHTML = _grid.sanitizeHtmlString(outputText);
         _tooltipElm.style.whiteSpace = (_cellTooltipOptions && _cellTooltipOptions.whiteSpace) || _defaultOptions.whiteSpace;
       } else {
         _tooltipElm.textContent = outputText || '';
@@ -529,11 +529,6 @@
 
     function setOptions(newOptions) {
       _options = $.extend({}, _options, newOptions);
-    }
-
-    /** basic html sanitizer to avoid xss */
-    function sanitizeHtmlString(dirtyHtml) {
-      return typeof dirtyHtml === 'string' ? dirtyHtml.replace(/(\b)(on\S+)(\s*)=|javascript:([^>]*)[^>]*|(<\s*)(\/*)script([<>]*).*(<\s*)(\/*)script([<>]*)/gi, '') : '';
     }
 
     // Public API
