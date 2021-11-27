@@ -5926,7 +5926,10 @@ if (typeof Slick === "undefined") {
 
     /** basic html sanitizer to avoid scripting attack */
     function sanitizeHtmlString(dirtyHtml) {
-      return typeof dirtyHtml === 'string' ? dirtyHtml.replace(/(\b)(on\S+)(\s*)=|javascript:([^>]*)[^>]*|(<\s*)(\/*)script([<>]*).*(<\s*)(\/*)script(>*)|(&lt;)(\/*)(script|script defer)(.*)(&gt;|&gt;">)/gi, '') : dirtyHtml;
+      var sanitizer = options.sanitizer || function (dirtyHtmlStr) {
+        return dirtyHtmlStr.replace(/(\b)(on\S+)(\s*)=|javascript:([^>]*)[^>]*|(<\s*)(\/*)script([<>]*).*(<\s*)(\/*)script(>*)|(&lt;)(\/*)(script|script defer)(.*)(&gt;|&gt;">)/gi, '');
+      }
+      return typeof dirtyHtml === 'string' ? sanitizer(dirtyHtml) : dirtyHtml;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
