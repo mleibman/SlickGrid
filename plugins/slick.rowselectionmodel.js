@@ -13,12 +13,15 @@
     var _handler = new Slick.EventHandler();
     var _inHandler;
     var _options;
+    var _selector;
     var _defaults = {
-      selectActiveRow: true
+      selectActiveRow: true,
+      cellRangeSelector: undefined
     };
 
     function init(grid) {
       _options = $.extend(true, {}, _defaults, options);
+      _selector = _options.cellRangeSelector;
       _grid = grid;
       _handler.subscribe(_grid.onActiveCellChanged,
           wrapHandler(handleActiveCellChange));
@@ -26,10 +29,25 @@
           wrapHandler(handleKeyDown));
       _handler.subscribe(_grid.onClick,
           wrapHandler(handleClick));
+      if (_selector) {
+        grid.registerPlugin(_selector);
+        _selector.onCellRangeSelecting.subscribe(handleCellRangeSelected);
+        _selector.onCellRangeSelected.subscribe(handleCellRangeSelected);
+        _selector.onBeforeCellRangeSelected.subscribe(handleBeforeCellRangeSelected);
+      }
     }
 
     function destroy() {
       _handler.unsubscribeAll();
+      if (_selector) {
+        _selector.onCellRangeSelecting.unsubscribe(handleCellRangeSelected);
+        _selector.onCellRangeSelected.unsubscribe(handleCellRangeSelected);
+        _selector.onBeforeCellRangeSelected.unsubscribe(handleBeforeCellRangeSelected);
+        _grid.unregisterPlugin(_selector);
+        if (_selector.destroy) {
+          _selector.destroy();
+        }
+      }
     }
 
     function wrapHandler(handler) {
@@ -173,6 +191,21 @@
       e.stopImmediatePropagation();
 
       return true;
+    }
+
+    function handleBeforeCellRangeSelected(e, cell) {
+      if (_grid.getEditorLock().isActive()) {
+        e.stopPropagation();
+        return false;
+      }
+      _grid.setActiveCell(cell.row, cell.cell);
+    }
+
+    function handleCellRangeSelected(e, args) {
+      if (!_grid.getOptions().multiSelect || !_options.selectActiveRow) {
+        return false;
+      }
+      setSelectedRanges([new Slick.Range(args.range.fromRow, 0, args.range.toRow, _grid.getColumns().length - 1)])
     }
 
     $.extend(this, {
