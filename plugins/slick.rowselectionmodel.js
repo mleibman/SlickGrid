@@ -95,14 +95,20 @@
     }
 
     function setSelectedRows(rows) {
-      setSelectedRanges(rowsToRanges(rows));
+      setSelectedRanges(rowsToRanges(rows), "SlickRowSelectionModel.setSelectedRows");
     }
 
-    function setSelectedRanges(ranges) {
+    function setSelectedRanges(ranges, caller) {
       // simple check for: empty selection didn't change, prevent firing onSelectedRangesChanged
-      if ((!_ranges || _ranges.length === 0) && (!ranges || ranges.length === 0)) { return; }
+      if ((!_ranges || _ranges.length === 0) && (!ranges || ranges.length === 0)) { 
+        return; 
+      }
       _ranges = ranges;
-      _self.onSelectedRangesChanged.notify(_ranges);
+      
+      // provide extra "caller" argument through SlickEventData to avoid breaking pubsub event that only accepts an array of selected range
+      var eventData = new Slick.EventData();
+      Object.defineProperty(eventData, 'detail', { writable: true, configurable: true, value: { caller: caller || "SlickRowSelectionModel.setSelectedRanges" } });
+      _self.onSelectedRangesChanged.notify(_ranges, eventData);
     }
 
     function getSelectedRanges() {
