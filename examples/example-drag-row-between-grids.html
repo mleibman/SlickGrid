@@ -1,0 +1,238 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+  <title>SlickGrid example: Dragging a row between grids</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+  <style>
+    .cell-effort-driven {
+      text-align: center;
+    }
+
+    .cell-drag-cross-grid {
+      cursor: move;
+      background-color: lightGrey;
+    }
+
+    .cell-selection {
+      border-right-color: silver;
+      border-right-style: solid;
+      background: #f5f5f5;
+      color: gray;
+      text-align: right;
+      font-size: 10px;
+    }
+
+    .slick-row.selected .cell-selection {
+      background-color: transparent; /* show default selected row background */
+    }
+
+    .recycle-bin {
+      width: 120px;
+      border: 1px solid gray;
+      background: beige;
+      padding: 4px;
+      font-size: 12pt;
+      font-weight: bold;
+      color: black;
+      text-align: center;
+      -moz-border-radius: 10px;
+    }
+
+    .red {
+      background: red;
+    }
+
+    .bold {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+<div style="position:relative">
+  <div style="width:600px;">
+    <div class="grid-header" style="width:100%">
+      <label>Santa's TODO list:</label>
+    </div>
+    <div id="myGrid" style="width:100%;height:200px;"></div>
+  </div>
+  <br/>
+  <div style="width:600px;">
+    <div class="grid-header" style="width:100%">
+      <label>Shopping list:</label>
+    </div>
+    <div id="myGrid2" class="example-grid" style="width:100%;height:200px;"></div>
+  </div>
+  <div class="options-panel">
+    <b>Tips:</b>
+    <hr/>
+    <div style="padding:6px;">
+      <b>Drag rows from the top grid to the bottom grid</b><br/>
+      Click to select, Ctrl-click to toggle selection, Shift-click to select a range.<br/>
+      Drag one or more rows by the handle (the grey box on the left) from the top grid to the bottom grid.<br/>
+      To drag in both directions, you would need to set up a second plugin going the other way.
+      <h2>View Source:</h2>
+      <ul>
+          <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-drag-row-between-grids.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script src="../lib/firebugx.js"></script>
+
+<script src="../lib/jquery-1.12.4.min.js"></script>
+<script src="../lib/jquery-ui.min.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
+<script src="../lib/jquery.event.drop-2.3.0.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../plugins/slick.cellrangeselector.js"></script>
+<script src="../plugins/slick.cellselectionmodel.js"></script>
+<script src="../plugins/slick.rowselectionmodel.js"></script>
+<script src="../plugins/slick.crossgridrowmovemanager.js"></script>
+<script src="../slick.formatters.js"></script>
+<script src="../slick.editors.js"></script>
+<script src="../slick.grid.js"></script>
+
+<script>
+var grid, grid2;
+var data = [], data2 = [];
+var columns = [
+  {
+    id: "#",
+    name: "",
+    width: 15,
+    behavior: "selectAndMove",
+    selectable: false,
+    resizable: false,
+    cssClass: "cell-drag-cross-grid dnd"
+  },
+  {
+    id: "name",
+    name: "Name",
+    field: "name",
+    width: 500,
+    cssClass: "cell-title",
+    editor: Slick.Editors.Text,
+    validator: requiredFieldValidator
+  },
+  {
+    id: "complete",
+    name: "Complete",
+    width: 60,
+    cssClass: "cell-effort-driven",
+    field: "complete",
+    cannotTriggerInsert: true,
+    formatter: Slick.Formatters.Checkmark,
+    editor: Slick.Editors.Checkbox
+  }
+];
+
+var columns2 = [
+  {
+    id: "name",
+    name: "Name",
+    field: "name",
+    width: 500,
+    cssClass: "cell-title",
+    editor: Slick.Editors.Text,
+    validator: requiredFieldValidator
+  },
+  {
+    id: "complete",
+    name: "Complete",
+    width: 60,
+    cssClass: "cell-effort-driven",
+    field: "complete",
+    cannotTriggerInsert: true,
+    formatter: Slick.Formatters.Checkmark,
+    editor: Slick.Editors.Checkbox
+  }
+];
+
+var options = {
+  editable: true,
+  enableAddRow: true,
+  enableCellNavigation: true,
+  forceFitColumns: true,
+  autoEdit: false
+};
+
+function requiredFieldValidator(value) {
+  if (value == null || value == undefined || !value.length) {
+    return {valid: false, msg: "This is a required field"};
+  } else {
+    return {valid: true, msg: null};
+  }
+}
+
+$(function () {
+  data = [
+    { name: "Make a list", complete: true},
+    { name: "Check it twice", complete: false},
+    { name: "Find out who's naughty", complete: false},
+    { name: "Find out who's nice", complete: false}
+  ];
+  
+  data2 = [
+    { name: "Onions", complete: true},
+    { name: "Vegemite", complete: false},
+    { name: "Corn Flakes", complete: false},
+    { name: "Beans", complete: false}
+  ];
+  
+  grid = new Slick.Grid("#myGrid", data, columns, options);
+
+  grid.setSelectionModel(new Slick.RowSelectionModel());
+
+  toGrid = new Slick.Grid("#myGrid2", data2, columns2, options);
+
+  toGrid.setSelectionModel(new Slick.RowSelectionModel());
+
+  var moveRowsPlugin = new Slick.CrossGridRowMoveManager({
+    cancelEditOnDrag: true,
+    toGrid: toGrid
+  });
+
+  moveRowsPlugin.onMoveRows.subscribe(function (e, args) {
+    var extractedRows = [], selectedRowIndexes = [], left, right;
+    var rows = args.rows;
+    
+    // insert moved rows into data array
+    left = data2.slice(0, args.insertBefore);
+    right = data2.slice(args.insertBefore, data2.length);
+
+    for (var i = 0; i < rows.length; i++) {
+      extractedRows.push(data[rows[i]]);
+    }
+
+    data2 = left.concat(extractedRows.concat(right));
+
+    // set up row selections in new grid
+    for (var i = 0; i < rows.length; i++)
+      selectedRowIndexes.push(left.length + i);
+
+    toGrid.resetActiveCell();
+    toGrid.setData(data2);
+    toGrid.setSelectedRows(selectedRowIndexes);
+    toGrid.render();
+  });
+
+  grid.registerPlugin(moveRowsPlugin);
+
+  grid.onAddNewRow.subscribe(function (e, args) {
+    var item = {name: "New task", complete: false};
+    $.extend(item, args.item);
+    data.push(item);
+    grid.invalidateRows([data.length - 1]);
+    grid.updateRowCount();
+    grid.render();
+  });
+})
+</script>
+</body>
+</html>
