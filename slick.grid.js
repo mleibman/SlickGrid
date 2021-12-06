@@ -2851,7 +2851,17 @@ if (typeof Slick === "undefined") {
       setCellCssStyles(options.selectedCellCssClass, hash);
 
       if (simpleArrayEquals(previousSelectedRows, selectedRows)) {
-        trigger(self.onSelectedRowsChanged, {rows: getSelectedRows(), previousSelectedRows: previousSelectedRows}, e);
+        var caller = e && e.detail && e.detail.caller || 'click';
+        var newSelectedAdditions = getSelectedRows().filter(function(i) { return previousSelectedRows.indexOf(i) < 0 });
+        var newSelectedDeletions = previousSelectedRows.filter(function(i) { return getSelectedRows().indexOf(i) < 0 });
+
+        trigger(self.onSelectedRowsChanged, {
+          rows: getSelectedRows(),
+          previousSelectedRows: previousSelectedRows,
+          caller : caller,
+          changedSelectedRows: newSelectedAdditions,
+          changedUnselectedRows: newSelectedDeletions
+        }, e);
       }
     }
 
@@ -5926,12 +5936,12 @@ if (typeof Slick === "undefined") {
       return selectedRows.slice(0);
     }
 
-    function setSelectedRows(rows) {
+    function setSelectedRows(rows, caller) {
       if (!selectionModel) {
         throw new Error("SlickGrid Selection model is not set");
       }
       if (self && self.getEditorLock && !self.getEditorLock().isActive()) {
-        selectionModel.setSelectedRanges(rowsToRanges(rows));
+        selectionModel.setSelectedRanges(rowsToRanges(rows), caller || "SlickGrid.setSelectedRows");
       }
     }
 
