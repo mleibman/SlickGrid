@@ -484,11 +484,14 @@
       var outputText = tooltipText || parseFormatterAndSanitize(formatter, cell, value, columnDef, item) || '';
       outputText = (_cellTooltipOptions.tooltipTextMaxLength && outputText.length > _cellTooltipOptions.tooltipTextMaxLength) ? outputText.substr(0, _cellTooltipOptions.tooltipTextMaxLength - 3) + '...' : outputText;
 
+      let finalOutputText = '';
       if (!tooltipText || (_cellTooltipOptions && _cellTooltipOptions.renderRegularTooltipAsHtml)) {
-        _tooltipElm.innerHTML = _grid.sanitizeHtmlString(outputText);
+        finalOutputText = _grid.sanitizeHtmlString(outputText);
+        _tooltipElm.innerHTML = finalOutputText;
         _tooltipElm.style.whiteSpace = (_cellTooltipOptions && _cellTooltipOptions.whiteSpace) || _defaultOptions.whiteSpace;
       } else {
-        _tooltipElm.textContent = outputText || '';
+        finalOutputText = outputText || '';
+        _tooltipElm.textContent = finalOutputText;
         _tooltipElm.style.whiteSpace = (_cellTooltipOptions && _cellTooltipOptions.regularTooltipWhiteSpace) || _defaultOptions.regularTooltipWhiteSpace; // use `pre` so that sequences of white space are collapsed. Lines are broken at newline characters
       }
 
@@ -500,18 +503,21 @@
         _tooltipElm.style.maxWidth = _cellTooltipOptions.maxWidth + 'px';
       }
 
-      document.body.appendChild(_tooltipElm);
+      // when do have text to show, then append the new tooltip to the html body & reposition the tooltip
+      if (finalOutputText) {
+        document.body.appendChild(_tooltipElm);
 
-      // reposition the tooltip on top of the cell that triggered the mouse over event
-      reposition(cell);
+        // reposition the tooltip on top of the cell that triggered the mouse over event
+        reposition(cell);
 
-      // user could optionally hide the tooltip arrow (we can simply update the CSS variables, that's the only way we have to update CSS pseudo)
-      if (!_cellTooltipOptions.hideArrow) {
-        _tooltipElm.classList.add('tooltip-arrow');
+        // user could optionally hide the tooltip arrow (we can simply update the CSS variables, that's the only way we have to update CSS pseudo)
+        if (!_cellTooltipOptions.hideArrow) {
+          _tooltipElm.classList.add('tooltip-arrow');
+        }
+
+        // also clear any "title" attribute to avoid showing a 2nd browser tooltip
+        swapAndClearTitleAttribute(inputTitleElm, outputText);
       }
-
-      // also clear any "title" attribute to avoid showing a 2nd browser tooltip
-      swapAndClearTitleAttribute(inputTitleElm, outputText);
     }
 
     /**

@@ -970,6 +970,17 @@ if (typeof Slick === "undefined") {
       return scrollbarDimensions;
     }
 
+    function getDisplayedScrollbarDimensions() {
+      return {
+        width: viewportHasVScroll ? scrollbarDimensions.width : 0,
+        height: viewportHasHScroll ? scrollbarDimensions.height : 0
+      };
+    }
+
+    function getAbsoluteColumnMinWidth() {
+      return absoluteColumnMinWidth;
+    }
+
     // TODO:  this is static.  need to handle page mutation.
     function bindAncestorScrollEvents() {
       var elem = (hasFrozenRows && !options.frozenBottom) ? $canvasBottomL[0] : $canvasTopL[0];
@@ -4928,7 +4939,7 @@ if (typeof Slick === "undefined") {
     }
 
     function internalScrollColumnIntoView(left, right) {
-      var scrollRight = scrollLeft + $viewportScrollContainerX.width();
+      var scrollRight = scrollLeft + $viewportScrollContainerX.width() - (viewportHasVScroll ? scrollbarDimensions.width : 0);
 
       if (left < scrollLeft) {
         $viewportScrollContainerX.scrollLeft(left);
@@ -5926,7 +5937,10 @@ if (typeof Slick === "undefined") {
 
     /** basic html sanitizer to avoid scripting attack */
     function sanitizeHtmlString(dirtyHtml) {
-      return typeof dirtyHtml === 'string' ? dirtyHtml.replace(/(\b)(on\S+)(\s*)=|javascript:([^>]*)[^>]*|(<\s*)(\/*)script([<>]*).*(<\s*)(\/*)script(>*)|(&lt;)(\/*)(script|script defer)(.*)(&gt;|&gt;">)/gi, '') : dirtyHtml;
+      var sanitizer = options.sanitizer || function (dirtyHtmlStr) {
+        return dirtyHtmlStr.replace(/(\b)(on\S+)(\s*)=|javascript:([^>]*)[^>]*|(<\s*)(\/*)script([<>]*).*(<\s*)(\/*)script(>*)|(&lt;)(\/*)(script|script defer)(.*)(&gt;|&gt;">)/gi, '');
+      }
+      return typeof dirtyHtml === 'string' ? sanitizer(dirtyHtml) : dirtyHtml;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -6121,6 +6135,8 @@ if (typeof Slick === "undefined") {
       "getFrozenRowOffset": getFrozenRowOffset,
       "setColumnHeaderVisibility": setColumnHeaderVisibility,
       "sanitizeHtmlString": sanitizeHtmlString,
+      "getDisplayedScrollbarDimensions": getDisplayedScrollbarDimensions,
+      "getAbsoluteColumnMinWidth": getAbsoluteColumnMinWidth,
 
       "init": finishInitialization,
       "destroy": destroy,
