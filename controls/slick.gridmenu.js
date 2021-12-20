@@ -667,6 +667,7 @@
       "showGridMenu": showGridMenu,
       "setOptions": setOptions,
       "updateAllTitles": updateAllTitles,
+      "hideMenu": hideMenu,
 
       "onAfterMenuShow": new Slick.Event(),
       "onBeforeMenuShow": new Slick.Event(),
