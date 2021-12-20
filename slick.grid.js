@@ -2942,7 +2942,7 @@ if (typeof Slick === "undefined") {
         applyColumnHeaderWidths();
         applyColumnWidths();
         handleScroll();
-        if (grid.getSelectionModel() && grid.getSelectionModel().refreshSelections) { grid.getSelectionModel().refreshSelections(); }
+        if (getSelectionModel() && getSelectionModel().refreshSelections) { getSelectionModel().refreshSelections(); }
       }
     }
 
