@@ -102,6 +102,10 @@
       return _ranges;
     }
 
+    function refreshSelections() {
+      setSelectedRanges(getSelectedRanges());
+    }
+
     function handleBeforeCellRangeSelected(e, args) {
       if (_grid.getEditorLock().isActive()) {
         e.stopPropagation();
@@ -188,6 +192,8 @@
     $.extend(this, {
       "getSelectedRanges": getSelectedRanges,
       "setSelectedRanges": setSelectedRanges,
+
+      "refreshSelections": refreshSelections,
 
       "init": init,
       "destroy": destroy,
