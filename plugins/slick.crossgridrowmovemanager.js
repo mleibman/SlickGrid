@@ -90,7 +90,7 @@
         _grid.getEditorLock().cancelCurrentEdit();
       }
 
-      if (_grid.getEditorLock().isActive() || !/move|selectAndMove/.test(_grid.getColumns()[cell.cell].behavior)) {
+      if (_grid.getEditorLock().isActive() || !isHandlerColumn(cell.cell)) {
         return false;
       }
 
@@ -260,6 +260,10 @@
       _usabilityOverride = overrideFn;
     }
 
+    function isHandlerColumn(columnIndex) {
+      return /move|selectAndMove/.test(_grid.getColumns()[columnIndex].behavior);
+    }
+
     $.extend(this, {
       "onBeforeMoveRows": new Slick.Event(),
       "onMoveRows": new Slick.Event(),
@@ -269,7 +273,8 @@
       "getColumnDefinition": getColumnDefinition,
       "setOptions": setOptions,
       "usabilityOverride": usabilityOverride,
-      "pluginName": "RowMoveManager"
+      "isHandlerColumn": isHandlerColumn,
+      "pluginName": "CrossGridRowMoveManager"
     });
   }
 })(jQuery);

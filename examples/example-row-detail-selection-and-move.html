@@ -126,6 +126,7 @@
 
   <script src="../slick.core.js"></script>
   <script src="../slick.formatters.js"></script>
+  <script src="../plugins/slick.cellrangedecorator.js"></script>
   <script src="../plugins/slick.cellrangeselector.js"></script>
   <script src="../plugins/slick.checkboxselectcolumn.js"></script>
   <script src="../plugins/slick.rowdetailview.js"></script>
@@ -254,7 +255,10 @@
       grid = new Slick.Grid("#myGrid", dataView, columns, options);
 
       // register the Selection Model that will be used for all Plugins 
-      grid.setSelectionModel(new Slick.RowSelectionModel({ selectActiveRow: false }));
+      grid.setSelectionModel(new Slick.RowSelectionModel({
+        selectActiveRow: false,
+        dragToSelect: true
+      }));
 
       // register all Plugins (Row Selection / Row Detail)
       grid.registerPlugin(checkboxSelectorPlugin);

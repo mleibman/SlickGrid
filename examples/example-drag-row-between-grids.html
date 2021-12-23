@@ -90,6 +90,7 @@
 <script src="../lib/jquery.event.drop-2.3.0.js"></script>
 
 <script src="../slick.core.js"></script>
+<script src="../plugins/slick.cellrangedecorator.js"></script>
 <script src="../plugins/slick.cellrangeselector.js"></script>
 <script src="../plugins/slick.cellselectionmodel.js"></script>
 <script src="../plugins/slick.rowselectionmodel.js"></script>
@@ -187,11 +188,15 @@ $(function () {
   
   grid = new Slick.Grid("#myGrid", data, columns, options);
 
-  grid.setSelectionModel(new Slick.RowSelectionModel());
+  grid.setSelectionModel(new Slick.RowSelectionModel({
+    dragToSelect: true
+  }));
 
   toGrid = new Slick.Grid("#myGrid2", data2, columns2, options);
 
-  toGrid.setSelectionModel(new Slick.RowSelectionModel());
+  toGrid.setSelectionModel(new Slick.RowSelectionModel({
+    dragToSelect: true
+  }));
 
   var moveRowsPlugin = new Slick.CrossGridRowMoveManager({
     cancelEditOnDrag: true,

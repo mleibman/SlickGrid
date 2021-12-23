@@ -41,6 +41,7 @@
     var _autoScrollTimerId;
     var _xDelayForNextCell;
     var _yDelayForNextCell;
+    var _isRowMoveRegistered = false;
 
     // Scrollings
     var _scrollTop = 0;
@@ -92,6 +93,7 @@
         x: _grid.getAbsoluteColumnMinWidth() / 2,
         y: _grid.getOptions().rowHeight / 2
       }
+      _isRowMoveRegistered = hasRowMoveManager();
 
       var c = _$activeCanvas.offset();
 
@@ -145,10 +147,12 @@
     }
 
     function handleDrag(e, dd) {
-      if (!_dragging) {
+      if (!_dragging && !_isRowMoveRegistered) {
         return;
       }
-      e.stopImmediatePropagation();
+      if (!_isRowMoveRegistered) {
+        e.stopImmediatePropagation();
+      }
 
       if (options.autoScroll) {
         _draggingMouseOffset = getMouseOffsetViewport(e, dd);
@@ -315,13 +319,19 @@
         return;
       }
 
-      dd.range.end = end;
+      if (dd && dd.range) {
+        dd.range.end = end;
 
-      var range = new Slick.Range(dd.range.start.row, dd.range.start.cell, end.row, end.cell);
-      _decorator.show(range);
-      _self.onCellRangeSelecting.notify({
-        range: range
-      });
+        var range = new Slick.Range(dd.range.start.row, dd.range.start.cell, end.row, end.cell);
+        _decorator.show(range);
+        _self.onCellRangeSelecting.notify({
+          range: range
+        });
+      }
+    }
+
+    function hasRowMoveManager() {
+      return !!(_grid.getPluginByName('RowMoveManager') || _grid.getPluginByName('CrossGridRowMoveManager'));
     }
 
     function handleDragEnd(e, dd) {
