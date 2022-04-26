@@ -85,8 +85,12 @@
       rightPadding: 0
     };
 
+    function setOptions(_newOptions){
+      options = $.extend(true, {}, _defaults, _newOptions);
+    }
+
     function init(grid) {
-      options = $.extend(true, {}, _defaults, options);
+      setOptions(options);
       _grid = grid;
       _gridOptions = _grid.getOptions();
       _gridUid = _grid.getUID();
@@ -315,6 +319,7 @@
       "getLastResizeDimensions": getLastResizeDimensions,
       "pauseResizer": pauseResizer,
       "resizeGrid": resizeGrid,
+      "setOptions": setOptions,
 
       "onGridAfterResize": new Slick.Event(),
       "onGridBeforeResize": new Slick.Event()
