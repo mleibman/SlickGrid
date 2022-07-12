@@ -319,6 +319,14 @@
     }
 
     function getItemById(id) {
+      var item = items[idxById[id]];
+      var isIndexCacheInSync = item && item.id === id;
+
+      if (isIndexCacheInSync) {
+        return item;
+      }
+
+      updateIdxById();
       return items[idxById[id]];
     }
 
