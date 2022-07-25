@@ -114,8 +114,10 @@ if (typeof Slick === "undefined") {
       viewportSwitchToScrollModeWidthPercent: undefined,
       viewportMinWidthPx: undefined,
       viewportMaxWidthPx: undefined,
-      suppressCssChangesOnHiddenInit: false
-    };
+      suppressCssChangesOnHiddenInit: false,
+      ffMaxSupportedCssHeight: 6000000,
+      maxSupportedCssHeight: 1000000000
+    }; 
 
     var columnDefaults = {
       name: "",
@@ -941,7 +943,8 @@ if (typeof Slick === "undefined") {
     function getMaxSupportedCssHeight() {
       var supportedHeight = 1000000;
       // FF reports the height back but still renders blank after ~6M px
-      var testUpTo = navigator.userAgent.toLowerCase().match(/firefox/) ? 6000000 : 1000000000;
+      //var testUpTo = navigator.userAgent.toLowerCase().match(/firefox/) ? 6000000 : 1000000000;
+      var testUpTo = navigator.userAgent.toLowerCase().match(/firefox/) ? options.ffMaxSupportedCssHeight : options.maxSupportedCssHeight;    
       var div = $("<div style='display:none' />").appendTo(document.body);
 
       while (true) {
