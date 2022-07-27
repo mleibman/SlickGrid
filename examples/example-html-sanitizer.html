@@ -1,0 +1,78 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+  <title>SlickGrid example: Sanitizer</title>
+  <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+  <link rel="stylesheet" href="../css/smoothness/jquery-ui.css" type="text/css"/>
+  <link rel="stylesheet" href="examples.css" type="text/css"/>
+</head>
+<body>
+<table width="100%">
+  <tr>
+    <td valign="top" width="50%">
+      <div id="myGrid" style="width:700px;height:500px;"></div>
+    </td>
+    <td valign="top">
+      <h2>Demonstrates:</h2>
+      <ul>
+        <li>blocking events in formatter HTML</li>
+        <li>logs first 30 hits (where HTML is changed)</li>
+      </ul>
+        <h2>View Source:</h2>
+        <ul>
+            <li><A href="https://github.com/6pac/SlickGrid/blob/master/examples/example-html-sanitizer.html" target="_sourcewindow"> View the source for this example on Github</a></li>
+        </ul>
+    </td>
+  </tr>
+</table>
+
+<script src="../lib/firebugx.js"></script>
+
+<script src="../lib/jquery-1.12.4.min.js"></script>
+<script src="../lib/jquery-ui.min.js"></script>
+<script src="../lib/jquery.event.drag-2.3.0.js"></script>
+
+<script src="../slick.core.js"></script>
+<script src="../slick.editors.js"></script>
+<script src="../slick.formatters.js"></script>
+<script src="../slick.grid.js"></script>
+
+<script>
+   // a standard formatter returns a string
+  function maliciousFormatter(row, cell, value, columnDef, dataContext) {
+      return '<div onclick="maliciousFunction();">Click Me to Earn $' + value + '!!!</div>';
+  }
+
+  function niceFormatter(row, cell, value, columnDef, dataContext) {
+      return '<div>Click Me to open your document #' + value + '</div>';
+  }
+
+  var grid;
+  var data = [];
+  var columns = [
+    {id: "id", name: "Link", field: "id", width: 250, formatter: maliciousFormatter}
+  ];
+
+  var options = {
+    editable: true,
+    enableAddRow: false,
+    enableCellNavigation: true,
+    sanitizer: Slick.RegexSanitizer,
+    logSanitizedHtml: true
+  };
+
+  $(function () {
+    var id = 1;
+    for (var i = 0; i < 500; i++) {
+      var d = (data[i] = {});
+
+      d["id"] = id++;
+    }
+
+    grid = new Slick.Grid("#myGrid", data, columns, options);
+  })
+</script>
+</body>
+</html>
