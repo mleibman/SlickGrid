@@ -116,7 +116,9 @@ if (typeof Slick === "undefined") {
       viewportMaxWidthPx: undefined,
       suppressCssChangesOnHiddenInit: false,
       ffMaxSupportedCssHeight: 6000000,
-      maxSupportedCssHeight: 1000000000
+      maxSupportedCssHeight: 1000000000,
+      sanitizer: undefined, // sanitize function, builtin is: defaultSanitizeHtmlString(dirtyHtml)
+      logSanitizedHtml: true // log to console when sanitised
     }; 
 
     var columnDefaults = {
@@ -3510,10 +3512,10 @@ if (typeof Slick === "undefined") {
     function applyFormatResultToCellNode(formatterResult, cellNode, suppressRemove) {
         if (formatterResult === null || formatterResult === undefined) { formatterResult = ''; }
         if (Object.prototype.toString.call(formatterResult)  !== '[object Object]') {
-          cellNode.innerHTML = sanitizeHtmlString(formatterResult);
+          cellNode.innerHTML = internalSanitizeHtmlString(formatterResult);
           return;
         }
-        cellNode.innerHTML = sanitizeHtmlString(formatterResult.text);
+        cellNode.innerHTML = internalSanitizeHtmlString(formatterResult.text);
         if (formatterResult.removeClasses && !suppressRemove) {
           $(cellNode).removeClass(formatterResult.removeClasses);
         }
@@ -4020,7 +4022,7 @@ if (typeof Slick === "undefined") {
       }
 
       var x = document.createElement("div");
-      x.innerHTML = sanitizeHtmlString(stringArray.join(""));
+      x.innerHTML = internalSanitizeHtmlString(stringArray.join(""));
 
       var processedRow;
       var node;
@@ -4084,8 +4086,8 @@ if (typeof Slick === "undefined") {
       var x = document.createElement("div"),
         xRight = document.createElement("div");
 
-      x.innerHTML = sanitizeHtmlString(stringArrayL.join(""));
-      xRight.innerHTML = sanitizeHtmlString(stringArrayR.join(""));
+      x.innerHTML = internalSanitizeHtmlString(stringArrayL.join(""));
+      xRight.innerHTML = internalSanitizeHtmlString(stringArrayR.join(""));
 
       for (var i = 0, ii = rows.length; i < ii; i++) {
         if (( hasFrozenRows ) && ( rows[i] >= actualFrozenRow )) {
@@ -5949,12 +5951,24 @@ if (typeof Slick === "undefined") {
       }
     }
 
-    /** basic html sanitizer to avoid scripting attack */
-    function sanitizeHtmlString(dirtyHtml) {
-      var sanitizer = options.sanitizer || function (dirtyHtmlStr) {
-        return dirtyHtmlStr.replace(/(\b)(on\S+)(\s*)=|javascript:([^>]*)[^>]*|(<\s*)(\/*)script([<>]*).*(<\s*)(\/*)script(>*)|(&lt;)(\/*)(script|script defer)(.*)(&gt;|&gt;">)/gi, '');
+   /** basic html sanitizer to avoid scripting attack */
+    function defaultSanitizeHtmlString(dirtyHtml) {
+       return dirtyHtmlStr.replace(/(\b)(on[a-z]+)(\s*)=|javascript:([^>]*)[^>]*|(<\s*)(\/*)script([<>]*).*(<\s*)(\/*)script(>*)|(&lt;)(\/*)(script|script defer)(.*)(&gt;|&gt;">)/gi, '');
+    }
+
+    function externalSanitizeHtmlString(dirtyHtml) {
+      if (typeof dirtyHtml !== 'string') return dirtyHtml;
+      var sanitizer = options.sanitizer || defaultSanitizeHtmlString;
+      return sanitizer(dirtyHtml);
+    }
+
+    function internalSanitizeHtmlString(dirtyHtml) {
+      if (!options.sanitizer || typeof dirtyHtml !== 'string') return dirtyHtml;
+      var cleanHtml = options.sanitizer(dirtyHtml);
+      if (options.logSanitizedHtml && cleanHtml !== dirtyHtml) {
+         console.log("sanitizer: " + dirtyHtml + " --> " + cleanHtml);        
       }
-      return typeof dirtyHtml === 'string' ? sanitizer(dirtyHtml) : dirtyHtml;
+      return cleanHtml;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -6148,7 +6162,7 @@ if (typeof Slick === "undefined") {
       "getCellCssStyles": getCellCssStyles,
       "getFrozenRowOffset": getFrozenRowOffset,
       "setColumnHeaderVisibility": setColumnHeaderVisibility,
-      "sanitizeHtmlString": sanitizeHtmlString,
+      "sanitizeHtmlString": externalSanitizeHtmlString,
       "getDisplayedScrollbarDimensions": getDisplayedScrollbarDimensions,
       "getAbsoluteColumnMinWidth": getAbsoluteColumnMinWidth,
 
