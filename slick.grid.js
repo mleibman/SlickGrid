@@ -4247,6 +4247,9 @@ if (typeof Slick === "undefined") {
     }
 
     function handleScroll() {
+      // autoheight does not have scrolling, but editors can trigger a scroll, which we should ignore
+      if (options.autoHeight) return;
+      
       scrollTop = $viewportScrollContainerY[0].scrollTop;
       scrollLeft = $viewportScrollContainerX[0].scrollLeft;
       return _handleScroll(false);
