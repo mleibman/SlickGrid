@@ -832,7 +832,18 @@ if (typeof Slick === "undefined") {
         }
       }
       var totalRowWidth = canvasWidthL + canvasWidthR;
-      return options.fullWidthRows ? Math.max(totalRowWidth, availableWidth) : totalRowWidth;
+      if (options.fullWidthRows) {
+        var extraWidth = Math.max(totalRowWidth, availableWidth) - totalRowWidth;
+        if (extraWidth > 0) {
+          totalRowWidth += extraWidth;
+          if (hasFrozenColumns()) {
+            canvasWidthR += extraWidth;
+          } else {
+            canvasWidthL += extraWidth;
+          }
+        }
+      }
+      return totalRowWidth;
     }
 
     function updateCanvasWidth(forceColumnWidthsUpdate) {
