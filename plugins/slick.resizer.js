@@ -59,7 +59,7 @@
     }
   });
 
-  function Resizer(options, fixedDimensions) {
+  function Resizer(_options, fixedDimensions) {
     // global variables, height/width are in pixels
     var DATAGRID_MIN_HEIGHT = 180;
     var DATAGRID_MIN_WIDTH = 300;
@@ -85,12 +85,14 @@
       rightPadding: 0
     };
 
+    var options = {};
+
     function setOptions(_newOptions){
-      options = $.extend(true, {}, _defaults, _newOptions);
+      options = $.extend(true, {}, _defaults, options, _newOptions);
     }
 
     function init(grid) {
-      setOptions(options);
+      setOptions(_options);
       _grid = grid;
       _gridOptions = _grid.getOptions();
       _gridUid = _grid.getUID();
