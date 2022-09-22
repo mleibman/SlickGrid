@@ -198,7 +198,7 @@ classes should alter those!
 .slick-reorder-shadow-row {
   position: absolute;
   z-index: 999999;
-  box-shadow: rgb(0 0 0 / 20%) 8px 2px 8px 4px, rgb(0 0 0 / 19%) 2px 2px 0px 0px;
+  box-shadow: rgba(0, 0, 0, 0.2) 8px 2px 8px 4px, rgba(0, 0, 0, 0.19) 2px 2px 0px 0px;
 }
 
 .slick-selection {
