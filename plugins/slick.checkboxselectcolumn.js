@@ -23,6 +23,7 @@
       hideInFilterHeaderRow: true
     };
     var _isSelectAllChecked = false;
+    var _lockedService;
 
     var _options = $.extend(true, {}, _defaults, options);
 
@@ -301,15 +302,27 @@
 
     function customBringgCheckboxSelectionFormatter(row, cell, value, columnDef, dataContext) {
         if (dataContext) {
-            if (dataContext.locked && !dataContext.lockedByMe) {
+          var lockedService = getLockedService();
+          var locked = lockedService.isLocked(item);
+          var lockedByMe = lockedService.isLockedByMe(item);
+
+          if (locked && !lockedByMe) {
                 return "<a class='slick-select locked' title='This order is currently locked by another user.'></a>";
-            } else if (dataContext.locked && dataContext.lockedByMe) {
+            } else if (locked && lockedByMe) {
                 return "<a class='slick-select by-me' title='This order is currently locked by you.'></a>";
             } else {
                 return "<a class='slick-select'></a>";
             }
         }
         return null;
+    }
+
+    function getLockedService() {
+      if (!_lockedService) {
+        _lockedService = angular.element(document.body).injector().get('LockedTaskService');
+      }
+
+      return _lockedService;
     }
 
     function checkSelectableOverride(row, dataContext, grid) {
